@@ -6,6 +6,8 @@
 /pkg/
 /spec/reports/
 /tmp/
+.rubocop-*
+Gemfile.lock
 
 # rspec failure tracking
 .rspec_status

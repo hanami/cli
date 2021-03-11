@@ -1,13 +1,25 @@
+# Please keep AllCops, Bundler, Style, Metrics groups and then order cops
+# alphabetically
 AllCops:
-  TargetRubyVersion: 2.4
-
-Style/StringLiterals:
-  Enabled: true
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  Enabled: true
-  EnforcedStyle: double_quotes
-
-Layout/LineLength:
-  Max: 120
+  SuggestExtensions: false
+inherit_from:
+  - https://raw.githubusercontent.com/hanami/devtools/master/.rubocop-unstable.yml
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+Naming/MethodParameterName:
+  AllowedNames:
+    - fs
+Style/AccessorGrouping:
+  Enabled: false
+Style/BlockDelimiters:
+  Enabled: false
+Style/CommentedKeyword:
+  Enabled: false
+Style/LambdaCall:
+  Enabled: false
+Style/TrailingCommaInArguments:
+  Enabled: false
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+Style/TrailingCommaInHashLiteral:
+  Enabled: false

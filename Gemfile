@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 source "https://rubygems.org"
-
-# Specify your gem's dependencies in hanami-cli.gemspec
 gemspec
 
-gem "rake", "~> 13.0"
+unless ENV["CI"]
+  gem "byebug", require: false, platforms: :mri
+  gem "yard",   require: false
+end
 
-gem "rspec", "~> 3.0"
+gem "dry-cli", "~> 0.6", require: false, git: "https://github.com/hanami/cli.git", branch: "feature/file-utils-class"
 
-gem "rubocop", "~> 1.7"
+gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "feature/hanami-2-cli"
