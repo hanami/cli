@@ -4,5 +4,7 @@
 require "bundler"
 require "hanami/cli"
 
-::Bundler.require(:plugins) if File.exist?(ENV["BUNDLE_GEMFILE"] || "Gemfile")
-Dry::CLI.new(Hanami::CLI).call
+cli = Dry::CLI.new(Hanami::CLI)
+::Bundler.require(:cli) if File.exist?(ENV["BUNDLE_GEMFILE"] || "Gemfile")
+
+cli.call
