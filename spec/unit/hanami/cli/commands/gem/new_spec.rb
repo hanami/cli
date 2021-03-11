@@ -22,7 +22,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     let(:architecture) { "unknown" }
 
     it "raises error" do
-      expect { subject.call(app: app, architecture: architecture) }.to raise_error(ArgumentError, "unknown architecture `#{architecture}'")
+      expect do
+        subject.call(app: app, architecture: architecture)
+      end.to raise_error(ArgumentError, "unknown architecture `#{architecture}'")
     end
   end
 end

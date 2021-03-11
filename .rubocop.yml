@@ -4,6 +4,9 @@ AllCops:
   SuggestExtensions: false
 inherit_from:
   - https://raw.githubusercontent.com/hanami/devtools/master/.rubocop-unstable.yml
+Layout/LineLength:
+  Exclude:
+    - Gemfile
 Naming/HeredocDelimiterNaming:
   Enabled: false
 Naming/MethodParameterName:
