@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "hanami/cli/commands/gem/new"
+require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject { described_class.new(bundler: bundler, out: stdout, fs: fs) }
@@ -11,6 +12,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:app) { "bookshelf" }
 
   it "normalizes app name" do
+    expect(bundler).to receive(:exec)
+      .with("hanami install")
+      .and_return(OpenStruct.new(successful?: true))
+
     app_name = "PropagandaLive"
     app = "propaganda_live"
     subject.call(app: app_name)

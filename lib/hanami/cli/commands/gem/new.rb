@@ -35,6 +35,7 @@ module Hanami
             fs.chdir(app) do
               generator(architecture).call(app)
               bundler.install!
+              run_install_commmand!
             end
           end
 
@@ -48,6 +49,12 @@ module Hanami
             end
 
             Generators::Application[architecture, fs, inflector]
+          end
+
+          def run_install_commmand!
+            bundler.exec("hanami install").tap do |result|
+              raise "hanami install failed\n\n\n#{result.err.inspect}" unless result.successful?
+            end
           end
         end
       end

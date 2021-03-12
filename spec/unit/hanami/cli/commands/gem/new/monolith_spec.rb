@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "hanami/cli/commands/gem/new"
+require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   context "architecture: monolith" do
@@ -14,6 +15,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     let(:architecture) { "monolith" }
 
     it "generates an application" do
+      expect(bundler).to receive(:exec)
+        .with("hanami install")
+        .and_return(OpenStruct.new(successful?: true))
+
       subject.call(app: app, architecture: architecture)
 
       stdout.rewind
