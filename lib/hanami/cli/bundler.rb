@@ -1,13 +1,27 @@
 # frozen_string_literal: true
 
+require "bundler"
 require "open3"
 require "etc"
+require "dry/cli/utils/files"
 require_relative "./system_call"
 
 module Hanami
   module CLI
     class Bundler
-      def initialize(fs:, system_call: SystemCall.new)
+      BUNDLE_GEMFILE = "BUNDLE_GEMFILE"
+      private_constant :BUNDLE_GEMFILE
+
+      DEFAULT_GEMFILE_PATH = "Gemfile"
+      private_constant :DEFAULT_GEMFILE_PATH
+
+      def self.require(*groups)
+        return unless File.exist?(ENV[BUNDLE_GEMFILE] || DEFAULT_GEMFILE_PATH)
+
+        ::Bundler.require(*groups)
+      end
+
+      def initialize(fs: Dry::CLI::Utils::Files.new, system_call: SystemCall.new)
         @fs = fs
         @system_call = system_call
       end
@@ -32,7 +46,7 @@ module Hanami
         hanami_env = "HANAMI_ENV=#{env} " unless env.nil?
 
         system_call.call("#{hanami_env}#{bundle_bin} #{cmd}",
-                         env: {"BUNDLE_GEMFILE" => fs.expand_path("Gemfile")}, &blk)
+                         env: {BUNDLE_GEMFILE => fs.expand_path(DEFAULT_GEMFILE_PATH)}, &blk)
       end
 
       private

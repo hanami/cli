@@ -67,15 +67,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         rakefile = <<~EXPECTED
           # frozen_string_literal: true
 
-          require "rake"
-          require "hanami/rake_tasks"
-
-          begin
-            require "rspec/core/rake_task"
-            RSpec::Core::RakeTask.new(:spec)
-            task default: :spec
-          rescue LoadError
-          end
+          require "hanami/application/rake_tasks"
         EXPECTED
         expect(fs.read("Rakefile")).to eq(rakefile)
 

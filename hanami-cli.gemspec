@@ -30,10 +30,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "bundler", "~> 2.2"
+  spec.add_dependency "rake", "~> 13.0"
   spec.add_dependency "dry-cli", "~> 0.6"
   spec.add_dependency "dry-inflector", "~> 0.2"
 
-  spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.9"
   spec.add_development_dependency "rubocop", "~> 1.11"
 end
