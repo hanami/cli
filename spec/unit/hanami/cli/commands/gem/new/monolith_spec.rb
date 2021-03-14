@@ -75,7 +75,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         config_ru = <<~EXPECTED
           # frozen_string_literal: true
 
-          require_relative "./config/application"
+          require "hanami/boot"
 
           run Hanami.app
         EXPECTED
