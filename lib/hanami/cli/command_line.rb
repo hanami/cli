@@ -7,7 +7,6 @@ module Hanami
     class CommandLine
       def initialize(bundler: CLI::Bundler.new)
         @bundler = bundler
-        @bundler.class.require(:cli)
       end
 
       def call(command)

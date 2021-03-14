@@ -2,6 +2,7 @@
 
 require "hanami/cli/command"
 require "hanami/cli/bundler"
+require "hanami/cli/command_line"
 require "hanami/cli/generators/application"
 require "dry/cli/utils/files"
 
@@ -21,8 +22,10 @@ module Hanami
           option :architecture, alias: "arch", default: DEFAULT_ARCHITECTURE,
                                 values: ARCHITECTURES, desc: "The architecture"
 
-          def initialize(fs: Dry::CLI::Utils::Files.new, bundler: CLI::Bundler.new(fs: fs), **other)
+          def initialize(fs: Dry::CLI::Utils::Files.new, bundler: CLI::Bundler.new(fs: fs),
+                         command_line: CLI::CommandLine.new(bundler: bundler), **other)
             @bundler = bundler
+            @command_line = command_line
             super(fs: fs, **other)
           end
 
@@ -42,6 +45,7 @@ module Hanami
           private
 
           attr_reader :bundler
+          attr_reader :command_line
 
           def generator(architecture)
             unless ARCHITECTURES.include?(architecture)
@@ -52,7 +56,7 @@ module Hanami
           end
 
           def run_install_commmand!
-            bundler.exec("hanami install").tap do |result|
+            command_line.call("hanami install").tap do |result|
               raise "hanami install failed\n\n\n#{result.err.inspect}" unless result.successful?
             end
           end
