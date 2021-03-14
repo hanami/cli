@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "erb"
+require "shellwords"
 require "hanami/version"
 
 module Hanami
@@ -37,13 +38,27 @@ module Hanami
 
       module Application
         class Monolith
-          def initialize(fs:, inflector:)
+          def initialize(fs:, inflector:, command_line:)
             super()
             @fs = fs
             @inflector = inflector
+            @command_line = command_line
           end
 
-          def call(app, context: Context.new(inflector, app)) # rubocop:disable Metrics/AbcSize
+          def call(app, slice, context: Context.new(inflector, app))
+            generate_app(app, context)
+            generate_slice!(slice)
+          end
+
+          private
+
+          attr_reader :fs
+
+          attr_reader :inflector
+
+          attr_reader :command_line
+
+          def generate_app(app, context) # rubocop:disable Metrics/AbcSize
             fs.write(".env", t("env.erb", context))
 
             fs.write("README.md", t("readme.erb", context))
@@ -69,11 +84,12 @@ module Hanami
             fs.write("lib/#{app}/types.rb", t("types.erb", context))
           end
 
-          private
-
-          attr_reader :fs
-
-          attr_reader :inflector
+          def generate_slice!(slice_name)
+            slice_name = Shellwords.shellescape(slice_name)
+            command_line.call("hanami generate slice #{slice_name}").tap do |result|
+              raise "hanami generate slice #{slice_name} failed\n\n\n#{result.err.inspect}" unless result.successful?
+            end
+          end
 
           def template(path, context)
             require "erb"

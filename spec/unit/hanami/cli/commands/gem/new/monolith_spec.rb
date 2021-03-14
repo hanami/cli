@@ -5,18 +5,28 @@ require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   context "architecture: monolith" do
-    subject { described_class.new(bundler: bundler, out: stdout, fs: fs, inflector: inflector) }
+    subject { described_class.new(bundler: bundler, command_line: command_line, out: stdout, fs: fs) }
 
-    let(:bundler) { instance_double(Hanami::CLI::Bundler, install!: true) }
+    let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
+    let(:command_line) { Hanami::CLI::CommandLine.new(bundler: bundler) }
     let(:stdout) { StringIO.new }
     let(:fs) { RSpec::Support::FileSystem.new }
     let(:inflector) { Dry::Inflector.new }
     let(:app) { "bookshelf" }
     let(:architecture) { "monolith" }
 
-    it "generates an application" do
-      expect(bundler).to receive(:exec)
+    before do
+      expect(bundler).to receive(:install!)
+        .and_return(true)
+
+      expect(command_line).to receive(:call)
         .with("hanami install")
+        .and_return(OpenStruct.new(successful?: true))
+    end
+
+    it "generates an application" do
+      expect(command_line).to receive(:call)
+        .with("hanami generate slice main")
         .and_return(OpenStruct.new(successful?: true))
 
       subject.call(app: app, architecture: architecture)
@@ -289,6 +299,16 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("lib/#{app}/types.rb")).to eq(types)
       end
+    end
+
+    it "allows to specify the slice name" do
+      slice_name = "store"
+
+      expect(command_line).to receive(:call)
+        .with("hanami generate slice store")
+        .and_return(OpenStruct.new(successful?: true))
+
+      subject.call(app: app, architecture: architecture, slice: slice_name)
     end
   end
 end

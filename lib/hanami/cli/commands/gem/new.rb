@@ -17,10 +17,15 @@ module Hanami
           DEFAULT_ARCHITECTURE = ARCHITECTURES.first
           private_constant :DEFAULT_ARCHITECTURE
 
+          DEFAULT_SLICE_NAME = "main"
+          private_constant :DEFAULT_SLICE_NAME
+
           argument :app, required: true, desc: "The application name"
 
           option :architecture, alias: "arch", default: DEFAULT_ARCHITECTURE,
                                 values: ARCHITECTURES, desc: "The architecture"
+
+          option :slice, default: DEFAULT_SLICE_NAME, desc: %(The initial slice name, only for "monolith" architecture)
 
           def initialize(fs: Dry::CLI::Utils::Files.new, bundler: CLI::Bundler.new(fs: fs),
                          command_line: CLI::CommandLine.new(bundler: bundler), **other)
@@ -29,14 +34,14 @@ module Hanami
             super(fs: fs, **other)
           end
 
-          def call(app:, architecture: DEFAULT_ARCHITECTURE, **)
+          def call(app:, architecture: DEFAULT_ARCHITECTURE, slice: DEFAULT_SLICE_NAME, **)
             app = inflector.underscore(app)
 
             out.puts "generating #{app}"
 
             fs.mkdir(app)
             fs.chdir(app) do
-              generator(architecture).call(app)
+              generator(architecture).call(app, slice)
               bundler.install!
               run_install_commmand!
             end
@@ -52,7 +57,7 @@ module Hanami
               raise ArgumentError.new("unknown architecture `#{architecture}'")
             end
 
-            Generators::Application[architecture, fs, inflector]
+            Generators::Application[architecture, fs, inflector, command_line]
           end
 
           def run_install_commmand!
