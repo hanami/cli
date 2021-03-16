@@ -2,40 +2,11 @@
 
 require "erb"
 require "shellwords"
-require "hanami/version"
+require "hanami/cli/generators/context"
 
 module Hanami
   module CLI
     module Generators
-      class Context
-        def initialize(inflector, app)
-          @inflector = inflector
-          @app = app
-        end
-
-        def ctx
-          binding
-        end
-
-        def hanami_version
-          Hanami::Version.gem_requirement
-        end
-
-        def classified_app_name
-          inflector.classify(app)
-        end
-
-        def underscored_app_name
-          inflector.underscore(app)
-        end
-
-        private
-
-        attr_reader :inflector
-
-        attr_reader :app
-      end
-
       module Application
         class Monolith
           def initialize(fs:, inflector:, command_line:)
@@ -45,8 +16,9 @@ module Hanami
             @command_line = command_line
           end
 
-          def call(app, slice, context: Context.new(inflector, app))
+          def call(app, slice, context: Context.new(inflector, app), &blk)
             generate_app(app, context)
+            blk.call
             generate_slice!(slice)
           end
 

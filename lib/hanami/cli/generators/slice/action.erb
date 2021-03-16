@@ -1,0 +1,9 @@
+# auto_register: false
+# frozen_string_literal: true
+
+require "<%= underscored_app_name %>/action"
+
+module <%= classified_slice_name %>
+  class Action < <%= classified_app_name %>::Action
+  end
+end

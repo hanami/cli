@@ -41,9 +41,10 @@ module Hanami
 
             fs.mkdir(app)
             fs.chdir(app) do
-              generator(architecture).call(app, slice)
-              bundler.install!
-              run_install_commmand!
+              generator(architecture).call(app, slice) do
+                bundler.install!
+                run_install_commmand!
+              end
             end
           end
 
