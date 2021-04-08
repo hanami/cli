@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "hanami/cli/command"
-require "hanami/cli/generators/slice"
+require "hanami/cli/generators/monolith/slice"
 require "dry/inflector"
 require "dry/cli/utils/files"
 require "shellwords"
@@ -12,7 +12,7 @@ module Hanami
       module Monolith
         module Generate
           class Slice < Command
-            argument :slice, required: true, desc: "The slice name"
+            argument :name, required: true, desc: "The slice name"
 
             def initialize(fs: Dry::CLI::Utils::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::Slice.new(fs: fs, inflector: inflector), **)
@@ -20,14 +20,14 @@ module Hanami
               super(fs: fs)
             end
 
-            def call(slice:, **)
+            def call(name:, **)
               require "hanami/setup"
 
               app = inflector.underscore(Hanami.application.namespace)
-              slice = inflector.underscore(Shellwords.shellescape(slice))
+              name = inflector.underscore(Shellwords.shellescape(name))
 
-              out.puts "generating #{slice} for #{app}"
-              generator.call(app, slice)
+              out.puts "generating #{name} for #{app}"
+              generator.call(app, name)
             end
 
             private

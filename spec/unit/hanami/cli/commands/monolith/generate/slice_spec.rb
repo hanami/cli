@@ -9,7 +9,7 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
 
   let(:fs) { Dry::CLI::Utils::Files.new(memory: true) }
   let(:inflector) { Dry::Inflector.new }
-  let(:generator) { Hanami::CLI::Generators::Slice.new(fs: fs, inflector: inflector) }
+  let(:generator) { Hanami::CLI::Generators::Monolith::Slice.new(fs: fs, inflector: inflector) }
   let(:app) { "Bookshelf" }
   let(:slice) { "main" }
 
@@ -17,7 +17,7 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
     expect(Hanami).to receive(:application)
       .and_return(OpenStruct.new(namespace: app))
 
-    subject.call(slice: slice)
+    subject.call(name: slice)
 
     expect(fs.directory?(directory = "slices/#{slice}")).to be(true)
 

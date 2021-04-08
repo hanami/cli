@@ -3,7 +3,7 @@
 require "hanami/cli/command"
 require "hanami/cli/bundler"
 require "hanami/cli/command_line"
-require "hanami/cli/generators/application"
+require "hanami/cli/generators/gem/application"
 require "dry/cli/utils/files"
 
 module Hanami
@@ -58,7 +58,7 @@ module Hanami
               raise ArgumentError.new("unknown architecture `#{architecture}'")
             end
 
-            Generators::Application[architecture, fs, inflector, command_line]
+            Generators::Gem::Application[architecture, fs, inflector, command_line]
           end
 
           def run_install_commmand!

@@ -1,0 +1,13 @@
+# auto_register: false
+# frozen_string_literal: true
+
+require "<%= underscored_slice_name %>/view"
+
+module <%= classified_slice_name %>
+  module Views
+    module <%= classified_controller_name %>
+      class <%= classified_action_name %> < <%= classified_slice_name %>::View
+      end
+    end
+  end
+end
