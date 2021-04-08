@@ -24,7 +24,11 @@ module Hanami
             def call(slice:, name:, **)
               slice = inflector.underscore(Shellwords.shellescape(slice))
               name = inflector.underscore(Shellwords.shellescape(name))
-              controller, action = name.split(ACTION_SEPARATOR)
+              *controller, action = name.split(ACTION_SEPARATOR)
+
+              if controller.empty?
+                raise ArgumentError.new("cannot parse controller and action name: `#{name}'\n\texample: users.show")
+              end
 
               out.puts "generating action #{name} for #{slice} slice"
               generator.call(slice, controller, action)

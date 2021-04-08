@@ -14,20 +14,19 @@ module Hanami
             @inflector = inflector
           end
 
-          def call(slice, controller, action, context: ActionContext.new(inflector, slice, controller, action))
-            fs.mkdir(directory = "slices/#{slice}/actions/#{controller}")
-            fs.chdir(directory) do
-              fs.write("#{action}.rb", t("action.erb", context))
-            end
+          def call(slice, controller, action, context: ActionContext.new(inflector, slice, controller, action)) # rubocop:disable Metrics/AbcSize
+            slice_directory = fs.join("slices", slice)
+            raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
 
-            fs.mkdir(directory = "slices/#{slice}/views/#{controller}")
-            fs.chdir(directory) do
-              fs.write("#{action}.rb", t("view.erb", context))
-            end
+            fs.chdir(slice_directory) do
+              fs.mkdir(directory = fs.join("actions", controller))
+              fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
 
-            fs.mkdir(directory = "slices/#{slice}/templates/#{controller}")
-            fs.chdir(directory) do
-              fs.write("#{action}.html.erb", t("template.erb", context))
+              fs.mkdir(directory = fs.join("views", controller))
+              fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
+
+              fs.mkdir(directory = fs.join("templates", controller))
+              fs.write(fs.join(directory, "#{action}.html.erb"), t("template.erb", context))
             end
           end
 

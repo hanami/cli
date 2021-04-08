@@ -15,7 +15,7 @@ module Hanami
             argument :name, required: true, desc: "The slice name"
 
             def initialize(fs: Dry::CLI::Utils::Files.new, inflector: Dry::Inflector.new,
-                           generator: Generators::Slice.new(fs: fs, inflector: inflector), **)
+                           generator: Generators::Monolith::Slice.new(fs: fs, inflector: inflector), **)
               @generator = generator
               super(fs: fs)
             end

@@ -17,6 +17,8 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
   let(:action_name) { "#{controller}.#{action}" }
 
   it "generates action" do
+    fs.mkdir("slices/#{slice}")
+
     subject.call(slice: slice, name: action_name)
 
     # action
@@ -75,11 +77,94 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
     end
   end
 
-  xit "raises error if slice is unexisting"
-  xit "raises error if action name doesn't respect the convention"
-  xit "creates deeply nested action" do
-    # assert template <h1> and <h2>
+  context "deeply nested action" do
+    let(:controller) { %w[books bestsellers nonfiction] }
+    let(:controller_name) { controller.join(".") }
+    let(:action) { "index" }
+    let(:action_name) { "#{controller_name}.#{action}" }
+
+    it "generates action" do
+      fs.mkdir("slices/#{slice}")
+
+      subject.call(slice: slice, name: action_name)
+
+      # action
+      expect(fs.directory?(directory = "slices/#{slice}/actions/books/bestsellers/nonfiction")).to be(true)
+
+      fs.chdir(directory) do
+        action_file = <<~EXPECTED
+          # auto_register: false
+          # frozen_string_literal: true
+
+          require "#{inflector.underscore(slice)}/action"
+
+          module #{inflector.classify(slice)}
+            module Actions
+              module Books
+                module Bestsellers
+                  module Nonfiction
+                    class #{inflector.classify(action)} < #{inflector.classify(slice)}::Action
+                    end
+                  end
+                end
+              end
+            end
+          end
+        EXPECTED
+        expect(fs.read("#{action}.rb")).to eq(action_file)
+      end
+
+      # view
+      expect(fs.directory?(directory = "slices/#{slice}/views/books/bestsellers/nonfiction")).to be(true)
+
+      fs.chdir(directory) do
+        view_file = <<~EXPECTED
+          # auto_register: false
+          # frozen_string_literal: true
+
+          require "#{inflector.underscore(slice)}/view"
+
+          module #{inflector.classify(slice)}
+            module Views
+              module Books
+                module Bestsellers
+                  module Nonfiction
+                    class #{inflector.classify(action)} < #{inflector.classify(slice)}::View
+                    end
+                  end
+                end
+              end
+            end
+          end
+        EXPECTED
+        expect(fs.read("#{action}.rb")).to eq(view_file)
+      end
+
+      # template
+      expect(fs.directory?(directory = "slices/#{slice}/templates/books/bestsellers/nonfiction")).to be(true)
+
+      fs.chdir(directory) do
+        template_file = <<~EXPECTED
+          <h1>#{inflector.classify(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
+          <h2>slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb</h2>
+        EXPECTED
+        expect(fs.read("#{action}.html.erb")).to eq(template_file)
+      end
+    end
   end
+
+  it "raises error if slice is unexisting" do
+    expect { subject.call(slice: slice, name: action_name) }.to raise_error(ArgumentError, "slice not found `#{slice}'")
+  end
+
+  it "raises error if action name doesn't respect the convention" do
+    fs.mkdir("slices/#{slice}")
+    expect {
+      subject.call(slice: slice,
+                   name: "foo")
+    }.to raise_error(ArgumentError, "cannot parse controller and action name: `foo'\n\texample: users.show")
+  end
+
   xit "can skip view creation"
   xit "allows to specify MIME Type for template"
 end
