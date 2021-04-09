@@ -41,7 +41,6 @@ module Hanami
                 raise ArgumentError.new("cannot parse controller and action name: `#{name}'\n\texample: users.show")
               end
 
-              out.puts "generating action #{name} for #{slice} slice"
               generator.call(slice, controller, action, format, skip_view)
             end
 

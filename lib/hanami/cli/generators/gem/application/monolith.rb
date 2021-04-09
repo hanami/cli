@@ -17,10 +17,10 @@ module Hanami
               @command_line = command_line
             end
 
-            def call(app, slice, context: Context.new(inflector, app), &blk)
+            def call(app, slice, slice_url_prefix, context: Context.new(inflector, app), &blk)
               generate_app(app, context)
               blk.call
-              generate_slice!(slice)
+              generate_slice!(slice, slice_url_prefix)
             end
 
             private
@@ -57,9 +57,11 @@ module Hanami
               fs.write("lib/#{app}/types.rb", t("types.erb", context))
             end
 
-            def generate_slice!(slice_name)
+            def generate_slice!(slice_name, slice_url_prefix)
               slice_name = Shellwords.shellescape(slice_name)
-              command_line.call("hanami generate slice #{slice_name}").tap do |result|
+              slice_url_prefix = Shellwords.shellescape(slice_url_prefix)
+
+              command_line.call("hanami generate slice #{slice_name} --url-prefix=#{slice_url_prefix}").tap do |result|
                 raise "hanami generate slice #{slice_name} failed\n\n\n#{result.err.inspect}" unless result.successful?
               end
             end

@@ -14,7 +14,9 @@ module Hanami
             @inflector = inflector
           end
 
-          def call(app, slice, context: SliceContext.new(inflector, app, slice)) # rubocop:disable Metrics/AbcSize
+          def call(app, slice, slice_url_prefix, context: SliceContext.new(inflector, app, slice, slice_url_prefix)) # rubocop:disable Metrics/AbcSize
+            fs.inject_line_before_last(fs.join("config", "routes.rb"), /end/, t("routes.erb", context).chomp)
+
             fs.mkdir(directory = "slices/#{slice}")
 
             fs.chdir(directory) do

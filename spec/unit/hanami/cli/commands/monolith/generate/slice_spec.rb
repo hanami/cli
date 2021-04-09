@@ -3,6 +3,7 @@
 require "hanami/cli/commands/monolith/generate/slice"
 require "hanami"
 require "ostruct"
+require "securerandom"
 
 RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
   subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
@@ -17,7 +18,26 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
     expect(Hanami).to receive(:application)
       .and_return(OpenStruct.new(namespace: app))
 
-    subject.call(name: slice)
+    routes_contents = <<~CODE
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+      end
+    CODE
+    fs.write("config/routes.rb", routes_contents)
+
+    subject.call(name: slice, url_prefix: "/")
+
+    # config/routes.rb
+    routes = <<~EXPECTED
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+        slice :main, at: "/" do
+        end
+      end
+    EXPECTED
+    expect(fs.read("config/routes.rb")).to eq(routes)
 
     expect(fs.directory?(directory = "slices/#{slice}")).to be(true)
 
@@ -109,5 +129,68 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
       EXPECTED
       expect(fs.read("repositories/.keep")).to eq(repositories_keep)
     end
+  end
+
+  it "uses slice name as URL prefix default" do
+    expect(Hanami).to receive(:application)
+      .and_return(OpenStruct.new(namespace: app))
+
+    routes_contents = <<~CODE
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+      end
+    CODE
+    fs.write("config/routes.rb", routes_contents)
+
+    subject.call(name: "FooBar")
+
+    # config/routes.rb
+    routes = <<~EXPECTED
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+        slice :foo_bar, at: "/foo_bar" do
+        end
+      end
+    EXPECTED
+    expect(fs.read("config/routes.rb")).to eq(routes)
+  end
+
+  it "ensures that slice URL prefix is valid" do
+    expect(Hanami).to receive(:application)
+      .and_return(OpenStruct.new(namespace: app))
+      .at_least(:once)
+
+    routes_contents = <<~CODE
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+      end
+    CODE
+    fs.write("config/routes.rb", routes_contents)
+
+    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase)
+    expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
+    expect(fs.read("config/routes.rb")).to match(expected)
+
+    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/")
+    expected = %(slice :#{slice_name}, at: "/" do)
+    expect(fs.read("config/routes.rb")).to match(expected)
+
+    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/foo_bar")
+    expected = %(slice :#{slice_name}, at: "/foo_bar" do)
+    expect(fs.read("config/routes.rb")).to match(expected)
+
+    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/FooBar")
+    expected = %(slice :#{slice_name}, at: "/foo_bar" do)
+    expect(fs.read("config/routes.rb")).to match(expected)
+
+    expect { subject.call(name: slice, url_prefix: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
+    expect { subject.call(name: slice, url_prefix: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
+    expect { subject.call(name: slice, url_prefix: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
+    expect {
+      subject.call(name: slice, url_prefix: "//FooBar")
+    }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
   end
 end

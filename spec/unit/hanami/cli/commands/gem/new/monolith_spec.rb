@@ -26,13 +26,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     it "generates an application" do
       expect(command_line).to receive(:call)
-        .with("hanami generate slice main")
+        .with("hanami generate slice main --url-prefix=/")
         .and_return(OpenStruct.new(successful?: true))
 
       subject.call(app: app, architecture: architecture)
-
-      stdout.rewind
-      expect(stdout.read.chomp).to eq("generating #{app}")
 
       expect(fs.directory?(app)).to be(true)
 
@@ -120,8 +117,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           # frozen_string_literal: true
 
           Hanami.application.routes do
-            slice :main, at: "/" do
-            end
           end
         EXPECTED
         expect(fs.read("config/routes.rb")).to eq(routes)
@@ -305,10 +300,18 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       slice_name = "store"
 
       expect(command_line).to receive(:call)
-        .with("hanami generate slice store")
+        .with("hanami generate slice store --url-prefix=/")
         .and_return(OpenStruct.new(successful?: true))
 
       subject.call(app: app, architecture: architecture, slice: slice_name)
+    end
+
+    it "allows to specify the slice URL prefix" do
+      expect(command_line).to receive(:call)
+        .with("hanami generate slice main --url-prefix=/foo")
+        .and_return(OpenStruct.new(successful?: true))
+
+      subject.call(app: app, architecture: architecture, slice_url_prefix: "/foo")
     end
   end
 end

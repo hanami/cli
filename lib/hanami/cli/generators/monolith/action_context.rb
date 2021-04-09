@@ -11,7 +11,7 @@ module Hanami
           def initialize(inflector, slice, controller, action)
             @controller = controller
             @action = action
-            super(inflector, nil, slice)
+            super(inflector, nil, slice, nil)
           end
 
           def classified_controller_name

@@ -7,8 +7,9 @@ module Hanami
     module Generators
       module Monolith
         class SliceContext < Generators::Context
-          def initialize(inflector, app, slice)
+          def initialize(inflector, app, slice, slice_url_prefix)
             @slice = slice
+            @slice_url_prefix = slice_url_prefix
             super(inflector, app)
           end
 
@@ -23,6 +24,8 @@ module Hanami
           private
 
           attr_reader :slice
+
+          attr_reader :slice_url_prefix
         end
       end
     end

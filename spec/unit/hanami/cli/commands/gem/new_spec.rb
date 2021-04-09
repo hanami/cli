@@ -21,7 +21,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .and_return(OpenStruct.new(successful?: true))
 
     expect(command_line).to receive(:call)
-      .with("hanami generate slice main")
+      .with("hanami generate slice main --url-prefix=/")
       .and_return(OpenStruct.new(successful?: true))
 
     app_name = "PropagandaLive"
