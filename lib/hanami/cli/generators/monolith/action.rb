@@ -14,7 +14,7 @@ module Hanami
             @inflector = inflector
           end
 
-          def call(slice, controller, action, context: ActionContext.new(inflector, slice, controller, action)) # rubocop:disable Metrics/AbcSize
+          def call(slice, controller, action, format, context: ActionContext.new(inflector, slice, controller, action)) # rubocop:disable Metrics/AbcSize
             slice_directory = fs.join("slices", slice)
             raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
 
@@ -26,7 +26,7 @@ module Hanami
               fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
 
               fs.mkdir(directory = fs.join("templates", controller))
-              fs.write(fs.join(directory, "#{action}.html.erb"), t("template.erb", context))
+              fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
             end
           end
 
@@ -35,6 +35,15 @@ module Hanami
           attr_reader :fs
 
           attr_reader :inflector
+
+          def template_format(format)
+            case format.to_sym
+            when :html
+              "template.html.erb"
+            else
+              "template.erb"
+            end
+          end
 
           def template(path, context)
             require "erb"

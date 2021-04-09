@@ -12,8 +12,14 @@ module Hanami
       module Monolith
         module Generate
           class Action < Command
+            # TODO: ideally the default format should lookup
+            #       slice configuration (Action's `default_response_format`)
+            DEFAULT_FORMAT = "html"
+            private_constant :DEFAULT_FORMAT
+
             argument :slice, required: true, desc: "The slice name"
             argument :name, required: true, desc: "The action name"
+            option :format, required: false, default: DEFAULT_FORMAT, desc: "The template format"
 
             def initialize(fs: Dry::CLI::Utils::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::Monolith::Action.new(fs: fs, inflector: inflector), **)
@@ -21,7 +27,7 @@ module Hanami
               super(fs: fs)
             end
 
-            def call(slice:, name:, **)
+            def call(slice:, name:, format: DEFAULT_FORMAT, **)
               slice = inflector.underscore(Shellwords.shellescape(slice))
               name = inflector.underscore(Shellwords.shellescape(name))
               *controller, action = name.split(ACTION_SEPARATOR)
@@ -31,7 +37,7 @@ module Hanami
               end
 
               out.puts "generating action #{name} for #{slice} slice"
-              generator.call(slice, controller, action)
+              generator.call(slice, controller, action, format)
             end
 
             private

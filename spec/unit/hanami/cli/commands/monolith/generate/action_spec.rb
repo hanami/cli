@@ -165,6 +165,23 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
     }.to raise_error(ArgumentError, "cannot parse controller and action name: `foo'\n\texample: users.show")
   end
 
+  it "allows to specify MIME Type for template" do
+    fs.mkdir("slices/#{slice}")
+
+    subject.call(slice: slice, name: action_name, format: format = "json")
+
+    fs.chdir("slices/#{slice}") do
+      expect(fs.exist?("actions/#{controller}/#{action}.rb")).to be(true)
+      expect(fs.exist?("views/#{controller}/#{action}.rb")).to be(true)
+
+      # template
+      expect(fs.exist?(file = "templates/#{controller}/#{action}.#{format}.erb")).to be(true)
+
+      template_file = <<~EXPECTED
+      EXPECTED
+      expect(fs.read(file)).to eq(template_file)
+    end
+  end
+
   xit "can skip view creation"
-  xit "allows to specify MIME Type for template"
 end
