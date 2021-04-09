@@ -183,5 +183,16 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
     end
   end
 
-  xit "can skip view creation"
+  it "can skip view creation" do
+    fs.mkdir("slices/#{slice}")
+
+    subject.call(slice: slice, name: action_name, skip_view: true)
+
+    fs.chdir("slices/#{slice}") do
+      expect(fs.exist?("actions/#{controller}/#{action}.rb")).to be(true)
+
+      expect(fs.exist?("views/#{controller}/#{action}.rb")).to be(false)
+      expect(fs.exist?("templates/#{controller}/#{action}.html.erb")).to be(false)
+    end
+  end
 end
