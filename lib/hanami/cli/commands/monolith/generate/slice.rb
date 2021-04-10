@@ -5,7 +5,7 @@ require "hanami/cli/generators/monolith/slice"
 require "dry/inflector"
 require "dry/cli/utils/files"
 require "shellwords"
-require "uri"
+require "hanami/cli/url"
 
 module Hanami
   module CLI
@@ -44,14 +44,8 @@ module Hanami
               result = inflector.underscore(Shellwords.shellescape(result)) unless result.nil?
 
               result ||= DEFAULT_URL_PREFIX + name
-              result = URI.parse(result).path
-
-              unless valid_url?(result)
-                raise ArgumentError.new("invalid URL prefix: `#{url_prefix}'")
-              end
-
-              result
-            rescue URI::InvalidURIError
+              CLI::URL.call(result)
+            rescue ArgumentError
               raise ArgumentError.new("invalid URL prefix: `#{url_prefix}'")
             end
 
