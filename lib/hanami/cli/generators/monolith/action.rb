@@ -3,6 +3,7 @@
 require "erb"
 require "dry/cli/utils/files"
 require "hanami/cli/generators/monolith/action_context"
+require "hanami/cli/url"
 
 module Hanami
   module CLI
@@ -17,9 +18,15 @@ module Hanami
           # rubocop:disable Metrics/AbcSize
           # rubocop:disable Metrics/ParameterLists
           # rubocop:disable Layout/LineLength
-          def call(slice, controller, action, format, skip_view, context: ActionContext.new(inflector, slice, controller, action))
+          def call(slice, controller, action, url, http, format, skip_view, context: ActionContext.new(inflector, slice, controller, action))
             slice_directory = fs.join("slices", slice)
             raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
+
+            fs.inject_line_after(
+              fs.join("config", "routes.rb"),
+              slice_matcher(slice),
+              route(controller, action, url, http)
+            )
 
             fs.chdir(slice_directory) do
               fs.mkdir(directory = fs.join("actions", controller))
@@ -40,9 +47,42 @@ module Hanami
 
           private
 
+          ROUTE_HTTP_METHODS = %w[get post delete put patch trace options link unlink].freeze
+          private_constant :ROUTE_HTTP_METHODS
+
+          ROUTE_DEFAULT_HTTP_METHOD = "get"
+          private_constant :ROUTE_DEFAULT_HTTP_METHOD
+
+          ROUTE_RESTFUL_HTTP_METHODS = {
+            "create" => "post",
+            "update" => "patch",
+            "destroy" => "delete"
+          }.freeze
+          private_constant :ROUTE_RESTFUL_HTTP_METHODS
+
+          ROUTE_RESTFUL_URL_SUFFIXES = {
+            "index" => "",
+            "new" => "/new",
+            "create" => "",
+            "edit" => "/:id/edit",
+            "update" => "/:id",
+            "show" => "/:id",
+            "destroy" => "/:id"
+          }.freeze
+          private_constant :ROUTE_RESTFUL_URL_SUFFIXES
+
           attr_reader :fs
 
           attr_reader :inflector
+
+          def slice_matcher(slice)
+            /slice\ :#{slice}/
+          end
+
+          def route(controller, action, url, http)
+            %(    #{route_http(action,
+                               http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
+          end
 
           def template_format(format)
             case format.to_sym
@@ -62,6 +102,20 @@ module Hanami
           end
 
           alias_method :t, :template
+
+          def route_url(controller, action, url)
+            CLI::URL.call(url || "/#{controller.join('/')}" + ROUTE_RESTFUL_URL_SUFFIXES.fetch(action))
+          end
+
+          def route_http(action, http)
+            result = (http ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
+
+            unless ROUTE_HTTP_METHODS.include?(result)
+              raise ArgumentError.new("unknown HTTP method: `#{http}'")
+            end
+
+            result
+          end
         end
       end
     end

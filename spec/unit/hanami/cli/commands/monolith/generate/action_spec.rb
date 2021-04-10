@@ -13,13 +13,16 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
   let(:app) { "Bookshelf" }
   let(:slice) { "main" }
   let(:controller) { "users" }
-  let(:action) { "show" }
+  let(:action) { "index" }
   let(:action_name) { "#{controller}.#{action}" }
 
-  it "generates action" do
-    fs.mkdir("slices/#{slice}")
+  before { prepare_slice! }
 
+  it "generates action" do
     subject.call(slice: slice, name: action_name)
+
+    # route
+    expect(fs.read("config/routes.rb")).to match(%(get "/users", to: "users.index"))
 
     # action
     expect(fs.directory?(directory = "slices/#{slice}/actions/#{controller}")).to be(true)
@@ -84,9 +87,12 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
     let(:action_name) { "#{controller_name}.#{action}" }
 
     it "generates action" do
-      fs.mkdir("slices/#{slice}")
-
       subject.call(slice: slice, name: action_name)
+
+      # route
+      expect(fs.read("config/routes.rb")).to match(
+        %(get "/books/bestsellers/nonfiction", to: "books.bestsellers.nonfiction.index")
+      )
 
       # action
       expect(fs.directory?(directory = "slices/#{slice}/actions/books/bestsellers/nonfiction")).to be(true)
@@ -153,21 +159,40 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
     end
   end
 
-  it "raises error if slice is unexisting" do
-    expect { subject.call(slice: slice, name: action_name) }.to raise_error(ArgumentError, "slice not found `#{slice}'")
+  it "infers RESTful action URL and HTTP method" do
+    subject.call(slice: slice, name: "users.index")
+    expect(fs.read("config/routes.rb")).to match(%(get "/users", to: "users.index"))
+
+    subject.call(slice: slice, name: "users.new")
+    expect(fs.read("config/routes.rb")).to match(%(get "/users/new", to: "users.new"))
+
+    subject.call(slice: slice, name: "users.create")
+    expect(fs.read("config/routes.rb")).to match(%(post "/users", to: "users.create"))
+
+    subject.call(slice: slice, name: "users.edit")
+    expect(fs.read("config/routes.rb")).to match(%(get "/users/:id/edit", to: "users.edit"))
+
+    subject.call(slice: slice, name: "users.update")
+    expect(fs.read("config/routes.rb")).to match(%(patch "/users/:id", to: "users.update"))
+
+    subject.call(slice: slice, name: "users.show")
+    expect(fs.read("config/routes.rb")).to match(%(get "/users/:id", to: "users.show"))
+
+    subject.call(slice: slice, name: "users.destroy")
+    expect(fs.read("config/routes.rb")).to match(%(delete "/users/:id", to: "users.destroy"))
   end
 
-  it "raises error if action name doesn't respect the convention" do
-    fs.mkdir("slices/#{slice}")
-    expect {
-      subject.call(slice: slice,
-                   name: "foo")
-    }.to raise_error(ArgumentError, "cannot parse controller and action name: `foo'\n\texample: users.show")
+  it "allows to specify action URL" do
+    subject.call(slice: slice, name: action_name, url: "/people")
+    expect(fs.read("config/routes.rb")).to match(%(get "/people", to: "users.index"))
+  end
+
+  it "allows to specify action HTTP method" do
+    subject.call(slice: slice, name: action_name, http: "put")
+    expect(fs.read("config/routes.rb")).to match(%(put "/users", to: "users.index"))
   end
 
   it "allows to specify MIME Type for template" do
-    fs.mkdir("slices/#{slice}")
-
     subject.call(slice: slice, name: action_name, format: format = "json")
 
     fs.chdir("slices/#{slice}") do
@@ -184,8 +209,6 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
   end
 
   it "can skip view creation" do
-    fs.mkdir("slices/#{slice}")
-
     subject.call(slice: slice, name: action_name, skip_view: true)
 
     fs.chdir("slices/#{slice}") do
@@ -194,5 +217,43 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
       expect(fs.exist?("views/#{controller}/#{action}.rb")).to be(false)
       expect(fs.exist?("templates/#{controller}/#{action}.html.erb")).to be(false)
     end
+  end
+
+  it "raises error if slice is unexisting" do
+    expect { subject.call(slice: "foo", name: action_name) }.to raise_error(ArgumentError, "slice not found `foo'")
+  end
+
+  it "raises error if action name doesn't respect the convention" do
+    expect {
+      subject.call(slice: slice, name: "foo")
+    }.to raise_error(ArgumentError, "cannot parse controller and action name: `foo'\n\texample: users.show")
+  end
+
+  it "raises error if HTTP method is unknown" do
+    expect {
+      subject.call(slice: slice, name: action_name, http: "foo")
+    }.to raise_error(ArgumentError, "unknown HTTP method: `foo'")
+  end
+
+  it "raises error if URL is invalid" do
+    expect {
+      subject.call(slice: slice, name: action_name, url: "//")
+    }.to raise_error(ArgumentError, "invalid URL: `//'")
+  end
+
+  private
+
+  def prepare_slice!
+    fs.mkdir("slices/#{slice}")
+
+    routes_contents = <<~CODE
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+        slice :#{slice}, at: "/" do
+        end
+      end
+    CODE
+    fs.write("config/routes.rb", routes_contents)
   end
 end

@@ -20,9 +20,11 @@ module Hanami
             DEFAULT_SKIP_VIEW = false
             private_constant :DEFAULT_SKIP_VIEW
 
-            argument :slice, required: true, desc: "The slice name"
-            argument :name, required: true, desc: "The action name"
-            option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "The template format"
+            argument :slice, required: true, desc: "Slice name"
+            argument :name, required: true, desc: "Action name"
+            option :url, required: false, type: :string, desc: "Action URL"
+            option :http, required: false, type: :string, desc: "Action HTTP method"
+            option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
             option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
                                desc: "Skip view and template generation"
 
@@ -32,7 +34,8 @@ module Hanami
               super(fs: fs)
             end
 
-            def call(slice:, name:, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, **)
+            # rubocop:disable Metrics/ParameterLists
+            def call(slice:, name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, **)
               slice = inflector.underscore(Shellwords.shellescape(slice))
               name = inflector.underscore(Shellwords.shellescape(name))
               *controller, action = name.split(ACTION_SEPARATOR)
@@ -41,8 +44,9 @@ module Hanami
                 raise ArgumentError.new("cannot parse controller and action name: `#{name}'\n\texample: users.show")
               end
 
-              generator.call(slice, controller, action, format, skip_view)
+              generator.call(slice, controller, action, url, http, format, skip_view)
             end
+            # rubocop:enable Metrics/ParameterLists
 
             private
 
