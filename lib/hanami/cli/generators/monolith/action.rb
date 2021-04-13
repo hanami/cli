@@ -22,7 +22,7 @@ module Hanami
             slice_directory = fs.join("slices", slice)
             raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
 
-            fs.inject_line_after(
+            fs.inject_line_at_block_bottom(
               fs.join("config", "routes.rb"),
               slice_matcher(slice),
               route(controller, action, url, http)
@@ -76,12 +76,12 @@ module Hanami
           attr_reader :inflector
 
           def slice_matcher(slice)
-            /slice\ :#{slice}/
+            /slice[[:space:]]*:#{slice}/
           end
 
           def route(controller, action, url, http)
-            %(    #{route_http(action,
-                               http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
+            %(#{route_http(action,
+                           http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
           end
 
           def template_format(format)

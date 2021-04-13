@@ -159,7 +159,46 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do
     end
   end
 
-  it "infers RESTful action URL and HTTP method" do
+  it "appends routes within the proper slice block" do
+    fs.mkdir("slices/api")
+
+    routes_contents = <<~CODE
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+        slice :#{slice}, at: "/" do
+          root to: "home.index"
+        end
+
+        slice :api, at: "/api" do
+          root to: "home.index"
+        end
+      end
+    CODE
+    fs.write("config/routes.rb", routes_contents)
+
+    expected = <<~CODE
+      # frozen_string_literal: true
+
+      Hanami.application.routes do
+        slice :#{slice}, at: "/" do
+          root to: "home.index"
+          get "/users", to: "users.index"
+        end
+
+        slice :api, at: "/api" do
+          root to: "home.index"
+          get "/users/:id", to: "users.show"
+        end
+      end
+    CODE
+
+    subject.call(slice: slice, name: "users.index")
+    subject.call(slice: "api", name: "users.show")
+    expect(fs.read("config/routes.rb")).to eq(expected)
+  end
+
+  it "infers RESTful action URL and HTTP method for routes" do
     subject.call(slice: slice, name: "users.index")
     expect(fs.read("config/routes.rb")).to match(%(get "/users", to: "users.index"))
 
