@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "./slice_context"
-require "dry/cli/utils/path"
+require "dry/files/path"
 
 module Hanami
   module CLI
@@ -51,8 +51,8 @@ module Hanami
           end
 
           def template_path
-            Dry::CLI::Utils::Path["slices", underscored_slice_name, "templates", *underscored_controller_name,
-                                  "#{underscored_action_name}.html.erb"]
+            Dry::Files::Path["slices", underscored_slice_name, "templates", *underscored_controller_name,
+                             "#{underscored_action_name}.html.erb"]
           end
 
           private

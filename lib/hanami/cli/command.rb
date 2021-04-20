@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require "dry/cli"
-require "dry/cli/utils/files"
+require "dry/files"
 require "dry/inflector"
 
 module Hanami
   module CLI
     class Command < Dry::CLI::Command
-      def initialize(out: $stdout, fs: Dry::CLI::Utils::Files.new, inflector: Dry::Inflector.new)
+      def initialize(out: $stdout, fs: Dry::Files.new, inflector: Dry::Inflector.new)
         super()
         @out = out
         @fs = fs

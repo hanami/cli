@@ -10,7 +10,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
     let(:command_line) { Hanami::CLI::CommandLine.new(bundler: bundler) }
     let(:stdout) { StringIO.new }
-    let(:fs) { Dry::CLI::Utils::Files.new(memory: true) }
+    let(:fs) { Dry::Files.new(memory: true) }
     let(:inflector) { Dry::Inflector.new }
     let(:app) { "bookshelf" }
     let(:architecture) { "monolith" }

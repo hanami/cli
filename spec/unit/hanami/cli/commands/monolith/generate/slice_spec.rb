@@ -8,7 +8,7 @@ require "securerandom"
 RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
   subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
 
-  let(:fs) { Dry::CLI::Utils::Files.new(memory: true) }
+  let(:fs) { Dry::Files.new(memory: true) }
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::Monolith::Slice.new(fs: fs, inflector: inflector) }
   let(:app) { "Bookshelf" }

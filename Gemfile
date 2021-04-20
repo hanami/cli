@@ -8,6 +8,6 @@ unless ENV["CI"]
   gem "yard",   require: false
 end
 
-gem "dry-cli", "~> 0.6", require: false, git: "https://github.com/dry-rb/dry-cli.git", branch: "feature/file-utils-class"
+gem "dry-files", "~> 0.1", require: false, git: "https://github.com/dry-rb/dry-files.git", branch: "master"
 gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "feature/hanami-2-cli"
 gem "rack"
