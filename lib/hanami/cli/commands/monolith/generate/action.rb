@@ -3,7 +3,7 @@
 require "hanami/cli/command"
 require "hanami/cli/generators/monolith/action"
 require "dry/inflector"
-require "dry/cli/utils/files"
+require "dry/files"
 require "shellwords"
 
 module Hanami

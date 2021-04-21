@@ -3,7 +3,7 @@
 require "bundler"
 require "open3"
 require "etc"
-require "dry/cli/utils/files"
+require "dry/files"
 require_relative "./system_call"
 
 module Hanami

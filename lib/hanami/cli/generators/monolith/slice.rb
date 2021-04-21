@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "erb"
-require "dry/cli/utils/files"
+require "dry/files"
 require "hanami/cli/generators/monolith/slice_context"
 
 module Hanami

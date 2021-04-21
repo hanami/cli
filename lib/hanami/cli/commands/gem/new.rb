@@ -4,7 +4,7 @@ require "hanami/cli/command"
 require "hanami/cli/bundler"
 require "hanami/cli/command_line"
 require "hanami/cli/generators/gem/application"
-require "dry/cli/utils/files"
+require "dry/files"
 
 module Hanami
   module CLI
