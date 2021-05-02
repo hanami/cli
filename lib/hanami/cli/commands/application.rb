@@ -8,6 +8,20 @@ module Hanami
   module CLI
     module Commands
       class Application < Hanami::CLI::Command
+        module Environment
+          def call(**opts)
+            env = opts[:env]
+            ENV["HANAMI_ENV"] = env.to_s
+            super(**opts)
+          end
+        end
+
+        def self.inherited(klass)
+          super
+          klass.option(:env, required: false, default: "development", desc: "Application's environment")
+          klass.prepend(Environment)
+        end
+
         def application
           @application ||=
             begin

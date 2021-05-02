@@ -13,4 +13,12 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Console, :app do
 
     subject.call
   end
+
+  it "starts app's console with a forced env via option" do
+    expect(Pry).to receive(:start).with(instance_of(Hanami::Console::Context))
+
+    subject.call(env: "production")
+
+    expect(Hanami.env).to be(:production)
+  end
 end
