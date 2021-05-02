@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "bundler"
+require "bundler/setup"
 require "hanami/cli"
 
 cli = Dry::CLI.new(Hanami::CLI)
