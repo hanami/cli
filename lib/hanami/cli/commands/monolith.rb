@@ -34,19 +34,19 @@ module Hanami
             #   prefix.register "action", Generate::Action
             # end
 
-            register "console", Commands::Console
+            register "console", Commands::Monolith::Console
 
-            register "db create", Commands::DB::Create
-            register "db create_migration", Commands::DB::CreateMigration
-            register "db drop", Commands::DB::Drop
-            register "db migrate", Commands::DB::Migrate
-            register "db setup", Commands::DB::Setup
-            register "db reset", Commands::DB::Reset
-            register "db rollback", Commands::DB::Rollback
-            register "db sample_data", Commands::DB::SampleData
-            register "db seed", Commands::DB::Seed
-            register "db structure dump", Commands::DB::Structure::Dump
-            register "db version", Commands::DB::Version
+            register "db create", Commands::Monolith::DB::Create
+            register "db create_migration", Commands::Monolith::DB::CreateMigration
+            register "db drop", Commands::Monolith::DB::Drop
+            register "db migrate", Commands::Monolith::DB::Migrate
+            register "db setup", Commands::Monolith::DB::Setup
+            register "db reset", Commands::Monolith::DB::Reset
+            register "db rollback", Commands::Monolith::DB::Rollback
+            register "db sample_data", Commands::Monolith::DB::SampleData
+            register "db seed", Commands::Monolith::DB::Seed
+            register "db structure dump", Commands::Monolith::DB::Structure::Dump
+            register "db version", Commands::Monolith::DB::Version
           end
         end
       end

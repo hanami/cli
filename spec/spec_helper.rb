@@ -27,9 +27,10 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 
-  config.around(app: true) do |example|
-    require_relative "fixtures/test/config/application" unless defined?(Test::Application)
-    example.run
+  RSpec.shared_context "app" do
+    let(:app) do
+      Test::Application
+    end
   end
 
   RSpec.shared_context "command" do
@@ -52,6 +53,12 @@ RSpec.configure do |config|
 
   config.include_context("command", command: true)
   config.include_context("database", db: true)
+  config.include_context("app", app: true)
+
+  config.around(app: true) do |example|
+    require_relative "fixtures/test/config/application" unless defined?(Test::Application)
+    example.run
+  end
 end
 
 Dir.glob("#{__dir__}/support/**/*.rb").sort.each(&method(:require))
