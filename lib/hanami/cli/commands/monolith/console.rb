@@ -9,38 +9,23 @@ module Hanami
     module Commands
       module Monolith
         class Console < Application
+          REPLS = {
+            "irb" => -> *args {
+              require "hanami/cli/repl/irb"
+              Repl::Irb.new(*args)
+            },
+            "pry" => -> *args {
+              require "hanami/cli/repl/pry"
+              Repl::Pry.new(*args)
+            }
+          }.freeze
+
           desc "Application REPL"
 
-          def call(**_opts)
-            require "pry"
+          option :repl, required: false, default: "irb", desc: "REPL gem that should be used"
 
-            prompt = application_prompt
-
-            Pry.config.prompt = Pry::Prompt.new(
-              "hanami",
-              "my custom prompt",
-              [proc { |_obj, _| "#{prompt}> " }]
-            )
-
-            ctx = Hanami::Console::Context.new(application)
-
-            Pry.start(ctx)
-          end
-
-          def application_prompt
-            "#{application_name}[#{application_env}]"
-          end
-
-          def application_name
-            (application.container.config.name || inflector.underscore(application.name)).split("/")[0]
-          end
-
-          def application_env
-            application.container.env
-          end
-
-          def inflector
-            application.inflector
+          def call(repl: "irb", **opts)
+            REPLS.fetch(repl).(application, opts).start
           end
         end
       end
