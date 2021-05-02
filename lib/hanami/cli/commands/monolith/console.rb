@@ -11,7 +11,7 @@ module Hanami
         class Console < Application
           desc "Application REPL"
 
-          def call(**opts)
+          def call(**_opts)
             require "pry"
 
             prompt = application_prompt
@@ -19,7 +19,7 @@ module Hanami
             Pry.config.prompt = Pry::Prompt.new(
               "hanami",
               "my custom prompt",
-              [proc { |obj, _| "#{prompt}> " }]
+              [proc { |_obj, _| "#{prompt}> " }]
             )
 
             ctx = Hanami::Console::Context.new(application)

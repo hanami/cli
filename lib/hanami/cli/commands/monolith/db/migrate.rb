@@ -38,4 +38,3 @@ module Hanami
     end
   end
 end
-
