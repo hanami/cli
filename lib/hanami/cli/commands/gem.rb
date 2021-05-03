@@ -5,12 +5,14 @@ module Hanami
     module Commands
       module Gem
         require_relative "gem/version"
-        require_relative "gem/new"
+        # FIXME: temporary disabled for Hanami v2.0.0.alpha2
+        # require_relative "gem/new"
 
         def self.extended(base)
           base.module_eval do
             register "version", Version, aliases: ["v", "-v", "--version"]
-            register "new", New
+            # FIXME: temporary disabled for Hanami v2.0.0.alpha2
+            # register "new", New
           end
         end
       end
