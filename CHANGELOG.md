@@ -7,6 +7,8 @@ Hanami Command Line Interface
 - [Luca Guidi] Dynamically change the set of available commands depending on the context (outside or inside an Hanami app)
 - [Luca Guidi] Dynamically change the set of available commands depending on Hanami app architecture
 - [Luca Guidi] Implemented `hanami version` (available both outside and inside an Hanami app)
+- [Piotr Solnica] Implemented `db *` commands (available both outside and inside an Hanami app) (sqlite and postgres only for now)
+- [Piotr Solnica] Implemented `console` command with support for `IRB` and `Pry` (`pry` is auto-detected)
 
 ### Changed
 - [Luca Guidi] Changed the purpose of this gem: the CLI Ruby framework has been extracted into `dry-cli` gem. `hanami-cli` is now the `hanami` command line.
