@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe "bin/run", :app do
+RSpec.describe "bin/hanami", :app do
   def output
-    Open3.capture3("bin/run #{args.join(" ")}", chdir: app.root)
+    Open3.capture3("bin/hanami #{args.join(" ")}", chdir: app.root)
   end
 
   let(:stdout) do
