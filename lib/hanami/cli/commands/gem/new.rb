@@ -32,7 +32,7 @@ module Hanami
           option :slice_url_prefix, default: DEFAULT_SLICE_URL_PREFIX,
                                     desc: %(The initial slice URL prefix, only for "monolith" architecture)
 
-          def initialize(fs: Dry::CLI::Utils::Files.new, bundler: CLI::Bundler.new(fs: fs),
+          def initialize(fs: Dry::Files.new, bundler: CLI::Bundler.new(fs: fs),
                          command_line: CLI::CommandLine.new(bundler: bundler), **other)
             @bundler = bundler
             @command_line = command_line

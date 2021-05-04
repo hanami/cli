@@ -21,7 +21,7 @@ module Hanami
         ::Bundler.require(*groups)
       end
 
-      def initialize(fs: Dry::CLI::Utils::Files.new, system_call: SystemCall.new)
+      def initialize(fs: Dry::Files.new, system_call: SystemCall.new)
         @fs = fs
         @system_call = system_call
       end

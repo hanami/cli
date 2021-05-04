@@ -16,7 +16,7 @@ module Hanami
             argument :name, required: true, desc: "The slice name"
             option :url_prefix, required: false, type: :string, desc: "The slice URL prefix"
 
-            def initialize(fs: Dry::CLI::Utils::Files.new, inflector: Dry::Inflector.new,
+            def initialize(fs: Dry::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::Monolith::Slice.new(fs: fs, inflector: inflector), **)
               @generator = generator
               super(fs: fs)

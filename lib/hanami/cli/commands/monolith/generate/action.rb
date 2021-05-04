@@ -28,7 +28,7 @@ module Hanami
             option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
                                desc: "Skip view and template generation"
 
-            def initialize(fs: Dry::CLI::Utils::Files.new, inflector: Dry::Inflector.new,
+            def initialize(fs: Dry::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::Monolith::Action.new(fs: fs, inflector: inflector), **)
               @generator = generator
               super(fs: fs)
