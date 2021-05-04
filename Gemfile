@@ -8,7 +8,11 @@ unless ENV["CI"]
   gem "yard",   require: false
 end
 
-gem "dry-files", "~> 0.1", require: false, git: "https://github.com/dry-rb/dry-files.git", branch: "master"
 gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "unstable"
 gem "hanami-view", require: false, git: "https://github.com/hanami/view.git", branch: "unstable"
+
 gem "rack"
+
+group :test do
+  gem "pry"
+end
