@@ -31,8 +31,15 @@ RSpec.describe "bin/run", :app do
     context "irb" do
       let(:args) { ["console"] }
 
-      it "starts irb console" do
-        pending "IRB's too hard"
+      xit "starts irb console" do
+        expect(output[0]).to include("test[development]")
+      end
+    end
+
+    context "defaulting to pry when it's present" do
+      let(:args) { ["console"] }
+
+      it "starts pry console" do
         expect(output[0]).to include("test[development]")
       end
     end
