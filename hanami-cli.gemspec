@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "dry-cli", "~> 0.6"
   spec.add_dependency "dry-files", "~> 0.1"
   spec.add_dependency "dry-inflector", "~> 0.2"
+  spec.add_dependency "rom-sql", "~> 3.5.0"
 
   spec.add_development_dependency "rspec", "~> 3.9"
   spec.add_development_dependency "rubocop", "~> 1.11"

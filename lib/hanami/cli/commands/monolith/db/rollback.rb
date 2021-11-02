@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require "pry"
 
 require_relative "../../application"
 require_relative "structure/dump"
@@ -24,6 +25,8 @@ module Hanami
 
               measure "database #{database.name} rolled back to #{migration_name}" do
                 database.run_migrations(target: Integer(migration_code))
+
+                true
               end
 
               run_command Structure::Dump if dump
@@ -36,7 +39,7 @@ module Hanami
                 if code
                   migrations.detect { |m| m.split("_").first == code }
                 else
-                  migrations.last
+                  migrations[-2]
                 end
               }
 

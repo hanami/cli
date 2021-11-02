@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "sequel"
+require "sequel/extensions/migration"
 require_relative "database_config"
 
 module Hanami
