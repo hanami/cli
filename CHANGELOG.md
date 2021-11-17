@@ -1,6 +1,9 @@
 # Hanami::CLI
 Hanami Command Line Interface
 
+## v2.0.0.alpha3 - 2021-11-09
+No changes.
+
 ## v2.0.0.alpha2 - 2021-05-04
 ### Added
 - [Luca Guidi] Official support for Ruby: MRI 3.0
