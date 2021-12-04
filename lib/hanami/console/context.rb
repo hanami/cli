@@ -29,6 +29,14 @@ module Hanami
           "#<#{self.class} application=#{app} env=#{app.config.env}>"
         end
 
+        define_method(:app) do
+          app
+        end
+
+        define_method(:application) do
+          app
+        end
+
         define_method(:method_missing) do |name, *args, &block|
           return app.public_send(name, *args, &block) if app.respond_to?(name)
           super(name, *args, &block)
