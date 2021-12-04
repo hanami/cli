@@ -10,16 +10,20 @@ module Hanami
     # @since 2.0.0
     class Context < Module
       # @api private
-      def initialize(application)
-        @application = application
-      end
+      attr_reader :application
 
       # @api private
-      def extended(other)
-        super
-        app = @application
+      def initialize(application)
+        @application = application
 
-        extend(Plugins::SliceReaders.new(app))
+        define_context_methods
+        include Plugins::SliceReaders.new(application)
+      end
+
+      private
+
+      def define_context_methods
+        app = application
 
         define_method(:inspect) do
           "#<#{self.class} application=#{app} env=#{app.config.env}>"
