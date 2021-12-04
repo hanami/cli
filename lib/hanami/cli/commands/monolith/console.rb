@@ -25,7 +25,7 @@ module Hanami
 
           desc "Application REPL"
 
-          option :repl, required: false, desc: "REPL gem that should be used"
+          option :repl, required: false, desc: "REPL gem that should be used ('pry' or 'irb')"
 
           # @api private
           def call(repl: nil, **opts)
@@ -35,7 +35,6 @@ module Hanami
 
           private
 
-          # @api private
           def resolve_engine(repl, opts)
             if repl
               REPLS.fetch(repl).(application, opts)
