@@ -19,6 +19,10 @@ module Hanami
                 require_relative("postgres")
                 Postgres
               },
+              "postgresql" => -> {
+                require_relative("postgres")
+                Postgres
+              },
               "mysql" => -> {
                 require_relative("mysql")
                 Mysql
