@@ -1,6 +1,14 @@
 # Hanami::CLI
 Hanami Command Line Interface
 
+## v2.0.0.alpha4 - 2021-12-07
+### Added
+- [Tim Riley] Display a custom prompt when using irb-based console (consistent with pry-based console)
+- [Phil Arndt] Support `postgresql://` URL schemes (in addition to existing `postgres://` support) for `db` subcommands
+
+### Fixed
+- [Tim Riley] Ensure slice helper methods work in console (e.g. top-level `main` method will return `Main::Slice` if an app has a "main" slice defined)
+
 ## v2.0.0.alpha3 - 2021-11-09
 No changes.
 
