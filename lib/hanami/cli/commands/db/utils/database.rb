@@ -78,10 +78,6 @@ module Hanami
               config.db_name
             end
 
-            def applied_migrations
-              sequel_migrator.applied_migrations
-            end
-
             def gateway
               rom_config.gateways[:default]
             end

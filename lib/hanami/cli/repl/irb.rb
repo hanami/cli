@@ -14,7 +14,7 @@ module Hanami
           $stdout.sync = true
 
           ARGV.shift until ARGV.empty?
-          TOPLEVEL_BINDING.eval('self').extend(context)
+          TOPLEVEL_BINDING.eval("self").extend(context)
 
           # Initializes the IRB.conf; our own conf changes must be after this
           IRB.setup(nil)

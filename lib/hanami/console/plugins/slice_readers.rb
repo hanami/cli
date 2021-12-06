@@ -10,6 +10,8 @@ module Hanami
       class SliceReaders < Module
         # @api private
         def initialize(application)
+          super()
+
           application.slices.each do |(name, slice)|
             define_method(name) do
               slice

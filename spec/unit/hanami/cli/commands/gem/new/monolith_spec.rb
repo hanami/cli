@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "hanami/cli/commands/gem/new"
-require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   context "architecture: monolith" do
@@ -21,13 +20,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       expect(command_line).to receive(:call)
         .with("hanami install")
-        .and_return(OpenStruct.new(successful?: true))
+        .and_return(successful_system_call_result)
     end
 
     it "generates an application" do
       expect(command_line).to receive(:call)
         .with("hanami generate slice main --url-prefix=/")
-        .and_return(OpenStruct.new(successful?: true))
+        .and_return(successful_system_call_result)
 
       subject.call(app: app, architecture: architecture)
 
@@ -301,7 +300,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       expect(command_line).to receive(:call)
         .with("hanami generate slice store --url-prefix=/")
-        .and_return(OpenStruct.new(successful?: true))
+        .and_return(successful_system_call_result)
 
       subject.call(app: app, architecture: architecture, slice: slice_name)
     end
@@ -309,7 +308,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     it "allows to specify the slice URL prefix" do
       expect(command_line).to receive(:call)
         .with("hanami generate slice main --url-prefix=/foo")
-        .and_return(OpenStruct.new(successful?: true))
+        .and_return(successful_system_call_result)
 
       subject.call(app: app, architecture: architecture, slice_url_prefix: "/foo")
     end

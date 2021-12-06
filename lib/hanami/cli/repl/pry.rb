@@ -10,7 +10,7 @@ module Hanami
       # @api public
       class Pry < Core
         # @api private
-        class Context
+        class Context # rubocop:disable Lint/EmptyClass
         end
 
         # @api public

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "hanami/cli/commands/gem/new"
-require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject { described_class.new(bundler: bundler, command_line: command_line, out: stdout, fs: fs) }
@@ -18,11 +17,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     expect(command_line).to receive(:call)
       .with("hanami install")
-      .and_return(OpenStruct.new(successful?: true))
+      .and_return(successful_system_call_result)
 
     expect(command_line).to receive(:call)
       .with("hanami generate slice main --url-prefix=/")
-      .and_return(OpenStruct.new(successful?: true))
+      .and_return(successful_system_call_result)
 
     app_name = "PropagandaLive"
     app = "propaganda_live"

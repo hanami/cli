@@ -3,10 +3,13 @@
 AllCops:
   SuggestExtensions: false
 inherit_from:
-  - https://raw.githubusercontent.com/hanami/devtools/master/.rubocop-unstable.yml
+  - https://raw.githubusercontent.com/hanami/devtools/main/.rubocop.yml
 Layout/LineLength:
   Exclude:
     - Gemfile
+Lint/EmptyFile:
+  Exclude:
+    - "spec/fixtures/**/*.rb"
 Naming/HeredocDelimiterNaming:
   Enabled: false
 Naming/MethodParameterName:

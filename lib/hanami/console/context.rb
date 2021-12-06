@@ -14,6 +14,7 @@ module Hanami
 
       # @api private
       def initialize(application)
+        super()
         @application = application
 
         define_context_methods
@@ -39,6 +40,7 @@ module Hanami
 
         define_method(:method_missing) do |name, *args, &block|
           return app.public_send(name, *args, &block) if app.respond_to?(name)
+
           super(name, *args, &block)
         end
 

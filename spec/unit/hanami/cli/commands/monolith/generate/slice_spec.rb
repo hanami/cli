@@ -2,7 +2,6 @@
 
 require "hanami/cli/commands/monolith/generate/slice"
 require "hanami"
-require "ostruct"
 require "securerandom"
 
 RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
@@ -18,7 +17,7 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
     pending "FIXME: something changed and the output has too many new-lines now"
 
     expect(Hanami).to receive(:application)
-      .and_return(OpenStruct.new(namespace: app))
+      .and_return(successful_system_call_result)
 
     routes_contents = <<~CODE
       # frozen_string_literal: true
@@ -136,8 +135,10 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
   it "uses slice name as URL prefix default" do
     pending "FIXME: something changed and the output has too many new-lines now"
 
+    application = Struct.new(:namespace).new(app)
+
     expect(Hanami).to receive(:application)
-      .and_return(OpenStruct.new(namespace: app))
+      .and_return(application)
 
     routes_contents = <<~CODE
       # frozen_string_literal: true
@@ -162,8 +163,10 @@ RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Slice do
   end
 
   it "ensures that slice URL prefix is valid" do
+    application = Struct.new(:namespace).new(app)
+
     expect(Hanami).to receive(:application)
-      .and_return(OpenStruct.new(namespace: app))
+      .and_return(application)
       .at_least(:once)
 
     routes_contents = <<~CODE

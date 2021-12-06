@@ -11,13 +11,13 @@ module Hanami
         # @api public
         class Console < Application
           REPLS = {
-            "pry" => -> *args {
+            "pry" => -> (*args) {
               begin
                 require "hanami/cli/repl/pry"
                 Repl::Pry.new(*args)
-              rescue LoadError; end
+              rescue LoadError; end # rubocop:disable Lint/SuppressedException
             },
-            "irb" => -> *args {
+            "irb" => -> (*args) {
               require "hanami/cli/repl/irb"
               Repl::Irb.new(*args)
             },

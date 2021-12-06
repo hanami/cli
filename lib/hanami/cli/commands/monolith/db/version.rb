@@ -12,7 +12,7 @@ module Hanami
 
             option :target, desc: "Target migration number", aliases: ["-t"]
 
-            def call(target: nil, **)
+            def call(target: nil, **) # rubocop:disable Lint/UnusedMethodArgument
               migration = database.applied_migrations.last
               version = migration ? File.basename(migration, ".*") : "not available"
 

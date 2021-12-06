@@ -104,7 +104,7 @@ module Hanami
           alias_method :t, :template
 
           def route_url(controller, action, url)
-            CLI::URL.call(url || "/#{controller.join('/')}" + ROUTE_RESTFUL_URL_SUFFIXES.fetch(action))
+            CLI::URL.call(url || ("/#{controller.join('/')}" + ROUTE_RESTFUL_URL_SUFFIXES.fetch(action)))
           end
 
           def route_http(action, http)
