@@ -12,7 +12,6 @@ Gem::Specification.new do |spec|
   spec.description   = "Hanami command line"
   spec.homepage      = "https://hanamirb.org"
   spec.license       = "MIT"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.6.0")
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
@@ -28,6 +27,8 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+  spec.metadata["rubygems_mfa_required"] = "true"
+  spec.required_ruby_version = ">= 3.0"
 
   spec.add_dependency "bundler", "~> 2.1"
   spec.add_dependency "rake", "~> 13.0"
@@ -36,8 +37,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "dry-inflector", "~> 0.2"
 
   spec.add_development_dependency "rspec", "~> 3.9"
-  spec.add_development_dependency "rubocop", "~> 1.11"
-  spec.metadata = {
-    "rubygems_mfa_required" => "true"
-  }
+  spec.add_development_dependency "rubocop", "~> 1.0"
 end
