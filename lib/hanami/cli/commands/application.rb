@@ -25,7 +25,7 @@ module Hanami
         def application
           @application ||=
             begin
-              require "hanami/init"
+              require "hanami/prepare"
               Hanami.application
             end
         end

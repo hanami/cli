@@ -37,7 +37,7 @@ module Hanami
         # @api private
         def name
           (application.container.config.name || inflector.underscore(application.name))
-            .split("/")[0]
+            .to_s.split("/")[0]
         end
 
         # @api private
