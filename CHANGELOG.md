@@ -1,6 +1,13 @@
 # Hanami::CLI
 Hanami Command Line Interface
 
+## v2.0.0.alpha6 - 2022-02-10
+### Added
+- [Luca Guidi] Official support for Ruby: MRI 3.1
+
+### Changed
+- [Luca Guidi] Drop support for Ruby: MRI 2.6, and 2.7
+
 ## v2.0.0.alpha4 - 2021-12-07
 ### Added
 - [Tim Riley] Display a custom prompt when using irb-based console (consistent with pry-based console)

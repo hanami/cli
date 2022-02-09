@@ -2,6 +2,6 @@
 
 module Hanami
   module CLI
-    VERSION = "2.0.0.alpha4"
+    VERSION = "2.0.0.alpha6"
   end
 end

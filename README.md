@@ -36,8 +36,8 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Hanami::Cli project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/hanami/cli/blob/main/CODE_OF_CONDUCT.md).
+Everyone interacting in the `Hanami::CLI` project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/hanami/cli/blob/main/CODE_OF_CONDUCT.md).
 
 ## Copyright
 
-Copyright © 2014-2021 Luca Guidi – Released under MIT License
+Copyright © 2014-2022 Hanami Team – Released under MIT License
