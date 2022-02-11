@@ -69,7 +69,7 @@ module Hanami
             def rom_config
               @rom_config ||=
                 begin
-                  application.init_bootable(:persistence)
+                  application.prepare(:persistence)
                   application.container["persistence.config"]
                 end
             end
