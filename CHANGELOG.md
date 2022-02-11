@@ -1,6 +1,10 @@
 # Hanami::CLI
 Hanami Command Line Interface
 
+## v2.0.0.alpha6.1 - 2022-02-11
+### Fixed
+- [Viet Tran] Ensure `hanami db` commands to work with `hanami` `v2.0.0.alpha6`
+
 ## v2.0.0.alpha6 - 2022-02-10
 ### Added
 - [Luca Guidi] Official support for Ruby: MRI 3.1
