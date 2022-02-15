@@ -10,6 +10,7 @@ module Hanami
         require_relative "monolith/install"
         require_relative "monolith/generate"
         require_relative "monolith/console"
+        require_relative "monolith/server"
         require_relative "monolith/db/create"
         require_relative "monolith/db/create_migration"
         require_relative "monolith/db/drop"
@@ -35,6 +36,8 @@ module Hanami
             # end
 
             register "console", Commands::Monolith::Console
+
+            register "server", Commands::Monolith::Server
 
             register "db create", Commands::Monolith::DB::Create
             register "db create_migration", Commands::Monolith::DB::CreateMigration
