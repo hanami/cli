@@ -12,8 +12,8 @@ module Hanami
         def initialize(application)
           super()
 
-          application.slices.each do |(name, slice)|
-            define_method(name) do
+          application.slices.each do |slice|
+            define_method(slice.slice_name) do
               slice
             end
           end

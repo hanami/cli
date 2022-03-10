@@ -1,6 +1,11 @@
 # Hanami::CLI
 Hanami Command Line Interface
 
+## v2.0.0.alpha7 - 2022-03-11
+
+### Changed
+- [Tim Riley] [Internal] Update console slice readers to work with new `Hanami::Application.slices` API
+
 ## v2.0.0.alpha6.1 - 2022-02-11
 ### Fixed
 - [Viet Tran] Ensure `hanami db` commands to work with `hanami` `v2.0.0.alpha6`
