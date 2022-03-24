@@ -1,0 +1,7 @@
+# This is a config synced from hanami/template-gem repo
+
+sources:
+  - repo: hanami/template-gem
+    sync:
+      - ".action_hero.yml.erb"
+      - "LICENSE.md.erb"
