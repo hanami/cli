@@ -108,7 +108,11 @@ module Hanami
             private
 
             def sequel_migrator
-              Sequel::TimestampMigrator.new(migrator.connection, migrations_path, {})
+              @sequel_migrator ||= begin
+                require 'sequel'
+                Sequel.extension :migration
+                Sequel::TimestampMigrator.new(migrator.connection, migrations_path, {})
+              end
             end
 
             def migrations_path
