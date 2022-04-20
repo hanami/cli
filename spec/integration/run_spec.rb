@@ -2,8 +2,10 @@
 
 RSpec.describe "bin/hanami", :app do
   def output
-    Open3.capture3("bin/hanami #{args.join(' ')}", chdir: app.root)
+    Open3.capture3({"HANAMI_ENV" => hanami_env}, "bin/hanami #{args.join(' ')}", chdir: app.root)
   end
+
+  let(:hanami_env) { nil }
 
   let(:stdout) do
     output[1]
@@ -52,11 +54,45 @@ RSpec.describe "bin/hanami", :app do
       end
     end
 
-    context "forced env" do
-      let(:args) { ["console --repl pry --env staging"] }
+    describe "hanami environment" do
+      context "HANAMI_ENV is present in the environment" do
+        let(:hanami_env) { "production" }
 
-      it "starts pry console" do
-        expect(output[0]).to include("test[staging]")
+        context "forced env option provided" do
+          let(:args) { ["console --env staging"] }
+
+          it "respects the option" do
+            expect(output[0]).to include("test[staging]")
+          end
+        end
+
+        context "forced env option absent" do
+          let(:args) { ["console"] }
+
+          it "respects HANAMI_ENV" do
+            expect(output[0]).to include("test[production]")
+          end
+        end
+      end
+
+      context "HANAMI_ENV is absent from the environment" do
+        let(:hanami_env) { nil }
+
+        context "forced env option provided" do
+          let(:args) { ["console --env production"] }
+
+          it "respects the provided env" do
+            expect(output[0]).to include("test[production]")
+          end
+        end
+
+        context "forced env option absent" do
+          let(:args) { ["console"] }
+
+          it "defaults to development" do
+            expect(output[0]).to include("test[development]")
+          end
+        end
       end
     end
   end

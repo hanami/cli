@@ -11,14 +11,18 @@ module Hanami
         module Environment
           def call(**opts)
             env = opts[:env]
-            ENV["HANAMI_ENV"] = env.to_s
+
+            hanami_env = env ? env.to_s : ENV["HANAMI_ENV"] || "development"
+
+            ENV["HANAMI_ENV"] = hanami_env
+
             super(**opts)
           end
         end
 
         def self.inherited(klass)
           super
-          klass.option(:env, required: false, default: "development", desc: "Application's environment")
+          klass.option(:env, required: false, desc: "Application's environment")
           klass.prepend(Environment)
         end
 
