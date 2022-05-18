@@ -1,6 +1,12 @@
 # Hanami::CLI
 Hanami Command Line Interface
 
+## v2.0.0.alpha8 - 2020-05-19
+
+### Fixed
+- [Andrew Croome] Respect HANAMI_ENV env var to set Hanami env if no `--env` option is supplied
+- [Lucas Mendelowski] Ensure Sequel migrations extension is loaded before related `db` commands are run
+
 ## v2.0.0.alpha7 - 2022-03-11
 
 ### Changed
