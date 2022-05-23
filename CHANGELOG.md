@@ -1,6 +1,11 @@
 # Hanami::CLI
 Hanami Command Line Interface
 
+## v2.0.0.alpha8.1 - 2020-05-23
+
+### Fixed
+- [Tim Riley] Ensure CLI starts properly by fixing use of `Slice.slice_name`
+
 ## v2.0.0.alpha8 - 2020-05-19
 
 ### Fixed
