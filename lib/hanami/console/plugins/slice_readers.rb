@@ -13,7 +13,7 @@ module Hanami
           super()
 
           application.slices.each do |slice|
-            define_method(slice.slice_name) do
+            define_method(slice.slice_name.to_sym) do
               slice
             end
           end
