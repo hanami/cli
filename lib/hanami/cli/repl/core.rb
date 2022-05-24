@@ -21,7 +21,7 @@ module Hanami
 
         # @api private
         def start
-          raise NotImplementedError
+          raise NoMethodError
         end
 
         # @api private

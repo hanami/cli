@@ -47,19 +47,19 @@ module Hanami
             end
 
             def create_command
-              raise NotImplementedError
+              raise NoMethodError
             end
 
             def drop_command
-              raise NotImplementedError
+              raise NoMethodError
             end
 
             def dump_command
-              raise NotImplementedError
+              raise NoMethodError
             end
 
             def load_command
-              raise NotImplementedError
+              raise NoMethodError
             end
 
             def root_path
