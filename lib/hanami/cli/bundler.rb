@@ -16,7 +16,7 @@ module Hanami
       private_constant :DEFAULT_GEMFILE_PATH
 
       def self.require(*groups)
-        return unless File.exist?(ENV[BUNDLE_GEMFILE] || DEFAULT_GEMFILE_PATH)
+        return unless File.exist?(ENV.fetch(BUNDLE_GEMFILE) { DEFAULT_GEMFILE_PATH })
 
         ::Bundler.require(*groups)
       end

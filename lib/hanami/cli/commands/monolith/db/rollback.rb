@@ -32,7 +32,7 @@ module Hanami
             private
 
             def find_migration(code)
-              migration = database.applied_migrations.yield_self { |migrations|
+              migration = database.applied_migrations.then { |migrations|
                 if code
                   migrations.detect { |m| m.split("_").first == code }
                 else

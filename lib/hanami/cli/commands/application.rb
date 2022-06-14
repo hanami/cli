@@ -12,7 +12,7 @@ module Hanami
           def call(**opts)
             env = opts[:env]
 
-            hanami_env = env ? env.to_s : ENV["HANAMI_ENV"] || "development"
+            hanami_env = env ? env.to_s : ENV.fetch("HANAMI_ENV", "development")
 
             ENV["HANAMI_ENV"] = hanami_env
 
