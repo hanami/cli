@@ -1,18 +1,9 @@
 # auto_register: false
 # frozen_string_literal: true
 
-require "dry/monads"
-require "dry/matcher/result_matcher"
+require "hanami/operation"
 
 module <%= classified_app_name %>
-  class Operation
-    include Dry::Monads[:result, :try]
-
-    class << self
-      def inherited(klass)
-        klass.include Dry::Monads[:do]
-        klass.include Dry::Matcher::ResultMatcher.for(:call)
-      end
-    end
+  class Operation < Hanami::Operation
   end
 end

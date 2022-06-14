@@ -57,8 +57,6 @@ module Hanami
 
       # Adapted from https://stackoverflow.com/a/5471032/498386
       def which(cmd)
-        return cmd if fs.memory?
-
         ENV["PATH"].split(File::PATH_SEPARATOR).each do |path|
           exe = fs.join(path, cmd)
           return exe if fs.executable?(exe) && !fs.directory?(exe)

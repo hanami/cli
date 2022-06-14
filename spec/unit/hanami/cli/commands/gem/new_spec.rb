@@ -113,9 +113,18 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       settings = <<~EXPECTED
         # frozen_string_literal: true
 
-        require "#{app}/types"
+        require "bookshelf/types"
+        require "hanami/application/settings"
 
-        Hanami.application.settings do
+        module Bookshelf
+          class Settings < Hanami::Application::Settings
+            # Database
+            setting :database do
+              setting :default do
+                setting :url, constructor: Types::String
+              end
+            end
+          end
         end
       EXPECTED
       expect(fs.read("config/settings.rb")).to eq(settings)
@@ -124,7 +133,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       routes = <<~EXPECTED
         # frozen_string_literal: true
 
-        Hanami.application.routes do
+        require "hanami/application/routes"
+
+        module Bookshelf
+          class Routes < Hanami::Application::Routes
+            define do
+            end
+          end
         end
       EXPECTED
       expect(fs.read("config/routes.rb")).to eq(routes)
@@ -134,23 +149,23 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("lib/tasks/.keep")).to eq(tasks_keep)
 
-      # lib/bookshelf/entities/.keep
+      # app/entities/.keep
       entities_keep = <<~EXPECTED
       EXPECTED
-      expect(fs.read("lib/#{app}/entities/.keep")).to eq(entities_keep)
+      expect(fs.read("app/entities/.keep")).to eq(entities_keep)
 
-      # lib/bookshelf/persistence/relations/.keep
-      persistence_relations_keep = <<~EXPECTED
+      # app/relations/.keep
+      relations_keep = <<~EXPECTED
       EXPECTED
-      expect(fs.read("lib/#{app}/persistence/relations/.keep")).to eq(persistence_relations_keep)
+      expect(fs.read("app/relations/.keep")).to eq(relations_keep)
 
-      # lib/bookshelf/persistence/relations/.keep
-      persistence_relations_keep = <<~EXPECTED
+      # app/repositories/.keep
+      repositories_keep = <<~EXPECTED
       EXPECTED
-      expect(fs.read("lib/#{app}/persistence/relations/.keep")).to eq(persistence_relations_keep)
+      expect(fs.read("app/repositories/.keep")).to eq(repositories_keep)
 
-      # lib/bookshelf/validation/contract.rb
-      validation_contract = <<~EXPECTED
+      # lib/bookshelf/validator.rb
+      validator = <<~EXPECTED
         # auto_register: false
         # frozen_string_literal: true
 
@@ -158,77 +173,44 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         require "dry/schema/messages/i18n"
 
         module #{inflector.classify(app)}
-          module Validation
-            class Contract < Dry::Validation::Contract
-              config.messages.backend = :i18n
-              config.messages.top_namespace = "validation"
-            end
+          module Validator < Dry::Validation::Contract
+            config.messages.backend = :i18n
+            config.messages.top_namespace = "validation"
           end
         end
       EXPECTED
-      expect(fs.read("lib/#{app}/validation/contract.rb")).to eq(validation_contract)
+      expect(fs.read("lib/#{app}/validator.rb")).to eq(validator)
 
-      # lib/bookshelf/view/context.rb
+      # app/views/context.rb
       view_context = <<~EXPECTED
         # frozen_string_literal: true
 
         require "hanami/view/context"
 
         module #{inflector.classify(app)}
-          module View
+          module Views
             class Context < Hanami::View::Context
-              def initialize(**args)
-                defaults = {content: {}}
-
-                super(**defaults.merge(args))
-              end
             end
           end
         end
       EXPECTED
-      expect(fs.read("lib/#{app}/view/context.rb")).to eq(view_context)
+      expect(fs.read("app/views/context.rb")).to eq(view_context)
 
-      # lib/bookshelf/action.rb
+      # app/action.rb
       action = <<~EXPECTED
         # auto_register: false
         # frozen_string_literal: true
 
-        require "json" # required for Hanami::Action::Flash to work
         require "hanami/action"
-        require "hanami/action/cookies"
-        require "hanami/action/csrf_protection"
-        require "hanami/action/session"
 
         module #{inflector.classify(app)}
           class Action < Hanami::Action
-            def self.inherited(klass)
-              super
-
-              # These will need to be sorted by the framework eventually
-              klass.include Hanami::Action::Cookies
-              klass.include Hanami::Action::Session
-              klass.include Hanami::Action::CSRFProtection
-            end
           end
         end
       EXPECTED
-      expect(fs.read("lib/#{app}/action.rb")).to eq(action)
+      expect(fs.read("app/action.rb")).to eq(action)
 
-      # lib/bookshelf/entities.rb
-      entities = <<~EXPECTED
-        # auto_register: false
-        # frozen_string_literal: true
-
-        module #{inflector.classify(app)}
-          module Entities
-          end
-        end
-
-        Dir[File.join(__dir__, "entities", "*.rb")].each(&method(:require))
-      EXPECTED
-      expect(fs.read("lib/#{app}/entities.rb")).to eq(entities)
-
-      # lib/bookshelf/functions.rb
+      # lib/bookshelf/transformations.rb
       functions = <<~EXPECTED
         # auto_register: false
         # frozen_string_literal: true
@@ -236,7 +218,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         require "dry/transformer"
 
         module #{inflector.classify(app)}
-          module Functions
+          module Transformations
             extend Dry::Transformer::Registry
 
             import Dry::Transformer::ArrayTransformations
@@ -244,48 +226,35 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           end
         end
       EXPECTED
-      expect(fs.read("lib/#{app}/functions.rb")).to eq(functions)
+      expect(fs.read("lib/#{app}/transformations.rb")).to eq(functions)
 
       # lib/bookshelf/operation.rb
       operation = <<~EXPECTED
         # auto_register: false
         # frozen_string_literal: true
 
-        require "dry/monads"
-        require "dry/matcher/result_matcher"
+        require "hanami/operation"
 
         module #{inflector.classify(app)}
-          class Operation
-            include Dry::Monads[:result, :try]
-
-            class << self
-              def inherited(klass)
-                klass.include Dry::Monads[:do]
-                klass.include Dry::Matcher::ResultMatcher.for(:call)
-              end
-            end
+          class Operation < Hanami::Operation
           end
         end
       EXPECTED
       expect(fs.read("lib/#{app}/operation.rb")).to eq(operation)
 
-      # lib/bookshelf/repository.rb
+      # app/repository.rb
       repository = <<~EXPECTED
         # auto_register: false
         # frozen_string_literal: true
 
-        require "rom-repository"
-        require_relative "entities"
+        require "hanami/repository"
 
         module #{inflector.classify(app)}
-          class Repository < ROM::Repository::Root
-            include Deps[container: "persistence.rom"]
-
-            struct_namespace Entities
+          class Repository < Hanami::Repository
           end
         end
       EXPECTED
-      expect(fs.read("lib/#{app}/repository.rb")).to eq(repository)
+      expect(fs.read("app/repository.rb")).to eq(repository)
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED

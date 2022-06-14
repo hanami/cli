@@ -1,4 +1,10 @@
 # frozen_string_literal: true
 
-Hanami.application.routes do
+require "hanami/application/routes"
+
+module <%= classified_app_name %>
+  class Routes < Hanami::Application::Routes
+    define do
+    end
+  end
 end
