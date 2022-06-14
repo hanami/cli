@@ -57,13 +57,11 @@ module Hanami
 
       # Adapted from https://stackoverflow.com/a/5471032/498386
       def which(cmd)
-        exts = ENV["PATHEXT"] ? ENV["PATHEXT"].split(";") : [""]
+        return cmd if fs.memory?
 
         ENV["PATH"].split(File::PATH_SEPARATOR).each do |path|
-          exts.each do |ext|
-            exe = fs.join(path, "#{cmd}#{ext}")
-            return exe if fs.executable?(exe) && !fs.directory?(exe)
-          end
+          exe = fs.join(path, cmd)
+          return exe if fs.executable?(exe) && !fs.directory?(exe)
         end
 
         nil
