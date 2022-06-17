@@ -45,11 +45,7 @@ module Hanami
             fs.write("lib/#{app}/types.rb", t("types.erb", context))
 
             fs.write("app/actions/.keep", t("keep.erb", context))
-            fs.write("app/views/.keep", t("keep.erb", context))
             fs.write("app/action.rb", t("action.erb", context))
-            fs.write("app/view.rb", t("view.erb", context))
-            fs.write("app/views/context.rb", t("view_context.erb", context))
-            fs.write("app/views/part.rb", t("view_part.erb", context))
           end
 
           def template(path, context)

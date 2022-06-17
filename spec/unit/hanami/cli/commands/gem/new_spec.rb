@@ -64,8 +64,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         gem "hanami-router", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
-        gem "hanami-validations", "#{hanami_version}"
-        gem "hanami-view", git: "https://github.com/hanami/view.git", branch: "main"
         gem "hanami-cli", git: "https://github.com/hanami/cli.git", branch: "main"
         gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "feature/hanami-2-cli"
 
@@ -155,50 +153,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("app/action.rb")).to eq(action)
-
-      # app/view.rb
-      view = <<~EXPECTED
-        # auto_register: false
-        # frozen_string_literal: true
-
-        require "hanami/view"
-
-        module #{inflector.classify(app)}
-          class View < Hanami::View
-          end
-        end
-      EXPECTED
-      expect(fs.read("app/view.rb")).to eq(view)
-
-      # app/views/context.rb
-      view_context = <<~EXPECTED
-        # frozen_string_literal: true
-
-        require "hanami/view/context"
-
-        module #{inflector.classify(app)}
-          module Views
-            class Context < Hanami::View::Context
-            end
-          end
-        end
-      EXPECTED
-      expect(fs.read("app/views/context.rb")).to eq(view_context)
-
-      # app/views/part.rb
-      view_part = <<~EXPECTED
-        # frozen_string_literal: true
-
-        require "hanami/view/part"
-
-        module #{inflector.classify(app)}
-          module Views
-            class Part < Hanami::View::Part
-            end
-          end
-        end
-      EXPECTED
-      expect(fs.read("app/views/part.rb")).to eq(view_part)
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
