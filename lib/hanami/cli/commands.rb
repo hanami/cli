@@ -2,19 +2,18 @@
 
 module Hanami
   # TODO: move elsewhere
-  def self.architecture
-    return :monolith if File.exist?("config/application.rb")
+  def self.app?
+    return true if File.exist?("config/application.rb")
   end
 
   module CLI
     module Commands
     end
 
-    def self.register_commands!(architecture = Hanami.architecture)
-      commands = case architecture
-                 when :monolith
-                   require_relative "commands/monolith"
-                   Commands::Monolith
+    def self.register_commands!(within_hanami_app = Hanami.app?)
+      commands = if within_hanami_app
+                   require_relative "commands/application"
+                   Commands::Application
                  else
                    require_relative "commands/gem"
                    Commands::Gem

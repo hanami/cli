@@ -15,19 +15,20 @@ RSpec.describe "bin/hanami", :app do
     let(:args) { [] }
 
     it "prints out usage" do
+      expect(stdout).to include("install")
       expect(stdout).to include("console")
-      expect(stdout).to include("db [SUBCOMMAND]")
+      # expect(stdout).to include("db [SUBCOMMAND]")
     end
   end
 
-  context "db" do
-    let(:args) { ["db"] }
-
-    it "prints put db usage" do
-      expect(stdout).to include("db create")
-      expect(stdout).to include("db structure [SUBCOMMAND]")
-    end
-  end
+  # context "db" do
+  #   let(:args) { ["db"] }
+  #
+  #   it "prints put db usage" do
+  #     expect(stdout).to include("db create")
+  #     expect(stdout).to include("db structure [SUBCOMMAND]")
+  #   end
+  # end
 
   context "console" do
     context "irb" do

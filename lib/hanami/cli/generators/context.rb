@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "hanami/version"
+require_relative "./version"
 
 module Hanami
   module CLI
@@ -16,7 +16,7 @@ module Hanami
         end
 
         def hanami_version
-          Hanami::Version.gem_requirement
+          Version.gem_requirement
         end
 
         def classified_app_name

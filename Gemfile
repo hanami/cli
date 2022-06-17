@@ -10,7 +10,6 @@ end
 
 gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "main"
 gem "hanami-router", require: false, git: "https://github.com/hanami/router.git", branch: "main"
-gem "hanami-view", require: false, git: "https://github.com/hanami/view.git", branch: "main"
 
 gem "rack"
 
