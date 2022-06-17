@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "hanami/routes"
+require "hanami/view/part"
 
 module <%= classified_app_name %>
-  class Routes < Hanami::Routes
-    define do
+  module Views
+    class Part < Hanami::View::Part
     end
   end
 end

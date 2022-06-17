@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "hanami/cli/commands/monolith/generate/action"
-require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::Monolith::Generate::Action do

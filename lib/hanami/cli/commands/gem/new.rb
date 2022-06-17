@@ -12,7 +12,13 @@ module Hanami
     module Commands
       module Gem
         class New < Command
+          SKIP_BUNDLE_DEFAULT = false
+          private_constant :SKIP_BUNDLE_DEFAULT
+
           argument :app, required: true, desc: "Application name"
+
+          option :skip_bundle, type: :boolean, required: false,
+                               default: SKIP_BUNDLE_DEFAULT, desc: "Skip bundle install"
 
           # rubocop:disable Metrics/ParameterLists
           def initialize(
@@ -30,14 +36,16 @@ module Hanami
           end
           # rubocop:enable Metrics/ParameterLists
 
-          def call(app:, **)
+          def call(app:, skip_bundle: SKIP_BUNDLE_DEFAULT, **)
             app = inflector.underscore(app)
 
             fs.mkdir(app)
             fs.chdir(app) do
               generator.call(app) do
-                bundler.install!
-                run_install_commmand!
+                unless skip_bundle
+                  bundler.install!
+                  run_install_commmand!
+                end
               end
             end
           end

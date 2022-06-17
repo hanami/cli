@@ -43,20 +43,13 @@ module Hanami
 
             fs.write("lib/tasks/.keep", t("keep.erb", context))
             fs.write("lib/#{app}/types.rb", t("types.erb", context))
-            fs.write("lib/#{app}/validator.rb", t("validator.erb", context))
-            fs.write("lib/#{app}/transformations.rb", t("transformations.erb", context))
-            fs.write("lib/#{app}/operation.rb", t("operation.erb", context))
 
-            fs.write("app/entities/.keep", t("keep.erb", context))
-            fs.write("app/relations/.keep", t("keep.erb", context))
-            fs.write("app/repositories/.keep", t("keep.erb", context))
             fs.write("app/actions/.keep", t("keep.erb", context))
             fs.write("app/views/.keep", t("keep.erb", context))
-            fs.write("app/relation.rb", t("relation.erb", context))
-            fs.write("app/repository.rb", t("repository.erb", context))
             fs.write("app/action.rb", t("action.erb", context))
             fs.write("app/view.rb", t("view.erb", context))
             fs.write("app/views/context.rb", t("view_context.erb", context))
+            fs.write("app/views/part.rb", t("view_part.erb", context))
           end
 
           def template(path, context)

@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
 require "<%= underscored_app_name %>/types"
-require "hanami/application/settings"
+require "hanami/settings"
 
 module <%= classified_app_name %>
-  class Settings < Hanami::Application::Settings
-    # Database
-    setting :database do
-      setting :default do
-        setting :url, constructor: Types::String
-      end
-    end
+  class Settings < Hanami::Settings
   end
 end

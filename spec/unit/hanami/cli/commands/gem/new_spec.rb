@@ -54,7 +54,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("README.md")).to eq(readme)
 
       # Gemfile
-      hanami_version = Hanami::Version.gem_requirement
+      hanami_version = Hanami::CLI::Generators::Version.gem_requirement
       gemfile = <<~EXPECTED
         # frozen_string_literal: true
 
@@ -65,8 +65,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gem "hanami-router", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
         gem "hanami-validations", "#{hanami_version}"
-        gem "hanami-view", git: "https://github.com/hanami/view.git", branch: "master"
-        gem "dry-cli", "~> 0.6", require: false, git: "https://github.com/dry-rb/dry-cli.git", branch: "feature/file-utils-class"
+        gem "hanami-view", git: "https://github.com/hanami/view.git", branch: "main"
         gem "hanami-cli", git: "https://github.com/hanami/cli.git", branch: "main"
         gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "feature/hanami-2-cli"
 
@@ -82,7 +81,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       rakefile = <<~EXPECTED
         # frozen_string_literal: true
 
-        require "hanami/application/rake_tasks"
+        require "hanami/rake_tasks"
       EXPECTED
       expect(fs.read("Rakefile")).to eq(rakefile)
 
@@ -114,16 +113,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # frozen_string_literal: true
 
         require "bookshelf/types"
-        require "hanami/application/settings"
+        require "hanami/settings"
 
         module Bookshelf
-          class Settings < Hanami::Application::Settings
-            # Database
-            setting :database do
-              setting :default do
-                setting :url, constructor: Types::String
-              end
-            end
+          class Settings < Hanami::Settings
           end
         end
       EXPECTED
@@ -133,10 +126,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       routes = <<~EXPECTED
         # frozen_string_literal: true
 
-        require "hanami/application/routes"
+        require "hanami/routes"
 
         module Bookshelf
-          class Routes < Hanami::Application::Routes
+          class Routes < Hanami::Routes
             define do
             end
           end
@@ -149,37 +142,33 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("lib/tasks/.keep")).to eq(tasks_keep)
 
-      # app/entities/.keep
-      entities_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("app/entities/.keep")).to eq(entities_keep)
-
-      # app/relations/.keep
-      relations_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("app/relations/.keep")).to eq(relations_keep)
-
-      # app/repositories/.keep
-      repositories_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("app/repositories/.keep")).to eq(repositories_keep)
-
-      # lib/bookshelf/validator.rb
-      validator = <<~EXPECTED
+      # app/action.rb
+      action = <<~EXPECTED
         # auto_register: false
         # frozen_string_literal: true
 
-        require "dry/validation"
-        require "dry/schema/messages/i18n"
+        require "hanami/action"
 
         module #{inflector.classify(app)}
-          module Validator < Dry::Validation::Contract
-            config.messages.backend = :i18n
-            config.messages.top_namespace = "validation"
+          class Action < Hanami::Action
           end
         end
       EXPECTED
-      expect(fs.read("lib/#{app}/validator.rb")).to eq(validator)
+      expect(fs.read("app/action.rb")).to eq(action)
+
+      # app/view.rb
+      view = <<~EXPECTED
+        # auto_register: false
+        # frozen_string_literal: true
+
+        require "hanami/view"
+
+        module #{inflector.classify(app)}
+          class View < Hanami::View
+          end
+        end
+      EXPECTED
+      expect(fs.read("app/view.rb")).to eq(view)
 
       # app/views/context.rb
       view_context = <<~EXPECTED
@@ -196,65 +185,20 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("app/views/context.rb")).to eq(view_context)
 
-      # app/action.rb
-      action = <<~EXPECTED
-        # auto_register: false
+      # app/views/part.rb
+      view_part = <<~EXPECTED
         # frozen_string_literal: true
 
-        require "hanami/action"
+        require "hanami/view/part"
 
         module #{inflector.classify(app)}
-          class Action < Hanami::Action
+          module Views
+            class Part < Hanami::View::Part
+            end
           end
         end
       EXPECTED
-      expect(fs.read("app/action.rb")).to eq(action)
-
-      # lib/bookshelf/transformations.rb
-      functions = <<~EXPECTED
-        # auto_register: false
-        # frozen_string_literal: true
-
-        require "dry/transformer"
-
-        module #{inflector.classify(app)}
-          module Transformations
-            extend Dry::Transformer::Registry
-
-            import Dry::Transformer::ArrayTransformations
-            import Dry::Transformer::HashTransformations
-          end
-        end
-      EXPECTED
-      expect(fs.read("lib/#{app}/transformations.rb")).to eq(functions)
-
-      # lib/bookshelf/operation.rb
-      operation = <<~EXPECTED
-        # auto_register: false
-        # frozen_string_literal: true
-
-        require "hanami/operation"
-
-        module #{inflector.classify(app)}
-          class Operation < Hanami::Operation
-          end
-        end
-      EXPECTED
-      expect(fs.read("lib/#{app}/operation.rb")).to eq(operation)
-
-      # app/repository.rb
-      repository = <<~EXPECTED
-        # auto_register: false
-        # frozen_string_literal: true
-
-        require "hanami/repository"
-
-        module #{inflector.classify(app)}
-          class Repository < Hanami::Repository
-          end
-        end
-      EXPECTED
-      expect(fs.read("app/repository.rb")).to eq(repository)
+      expect(fs.read("app/views/part.rb")).to eq(view_part)
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
