@@ -1,65 +1,40 @@
 # frozen_string_literal: true
 
-require "dry/files"
-
-require_relative "db/utils/database"
-
 module Hanami
   module CLI
     module Commands
-      class Application < Hanami::CLI::Command
-        module Environment
-          def call(**opts)
-            env = opts[:env]
+      module Application
+        require_relative "application/version"
+        require_relative "application/install"
+        require_relative "application/console"
+        # require_relative "application/generate"
+        # require_relative "application/db/create"
+        # require_relative "application/db/create_migration"
+        # require_relative "application/db/drop"
+        # require_relative "application/db/migrate"
+        # require_relative "application/db/setup"
+        # require_relative "application/db/reset"
+        # require_relative "application/db/rollback"
+        # require_relative "application/db/sample_data"
+        # require_relative "application/db/seed"
+        # require_relative "application/db/structure/dump"
+        # require_relative "application/db/version"
 
-            hanami_env = env ? env.to_s : ENV.fetch("HANAMI_ENV", "development")
+        def self.extended(base)
+          base.module_eval do
+            register "version", Commands::Application::Version, aliases: ["v", "-v", "--version"]
+            register "install", Commands::Application::Install
+            register "console", Commands::Application::Console, aliases: ["c"]
 
-            ENV["HANAMI_ENV"] = hanami_env
+            # FIXME: temporary disabled for Hanami v2.0.0.alpha2
+            # register "install", Install
 
-            super(**opts)
+            # FIXME: temporary disabled for Hanami v2.0.0.alpha2
+            # register "generate", aliases: ["g"] do |prefix|
+            #   prefix.register "slice", Generate::Slice
+            #   prefix.register "action", Generate::Action
+            # end
           end
-        end
-
-        def self.inherited(klass)
-          super
-          klass.option(:env, required: false, desc: "Application's environment")
-          klass.prepend(Environment)
-        end
-
-        def application
-          @application ||=
-            begin
-              require "hanami/prepare"
-              Hanami.application
-            end
-        end
-
-        def run_command(klass, *args)
-          klass.new(
-            out: out,
-            inflector: application.inflector,
-            fs: Dry::Files
-          ).call(*args)
-        end
-
-        def measure(desc)
-          start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-          result = yield
-          stop = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-
-          if result
-            out.puts "=> #{desc} in #{(stop - start).round(4)}s"
-          else
-            out.puts "!!! => #{desc.inspect} FAILED"
-          end
-        end
-
-        def database
-          @database ||= Commands::DB::Utils::Database[application]
-        end
-
-        def database_config
-          database.config
         end
       end
     end
