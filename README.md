@@ -2,7 +2,7 @@
 
 CLI commands for [full-stack Hanami applications](`https://github.com/hanami/hanami`).
 
-**NOTE**: For versions 0.4 and below, there was a general purpose CLI utility library with this same name. That library has since been renamed to [dry-rb/cli](https://github.com/dry-rb/dry-cli). Please update your Gemfiles accordingly.
+**NOTE**: For versions 0.4 and below, there was a general purpose CLI utility library with this same name. That library has since been renamed to [dry-rb/dry-cli](https://github.com/dry-rb/dry-cli). Please update your Gemfiles accordingly.
 
 ## Installation
 
