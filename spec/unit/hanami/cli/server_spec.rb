@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "hanami/cli/server"
 
 RSpec.describe Hanami::CLI::Server do
