@@ -89,7 +89,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         require "hanami/boot"
 
-        run Hanami.app
+        run Hanami.rack_app
       EXPECTED
       expect(fs.read("config.ru")).to eq(config_ru)
 
