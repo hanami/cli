@@ -25,11 +25,14 @@ module Hanami
         #
         # Run `bundle exec hanami server -h` to see all the supported options.
         class Server < Command
+          DEFAULT_PORT = 2300
+          private_constant :DEFAULT_PORT
+
           desc "Start Hanami server"
 
           option :host, default: nil, required: false,
                         desc: "The host address to bind to (falls back to the rack handler)"
-          option :port, default: nil, required: false,
+          option :port, default: DEFAULT_PORT, required: false,
                         desc: "The port to run the server on (falls back to the rack handler)"
           option :config, default: "config.ru", required: false, desc: "Rack configuration file"
           option :debug, default: false, required: false, desc: "Turn on/off debug output", type: :boolean
@@ -41,8 +44,8 @@ module Hanami
           end
 
           # @api private
-          def call(...)
-            server.call(...)
+          def call(port: DEFAULT_PORT, **kwargs)
+            server.call(port: port, **kwargs)
           end
 
           private

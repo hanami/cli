@@ -9,7 +9,7 @@ RSpec.describe Hanami::CLI::Commands::Application::Server do
 
   it "starts rack server in the given environment" do
     host = ENV.fetch("HANAMI_CLI_TEST_HOST", "0.0.0.0")
-    port = ENV.fetch("HANAMI_CLI_TEST_PORT", "9292")
+    port = ENV.fetch("HANAMI_CLI_TEST_PORT", "2300")
     begin
       pid = fork do
         $stdout.reopen "/dev/null", "a"
