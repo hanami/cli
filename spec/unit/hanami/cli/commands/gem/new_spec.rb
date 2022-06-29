@@ -65,7 +65,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gem "hanami-router", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
         gem "hanami-cli", git: "https://github.com/hanami/cli.git", branch: "main"
-        gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "feature/hanami-2-cli"
+        gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "main"
 
         gem "puma"
 
