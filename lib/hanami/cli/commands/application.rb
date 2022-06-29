@@ -7,6 +7,7 @@ module Hanami
         require_relative "application/version"
         require_relative "application/install"
         require_relative "application/console"
+        require_relative "application/server"
         # require_relative "application/generate"
         # require_relative "application/db/create"
         # require_relative "application/db/create_migration"
@@ -25,6 +26,7 @@ module Hanami
             register "version", Commands::Application::Version, aliases: ["v", "-v", "--version"]
             register "install", Commands::Application::Install
             register "console", Commands::Application::Console, aliases: ["c"]
+            register "server",  Commands::Application::Server,  aliases: ["s"]
 
             # FIXME: temporary disabled for Hanami v2.0.0.alpha2
             # register "install", Install

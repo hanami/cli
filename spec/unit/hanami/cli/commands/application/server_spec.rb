@@ -15,7 +15,7 @@ RSpec.describe Hanami::CLI::Commands::Application::Server do
         $stdout.reopen "/dev/null", "a"
         $stderr.reopen "/dev/null", "a"
         subject.call(
-          config: File.join(File.dirname(__FILE__), '../../../../../fixtures/test/config.ru'),
+          config: File.join(File.dirname(__FILE__), "../../../../../fixtures/test/config.ru"),
           host: host,
           port: port,
           env: "staging"
@@ -31,8 +31,8 @@ RSpec.describe Hanami::CLI::Commands::Application::Server do
   end
 
   def open_uri(uri, attempts = 5)
-    URI.open(uri).read
-  rescue Errno::ECONNREFUSED => e
+    URI.open(uri).read # rubocop:disable Security/Open
+  rescue Errno::ECONNREFUSED
     raise if attempts.zero?
 
     sleep 1
