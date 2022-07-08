@@ -29,7 +29,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.directory?(app)).to be(true)
   end
 
-  it "generates an application" do
+  it "generates an app" do
     expect(bundler).to receive(:install!)
       .and_return(true)
 
@@ -93,18 +93,18 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("config.ru")).to eq(config_ru)
 
-      # config/application.rb
-      application = <<~EXPECTED
+      # config/app.rb
+      hanami_app = <<~EXPECTED
         # frozen_string_literal: true
 
         require "hanami"
 
         module Bookshelf
-          class Application < Hanami::Application
+          class App < Hanami::App
           end
         end
       EXPECTED
-      expect(fs.read("config/application.rb")).to eq(application)
+      expect(fs.read("config/app.rb")).to eq(hanami_app)
 
       # config/settings.rb
       settings = <<~EXPECTED

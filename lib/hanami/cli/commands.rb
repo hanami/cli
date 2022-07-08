@@ -3,7 +3,7 @@
 module Hanami
   # TODO: move elsewhere
   def self.app?
-    return true if File.exist?("config/application.rb")
+    return true if File.exist?("config/app.rb")
   end
 
   module CLI
@@ -12,8 +12,8 @@ module Hanami
 
     def self.register_commands!(within_hanami_app = Hanami.app?)
       commands = if within_hanami_app
-                   require_relative "commands/application"
-                   Commands::Application
+                   require_relative "commands/app"
+                   Commands::App
                  else
                    require_relative "commands/gem"
                    Commands::Gem

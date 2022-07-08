@@ -3,7 +3,7 @@
 require "hanami/cli/command"
 require "hanami/cli/bundler"
 require "hanami/cli/command_line"
-require "hanami/cli/generators/gem/application"
+require "hanami/cli/generators/gem/app"
 require "dry/files"
 require "dry/inflector"
 
@@ -15,7 +15,7 @@ module Hanami
           SKIP_BUNDLE_DEFAULT = false
           private_constant :SKIP_BUNDLE_DEFAULT
 
-          argument :app, required: true, desc: "Application name"
+          argument :app, required: true, desc: "App name"
 
           option :skip_bundle, type: :boolean, required: false,
                                default: SKIP_BUNDLE_DEFAULT, desc: "Skip bundle install"
@@ -26,7 +26,7 @@ module Hanami
             inflector: Dry::Inflector.new,
             bundler: CLI::Bundler.new(fs: fs),
             command_line: CLI::CommandLine.new(bundler: bundler),
-            generator: Generators::Gem::Application.new(fs: fs, inflector: inflector, command_line: command_line),
+            generator: Generators::Gem::App.new(fs: fs, inflector: inflector, command_line: command_line),
             **other
           )
             @bundler = bundler
