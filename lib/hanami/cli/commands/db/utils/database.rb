@@ -8,7 +8,7 @@ module Hanami
       module DB
         module Utils
           class Database
-            attr_reader :application, :config
+            attr_reader :app, :config
 
             SCHEME_MAP = {
               "sqlite" => -> {
@@ -29,8 +29,8 @@ module Hanami
               }
             }.freeze
 
-            def self.[](application)
-              config = DatabaseConfig.new(application.settings.database_url)
+            def self.[](app)
+              config = DatabaseConfig.new(app.settings.database_url)
 
               resolver = SCHEME_MAP.fetch(config.db_type) do
                 raise "#{config.db_type} is not a supported db scheme"
@@ -38,11 +38,11 @@ module Hanami
 
               klass = resolver.()
 
-              klass.new(application: application, config: config)
+              klass.new(app: app, config: config)
             end
 
-            def initialize(application:, config:)
-              @application = application
+            def initialize(app:, config:)
+              @app = app
               @config = config
             end
 
@@ -63,14 +63,14 @@ module Hanami
             end
 
             def root_path
-              application.root
+              app.root
             end
 
             def rom_config
               @rom_config ||=
                 begin
-                  application.prepare(:persistence)
-                  application.container["persistence.config"]
+                  app.prepare(:persistence)
+                  app.container["persistence.config"]
                 end
             end
 

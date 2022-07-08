@@ -5,7 +5,7 @@ require "hanami/cli/bundler"
 
 module Hanami
   module CLI
-    # Install Rake tasks in an application
+    # Install Rake tasks in an app
     #
     # @since 2.0.0
     class RakeTasks

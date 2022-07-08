@@ -29,7 +29,7 @@ RSpec.configure do |config|
 
   RSpec.shared_context "app" do
     let(:app) do
-      Test::Application
+      Test::App
     end
   end
 
@@ -59,7 +59,7 @@ RSpec.configure do |config|
   config.include_context("app", app: true)
 
   config.around(app: true) do |example|
-    require_relative "fixtures/test/config/application" unless defined?(Test::Application)
+    require_relative "fixtures/test/config/app" unless defined?(Test::App)
     example.run
   end
 end

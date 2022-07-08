@@ -8,14 +8,14 @@ module Hanami
       # @api private
       class Core
         # @api private
-        attr_reader :application
+        attr_reader :app
 
         # @api private
         attr_reader :opts
 
         # @api private
-        def initialize(application, opts)
-          @application = application
+        def initialize(app, opts)
+          @app = app
           @opts = opts
         end
 
@@ -26,7 +26,7 @@ module Hanami
 
         # @api private
         def context
-          @context ||= Hanami::Console::Context.new(application)
+          @context ||= Hanami::Console::Context.new(app)
         end
 
         # @api private
@@ -36,18 +36,18 @@ module Hanami
 
         # @api private
         def name
-          (application.container.config.name || inflector.underscore(application.name))
+          (app.container.config.name || inflector.underscore(app.name))
             .to_s.split("/")[0]
         end
 
         # @api private
         def env
-          application.container.env
+          app.container.env
         end
 
         # @api private
         def inflector
-          application.inflector
+          app.inflector
         end
       end
     end

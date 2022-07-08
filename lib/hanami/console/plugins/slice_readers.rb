@@ -9,10 +9,10 @@ module Hanami
       # @since 2.0.0
       class SliceReaders < Module
         # @api private
-        def initialize(application)
+        def initialize(app)
           super()
 
-          application.slices.each do |slice|
+          app.slices.each do |slice|
             define_method(slice.slice_name.to_sym) do
               slice
             end
