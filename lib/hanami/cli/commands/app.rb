@@ -8,6 +8,7 @@ module Hanami
         require_relative "app/install"
         require_relative "app/console"
         require_relative "app/server"
+        require_relative "app/routes"
         # require_relative "app/generate"
         # require_relative "app/db/create"
         # require_relative "app/db/create_migration"
@@ -27,6 +28,7 @@ module Hanami
             register "install", Commands::App::Install
             register "console", Commands::App::Console, aliases: ["c"]
             register "server",  Commands::App::Server,  aliases: ["s"]
+            register "routes",  Commands::App::Routes
 
             # FIXME: temporary disabled for Hanami v2.0.0.alpha2
             # register "install", Install
