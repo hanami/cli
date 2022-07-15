@@ -8,7 +8,7 @@ unless ENV["CI"]
   gem "yard",   require: false
 end
 
-gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "waiting-for-dev/inspector"
+gem "hanami", require: false, github: "hanami/hanami", branch: :main
 gem "hanami-router", github: "hanami/router", branch: :main
 
 gem "rack"
