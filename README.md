@@ -4,21 +4,23 @@ CLI commands for [full-stack Hanami applications](`https://github.com/hanami/han
 
 **NOTE**: For versions 0.4 and below, there was a general purpose CLI utility library with this same name. That library has since been renamed to [dry-rb/dry-cli](https://github.com/dry-rb/dry-cli). Please update your Gemfiles accordingly.
 
-## Installation
+## Status
 
-Add this line to your application's Gemfile:
+[![Gem Version](https://badge.fury.io/rb/hanami-cli.svg)](https://badge.fury.io/rb/hanami-cli)
+[![CI](https://github.com/hanami/cli/workflows/ci/badge.svg?branch=main)](https://github.com/hanami/cli/actions?query=workflow%3Aci+branch%3Amain)
+[![Depfu](https://badges.depfu.com/badges/a8545fb67cf32a2c75b6227bc0821027/overview.svg)](https://depfu.com/github/hanami/cli?project=Bundler)
 
-```ruby
-gem 'hanami-cli'
-```
+## Contact
 
-And then execute:
+- Home page: http://hanamirb.org
+- Mailing List: http://hanamirb.org/mailing-list
+- Bugs/Issues: https://github.com/hanami/cli/issues
+- Support: http://stackoverflow.com/questions/tagged/hanami
+- Chat: http://chat.hanamirb.org
 
-    $ bundle install
+## Rubies
 
-Or install it yourself as:
-
-    $ gem install hanami-cli
+**Hanami::RSpec** supports Ruby (MRI) 3.0+
 
 ## Usage
 
