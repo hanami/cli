@@ -22,8 +22,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .with("hanami install")
       .and_return(successful_system_call_result)
 
-    app_name = "PropagandaLive"
-    app = "propaganda_live"
+    app_name = "HanamiTeam"
+    app = "hanami_team"
     subject.call(app: app_name)
 
     expect(fs.directory?(app)).to be(true)
@@ -64,13 +64,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         gem "hanami-router", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
-        gem "hanami-cli", git: "https://github.com/hanami/cli.git", branch: "main"
-        gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "main"
+        gem "hanami", "#{hanami_version}"
 
         gem "puma"
 
         group :cli, :development, :test do
-          gem "hanami-rspec", git: "https://github.com/hanami/rspec.git", branch: "main"
+          gem "hanami-rspec"
         end
       EXPECTED
       expect(fs.read("Gemfile")).to eq(gemfile)

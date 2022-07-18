@@ -6,11 +6,10 @@ gem "rake"
 
 gem "hanami-router", "<%= hanami_version %>"
 gem "hanami-controller", "<%= hanami_version %>"
-gem "hanami-cli", git: "https://github.com/hanami/cli.git", branch: "main"
-gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "main"
+gem "hanami", "<%= hanami_version %>"
 
 gem "puma"
 
 group :cli, :development, :test do
-  gem "hanami-rspec", git: "https://github.com/hanami/rspec.git", branch: "main"
+  gem "hanami-rspec"
 end

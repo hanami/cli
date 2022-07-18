@@ -39,7 +39,7 @@ module Hanami
                  desc: "Output format"
 
           # @api private
-          def call(format: DEFAULT_FORMAT, slice: nil)
+          def call(format: DEFAULT_FORMAT, **)
             require "hanami/prepare"
             inspector = Hanami::Router::Inspector.new(formatter: resolve_formatter(format))
             app.router(inspector: inspector)
