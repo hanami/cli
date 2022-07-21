@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "<%= underscored_app_name %>/types"
-require "hanami/settings"
 
 module <%= classified_app_name %>
   class Settings < Hanami::Settings
+    # Define your app settings here, for example:
+    #
+    # setting :my_flag, default: false, constructor: Types::Params::Bool
   end
 end

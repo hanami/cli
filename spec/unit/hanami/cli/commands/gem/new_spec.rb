@@ -113,10 +113,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # frozen_string_literal: true
 
         require "bookshelf/types"
-        require "hanami/settings"
 
         module Bookshelf
           class Settings < Hanami::Settings
+            # Define your app settings here, for example:
+            #
+            # setting :my_flag, default: false, constructor: Types::Params::Bool
           end
         end
       EXPECTED
@@ -125,8 +127,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # config/routes.rb
       routes = <<~EXPECTED
         # frozen_string_literal: true
-
-        require "hanami/routes"
 
         module Bookshelf
           class Routes < Hanami::Routes
