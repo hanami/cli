@@ -164,8 +164,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         require "dry/types"
 
         module #{inflector.classify(app)}
+          Types = Dry.Types
+
           module Types
-            include Dry.Types
+            # Define your custom types here
           end
         end
       EXPECTED
