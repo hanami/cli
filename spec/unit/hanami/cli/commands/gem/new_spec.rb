@@ -159,7 +159,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
-        # auto_register: false
         # frozen_string_literal: true
 
         require "dry/types"
