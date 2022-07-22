@@ -10,6 +10,7 @@ module Hanami
         require_relative "app/server"
         require_relative "app/routes"
         require_relative "app/generate"
+        require_relative "app/middlewares"
         # require_relative "app/db/create"
         # require_relative "app/db/create_migration"
         # require_relative "app/db/drop"
@@ -24,11 +25,12 @@ module Hanami
 
         def self.extended(base)
           base.module_eval do
-            register "version", Commands::App::Version, aliases: ["v", "-v", "--version"]
-            register "install", Commands::App::Install
-            register "console", Commands::App::Console, aliases: ["c"]
-            register "server",  Commands::App::Server,  aliases: ["s"]
-            register "routes",  Commands::App::Routes
+            register "version",      Commands::App::Version, aliases: ["v", "-v", "--version"]
+            register "install",      Commands::App::Install
+            register "console",      Commands::App::Console, aliases: ["c"]
+            register "server",       Commands::App::Server,  aliases: ["s"]
+            register "routes",       Commands::App::Routes
+            register "middlewares",  Commands::App::Middlewares
 
             register "generate", aliases: ["g"] do |prefix|
               prefix.register "slice", Generate::Slice
