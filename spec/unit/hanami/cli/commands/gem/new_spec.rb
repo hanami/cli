@@ -60,16 +60,18 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         source "https://rubygems.org"
 
-        gem "rake"
-
         gem "hanami", "#{hanami_version}"
         gem "hanami-router", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
         gem "hanami-validations", "#{hanami_version}"
 
-        gem "puma"
-
         gem "dry-types"
+        gem "puma"
+        gem "rake"
+
+        group :development, :test do
+          gem "dotenv"
+        end
 
         group :cli, :development, :test do
           gem "hanami-rspec"
