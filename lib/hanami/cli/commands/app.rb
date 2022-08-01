@@ -9,7 +9,7 @@ module Hanami
         require_relative "app/console"
         require_relative "app/server"
         require_relative "app/routes"
-        # require_relative "app/generate"
+        require_relative "app/generate"
         # require_relative "app/db/create"
         # require_relative "app/db/create_migration"
         # require_relative "app/db/drop"
@@ -30,14 +30,10 @@ module Hanami
             register "server",  Commands::App::Server,  aliases: ["s"]
             register "routes",  Commands::App::Routes
 
-            # FIXME: temporary disabled for Hanami v2.0.0.alpha2
-            # register "install", Install
-
-            # FIXME: temporary disabled for Hanami v2.0.0.alpha2
-            # register "generate", aliases: ["g"] do |prefix|
-            #   prefix.register "slice", Generate::Slice
-            #   prefix.register "action", Generate::Action
-            # end
+            register "generate", aliases: ["g"] do |prefix|
+              prefix.register "slice", Generate::Slice
+              #   prefix.register "action", Generate::Action
+            end
           end
         end
       end
