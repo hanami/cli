@@ -22,7 +22,6 @@ module Hanami
 
           def self.inherited(klass)
             super
-            klass.option(:env, required: false, desc: "App's environment")
             klass.prepend(Environment)
           end
 
