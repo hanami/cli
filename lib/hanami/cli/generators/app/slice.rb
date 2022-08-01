@@ -14,23 +14,24 @@ module Hanami
             @inflector = inflector
           end
 
-          def call(app, slice, slice_url_prefix, context: SliceContext.new(inflector, app, slice, slice_url_prefix)) # rubocop:disable Metrics/AbcSize
+          def call(app, slice, slice_url_prefix, context: SliceContext.new(inflector, app, slice, slice_url_prefix))
             fs.inject_line_before_last(fs.join("config", "routes.rb"), /end/, t("routes.erb", context).chomp)
 
             fs.mkdir(directory = "slices/#{slice}")
 
             fs.chdir(directory) do
+              fs.write("slice.rb", t("slice.erb", context))
               fs.write("action.rb", t("action.erb", context))
-              fs.write("view.rb", t("view.erb", context))
-              fs.write("entities.rb", t("entities.erb", context))
-              fs.write("repository.rb", t("repository.erb", context))
+              # fs.write("view.rb", t("view.erb", context))
+              # fs.write("entities.rb", t("entities.erb", context))
+              # fs.write("repository.rb", t("repository.erb", context))
 
               fs.write("actions/.keep", t("keep.erb", context))
-              fs.write("views/.keep", t("keep.erb", context))
-              fs.write("templates/.keep", t("keep.erb", context))
-              fs.write("templates/layouts/.keep", t("keep.erb", context))
-              fs.write("entities/.keep", t("keep.erb", context))
-              fs.write("repositories/.keep", t("keep.erb", context))
+              # fs.write("views/.keep", t("keep.erb", context))
+              # fs.write("templates/.keep", t("keep.erb", context))
+              # fs.write("templates/layouts/.keep", t("keep.erb", context))
+              # fs.write("entities/.keep", t("keep.erb", context))
+              # fs.write("repositories/.keep", t("keep.erb", context))
             end
           end
 

@@ -26,8 +26,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
       expect(fs.read("config/routes.rb")).to include(route)
 
-      # Directory
+      # Slice directory
       expect(fs.directory?("slices/#{slice}")).to be(true)
+
+      # Slice
+      slice_class = <<~CODE
+        # frozen_string_literal: true
+
+        module Admin
+          class Slice < Hanami::Slice
+          end
+        end
+      CODE
+      expect(fs.read("slices/#{slice}/slice.rb")).to eq(slice_class)
 
       # Action
       action = <<~CODE
@@ -43,76 +54,36 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       CODE
 
       expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
+
+      expect(fs.read("slices/#{slice}/actions/.keep")).to eq("")
     end
   end
 
-  it "uses slice name as URL prefix default" do
-    pending "FIXME: something changed and the output has too many new-lines now"
+  it "ensures that slice URL prefix is valid" do
+    within_application_directory do
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase)
+      expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-    app = Struct.new(:namespace).new(app)
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/")
+      expected = %(slice :#{slice_name}, at: "/" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-    expect(Hanami).to receive(:app)
-      .and_return(app)
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/foo_bar")
+      expected = %(slice :#{slice_name}, at: "/foo_bar" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-    routes_contents = <<~CODE
-      # frozen_string_literal: true
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/FooBar")
+      expected = %(slice :#{slice_name}, at: "/foo_bar" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-      Hanami.app.routes do
-      end
-    CODE
-    fs.write("config/routes.rb", routes_contents)
-
-    subject.call(name: "FooBar")
-
-    # config/routes.rb
-    routes = <<~EXPECTED
-      # frozen_string_literal: true
-
-      Hanami.app.routes do
-        slice :foo_bar, at: "/foo_bar" do
-        end
-      end
-    EXPECTED
-    expect(fs.read("config/routes.rb")).to eq(routes)
-  end
-
-  xit "ensures that slice URL prefix is valid" do
-    app = Struct.new(:namespace).new(app)
-
-    expect(Hanami).to receive(:app)
-      .and_return(app)
-      .at_least(:once)
-
-    routes_contents = <<~CODE
-      # frozen_string_literal: true
-
-      Hanami.app.routes do
-      end
-    CODE
-    fs.write("config/routes.rb", routes_contents)
-
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase)
-    expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
-
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/")
-    expected = %(slice :#{slice_name}, at: "/" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
-
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/foo_bar")
-    expected = %(slice :#{slice_name}, at: "/foo_bar" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
-
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/FooBar")
-    expected = %(slice :#{slice_name}, at: "/foo_bar" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
-
-    expect { subject.call(name: slice, url_prefix: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
-    expect { subject.call(name: slice, url_prefix: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
-    expect { subject.call(name: slice, url_prefix: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
-    expect {
-      subject.call(name: slice, url_prefix: "//FooBar")
-    }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
+      expect { subject.call(name: slice, url_prefix: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
+      expect { subject.call(name: slice, url_prefix: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
+      expect { subject.call(name: slice, url_prefix: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
+      expect {
+        subject.call(name: slice, url_prefix: "//FooBar")
+      }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
+    end
   end
 
   private
