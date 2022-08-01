@@ -20,11 +20,24 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       subject.call(name: slice)
 
       # Route
-      route = <<~CODE
-        slice :#{slice}, at: "/#{slice}" do
+      routes = <<~CODE
+        # frozen_string_literal: true
+
+        require "hanami/routes"
+
+        module #{app}
+          class Routes < Hanami::Routes
+            define do
+              root { "Hello from Hanami" }
+
+              slice :#{slice}, at: "/#{slice}" do
+              end
+            end
+          end
+        end
       CODE
 
-      expect(fs.read("config/routes.rb")).to include(route)
+      expect(fs.read("config/routes.rb")).to include(routes)
 
       # Slice directory
       expect(fs.directory?("slices/#{slice}")).to be(true)
@@ -85,6 +98,37 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
     end
   end
+
+  it "generates multiple slices over time" do
+    within_application_directory do
+      subject.call(name: "admin")
+      subject.call(name: "billing")
+
+      # Route
+      routes = <<~CODE
+        # frozen_string_literal: true
+
+        require "hanami/routes"
+
+        module #{app}
+          class Routes < Hanami::Routes
+            define do
+              root { "Hello from Hanami" }
+
+              slice :admin, at: "/admin" do
+              end
+
+              slice :billing, at: "/billing" do
+              end
+            end
+          end
+        end
+      CODE
+
+      expect(fs.read("config/routes.rb")).to eq(routes)
+    end
+  end
+
 
   private
 
