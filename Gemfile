@@ -8,7 +8,7 @@ unless ENV["CI"]
   gem "yard",   require: false
 end
 
-gem "dry-files", require: false, github: "dry-rb/dry-files", branch: "memory-fix-multiline-write"
+gem "dry-files", require: false, github: "dry-rb/dry-files", branch: :main
 gem "hanami", require: false, github: "hanami/hanami", branch: :main
 gem "hanami-router", github: "hanami/router", branch: :main
 
