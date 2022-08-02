@@ -129,7 +129,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
     end
   end
 
-
   private
 
   def within_application_directory
