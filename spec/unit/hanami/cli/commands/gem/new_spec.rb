@@ -60,14 +60,18 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         source "https://rubygems.org"
 
-        gem "rake"
-
+        gem "hanami", "#{hanami_version}"
         gem "hanami-router", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
         gem "hanami-validations", "#{hanami_version}"
-        gem "hanami", "#{hanami_version}"
 
+        gem "dry-types"
         gem "puma"
+        gem "rake"
+
+        group :development, :test do
+          gem "dotenv"
+        end
 
         group :cli, :development, :test do
           gem "hanami-rspec"
@@ -111,10 +115,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # frozen_string_literal: true
 
         require "bookshelf/types"
-        require "hanami/settings"
 
         module Bookshelf
           class Settings < Hanami::Settings
+            # Define your app settings here, for example:
+            #
+            # setting :my_flag, default: false, constructor: Types::Params::Bool
           end
         end
       EXPECTED
@@ -123,8 +129,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # config/routes.rb
       routes = <<~EXPECTED
         # frozen_string_literal: true
-
-        require "hanami/routes"
 
         module Bookshelf
           class Routes < Hanami::Routes
@@ -157,14 +161,15 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
-        # auto_register: false
         # frozen_string_literal: true
 
         require "dry/types"
 
         module #{inflector.classify(app)}
+          Types = Dry.Types
+
           module Types
-            include Dry.Types
+            # Define your custom types here
           end
         end
       EXPECTED
