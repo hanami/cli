@@ -42,16 +42,16 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       # Slice directory
       expect(fs.directory?("slices/#{slice}")).to be(true)
 
-      # Slice
-      slice_class = <<~CODE
-        # frozen_string_literal: true
-
-        module Admin
-          class Slice < Hanami::Slice
-          end
-        end
-      CODE
-      expect(fs.read("slices/#{slice}/slice.rb")).to eq(slice_class)
+      # # Slice
+      # slice_class = <<~CODE
+      #   # frozen_string_literal: true
+      #
+      #   module Admin
+      #     class Slice < Hanami::Slice
+      #     end
+      #   end
+      # CODE
+      # expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
 
       # Action
       action = <<~CODE
