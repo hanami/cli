@@ -7,9 +7,10 @@ inherit_from:
 Layout/LineLength:
   Exclude:
     - Gemfile
+    - 'spec/**/*.rb'
 Lint/EmptyFile:
   Exclude:
-    - "spec/fixtures/**/*.rb"
+    - 'spec/fixtures/**/*.rb'
 Naming/HeredocDelimiterNaming:
   Enabled: false
 Naming/MethodParameterName:

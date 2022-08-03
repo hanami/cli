@@ -15,10 +15,9 @@ module Hanami
             @inflector = inflector
           end
 
-          # rubocop:disable Metrics/AbcSize
           # rubocop:disable Metrics/ParameterLists
           # rubocop:disable Layout/LineLength
-          def call(slice, controller, action, url, http, format, skip_view, context: ActionContext.new(inflector, slice, controller, action))
+          def call(slice, controller, action, url, http, _format, _skip_view, context: ActionContext.new(inflector, slice, controller, action))
             slice_directory = fs.join("slices", slice)
             raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
 
@@ -32,18 +31,17 @@ module Hanami
               fs.mkdir(directory = fs.join("actions", controller))
               fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
 
-              unless skip_view
-                fs.mkdir(directory = fs.join("views", controller))
-                fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
-
-                fs.mkdir(directory = fs.join("templates", controller))
-                fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
-              end
+              # unless skip_view
+              #   fs.mkdir(directory = fs.join("views", controller))
+              #   fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
+              #
+              #   fs.mkdir(directory = fs.join("templates", controller))
+              #   fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
+              # end
             end
           end
           # rubocop:enable Layout/LineLength
           # rubocop:enable Metrics/ParameterLists
-          # rubocop:enable Metrics/AbcSize
 
           private
 
