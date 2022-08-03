@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "hanami"
 require "hanami/cli/commands/app/generate/slice"
 require "securerandom"
 
@@ -10,193 +11,151 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::App::Slice.new(fs: fs, inflector: inflector) }
   let(:app) { "Bookshelf" }
-  let(:slice) { "main" }
+  let(:underscored_app) { inflector.underscore(app) }
+  let(:dir) { underscored_app }
+  let(:slice) { "admin" }
 
   it "generates slice" do
-    pending "FIXME: something changed and the output has too many new-lines now"
+    within_application_directory do
+      subject.call(name: slice)
 
-    expect(Hanami).to receive(:app)
-      .and_return(successful_system_call_result)
+      # Route
+      routes = <<~CODE
+        # frozen_string_literal: true
 
-    routes_contents = <<~CODE
-      # frozen_string_literal: true
+        require "hanami/routes"
 
-      Hanami.app.routes do
-      end
-    CODE
-    fs.write("config/routes.rb", routes_contents)
+        module #{app}
+          class Routes < Hanami::Routes
+            define do
+              root { "Hello from Hanami" }
 
-    subject.call(name: slice, url_prefix: "/")
-
-    # config/routes.rb
-    routes = <<~EXPECTED
-      # frozen_string_literal: true
-
-      Hanami.app.routes do
-        slice :main, at: "/" do
+              slice :#{slice}, at: "/#{slice}" do
+              end
+            end
+          end
         end
-      end
-    EXPECTED
-    expect(fs.read("config/routes.rb")).to eq(routes)
+      CODE
 
-    expect(fs.directory?(directory = "slices/#{slice}")).to be(true)
+      expect(fs.read("config/routes.rb")).to include(routes)
 
-    fs.chdir(directory) do
-      # action.rb
-      action = <<~EXPECTED
+      # Slice directory
+      expect(fs.directory?("slices/#{slice}")).to be(true)
+
+      # # Slice
+      # slice_class = <<~CODE
+      #   # frozen_string_literal: true
+      #
+      #   module Admin
+      #     class Slice < Hanami::Slice
+      #     end
+      #   end
+      # CODE
+      # expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
+
+      # Action
+      action = <<~CODE
         # auto_register: false
         # frozen_string_literal: true
 
-        require "#{inflector.underscore(app)}/action"
+        require "#{underscored_app}/action"
 
-        module #{inflector.classify(slice)}
-          class Action < #{inflector.classify(app)}::Action
+        module Admin
+          class Action < #{app}::Action
           end
         end
-      EXPECTED
-      expect(fs.read("action.rb")).to eq(action)
+      CODE
 
-      # view.rb
-      view = <<~EXPECTED
-        # auto_register: false
-        # frozen_string_literal: true
+      expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
 
-        require "#{inflector.underscore(app)}/view"
-
-        module #{inflector.classify(slice)}
-          class View < #{inflector.classify(app)}::View
-          end
-        end
-      EXPECTED
-      expect(fs.read("view.rb")).to eq(view)
-
-      # entities.rb
-      entities = <<~EXPECTED
-        # auto_register: false
-        # frozen_string_literal: true
-
-        module #{inflector.classify(slice)}
-          module Entities
-          end
-        end
-
-        Dir[File.join(__dir__, "entities", "*.rb")].each(&method(:require))
-      EXPECTED
-      expect(fs.read("entities.rb")).to eq(entities)
-
-      # repository.rb
-      repository = <<~EXPECTED
-        # frozen_string_literal: true
-
-        require "#{inflector.underscore(app)}/repository"
-        require_relative "entities"
-
-        module #{inflector.classify(slice)}
-          class Repository < #{inflector.classify(app)}::Repository
-            struct_namespace Entities
-          end
-        end
-      EXPECTED
-      expect(fs.read("repository.rb")).to eq(repository)
-
-      # actions/.keep
-      actions_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("actions/.keep")).to eq(actions_keep)
-
-      # views/.keep
-      views_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("views/.keep")).to eq(views_keep)
-
-      # templates/.keep
-      templates_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("templates/.keep")).to eq(templates_keep)
-
-      # templates/.keep
-      templates_layouts_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("templates/layouts/.keep")).to eq(templates_layouts_keep)
-
-      # entities/.keep
-      entities_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("entities/.keep")).to eq(entities_keep)
-
-      # repository/.keep
-      repositories_keep = <<~EXPECTED
-      EXPECTED
-      expect(fs.read("repositories/.keep")).to eq(repositories_keep)
+      expect(fs.read("slices/#{slice}/actions/.keep")).to eq("")
     end
   end
 
-  it "uses slice name as URL prefix default" do
-    pending "FIXME: something changed and the output has too many new-lines now"
+  it "ensures that slice URL prefix is valid" do
+    within_application_directory do
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase)
+      expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-    app = Struct.new(:namespace).new(app)
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/")
+      expected = %(slice :#{slice_name}, at: "/" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-    expect(Hanami).to receive(:app)
-      .and_return(app)
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/foo_bar")
+      expected = %(slice :#{slice_name}, at: "/foo_bar" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-    routes_contents = <<~CODE
-      # frozen_string_literal: true
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/FooBar")
+      expected = %(slice :#{slice_name}, at: "/foo_bar" do)
+      expect(fs.read("config/routes.rb")).to match(expected)
 
-      Hanami.app.routes do
-      end
-    CODE
-    fs.write("config/routes.rb", routes_contents)
-
-    subject.call(name: "FooBar")
-
-    # config/routes.rb
-    routes = <<~EXPECTED
-      # frozen_string_literal: true
-
-      Hanami.app.routes do
-        slice :foo_bar, at: "/foo_bar" do
-        end
-      end
-    EXPECTED
-    expect(fs.read("config/routes.rb")).to eq(routes)
+      expect { subject.call(name: slice, url_prefix: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
+      expect { subject.call(name: slice, url_prefix: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
+      expect { subject.call(name: slice, url_prefix: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
+      expect {
+        subject.call(name: slice, url_prefix: "//FooBar")
+      }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
+    end
   end
 
-  it "ensures that slice URL prefix is valid" do
-    app = Struct.new(:namespace).new(app)
+  it "generates multiple slices over time" do
+    within_application_directory do
+      subject.call(name: "admin")
+      subject.call(name: "billing")
 
-    expect(Hanami).to receive(:app)
-      .and_return(app)
-      .at_least(:once)
+      # Route
+      routes = <<~CODE
+        # frozen_string_literal: true
 
-    routes_contents = <<~CODE
-      # frozen_string_literal: true
+        require "hanami/routes"
 
-      Hanami.app.routes do
-      end
-    CODE
-    fs.write("config/routes.rb", routes_contents)
+        module #{app}
+          class Routes < Hanami::Routes
+            define do
+              root { "Hello from Hanami" }
 
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase)
-    expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
+              slice :admin, at: "/admin" do
+              end
 
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/")
-    expected = %(slice :#{slice_name}, at: "/" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
+              slice :billing, at: "/billing" do
+              end
+            end
+          end
+        end
+      CODE
 
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/foo_bar")
-    expected = %(slice :#{slice_name}, at: "/foo_bar" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
+      expect(fs.read("config/routes.rb")).to eq(routes)
+    end
+  end
 
-    subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/FooBar")
-    expected = %(slice :#{slice_name}, at: "/foo_bar" do)
-    expect(fs.read("config/routes.rb")).to match(expected)
+  private
 
-    expect { subject.call(name: slice, url_prefix: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
-    expect { subject.call(name: slice, url_prefix: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
-    expect { subject.call(name: slice, url_prefix: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
-    expect {
-      subject.call(name: slice, url_prefix: "//FooBar")
-    }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
+  def within_application_directory
+    application = Struct.new(:namespace).new(app)
+
+    allow(Hanami).to receive(:app)
+      .and_return(application)
+
+    fs.mkdir(dir)
+    fs.chdir(dir) do
+      routes = <<~CODE
+        # frozen_string_literal: true
+
+        require "hanami/routes"
+
+        module #{app}
+          class Routes < Hanami::Routes
+            define do
+              root { "Hello from Hanami" }
+            end
+          end
+        end
+      CODE
+
+      fs.write("config/routes.rb", routes)
+
+      yield
+    end
   end
 end

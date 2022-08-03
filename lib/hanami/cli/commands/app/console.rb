@@ -25,6 +25,7 @@ module Hanami
 
           desc "App REPL"
 
+          option :env, required: false, desc: "Application environment"
           option :repl, required: false, desc: "REPL gem that should be used ('pry' or 'irb')"
 
           # @api private

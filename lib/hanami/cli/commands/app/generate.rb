@@ -6,7 +6,7 @@ module Hanami
       module App
         module Generate
           require_relative "./generate/slice"
-          require_relative "./generate/action"
+          # require_relative "./generate/action"
         end
       end
     end
