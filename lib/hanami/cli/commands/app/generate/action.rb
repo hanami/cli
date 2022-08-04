@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "hanami/cli/command"
+require "hanami/cli/commands/app/command"
 require "hanami/cli/generators/app/action"
 require "dry/inflector"
 require "dry/files"
@@ -11,7 +11,7 @@ module Hanami
     module Commands
       module App
         module Generate
-          class Action < Command
+          class Action < App::Command
             # TODO: ideally the default format should lookup
             #       slice configuration (Action's `default_response_format`)
             DEFAULT_FORMAT = "html"
@@ -44,7 +44,7 @@ module Hanami
                 raise ArgumentError.new("cannot parse controller and action name: `#{name}'\n\texample: users.show")
               end
 
-              generator.call(controller, action, url, http, format, skip_view, slice)
+              generator.call(app.namespace, controller, action, url, http, format, skip_view, slice)
             end
             # rubocop:enable Metrics/ParameterLists
 

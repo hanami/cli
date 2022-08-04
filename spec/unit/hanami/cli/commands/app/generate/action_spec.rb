@@ -16,6 +16,78 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action do
   let(:action) { "index" }
   let(:action_name) { "#{controller}.#{action}" }
 
+  context "generate for app" do
+    it "generates action" do
+      within_application_directory do
+        subject.call(name: action_name)
+
+        # Route
+        routes = <<~CODE
+          # frozen_string_literal: true
+
+          require "hanami/routes"
+
+          module #{app}
+            class Routes < Hanami::Routes
+              define do
+                root { "Hello from Hanami" }
+                get "/users", to: "users.index"
+              end
+            end
+          end
+        CODE
+
+        # route
+        expect(fs.read("config/routes.rb")).to eq(routes)
+
+        action_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          require "#{inflector.underscore(app)}/action"
+
+          module #{inflector.classify(app)}
+            module Actions
+              module #{inflector.camelize(controller)}
+                class #{inflector.classify(action)} < #{inflector.classify(app)}::Action
+                end
+              end
+            end
+          end
+        EXPECTED
+        expect(fs.read("app/actions/#{controller}/#{action}.rb")).to eq(action_file)
+
+        # # view
+        # expect(fs.directory?("slices/#{slice}/views/#{controller}")).to be(true)
+        #
+        # view_file = <<~EXPECTED
+        #   # auto_register: false
+        #   # frozen_string_literal: true
+        #
+        #   require "#{inflector.underscore(slice)}/view"
+        #
+        #   module #{inflector.classify(slice)}
+        #     module Views
+        #       module #{inflector.camelize(controller)}
+        #         class #{inflector.classify(action)} < #{inflector.classify(slice)}::View
+        #         end
+        #       end
+        #     end
+        #   end
+        # EXPECTED
+        # expect(fs.read("slices/#{slice}/views/#{controller}/#{action}.rb")).to eq(view_file)
+
+        # template
+        # expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
+        #
+        # template_file = <<~EXPECTED
+        #   <h1>#{inflector.classify(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.classify(action)}</h1>
+        #   <h2>slices/#{slice}/templates/#{controller}/#{action}.html.erb</h2>
+        # EXPECTED
+        # expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+      end
+    end
+  end
+
   context "generate for a slice" do
     let(:slice) { "main" }
 

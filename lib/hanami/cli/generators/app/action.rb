@@ -5,6 +5,7 @@ require "dry/files"
 require "hanami/cli/generators/app/action_context"
 require "hanami/cli/url"
 
+# rubocop:disable Metrics/ParameterLists
 module Hanami
   module CLI
     module Generators
@@ -15,33 +16,15 @@ module Hanami
             @inflector = inflector
           end
 
-          # rubocop:disable Metrics/ParameterLists
           # rubocop:disable Layout/LineLength
-          def call(controller, action, url, http, _format, _skip_view, slice, context: ActionContext.new(inflector, slice, controller, action))
-            slice_directory = fs.join("slices", slice)
-            raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
-
-            fs.inject_line_at_block_bottom(
-              fs.join("config", "routes.rb"),
-              slice_matcher(slice),
-              route(controller, action, url, http)
-            )
-
-            fs.chdir(slice_directory) do
-              fs.mkdir(directory = fs.join("actions", controller))
-              fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
-
-              # unless skip_view
-              #   fs.mkdir(directory = fs.join("views", controller))
-              #   fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
-              #
-              #   fs.mkdir(directory = fs.join("templates", controller))
-              #   fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
-              # end
+          def call(app, controller, action, url, http, format, skip_view, slice, context: ActionContext.new(inflector, app, slice, controller, action))
+            if slice
+              generate_for_slice(controller, action, url, http, format, skip_view, slice, context)
+            else
+              generate_for_app(controller, action, url, http, format, skip_view, context)
             end
           end
           # rubocop:enable Layout/LineLength
-          # rubocop:enable Metrics/ParameterLists
 
           private
 
@@ -72,6 +55,41 @@ module Hanami
           attr_reader :fs
 
           attr_reader :inflector
+
+          def generate_for_slice(controller, action, url, http, _format, _skip_view, slice, context)
+            slice_directory = fs.join("slices", slice)
+            raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
+
+            fs.inject_line_at_block_bottom(
+              fs.join("config", "routes.rb"),
+              slice_matcher(slice),
+              route(controller, action, url, http)
+            )
+
+            fs.chdir(slice_directory) do
+              fs.mkdir(directory = fs.join("actions", controller))
+              fs.write(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
+
+              # unless skip_view
+              #   fs.mkdir(directory = fs.join("views", controller))
+              #   fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
+              #
+              #   fs.mkdir(directory = fs.join("templates", controller))
+              #   fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
+              # end
+            end
+          end
+
+          def generate_for_app(controller, action, url, http, _format, _skip_view, context)
+            fs.inject_line_at_block_bottom(
+              fs.join("config", "routes.rb"),
+              /define/,
+              route(controller, action, url, http)
+            )
+
+            fs.mkdir(directory = fs.join("app", "actions", controller))
+            fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
+          end
 
           def slice_matcher(slice)
             /slice[[:space:]]*:#{slice}/
@@ -119,3 +137,4 @@ module Hanami
     end
   end
 end
+# rubocop:enable Metrics/ParameterLists
