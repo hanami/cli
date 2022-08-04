@@ -4,13 +4,13 @@ require "hanami"
 require "hanami/cli/commands/app/generate/action"
 require "ostruct"
 
-RSpec.describe Hanami::CLI::Commands::App::Generate::Action do
+RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
 
   let(:fs) { Dry::Files.new(memory: true) }
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::App::Action.new(fs: fs, inflector: inflector) }
-  let(:app) { "Bookshelf" }
+  let(:app) { Hanami.app.namespace }
   let(:dir) { inflector.underscore(app) }
   let(:controller) { "users" }
   let(:action) { "index" }
@@ -411,11 +411,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action do
   private
 
   def within_application_directory
-    application = Struct.new(:namespace).new(app)
-
-    allow(Hanami).to receive(:app)
-      .and_return(application)
-
     fs.mkdir(dir)
     fs.chdir(dir) do
       routes = <<~CODE
