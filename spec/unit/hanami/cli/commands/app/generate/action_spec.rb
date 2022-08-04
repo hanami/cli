@@ -43,12 +43,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         action_file = <<~EXPECTED
           # frozen_string_literal: true
 
-          require "#{inflector.underscore(app)}/action"
-
           module #{inflector.classify(app)}
             module Actions
               module #{inflector.camelize(controller)}
                 class #{inflector.classify(action)} < #{inflector.classify(app)}::Action
+                  def call(*, res)
+                    res.body = self.class.name
+                  end
                 end
               end
             end
@@ -207,12 +208,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         action_file = <<~EXPECTED
           # frozen_string_literal: true
 
-          require "#{inflector.underscore(slice)}/action"
-
           module #{inflector.classify(slice)}
             module Actions
               module #{inflector.camelize(controller)}
                 class #{inflector.classify(action)} < #{inflector.classify(slice)}::Action
+                  def call(*, res)
+                    res.body = self.class.name
+                  end
                 end
               end
             end
@@ -291,14 +293,15 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           action_file = <<~EXPECTED
             # frozen_string_literal: true
 
-            require "#{inflector.underscore(slice)}/action"
-
             module #{inflector.classify(slice)}
               module Actions
                 module Books
                   module Bestsellers
                     module Nonfiction
                       class #{inflector.classify(action)} < #{inflector.classify(slice)}::Action
+                        def call(*, res)
+                          res.body = self.class.name
+                        end
                       end
                     end
                   end
