@@ -23,9 +23,9 @@ module Hanami
             argument :name, required: true, desc: "Action name"
             option :url, required: false, type: :string, desc: "Action URL"
             option :http, required: false, type: :string, desc: "Action HTTP method"
-            option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
-            option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
-                               desc: "Skip view and template generation"
+            # option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
+            # option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
+            #                    desc: "Skip view and template generation"
             option :slice, required: false, desc: "Slice name"
 
             def initialize(fs: Dry::Files.new, inflector: Dry::Inflector.new,
