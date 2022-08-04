@@ -17,7 +17,7 @@ module Hanami
 
           # rubocop:disable Metrics/ParameterLists
           # rubocop:disable Layout/LineLength
-          def call(slice, controller, action, url, http, _format, _skip_view, context: ActionContext.new(inflector, slice, controller, action))
+          def call(controller, action, url, http, _format, _skip_view, slice, context: ActionContext.new(inflector, slice, controller, action))
             slice_directory = fs.join("slices", slice)
             raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
 
