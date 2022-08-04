@@ -57,8 +57,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action do
         expect(fs.read("app/actions/#{controller}/#{action}.rb")).to eq(action_file)
 
         # # view
-        # expect(fs.directory?("slices/#{slice}/views/#{controller}")).to be(true)
-        #
         # view_file = <<~EXPECTED
         #   # auto_register: false
         #   # frozen_string_literal: true
@@ -84,6 +82,88 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action do
         #   <h2>slices/#{slice}/templates/#{controller}/#{action}.html.erb</h2>
         # EXPECTED
         # expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+      end
+    end
+
+    it "raises error if action name doesn't respect the convention" do
+      expect {
+        subject.call(name: "foo")
+      }.to raise_error(ArgumentError, "cannot parse controller and action name: `foo'\n\texample: users.show")
+    end
+
+    it "raises error if HTTP method is unknown" do
+      expect {
+        subject.call(name: action_name, http: "foo")
+      }.to raise_error(ArgumentError, "unknown HTTP method: `foo'")
+    end
+
+    it "raises error if URL is invalid" do
+      expect {
+        subject.call(name: action_name, url: "//")
+      }.to raise_error(ArgumentError, "invalid URL: `//'")
+    end
+
+    it "infers RESTful action URL and HTTP method for routes" do
+      within_application_directory do
+        subject.call(name: "users.index")
+        expect(fs.read("config/routes.rb")).to match(%(get "/users", to: "users.index"))
+
+        subject.call(name: "users.new")
+        expect(fs.read("config/routes.rb")).to match(%(get "/users/new", to: "users.new"))
+
+        subject.call(name: "users.create")
+        expect(fs.read("config/routes.rb")).to match(%(post "/users", to: "users.create"))
+
+        subject.call(name: "users.edit")
+        expect(fs.read("config/routes.rb")).to match(%(get "/users/:id/edit", to: "users.edit"))
+
+        subject.call(name: "users.update")
+        expect(fs.read("config/routes.rb")).to match(%(patch "/users/:id", to: "users.update"))
+
+        subject.call(name: "users.show")
+        expect(fs.read("config/routes.rb")).to match(%(get "/users/:id", to: "users.show"))
+
+        subject.call(name: "users.destroy")
+        expect(fs.read("config/routes.rb")).to match(%(delete "/users/:id", to: "users.destroy"))
+      end
+    end
+
+    it "allows to specify action URL" do
+      within_application_directory do
+        subject.call(name: action_name, url: "/people")
+        expect(fs.read("config/routes.rb")).to match(%(get "/people", to: "users.index"))
+      end
+    end
+
+    it "allows to specify action HTTP method" do
+      within_application_directory do
+        subject.call(name: action_name, http: "put")
+        expect(fs.read("config/routes.rb")).to match(%(put "/users", to: "users.index"))
+      end
+    end
+
+    xit "allows to specify MIME Type for template" do
+      within_application_directory do
+        subject.call(name: action_name, format: format = "json")
+
+        expect(fs.exist?("app/actions/#{controller}/#{action}.rb")).to be(true)
+        expect(fs.exist?("app/views/#{controller}/#{action}.rb")).to be(true)
+
+        # template
+        template_file = <<~EXPECTED
+        EXPECTED
+        expect(fs.read("app/templates/#{controller}/#{action}.#{format}.erb")).to eq(template_file)
+      end
+    end
+
+    xit "can skip view creation" do
+      within_application_directory do
+        subject.call(name: action_name, skip_view: true)
+
+        expect(fs.exist?("app/actions/#{controller}/#{action}.rb")).to be(true)
+
+        expect(fs.exist?("app/views/#{controller}/#{action}.rb")).to be(false)
+        expect(fs.exist?("app/templates/#{controller}/#{action}.html.erb")).to be(false)
       end
     end
   end
@@ -323,86 +403,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action do
       end
     end
 
-    it "infers RESTful action URL and HTTP method for routes" do
-      subject.call(slice: slice, name: "users.index")
-      expect(fs.read("config/routes.rb")).to match(%(get "/users", to: "users.index"))
-
-      subject.call(slice: slice, name: "users.new")
-      expect(fs.read("config/routes.rb")).to match(%(get "/users/new", to: "users.new"))
-
-      subject.call(slice: slice, name: "users.create")
-      expect(fs.read("config/routes.rb")).to match(%(post "/users", to: "users.create"))
-
-      subject.call(slice: slice, name: "users.edit")
-      expect(fs.read("config/routes.rb")).to match(%(get "/users/:id/edit", to: "users.edit"))
-
-      subject.call(slice: slice, name: "users.update")
-      expect(fs.read("config/routes.rb")).to match(%(patch "/users/:id", to: "users.update"))
-
-      subject.call(slice: slice, name: "users.show")
-      expect(fs.read("config/routes.rb")).to match(%(get "/users/:id", to: "users.show"))
-
-      subject.call(slice: slice, name: "users.destroy")
-      expect(fs.read("config/routes.rb")).to match(%(delete "/users/:id", to: "users.destroy"))
-    end
-
-    it "allows to specify action URL" do
-      subject.call(slice: slice, name: action_name, url: "/people")
-      expect(fs.read("config/routes.rb")).to match(%(get "/people", to: "users.index"))
-    end
-
-    it "allows to specify action HTTP method" do
-      subject.call(slice: slice, name: action_name, http: "put")
-      expect(fs.read("config/routes.rb")).to match(%(put "/users", to: "users.index"))
-    end
-
-    xit "allows to specify MIME Type for template" do
-      subject.call(slice: slice, name: action_name, format: format = "json")
-
-      fs.chdir("slices/#{slice}") do
-        expect(fs.exist?("actions/#{controller}/#{action}.rb")).to be(true)
-        expect(fs.exist?("views/#{controller}/#{action}.rb")).to be(true)
-
-        # template
-        expect(fs.exist?(file = "templates/#{controller}/#{action}.#{format}.erb")).to be(true)
-
-        template_file = <<~EXPECTED
-        EXPECTED
-        expect(fs.read(file)).to eq(template_file)
-      end
-    end
-
-    it "can skip view creation" do
-      subject.call(slice: slice, name: action_name, skip_view: true)
-
-      fs.chdir("slices/#{slice}") do
-        expect(fs.exist?("actions/#{controller}/#{action}.rb")).to be(true)
-
-        expect(fs.exist?("views/#{controller}/#{action}.rb")).to be(false)
-        expect(fs.exist?("templates/#{controller}/#{action}.html.erb")).to be(false)
-      end
-    end
-
     it "raises error if slice is unexisting" do
       expect { subject.call(slice: "foo", name: action_name) }.to raise_error(ArgumentError, "slice not found `foo'")
-    end
-
-    it "raises error if action name doesn't respect the convention" do
-      expect {
-        subject.call(slice: slice, name: "foo")
-      }.to raise_error(ArgumentError, "cannot parse controller and action name: `foo'\n\texample: users.show")
-    end
-
-    it "raises error if HTTP method is unknown" do
-      expect {
-        subject.call(slice: slice, name: action_name, http: "foo")
-      }.to raise_error(ArgumentError, "unknown HTTP method: `foo'")
-    end
-
-    it "raises error if URL is invalid" do
-      expect {
-        subject.call(slice: slice, name: action_name, url: "//")
-      }.to raise_error(ArgumentError, "invalid URL: `//'")
     end
   end
 
