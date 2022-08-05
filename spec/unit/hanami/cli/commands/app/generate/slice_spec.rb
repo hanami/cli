@@ -58,8 +58,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
         # auto_register: false
         # frozen_string_literal: true
 
-        require "#{underscored_app}/action"
-
         module Admin
           class Action < #{app}::Action
           end
