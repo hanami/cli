@@ -4,7 +4,7 @@ module <%= classified_slice_name %>
   module Actions
 <%= module_controller_declaration %>
 <%= module_controller_offset %>class <%= classified_action_name %> < <%= classified_slice_name %>::Action
-<%= module_controller_offset %>  def call(*, res)
+<%= module_controller_offset %>  def handle(*, res)
 <%= module_controller_offset %>    res.body = self.class.name
 <%= module_controller_offset %>  end
 <%= module_controller_offset %>end
