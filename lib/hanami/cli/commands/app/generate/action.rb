@@ -36,7 +36,7 @@ module Hanami
 
             # rubocop:disable Metrics/ParameterLists
             def call(name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, slice: nil, **)
-              slice = inflector.underscore(Shellwords.shellescape(slice)) unless slice.nil?
+              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
               name = inflector.underscore(Shellwords.shellescape(name))
               *controller, action = name.split(ACTION_SEPARATOR)
 
