@@ -9,7 +9,7 @@ unless ENV["CI"]
 end
 
 gem "dry-files", require: false, github: "dry-rb/dry-files", branch: :main
-gem "hanami", require: false, github: "hanami/hanami", branch: :main
+gem "hanami", require: false, github: "hanami/hanami", branch: "waiting-for-dev/robust_setup"
 gem "hanami-router", github: "hanami/router", branch: :main
 
 gem "rack"

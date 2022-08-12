@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require "hanami/app_detector"
+
 module Hanami
   module CLI
     def self.within_hanami_app?
-      File.exist?("config/app.rb") ||
-        File.exist?("app.rb")
+      Hanami::AppDetector.new.() || false
     end
 
     module Commands
