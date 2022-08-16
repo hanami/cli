@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
-require "hanami/app_detector"
+require "hanami"
 
 module Hanami
   module CLI
-    def self.within_hanami_app?
-      Hanami::AppDetector.new.() || false
-    end
-
     module Commands
     end
 
-    def self.register_commands!(within_hanami_app = Hanami::CLI.within_hanami_app?)
+    def self.register_commands!(within_hanami_app = !!Hanami.app_path)
       commands = if within_hanami_app
                    require_relative "commands/app"
                    Commands::App
