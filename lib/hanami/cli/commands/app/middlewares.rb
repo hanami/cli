@@ -33,13 +33,11 @@ module Hanami
           # @api private
           def call(with_arguments: DEFAULT_WITH_ARGUMENTS)
             require "hanami/prepare"
-            out.puts MiddlewareStackInspector.new(stack: stack).inspect(include_arguments: with_arguments)
-          end
 
-          private
-
-          def stack
-            Hanami.app.router.middleware_stack
+            if Hanami.app.router
+              inspector = MiddlewareStackInspector.new(stack: Hanami.app.router.middleware_stack)
+              out.puts inspector.inspect(include_arguments: with_arguments)
+            end
           end
         end
       end

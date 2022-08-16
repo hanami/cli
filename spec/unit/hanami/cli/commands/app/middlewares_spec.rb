@@ -22,4 +22,16 @@ RSpec.describe Hanami::CLI::Commands::App::Middlewares, :app, :command do
 
     expect(output).to include("args: []")
   end
+
+  context "no router" do
+    before do
+      allow(Hanami.app).to receive(:router).and_return nil
+    end
+
+    it "outputs nothing" do
+      command.call
+
+      expect(output).to be_empty
+    end
+  end
 end
