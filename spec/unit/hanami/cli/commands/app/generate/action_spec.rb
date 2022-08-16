@@ -47,8 +47,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             module Actions
               module #{inflector.camelize(controller)}
                 class #{inflector.classify(action)} < #{inflector.classify(app)}::Action
-                  def handle(*, res)
-                    res.body = self.class.name
+                  def handle(*, response)
+                    response.body = self.class.name
                   end
                 end
               end
@@ -212,8 +212,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             module Actions
               module #{inflector.camelize(controller)}
                 class #{inflector.classify(action)} < #{inflector.classify(slice)}::Action
-                  def handle(*, res)
-                    res.body = self.class.name
+                  def handle(*, response)
+                    response.body = self.class.name
                   end
                 end
               end
@@ -299,8 +299,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
                   module Bestsellers
                     module Nonfiction
                       class #{inflector.classify(action)} < #{inflector.classify(slice)}::Action
-                        def handle(*, res)
-                          res.body = self.class.name
+                        def handle(*, response)
+                          response.body = self.class.name
                         end
                       end
                     end
