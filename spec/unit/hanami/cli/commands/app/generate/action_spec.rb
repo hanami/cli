@@ -159,8 +159,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action do
   end
 
   it "appends routes within the proper slice block" do
-    pending "FIXME: something changed and the output has too many new-lines now"
-
     fs.mkdir("slices/api")
 
     routes_contents = <<~CODE
