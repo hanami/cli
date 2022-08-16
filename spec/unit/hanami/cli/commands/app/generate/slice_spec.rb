@@ -134,8 +134,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
   def within_application_directory
     application = Struct.new(:namespace).new(app)
 
-    allow(Hanami).to receive(:app)
-      .and_return(application)
+    allow(Hanami).to receive(:app).and_return(application)
+    allow(Hanami).to receive(:app?).and_return(true)
 
     fs.mkdir(dir)
     fs.chdir(dir) do
