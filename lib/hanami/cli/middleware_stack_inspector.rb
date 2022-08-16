@@ -34,7 +34,7 @@ module Hanami
       end
 
       def format_arguments(arguments)
-        " args: #{arguments.inspect}"
+        "args: #{arguments.inspect}"
       end
     end
   end
