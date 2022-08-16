@@ -21,7 +21,7 @@ module Hanami
         #
         # ```
         # $ hanami middlewares --with-arguments
-        # /    Rack::Session::Cookie args: [{:secret=>"foo"}
+        # /    Rack::Session::Cookie args: [{:secret=>"foo"}]
         # ```
         class Middlewares < Hanami::CLI::Command
           desc "List all the registered middlewares"
