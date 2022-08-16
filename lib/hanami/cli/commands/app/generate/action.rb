@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "hanami/cli/command"
+require "hanami/cli/commands/app/command"
 require "hanami/cli/generators/app/action"
 require "dry/inflector"
 require "dry/files"
@@ -11,7 +11,7 @@ module Hanami
     module Commands
       module App
         module Generate
-          class Action < Command
+          class Action < App::Command
             # TODO: ideally the default format should lookup
             #       slice configuration (Action's `default_response_format`)
             DEFAULT_FORMAT = "html"
@@ -20,13 +20,13 @@ module Hanami
             DEFAULT_SKIP_VIEW = false
             private_constant :DEFAULT_SKIP_VIEW
 
-            argument :slice, required: true, desc: "Slice name"
             argument :name, required: true, desc: "Action name"
             option :url, required: false, type: :string, desc: "Action URL"
             option :http, required: false, type: :string, desc: "Action HTTP method"
-            option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
-            option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
-                               desc: "Skip view and template generation"
+            # option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
+            # option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
+            #                    desc: "Skip view and template generation"
+            option :slice, required: false, desc: "Slice name"
 
             def initialize(fs: Dry::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::App::Action.new(fs: fs, inflector: inflector), **)
@@ -35,8 +35,8 @@ module Hanami
             end
 
             # rubocop:disable Metrics/ParameterLists
-            def call(slice:, name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, **)
-              slice = inflector.underscore(Shellwords.shellescape(slice))
+            def call(name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, slice: nil, **)
+              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
               name = inflector.underscore(Shellwords.shellescape(name))
               *controller, action = name.split(ACTION_SEPARATOR)
 
@@ -44,7 +44,7 @@ module Hanami
                 raise ArgumentError.new("cannot parse controller and action name: `#{name}'\n\texample: users.show")
               end
 
-              generator.call(slice, controller, action, url, http, format, skip_view)
+              generator.call(app.namespace, controller, action, url, http, format, skip_view, slice)
             end
             # rubocop:enable Metrics/ParameterLists
 

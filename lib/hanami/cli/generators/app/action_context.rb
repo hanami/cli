@@ -8,10 +8,10 @@ module Hanami
     module Generators
       module App
         class ActionContext < SliceContext
-          def initialize(inflector, slice, controller, action)
+          def initialize(inflector, app, slice, controller, action)
             @controller = controller
             @action = action
-            super(inflector, nil, slice, nil)
+            super(inflector, app, slice, nil)
           end
 
           def classified_controller_name
