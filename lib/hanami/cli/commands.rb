@@ -7,7 +7,7 @@ module Hanami
     module Commands
     end
 
-    def self.register_commands!(within_hanami_app = !!Hanami.app_path)
+    def self.register_commands!(within_hanami_app = Hanami.app_path)
       commands = if within_hanami_app
                    require_relative "commands/app"
                    Commands::App
