@@ -29,3 +29,5 @@ Style/TrailingCommaInArrayLiteral:
   Enabled: false
 Style/TrailingCommaInHashLiteral:
   Enabled: false
+Style/StringConcatenation:
+  Enabled: false
