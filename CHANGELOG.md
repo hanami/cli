@@ -2,14 +2,29 @@
 
 Hanami Command Line Interface
 
+## v2.0.0.beta2 - 2022-08-16
+
+### Added
+
+- [Luca Guidi] Added `hanami generate slice` command, for generating a new slice [#32]
+- [Luca Guidi] Added `hanami generate action` command, for generating a new action in the app or a slice [#33]
+- [Marc Busqué] Added `hanami middlewares` command, for listing middleware configed in app and/or in `config/routes.rb` [#30]
+
+### Changed
+
+- [Marc Busqué, Tim Riley] `hanami` command will detect the app even when called inside nested subdirectories [#34]
+- [Seb Wilgosz] Include hanami-validations in generated app’s `Gemfile`, allowing action classes to specify `.params` [#31]
+- [Tim Riley] Include dry-types in generated app’s `Gemfile`, which is used by the types module defined in `lib/[app_name]/types.rb` (dry-types is no longer a hard dependency of the hanami gem as of 2.0.0.beta2) [#29]
+- [Tim Riley] Include dotenv in generated app’s `Gemfile`, allowing `ENV` values to be loaded from `.env*` files [#29]
+
 ## v2.0.0.beta1 - 2022-07-20
 
 ### Added
 
 - [Luca Guidi] Implemented `hanami new` to generate a new Hanami app
 - [Piotr Solnica] Implemented `hanami console` to start an interactive console (REPL)
-- [Marc Busque] Implemented `hanami server` to start a HTTP server based on Rack
-- [Marc Busque] Implemented `hanami routes` to print app routes
+- [Marc Busqué] Implemented `hanami server` to start a HTTP server based on Rack
+- [Marc Busqué] Implemented `hanami routes` to print app routes
 - [Luca Guidi] Implemented `hanami version` to print app Hanami version
 
 ## v2.0.0.alpha8.1 - 2022-05-23
