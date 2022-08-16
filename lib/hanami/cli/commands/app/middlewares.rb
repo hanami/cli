@@ -14,7 +14,7 @@ module Hanami
         #
         # ```
         # $ hanami middlewares
-        # /    Rack::Session::Cookie args: [{:secret=>"foo"}]
+        # /    Rack::Session::Cookie
         # ```
         #
         # Given arguments can be inspected:
