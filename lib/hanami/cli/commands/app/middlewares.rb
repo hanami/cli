@@ -28,7 +28,8 @@ module Hanami
 
           DEFAULT_WITH_ARGUMENTS = false
 
-          option :with_arguments, default: DEFAULT_WITH_ARGUMENTS, required: false, desc: "Include inspected arguments", type: :boolean
+          option :with_arguments, default: DEFAULT_WITH_ARGUMENTS, required: false,
+                                  desc: "Include inspected arguments", type: :boolean
 
           # @api private
           def call(with_arguments: DEFAULT_WITH_ARGUMENTS)

@@ -11,11 +11,13 @@ module Hanami
       def inspect(include_arguments: false)
         max_path_length = @stack.map { |(path)| path.length }.max
 
-        @stack.map do |path, middlewares|
-          middlewares.map do |(middleware, arguments)|
-            "#{path.ljust(max_path_length + 3)} #{format_middleware(middleware)}#{format_arguments(arguments) if include_arguments}"
-          end
-        end.join("\n") + "\n"
+        @stack.map { |path, middlewares|
+          middlewares.map { |(middleware, arguments)|
+            "#{path.ljust(max_path_length + 3)} #{format_middleware(middleware)}".tap { |line|
+              line << " #{format_arguments(arguments)}" if include_arguments
+            }
+          }
+        }.join("\n") + "\n"
       end
 
       private
