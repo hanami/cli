@@ -22,6 +22,8 @@ Style/BlockDelimiters:
   Enabled: false
 Style/CommentedKeyword:
   Enabled: false
+Style/EmptyHeredoc:
+  Enabled: false
 Style/LambdaCall:
   Enabled: false
 Style/TrailingCommaInArguments:

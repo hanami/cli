@@ -8,15 +8,17 @@ module Hanami
     module Commands
       module App
         class Command < Hanami::CLI::Command
+          ACTION_SEPARATOR = "."
+
           module Environment
-            def call(**opts)
+            def call(*args, **opts)
               env = opts[:env]
 
               hanami_env = env ? env.to_s : ENV.fetch("HANAMI_ENV", "development")
 
               ENV["HANAMI_ENV"] = hanami_env
 
-              super(**opts)
+              super(*args, **opts)
             end
           end
 

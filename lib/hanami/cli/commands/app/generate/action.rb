@@ -50,9 +50,6 @@ module Hanami
 
             private
 
-            ACTION_SEPARATOR = "."
-            private_constant :ACTION_SEPARATOR
-
             attr_reader :generator
           end
         end
