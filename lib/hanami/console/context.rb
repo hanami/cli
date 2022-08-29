@@ -34,6 +34,11 @@ module Hanami
           hanami_app
         end
 
+        define_method(:reload) do
+          puts "Reloading..."
+          Kernel.exec("#{$PROGRAM_NAME} console")
+        end
+
         define_method(:method_missing) do |name, *args, &block|
           return hanami_app.public_send(name, *args, &block) if hanami_app.respond_to?(name)
 
