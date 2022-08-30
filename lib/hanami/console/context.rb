@@ -34,8 +34,9 @@ module Hanami
           hanami_app
         end
 
-        define_method(:app) do
-          hanami_app
+        define_method(:reload) do
+          puts "Reloading..."
+          Kernel.exec("#{$PROGRAM_NAME} console")
         end
 
         define_method(:method_missing) do |name, *args, &block|
