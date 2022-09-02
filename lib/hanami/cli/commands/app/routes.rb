@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "hanami"
-require "hanami/router/inspector"
 
 module Hanami
   module CLI
@@ -40,6 +39,7 @@ module Hanami
 
           # @api private
           def call(format: DEFAULT_FORMAT, **)
+            require "hanami/router/inspector"
             require "hanami/prepare"
             inspector = Hanami::Router::Inspector.new(formatter: resolve_formatter(format))
             app.router(inspector: inspector)
