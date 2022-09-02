@@ -42,15 +42,18 @@ module Hanami
           private_constant :ROUTE_RESTFUL_HTTP_METHODS
 
           ROUTE_RESTFUL_URL_SUFFIXES = {
-            "index" => "",
-            "new" => "/new",
-            "create" => "",
-            "edit" => "/:id/edit",
-            "update" => "/:id",
-            "show" => "/:id",
-            "destroy" => "/:id"
+            "index" => [],
+            "new" => ["new"],
+            "create" => [],
+            "edit" => [":id", "edit"],
+            "update" => [":id"],
+            "show" => [":id"],
+            "destroy" => [":id"]
           }.freeze
           private_constant :ROUTE_RESTFUL_URL_SUFFIXES
+
+          PATH_SEPARATOR = "/"
+          private_constant :PATH_SEPARATOR
 
           attr_reader :fs
 
@@ -120,7 +123,10 @@ module Hanami
           alias_method :t, :template
 
           def route_url(controller, action, url)
-            CLI::URL.call(url || ("/#{controller.join('/')}" + ROUTE_RESTFUL_URL_SUFFIXES.fetch(action)))
+            action = ROUTE_RESTFUL_URL_SUFFIXES.fetch(action) { [action] }
+            url ||= "#{PATH_SEPARATOR}#{(controller + action).join(PATH_SEPARATOR)}"
+
+            CLI::URL.call(url)
           end
 
           def route_http(action, http)
