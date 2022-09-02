@@ -14,14 +14,14 @@ module Hanami
             super(inflector, app, slice, nil)
           end
 
-          def classified_controller_name
+          def camelized_controller_name
             controller.map do |token|
               inflector.camelize(token)
             end.join(NAMESPACE_SEPARATOR)
           end
 
-          def classified_action_name
-            inflector.classify(action)
+          def camelized_action_name
+            inflector.camelize(action)
           end
 
           def underscored_controller_name

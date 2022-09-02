@@ -16,14 +16,28 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
   it "normalizes app name" do
     expect(bundler).to receive(:install!)
+      .at_least(1)
       .and_return(true)
 
     expect(command_line).to receive(:call)
       .with("hanami install")
+      .at_least(1)
       .and_return(successful_system_call_result)
 
     app_name = "HanamiTeam"
     app = "hanami_team"
+    subject.call(app: app_name)
+
+    expect(fs.directory?(app)).to be(true)
+
+    app_name = "Rubygems"
+    app = "rubygems"
+    subject.call(app: app_name)
+
+    expect(fs.directory?(app)).to be(true)
+
+    app_name = "CodeInsights"
+    app = "code_insights"
     subject.call(app: app_name)
 
     expect(fs.directory?(app)).to be(true)
@@ -49,7 +63,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # README.md
       readme = <<~EXPECTED
-        # #{inflector.classify(app)}
+        # #{inflector.camelize(app)}
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
 
@@ -152,7 +166,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         require "hanami/action"
 
-        module #{inflector.classify(app)}
+        module #{inflector.camelize(app)}
           class Action < Hanami::Action
           end
         end
@@ -165,7 +179,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         require "dry/types"
 
-        module #{inflector.classify(app)}
+        module #{inflector.camelize(app)}
           Types = Dry.Types
 
           module Types
@@ -174,6 +188,42 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("lib/#{app}/types.rb")).to eq(types)
+    end
+  end
+
+  it "respects plural app name" do
+    app = "rubygems"
+
+    expect(bundler).to receive(:install!)
+      .and_return(true)
+
+    expect(command_line).to receive(:call)
+      .with("hanami install")
+      .and_return(successful_system_call_result)
+
+    subject.call(app: app)
+
+    expect(fs.directory?(app)).to be(true)
+
+    fs.chdir(app) do
+      # README.md
+      readme = <<~EXPECTED
+        # #{inflector.camelize(app)}
+      EXPECTED
+      expect(fs.read("README.md")).to eq(readme)
+
+      # config/app.rb
+      hanami_app = <<~EXPECTED
+        # frozen_string_literal: true
+
+        require "hanami"
+
+        module #{inflector.camelize(app)}
+          class App < Hanami::App
+          end
+        end
+      EXPECTED
+      expect(fs.read("config/app.rb")).to eq(hanami_app)
     end
   end
 end
