@@ -40,6 +40,7 @@ module Hanami
             fs.write("config/app.rb", t("app.erb", context))
             fs.write("config/settings.rb", t("settings.erb", context))
             fs.write("config/routes.rb", t("routes.erb", context))
+            fs.write("config/puma.rb", t("puma.erb", context))
 
             fs.write("lib/tasks/.keep", t("keep.erb", context))
             fs.write("lib/#{app}/types.rb", t("types.erb", context))
