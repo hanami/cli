@@ -87,6 +87,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           gem "dotenv"
         end
 
+        group :cli, :development do
+          gem "hanami-reloader"
+        end
+
         group :cli, :development, :test do
           gem "hanami-rspec"
         end
