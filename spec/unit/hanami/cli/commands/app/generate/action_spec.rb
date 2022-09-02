@@ -129,6 +129,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
       end
     end
 
+    it "allows to non-RESTful action URL" do
+      within_application_directory do
+        subject.call(name: "talent.apply", url: "/talent/apply")
+        expect(fs.read("config/routes.rb")).to match(%(get "/talent/apply", to: "talent.apply"))
+      end
+    end
+
     it "allows to specify action URL" do
       within_application_directory do
         subject.call(name: action_name, url: "/people")
