@@ -13,8 +13,8 @@ module Hanami
             super(inflector, app)
           end
 
-          def classified_slice_name
-            inflector.classify(slice)
+          def camelized_slice_name
+            inflector.camelize(slice)
           end
 
           def underscored_slice_name

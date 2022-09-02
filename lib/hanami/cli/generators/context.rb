@@ -19,8 +19,8 @@ module Hanami
           Version.gem_requirement
         end
 
-        def classified_app_name
-          inflector.classify(app)
+        def camelized_app_name
+          inflector.camelize(app)
         end
 
         def underscored_app_name

@@ -43,10 +43,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         action_file = <<~EXPECTED
           # frozen_string_literal: true
 
-          module #{inflector.classify(app)}
+          module #{inflector.camelize(app)}
             module Actions
               module #{inflector.camelize(controller)}
-                class #{inflector.classify(action)} < #{inflector.classify(app)}::Action
+                class #{inflector.camelize(action)} < #{inflector.camelize(app)}::Action
                   def handle(*, response)
                     response.body = self.class.name
                   end
@@ -64,10 +64,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         #
         #   require "#{inflector.underscore(slice)}/view"
         #
-        #   module #{inflector.classify(slice)}
+        #   module #{inflector.camelize(slice)}
         #     module Views
         #       module #{inflector.camelize(controller)}
-        #         class #{inflector.classify(action)} < #{inflector.classify(slice)}::View
+        #         class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
         #         end
         #       end
         #     end
@@ -79,7 +79,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         # expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
         #
         # template_file = <<~EXPECTED
-        #   <h1>#{inflector.classify(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.classify(action)}</h1>
+        #   <h1>#{inflector.camelize(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
         #   <h2>slices/#{slice}/templates/#{controller}/#{action}.html.erb</h2>
         # EXPECTED
         # expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
@@ -208,10 +208,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         action_file = <<~EXPECTED
           # frozen_string_literal: true
 
-          module #{inflector.classify(slice)}
+          module #{inflector.camelize(slice)}
             module Actions
               module #{inflector.camelize(controller)}
-                class #{inflector.classify(action)} < #{inflector.classify(slice)}::Action
+                class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
                   def handle(*, response)
                     response.body = self.class.name
                   end
@@ -231,10 +231,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         #
         #   require "#{inflector.underscore(slice)}/view"
         #
-        #   module #{inflector.classify(slice)}
+        #   module #{inflector.camelize(slice)}
         #     module Views
         #       module #{inflector.camelize(controller)}
-        #         class #{inflector.classify(action)} < #{inflector.classify(slice)}::View
+        #         class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
         #         end
         #       end
         #     end
@@ -246,7 +246,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         # expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
         #
         # template_file = <<~EXPECTED
-        #   <h1>#{inflector.classify(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.classify(action)}</h1>
+        #   <h1>#{inflector.camelize(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
         #   <h2>slices/#{slice}/templates/#{controller}/#{action}.html.erb</h2>
         # EXPECTED
         # expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
@@ -293,12 +293,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           action_file = <<~EXPECTED
             # frozen_string_literal: true
 
-            module #{inflector.classify(slice)}
+            module #{inflector.camelize(slice)}
               module Actions
                 module Books
                   module Bestsellers
                     module Nonfiction
-                      class #{inflector.classify(action)} < #{inflector.classify(slice)}::Action
+                      class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
                         def handle(*, response)
                           response.body = self.class.name
                         end
@@ -320,12 +320,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           #
           #   require "#{inflector.underscore(slice)}/view"
           #
-          #   module #{inflector.classify(slice)}
+          #   module #{inflector.camelize(slice)}
           #     module Views
           #       module Books
           #         module Bestsellers
           #           module Nonfiction
-          #             class #{inflector.classify(action)} < #{inflector.classify(slice)}::View
+          #             class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
           #             end
           #           end
           #         end
@@ -339,7 +339,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           # expect(fs.directory?("slices/#{slice}/templates/books/bestsellers/nonfiction")).to be(true)
           #
           # template_file = <<~EXPECTED
-          #   <h1>#{inflector.classify(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
+          #   <h1>#{inflector.camelize(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
           #   <h2>slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb</h2>
           # EXPECTED
           # expect(fs.read("slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb")).to eq(template_file)

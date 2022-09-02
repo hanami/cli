@@ -3,10 +3,10 @@
 
 require "<%= underscored_slice_name %>/view"
 
-module <%= classified_slice_name %>
+module <%= camelized_slice_name %>
   module Views
 <%= module_controller_declaration %>
-<%= module_controller_offset %>class <%= classified_action_name %> < <%= classified_slice_name %>::View
+<%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_slice_name %>::View
 <%= module_controller_offset %>end
 <%= module_controller_end %>
   end
