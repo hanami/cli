@@ -11,6 +11,8 @@ end
 gem "dry-files", require: false, github: "dry-rb/dry-files", branch: :main
 gem "hanami", require: false, github: "hanami/hanami", branch: :main
 gem "hanami-router", github: "hanami/router", branch: :main
+gem "hanami-controller", github: "hanami/controller", branch: :main
+gem "hanami-view", github: "hanami/view", branch: :main
 
 gem "rack"
 
