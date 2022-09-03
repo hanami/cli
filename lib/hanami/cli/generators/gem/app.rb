@@ -29,7 +29,7 @@ module Hanami
 
           attr_reader :command_line
 
-          def generate_app(app, context) # rubocop:disable Metrics/AbcSize
+          def generate_app(app_path, context) # rubocop:disable Metrics/AbcSize
             fs.write(".env", t("env.erb", context))
 
             fs.write("README.md", t("readme.erb", context))
@@ -43,7 +43,7 @@ module Hanami
             fs.write("config/puma.rb", t("puma.erb", context))
 
             fs.write("lib/tasks/.keep", t("keep.erb", context))
-            fs.write("lib/#{app}/types.rb", t("types.erb", context))
+            fs.write("lib/#{app_path}/types.rb", t("types.erb", context))
 
             fs.write("app/actions/.keep", t("keep.erb", context))
             fs.write("app/action.rb", t("action.erb", context))

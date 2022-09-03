@@ -12,9 +12,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:stdout) { StringIO.new }
   let(:fs) { Dry::Files.new(memory: true) }
   let(:inflector) { Dry::Inflector.new }
-  let(:app) { "bookshelf" }
+  let(:app_path) { "bookshelf" }
 
-  it "normalizes app name" do
+  it "creates the app path" do
     expect(bundler).to receive(:install!)
       .at_least(1)
       .and_return(true)
@@ -24,23 +24,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .at_least(1)
       .and_return(successful_system_call_result)
 
-    app_name = "HanamiTeam"
-    app = "hanami_team"
-    subject.call(app: app_name)
+    subject.call(app_path: app_path)
 
-    expect(fs.directory?(app)).to be(true)
-
-    app_name = "Rubygems"
-    app = "rubygems"
-    subject.call(app: app_name)
-
-    expect(fs.directory?(app)).to be(true)
-
-    app_name = "CodeInsights"
-    app = "code_insights"
-    subject.call(app: app_name)
-
-    expect(fs.directory?(app)).to be(true)
+    expect(fs.directory?(app_path)).to be(true)
   end
 
   it "generates an app" do
@@ -51,11 +37,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .with("hanami install")
       .and_return(successful_system_call_result)
 
-    subject.call(app: app)
+    subject.call(app_path: app_path)
 
-    expect(fs.directory?(app)).to be(true)
+    expect(fs.directory?(app_path)).to be(true)
 
-    fs.chdir(app) do
+    fs.chdir(app_path) do
       # .env
       env = <<~EXPECTED
       EXPECTED
@@ -63,7 +49,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # README.md
       readme = <<~EXPECTED
-        # #{inflector.camelize(app)}
+        # #{inflector.camelize(app_path)}
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
 
@@ -190,7 +176,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         require "hanami/action"
 
-        module #{inflector.camelize(app)}
+        module #{inflector.camelize(app_path)}
           class Action < Hanami::Action
           end
         end
@@ -203,7 +189,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         require "dry/types"
 
-        module #{inflector.camelize(app)}
+        module #{inflector.camelize(app_path)}
           Types = Dry.Types
 
           module Types
@@ -211,12 +197,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           end
         end
       EXPECTED
-      expect(fs.read("lib/#{app}/types.rb")).to eq(types)
+      expect(fs.read("lib/#{app_path}/types.rb")).to eq(types)
     end
   end
 
   it "respects plural app name" do
-    app = "rubygems"
+    app_path = "rubygems"
 
     expect(bundler).to receive(:install!)
       .and_return(true)
@@ -225,14 +211,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .with("hanami install")
       .and_return(successful_system_call_result)
 
-    subject.call(app: app)
+    subject.call(app_path: app_path)
 
-    expect(fs.directory?(app)).to be(true)
+    expect(fs.directory?(app_path)).to be(true)
 
-    fs.chdir(app) do
+    fs.chdir(app_path) do
       # README.md
       readme = <<~EXPECTED
-        # #{inflector.camelize(app)}
+        # #{inflector.camelize(app_path)}
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
 
@@ -242,7 +228,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         require "hanami"
 
-        module #{inflector.camelize(app)}
+        module #{inflector.camelize(app_path)}
           class App < Hanami::App
           end
         end
