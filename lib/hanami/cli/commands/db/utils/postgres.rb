@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "shellwords"
+require "open3"
 require_relative "database"
 
 module Hanami
@@ -10,6 +11,10 @@ module Hanami
         module Utils
           class Postgres < Database
             def create_command
+              existing_stdout, status = Open3.capture2(cli_env_vars, "psql -t -c '\\l #{escaped_name}'")
+
+              return true if status.success? && existing_stdout.include?(escaped_name)
+
               system(cli_env_vars, "createdb #{escaped_name}")
             end
 
