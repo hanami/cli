@@ -14,7 +14,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:inflector) { Dry::Inflector.new }
   let(:app_path) { "bookshelf" }
 
-  it "creates the app path" do
+  def stub_installation
     expect(bundler).to receive(:install!)
       .at_least(1)
       .and_return(true)
@@ -23,6 +23,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .with("hanami install")
       .at_least(1)
       .and_return(successful_system_call_result)
+  end
+
+  it "creates the app path" do
+    stub_installation
 
     subject.call(app_path: app_path)
 
@@ -30,14 +34,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   end
 
   it "inflects the app name from the app path's basename" do
-    expect(bundler).to receive(:install!)
-      .at_least(1)
-      .and_return(true)
-
-    expect(command_line).to receive(:call)
-      .with("hanami install")
-      .at_least(1)
-      .and_return(successful_system_call_result)
+    stub_installation
 
     subject.call(app_path: app_path)
 
@@ -45,14 +42,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   end
 
   it "doesn't fail if the directory already exists", :aggregate_failures do
-    expect(bundler).to receive(:install!)
-      .at_least(1)
-      .and_return(true)
-
-    expect(command_line).to receive(:call)
-      .with("hanami install")
-      .at_least(1)
-      .and_return(successful_system_call_result)
+    stub_installation
 
     fs.mkdir(app_path)
 
@@ -61,14 +51,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   end
 
   it "can create an app in a nested directory" do
-    expect(bundler).to receive(:install!)
-      .at_least(1)
-      .and_return(true)
-
-    expect(command_line).to receive(:call)
-      .with("hanami install")
-      .at_least(1)
-      .and_return(successful_system_call_result)
+    stub_installation
 
     app_path = "code/bookshelf"
 
@@ -82,12 +65,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   end
 
   it "generates an app" do
-    expect(bundler).to receive(:install!)
-      .and_return(true)
-
-    expect(command_line).to receive(:call)
-      .with("hanami install")
-      .and_return(successful_system_call_result)
+    stub_installation
 
     subject.call(app_path: app_path)
 
@@ -254,14 +232,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   end
 
   it "respects plural app name" do
+    stub_installation
+
     app_path = "rubygems"
-
-    expect(bundler).to receive(:install!)
-      .and_return(true)
-
-    expect(command_line).to receive(:call)
-      .with("hanami install")
-      .and_return(successful_system_call_result)
 
     subject.call(app_path: app_path)
 
