@@ -29,6 +29,54 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.directory?(app_path)).to be(true)
   end
 
+  it "inflects the app name from the app path's basename" do
+    expect(bundler).to receive(:install!)
+      .at_least(1)
+      .and_return(true)
+
+    expect(command_line).to receive(:call)
+      .with("hanami install")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
+    subject.call(app_path: app_path)
+
+    expect(fs.read("#{app_path}/config/app.rb")).to include("module Bookshelf")
+  end
+
+  it "doesn't fail if the directory already exists", :aggregate_failures do
+    expect(bundler).to receive(:install!)
+      .at_least(1)
+      .and_return(true)
+
+    expect(command_line).to receive(:call)
+      .with("hanami install")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
+    fs.mkdir(app_path)
+
+    expect { subject.call(app_path: app_path) }.not_to raise_error
+    expect(fs.read("#{app_path}/config/app.rb")).to include("module Bookshelf")
+  end
+
+  it "can create an app in a nested directory" do
+    expect(bundler).to receive(:install!)
+      .at_least(1)
+      .and_return(true)
+
+    expect(command_line).to receive(:call)
+      .with("hanami install")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
+    app_path = "code/bookshelf"
+
+    subject.call(app_path: app_path)
+
+    expect(fs.read("#{app_path}/config/app.rb")).to include("module Bookshelf")
+  end
+
   it "generates an app" do
     expect(bundler).to receive(:install!)
       .and_return(true)

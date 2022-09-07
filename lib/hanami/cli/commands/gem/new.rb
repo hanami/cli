@@ -39,7 +39,8 @@ module Hanami
           def call(app_path:, skip_bundle: SKIP_BUNDLE_DEFAULT, **)
             fs.mkdir(app_path)
             fs.chdir(app_path) do
-              generator.call(app_path) do
+              app_name = File.basename(File.expand_path(app_path))
+              generator.call(app_name) do
                 unless skip_bundle
                   bundler.install!
                   run_install_commmand!
