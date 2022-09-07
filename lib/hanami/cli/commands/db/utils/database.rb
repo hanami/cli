@@ -30,7 +30,7 @@ module Hanami
             }.freeze
 
             def self.[](app)
-              config = DatabaseConfig.new(app.settings.database_url)
+              config = DatabaseConfig.new(app[:settings].database_url)
 
               resolver = SCHEME_MAP.fetch(config.db_type) do
                 raise "#{config.db_type} is not a supported db scheme"
