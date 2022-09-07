@@ -15,6 +15,9 @@ module Hanami
           SKIP_BUNDLE_DEFAULT = false
           private_constant :SKIP_BUNDLE_DEFAULT
 
+          ROOT_PATH = "/"
+          private_constant :ROOT_PATH
+
           argument :app_path, required: true, desc: "App path"
 
           option :skip_bundle, type: :boolean, required: false,
@@ -37,6 +40,10 @@ module Hanami
           # rubocop:enable Metrics/ParameterLists
 
           def call(app_path:, skip_bundle: SKIP_BUNDLE_DEFAULT, **)
+            raise ArgumentError, <<~MSG if app_path == ROOT_PATH
+              System's root directory is not allowed as the application path
+            MSG
+
             fs.mkdir(app_path)
             fs.chdir(app_path) do
               app_name = File.basename(File.expand_path(app_path))

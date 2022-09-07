@@ -77,6 +77,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.read("#{app_path}/config/app.rb")).to include("module Bookshelf")
   end
 
+  it "raises an error when / is given" do
+    expect { subject.call(app_path: "/") }.to raise_error(ArgumentError, /root directory is not allowed/)
+  end
+
   it "generates an app" do
     expect(bundler).to receive(:install!)
       .and_return(true)
