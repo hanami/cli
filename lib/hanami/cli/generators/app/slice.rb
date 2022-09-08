@@ -15,7 +15,9 @@ module Hanami
           end
 
           def call(app, slice, slice_url_prefix, context: SliceContext.new(inflector, app, slice, slice_url_prefix))
-            fs.inject_line_at_block_bottom(fs.join("config", "routes.rb"), /define/, t("routes.erb", context).chomp)
+            fs.inject_line_at_class_bottom(
+              fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
+            )
 
             fs.mkdir(directory = "slices/#{slice}")
 

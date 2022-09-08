@@ -150,9 +150,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         module Bookshelf
           class Routes < Hanami::Routes
-            define do
-              root { "Hello from Hanami" }
-            end
+            root { "Hello from Hanami" }
           end
         end
       EXPECTED

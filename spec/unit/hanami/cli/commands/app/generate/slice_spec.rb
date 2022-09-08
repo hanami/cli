@@ -27,11 +27,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
         module #{app}
           class Routes < Hanami::Routes
-            define do
-              root { "Hello from Hanami" }
+            root { "Hello from Hanami" }
 
-              slice :#{slice}, at: "/#{slice}" do
-              end
+            slice :#{slice}, at: "/#{slice}" do
             end
           end
         end
@@ -110,14 +108,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
         module #{app}
           class Routes < Hanami::Routes
-            define do
-              root { "Hello from Hanami" }
+            root { "Hello from Hanami" }
 
-              slice :admin, at: "/admin" do
-              end
+            slice :admin, at: "/admin" do
+            end
 
-              slice :billing, at: "/billing" do
-              end
+            slice :billing, at: "/billing" do
             end
           end
         end
@@ -144,9 +140,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
         module #{app}
           class Routes < Hanami::Routes
-            define do
-              root { "Hello from Hanami" }
-            end
+            root { "Hello from Hanami" }
           end
         end
       CODE

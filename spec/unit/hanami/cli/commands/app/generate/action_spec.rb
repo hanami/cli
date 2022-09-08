@@ -29,10 +29,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
           module #{app}
             class Routes < Hanami::Routes
-              define do
-                root { "Hello from Hanami" }
-                get "/users", to: "users.index"
-              end
+              root { "Hello from Hanami" }
+              get "/users", to: "users.index"
             end
           end
         CODE
@@ -195,12 +193,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
           module #{app}
             class Routes < Hanami::Routes
-              define do
-                root { "Hello from Hanami" }
+              root { "Hello from Hanami" }
 
-                slice :#{slice}, at: "/#{slice}" do
-                  get "/users", to: "users.index"
-                end
+              slice :#{slice}, at: "/#{slice}" do
+                get "/users", to: "users.index"
               end
             end
           end
@@ -280,12 +276,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
             module #{app}
               class Routes < Hanami::Routes
-                define do
-                  root { "Hello from Hanami" }
+                root { "Hello from Hanami" }
 
-                  slice :#{slice}, at: "/#{slice}" do
-                    get "/books/bestsellers/nonfiction", to: "books.bestsellers.nonfiction.index"
-                  end
+                slice :#{slice}, at: "/#{slice}" do
+                  get "/books/bestsellers/nonfiction", to: "books.bestsellers.nonfiction.index"
                 end
               end
             end
@@ -366,16 +360,14 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
           module #{app}
             class Routes < Hanami::Routes
-              define do
-                root { "Hello from Hanami" }
+              root { "Hello from Hanami" }
 
-                slice :#{slice}, at: "/#{slice}" do
-                  root to: "home.index"
-                end
+              slice :#{slice}, at: "/#{slice}" do
+                root to: "home.index"
+              end
 
-                slice :api, at: "/api" do
-                  root to: "home.index"
-                end
+              slice :api, at: "/api" do
+                root to: "home.index"
               end
             end
           end
@@ -389,18 +381,16 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
           module #{app}
             class Routes < Hanami::Routes
-              define do
-                root { "Hello from Hanami" }
+              root { "Hello from Hanami" }
 
-                slice :#{slice}, at: "/#{slice}" do
-                  root to: "home.index"
-                  get "/users", to: "users.index"
-                end
+              slice :#{slice}, at: "/#{slice}" do
+                root to: "home.index"
+                get "/users", to: "users.index"
+              end
 
-                slice :api, at: "/api" do
-                  root to: "home.index"
-                  get "/users/:id", to: "users.show"
-                end
+              slice :api, at: "/api" do
+                root to: "home.index"
+                get "/users/:id", to: "users.show"
               end
             end
           end
@@ -430,9 +420,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
         module #{app}
           class Routes < Hanami::Routes
-            define do
-              root { "Hello from Hanami" }
-            end
+            root { "Hello from Hanami" }
           end
         end
       CODE
@@ -452,11 +440,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
       module #{app}
         class Routes < Hanami::Routes
-          define do
-            root { "Hello from Hanami" }
+          root { "Hello from Hanami" }
 
-            slice :#{slice}, at: "/#{slice}" do
-            end
+          slice :#{slice}, at: "/#{slice}" do
           end
         end
       end
