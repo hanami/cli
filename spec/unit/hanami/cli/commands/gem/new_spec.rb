@@ -4,11 +4,12 @@ require "hanami/cli/commands/gem/new"
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject {
-    described_class.new(bundler: bundler, command_line: command_line, out: out, fs: fs, inflector: inflector)
+    described_class.new(bundler: bundler, command_line: command_line, git: git, out: out, fs: fs, inflector: inflector)
   }
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
   let(:command_line) { Hanami::CLI::CommandLine.new(bundler: bundler) }
+  let(:git) { Hanami::CLI::Git.new }
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
@@ -18,6 +19,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
   it "normalizes app name" do
     expect(bundler).to receive(:install!)
+      .at_least(1)
+      .and_return(true)
+
+    expect(git).to receive(:init!)
       .at_least(1)
       .and_return(true)
 
@@ -47,6 +52,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
   it "generates an app" do
     expect(bundler).to receive(:install!)
+      .and_return(true)
+
+    expect(git).to receive(:init!)
+      .at_least(1)
       .and_return(true)
 
     expect(command_line).to receive(:call)
@@ -233,6 +242,10 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     app = "rubygems"
 
     expect(bundler).to receive(:install!)
+      .and_return(true)
+
+    expect(git).to receive(:init!)
+      .at_least(1)
       .and_return(true)
 
     expect(command_line).to receive(:call)

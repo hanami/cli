@@ -2,6 +2,7 @@
 
 require "hanami/cli/command"
 require "hanami/cli/bundler"
+require "hanami/cli/git"
 require "hanami/cli/command_line"
 require "hanami/cli/generators/gem/app"
 require "hanami/cli/files"
@@ -13,6 +14,8 @@ module Hanami
       module Gem
         class New < Command
           SKIP_INSTALL_DEFAULT = false
+          SKIP_GIT_DEFAULT = false
+          private_constant :SKIP_GIT_DEFAULT
           private_constant :SKIP_INSTALL_DEFAULT
 
           desc "Generate a new Hanami app"
@@ -28,23 +31,28 @@ module Hanami
             "bookshelf --skip-install # Generate a new Hanami app, but it skips Hanami installation"
           ]
 
+          option :skip_git, type: :boolean, required: false,
+                            default: SKIP_GIT_DEFAULT, desc: "Skip git init"
+
           # rubocop:disable Metrics/ParameterLists
           def initialize(
             fs: Hanami::CLI::Files.new,
             inflector: Dry::Inflector.new,
             bundler: CLI::Bundler.new(fs: fs),
             command_line: CLI::CommandLine.new(bundler: bundler),
+            git: CLI::Git.new,
             generator: Generators::Gem::App.new(fs: fs, inflector: inflector, command_line: command_line),
             **other
           )
             @bundler = bundler
+            @git = git
             @command_line = command_line
             @generator = generator
             super(fs: fs, inflector: inflector, **other)
           end
           # rubocop:enable Metrics/ParameterLists
 
-          def call(app:, skip_install: SKIP_INSTALL_DEFAULT, **)
+          def call(app:, skip_install: SKIP_INSTALL_DEFAULT, skip_git: SKIP_GIT_DEFAULT, **)
             app = inflector.underscore(app)
 
             fs.mkdir(app)
@@ -58,6 +66,8 @@ module Hanami
                   out.puts "Running Hanami install..."
                   run_install_commmand!
                 end
+
+                git.init! unless skip_git
               end
             end
           end
@@ -65,6 +75,7 @@ module Hanami
           private
 
           attr_reader :bundler
+          attr_reader :git
           attr_reader :command_line
           attr_reader :generator
 
