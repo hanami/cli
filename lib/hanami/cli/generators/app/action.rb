@@ -2,6 +2,7 @@
 
 require "erb"
 require "dry/files"
+require "hanami/cli/generator"
 require "hanami/cli/generators/app/action_context"
 require "hanami/cli/url"
 
@@ -11,8 +12,8 @@ module Hanami
     module Generators
       module App
         class Action
-          def initialize(fs:, inflector:)
-            @fs = fs
+          def initialize(fs:, out:, inflector:) # FIXME: Rename fs to files
+            @generator = Generator.new(files: fs, out: out)
             @inflector = inflector
           end
 
@@ -55,43 +56,43 @@ module Hanami
           PATH_SEPARATOR = "/"
           private_constant :PATH_SEPARATOR
 
-          attr_reader :fs
+          attr_reader :generator
 
           attr_reader :inflector
 
           def generate_for_slice(controller, action, url, http, _format, _skip_view, slice, context)
-            slice_directory = fs.join("slices", slice)
-            raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
+            slice_directory = generator.join("slices", slice)
+            raise ArgumentError.new("slice not found `#{slice}'") unless generator.directory?(slice_directory)
 
-            fs.inject_line_at_block_bottom(
-              fs.join("config", "routes.rb"),
+            generator.inject_line_at_block_bottom(
+              generator.join("config", "routes.rb"),
               slice_matcher(slice),
               route(controller, action, url, http)
             )
 
-            fs.chdir(slice_directory) do
-              fs.mkdir(directory = fs.join("actions", controller))
-              fs.write(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
+            generator.chdir(slice_directory) do
+              generator.mkdir(directory = generator.join("actions", controller))
+              generator.write(generator.join(directory, "#{action}.rb"), t("slice_action.erb", context))
 
               # unless skip_view
-              #   fs.mkdir(directory = fs.join("views", controller))
-              #   fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
+              #   generator.mkdir(directory = generator.join("views", controller))
+              #   generator.write(generator.join(directory, "#{action}.rb"), t("view.erb", context))
               #
-              #   fs.mkdir(directory = fs.join("templates", controller))
-              #   fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
+              #   generator.mkdir(directory = generator.join("templates", controller))
+              #   generator.write(generator.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
               # end
             end
           end
 
           def generate_for_app(controller, action, url, http, _format, _skip_view, context)
-            fs.inject_line_at_class_bottom(
-              fs.join("config", "routes.rb"),
+            generator.inject_line_at_class_bottom(
+              generator.join("config", "routes.rb"),
               "class Routes",
               route(controller, action, url, http)
             )
 
-            fs.mkdir(directory = fs.join("app", "actions", controller))
-            fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
+            generator.mkdir(directory = generator.join("app", "actions", controller))
+            generator.write(generator.join(directory, "#{action}.rb"), t("action.erb", context))
           end
 
           def slice_matcher(slice)
