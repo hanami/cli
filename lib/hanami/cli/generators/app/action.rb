@@ -84,9 +84,9 @@ module Hanami
           end
 
           def generate_for_app(controller, action, url, http, _format, _skip_view, context)
-            fs.inject_line_at_block_bottom(
+            fs.inject_line_at_class_bottom(
               fs.join("config", "routes.rb"),
-              /define/,
+              "class Routes",
               route(controller, action, url, http)
             )
 
