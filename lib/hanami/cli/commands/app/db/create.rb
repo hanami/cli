@@ -15,6 +15,7 @@ module Hanami
                 out.puts "=> database #{database.name} created"
               else
                 out.puts "=> failed to create database #{database.name}"
+                exit $?.exitstatus
               end
             end
           end
