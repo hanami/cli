@@ -31,7 +31,7 @@ module Hanami
 
             def self.[](app)
               database_url =
-                if app[:settings]&.respond_to?(:database_url)
+                if app.key?(:settings) && app[:settings].respond_to?(:database_url)
                   app[:settings].database_url
                 else
                   ENV.fetch("DATABASE_URL")
