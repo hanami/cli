@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami"
-
 module Hanami
   module CLI
     # Returns true if the CLI is being called from inside an Hanami app.
@@ -12,7 +10,8 @@ module Hanami
     # @api public
     # @since 2.0.0
     def self.within_hanami_app?
-      !!Hanami.app_path
+      File.exist?("config/app.rb") ||
+        File.exist?("app.rb")
     end
 
     module Commands
