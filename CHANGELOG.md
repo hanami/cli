@@ -2,6 +2,23 @@
 
 Hanami Command Line Interface
 
+## v2.0.0.beta3 - 2022-09-21
+
+### Added
+
+- [Luca Guidi] New applications to support Puma server out of the box. Add the `puma` gem to `Gemfile` and generate `config/puma.rb`.
+- [Luca Guidi] New applications to support code reloading for `hanami server` via `hanami-reloader`. This gem is added to app's `Gemfile`.
+- [Marc Busqué] Introduce code reloading for `hanami console` via `#reload` method to be invoked within the console context.
+
+### Fixed
+
+- [Luca Guidi] Respect plural when generating code via `hanami new` and `hanami generate`. Example: `hanami new code_insights` => `CodeInsights` instead of `CodeInsight`
+- [Luca Guidi] Ensure `hanami generate action` to not crash when invoked with non-RESTful action names. Example: `hanami generate action talent.apply`
+
+### Changed
+
+- [Piotr Solnica] `hanami generate action` to add routes to `config/routes.rb` without the `define` block context. See https://github.com/hanami/hanami/pull/1208
+
 ## v2.0.0.beta2 - 2022-08-16
 
 ### Added
