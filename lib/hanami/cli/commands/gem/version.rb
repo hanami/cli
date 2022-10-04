@@ -7,6 +7,8 @@ module Hanami
     module Commands
       module Gem
         class Version < Command
+          desc "Hanami version"
+
           def call(*)
             version = detect_version
             out.puts "v#{version}"
