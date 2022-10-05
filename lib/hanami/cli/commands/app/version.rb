@@ -7,6 +7,8 @@ module Hanami
     module Commands
       module App
         class Version < Command
+          desc "Print Hanami app version"
+
           def call(*)
             require "hanami/version"
             out.puts "v#{Hanami::VERSION}"

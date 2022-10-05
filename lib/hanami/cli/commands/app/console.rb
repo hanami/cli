@@ -10,37 +10,47 @@ module Hanami
       module App
         # @api public
         class Console < App::Command
-          REPLS = {
+          ENGINES = {
             "pry" => -> (*args) {
               begin
                 require "hanami/cli/repl/pry"
                 Repl::Pry.new(*args)
-              rescue LoadError; end # rubocop:disable Lint/SuppressedException
+              rescue LoadError # rubocop:disable Lint/SuppressedException
+              end
             },
             "irb" => -> (*args) {
               require "hanami/cli/repl/irb"
               Repl::Irb.new(*args)
             },
           }.freeze
+          private_constant :ENGINES
 
-          desc "App REPL"
+          DEFAULT_ENGINE = "irb"
+          private_constant :DEFAULT_ENGINE
 
-          option :env, required: false, desc: "Application environment"
-          option :repl, required: false, desc: "REPL gem that should be used ('pry' or 'irb')"
+          desc "Start app console (REPL)"
+
+          option :engine, required: false, desc: "Console engine", values: ENGINES.keys
 
           # @api private
-          def call(repl: nil, **opts)
-            engine = resolve_engine(repl, opts)
-            engine.start
+          def call(engine: nil, **opts)
+            console_engine = resolve_engine(engine, opts)
+
+            if console_engine.nil?
+              err.puts "`#{engine}' is not bundled. Please run `bundle add #{engine}' and retry."
+              exit(1)
+            end
+
+            console_engine.start
           end
 
           private
 
-          def resolve_engine(repl, opts)
-            if repl
-              REPLS.fetch(repl).(app, opts)
+          def resolve_engine(engine, opts)
+            if engine
+              ENGINES.fetch(engine).(app, opts)
             else
-              REPLS.map { |(_, loader)| loader.(app, opts) }.compact.first
+              ENGINES.map { |(_, loader)| loader.(app, opts) }.compact.first
             end
           end
         end

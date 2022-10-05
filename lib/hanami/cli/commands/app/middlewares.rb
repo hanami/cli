@@ -13,18 +13,18 @@ module Hanami
         # apply:
         #
         # ```
-        # $ hanami middlewares
+        # $ bundle exec hanami middlewares
         # /    Rack::Session::Cookie
         # ```
         #
         # Given arguments can be inspected:
         #
         # ```
-        # $ hanami middlewares --with-arguments
+        # $ bundle exec hanami middlewares --with-arguments
         # /    Rack::Session::Cookie args: [{:secret=>"foo"}]
         # ```
         class Middlewares < Hanami::CLI::Command
-          desc "List all the registered middlewares"
+          desc "Print app Rack middleware stack"
 
           DEFAULT_WITH_ARGUMENTS = false
 

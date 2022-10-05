@@ -7,6 +7,8 @@ module Hanami
     module Commands
       module App
         class Install < Command
+          desc "Install Hanami third-party plugins"
+
           def call(*)
           end
         end
