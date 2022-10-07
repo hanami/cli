@@ -14,7 +14,7 @@ module Hanami
             @inflector = inflector
           end
 
-          def call(app, slice, slice_url_prefix, context: SliceContext.new(inflector, app, slice, slice_url_prefix))
+          def call(app, slice, url, context: SliceContext.new(inflector, app, slice, url))
             fs.inject_line_at_class_bottom(
               fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
             )

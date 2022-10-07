@@ -74,23 +74,23 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/")
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/")
       expected = %(slice :#{slice_name}, at: "/" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/foo_bar")
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/foo_bar")
       expected = %(slice :#{slice_name}, at: "/foo_bar" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url_prefix: "/FooBar")
+      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/FooBar")
       expected = %(slice :#{slice_name}, at: "/foo_bar" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      expect { subject.call(name: slice, url_prefix: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
-      expect { subject.call(name: slice, url_prefix: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
-      expect { subject.call(name: slice, url_prefix: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
+      expect { subject.call(name: slice, url: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
+      expect { subject.call(name: slice, url: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
+      expect { subject.call(name: slice, url: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
       expect {
-        subject.call(name: slice, url_prefix: "//FooBar")
+        subject.call(name: slice, url: "//FooBar")
       }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
     end
   end
