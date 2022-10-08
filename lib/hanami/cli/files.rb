@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hanami
   module CLI
     class Files < Dry::Files
@@ -9,26 +11,34 @@ module Hanami
       def write(path, *content)
         if exist?(path)
           super
-          out.puts "Updated #{path}"
+          updated(path)
         else
           super
-          out.puts "Created #{path}"
+          created(path)
         end
       end
 
-      def inject_line_at_block_bottom(path, target, *contents)
+      def inject_line_at_block_bottom(path, target, contents)
         super
-        out.puts "Updated #{path}. Added `#{contents.first}` #{"(and #{contents.length - 1} more lines)" if contents.length > 1}"
+        updated(path)
       end
 
-      def inject_line_at_class_bottom(path, target, *contents)
+      def inject_line_at_class_bottom(path, target, contents)
         super
-        out.puts "Updated #{path}. Added `#{contents.first}` #{"(and #{contents.length - 1} more lines)" if contents.length > 1}"
+        updated(path)
       end
 
       private
 
       attr_reader :out
+
+      def updated(path)
+        out.puts "Updated #{path}"
+      end
+
+      def created(path)
+        out.puts "Created #{path}"
+      end
     end
   end
 end
