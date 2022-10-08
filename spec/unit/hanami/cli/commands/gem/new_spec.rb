@@ -4,15 +4,17 @@ require "hanami/cli/commands/gem/new"
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject {
-    described_class.new(bundler: bundler, command_line: command_line, out: stdout, fs: fs, inflector: inflector)
+    described_class.new(bundler: bundler, command_line: command_line, out: out, fs: fs, inflector: inflector)
   }
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
   let(:command_line) { Hanami::CLI::CommandLine.new(bundler: bundler) }
-  let(:stdout) { StringIO.new }
-  let(:fs) { Dry::Files.new(memory: true) }
+  let(:out) { StringIO.new }
+  let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { "bookshelf" }
+
+  let(:output) { out.rewind && out.read.chomp }
 
   it "normalizes app name" do
     expect(bundler).to receive(:install!)
@@ -60,12 +62,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       env = <<~EXPECTED
       EXPECTED
       expect(fs.read(".env")).to eq(env)
+      expect(output).to include("Created .env")
 
       # README.md
       readme = <<~EXPECTED
         # #{inflector.camelize(app)}
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
+      expect(output).to include("Created README.md")
 
       # Gemfile
       hanami_version = Hanami::CLI::Generators::Version.gem_requirement
@@ -96,6 +100,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("Gemfile")).to eq(gemfile)
+      expect(output).to include("Created Gemfile")
 
       # Rakefile
       rakefile = <<~EXPECTED
@@ -104,6 +109,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         require "hanami/rake_tasks"
       EXPECTED
       expect(fs.read("Rakefile")).to eq(rakefile)
+      expect(output).to include("Created Rakefile")
 
       # config.ru
       config_ru = <<~EXPECTED
@@ -114,6 +120,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         run Hanami.app
       EXPECTED
       expect(fs.read("config.ru")).to eq(config_ru)
+      expect(output).to include("Created config.ru")
 
       # config/app.rb
       hanami_app = <<~EXPECTED
@@ -127,6 +134,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("config/app.rb")).to eq(hanami_app)
+      expect(output).to include("Created config/app.rb")
 
       # config/settings.rb
       settings = <<~EXPECTED
@@ -143,6 +151,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("config/settings.rb")).to eq(settings)
+      expect(output).to include("Created config/settings.rb")
 
       # config/routes.rb
       routes = <<~EXPECTED
@@ -155,6 +164,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("config/routes.rb")).to eq(routes)
+      expect(output).to include("Created config/routes.rb")
 
       # config/puma.rb
       puma = <<~EXPECTED
@@ -175,11 +185,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         preload_app!
       EXPECTED
       expect(fs.read("config/puma.rb")).to eq(puma)
+      expect(output).to include("Created config/puma.rb")
 
       # lib/tasks/.keep
       tasks_keep = <<~EXPECTED
       EXPECTED
       expect(fs.read("lib/tasks/.keep")).to eq(tasks_keep)
+      expect(output).to include("Created lib/tasks/.keep")
 
       # app/action.rb
       action = <<~EXPECTED
@@ -194,6 +206,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("app/action.rb")).to eq(action)
+      expect(output).to include("Created app/action.rb")
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
@@ -210,6 +223,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
       EXPECTED
       expect(fs.read("lib/#{app}/types.rb")).to eq(types)
+      expect(output).to include("Created lib/bookshelf/types.rb")
     end
   end
 
