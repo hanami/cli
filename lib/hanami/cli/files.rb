@@ -28,6 +28,13 @@ module Hanami
         updated(path)
       end
 
+      def mkdir(path)
+        unless exist?(path)
+          super
+          created("#{path}/")
+        end
+      end
+
       private
 
       attr_reader :out

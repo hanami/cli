@@ -5,6 +5,7 @@ require "hanami/cli/generators/app/slice"
 require "dry/inflector"
 require "dry/files"
 require "shellwords"
+require "hanami/cli/files"
 require "hanami/cli/url"
 
 module Hanami
@@ -16,7 +17,7 @@ module Hanami
             argument :name, required: true, desc: "The slice name"
             option :url_prefix, required: false, type: :string, desc: "The slice URL prefix"
 
-            def initialize(fs: Dry::Files.new, inflector: Dry::Inflector.new,
+            def initialize(fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::App::Slice.new(fs: fs, inflector: inflector), **)
               @generator = generator
               super(fs: fs)
