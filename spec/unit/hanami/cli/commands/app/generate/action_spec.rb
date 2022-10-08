@@ -227,9 +227,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
         # route
         expect(fs.read("config/routes.rb")).to eq(routes)
+        expect(output).to include("Updated config/routes.rb")
+        expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
 
         # action
         expect(fs.directory?("slices/#{slice}/actions/#{controller}")).to be(true)
+        expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
 
         action_file = <<~EXPECTED
           # frozen_string_literal: true
@@ -247,9 +250,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           end
         EXPECTED
         expect(fs.read("slices/#{slice}/actions/#{controller}/#{action}.rb")).to eq(action_file)
+        expect(output).to include("Created slices/#{slice}/actions/#{controller}/#{action}.rb")
 
         # # view
         # expect(fs.directory?("slices/#{slice}/views/#{controller}")).to be(true)
+        # expect(output).to include("Created slices/#{slice}/views/#{controller}/")
         #
         # view_file = <<~EXPECTED
         #   # auto_register: false
@@ -267,15 +272,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         #   end
         # EXPECTED
         # expect(fs.read("slices/#{slice}/views/#{controller}/#{action}.rb")).to eq(view_file)
+        # expect(output).to include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
 
         # template
         # expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
+        # expect(output).to include("Created slices/#{slice}/templates/#{controller}/")
         #
         # template_file = <<~EXPECTED
         #   <h1>#{inflector.camelize(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
         #   <h2>slices/#{slice}/templates/#{controller}/#{action}.html.erb</h2>
         # EXPECTED
         # expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+        # expect(output).to include("Created slices/#{slice}/templates/#{controller}/#{action}.html.erb")
       end
     end
 
