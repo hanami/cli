@@ -9,11 +9,11 @@ module Hanami
       end
 
       def write(path, *content)
-        if exist?(path)
-          super
+        already_exists = exist?(path)
+        super
+        if already_exists
           updated(path)
         else
-          super
           created(path)
         end
       end
