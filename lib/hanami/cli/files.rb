@@ -18,16 +18,6 @@ module Hanami
         end
       end
 
-      def inject_line_at_block_bottom(path, target, contents)
-        super
-        updated(path)
-      end
-
-      def inject_line_at_class_bottom(path, target, contents)
-        super
-        updated(path)
-      end
-
       def mkdir(path)
         unless exist?(path)
           super
