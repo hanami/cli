@@ -7,8 +7,8 @@ require "ostruct"
 RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
 
-  let(:stdout) { StringIO.new }
-  let(:fs) { Hanami::CLI::Files.new(memory: true, out: stdout) }
+  let(:out) { StringIO.new }
+  let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::App::Action.new(fs: fs, inflector: inflector) }
   let(:app) { Hanami.app.namespace }
@@ -18,7 +18,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   let(:action_name) { "#{controller}.#{action}" }
 
   def output
-    stdout.rewind && stdout.read.chomp
+    out.rewind && out.read.chomp
   end
 
   context "generate for app" do
