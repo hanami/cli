@@ -8,32 +8,32 @@ RSpec.describe Hanami::CLI::MiddlewareStackInspector do
 
   describe "#inspect" do
     it "indents from the longest path" do
-      stack.use(Object)
-      stack.with("/a/really/really/long/path") { stack.use(Object) }
+      stack.use(Proc.new {})
+      stack.with("/a/really/really/long/path") { stack.use(Proc.new {}) }
 
       inspected = described_class.new(stack: stack).inspect
 
       expect(inspected).to eq <<~RESULT
-        /                             Object
-        /a/really/really/long/path    Object
+        /                             Proc (instance)
+        /a/really/really/long/path    Proc (instance)
       RESULT
     end
 
     it "can include inspected arguments" do
-      stack.use(Object, "foo")
+      stack.use(Proc.new {}, "foo")
 
       inspected = described_class.new(stack: stack).inspect(include_arguments: true)
 
       expect(inspected).to eq <<~RESULT
-        /    Object args: ["foo"]
+        /    Proc (instance) args: ["foo"]
       RESULT
     end
 
     context "when middleware is a class" do
       it "includes its name when it's named" do
-        stack.use(Object)
+        stack.use(Proc.new {})
 
-        expect(described_class.new(stack: stack).inspect).to include("Object")
+        expect(described_class.new(stack: stack).inspect).to include("Proc")
       end
 
       it "includes (class) when is anonymous" do
@@ -62,13 +62,13 @@ RSpec.describe Hanami::CLI::MiddlewareStackInspector do
 
     context "when middleware is an instance" do
       it "includes its class name" do
-        stack.use(Object.new)
+        stack.use(Proc.new {})
 
-        expect(described_class.new(stack: stack).inspect).to include("Object")
+        expect(described_class.new(stack: stack).inspect).to include("Proc")
       end
 
       it "includes (instance)" do
-        stack.use(Object.new)
+        stack.use(Proc.new {})
 
         expect(described_class.new(stack: stack).inspect).to include("(instance)")
       end
