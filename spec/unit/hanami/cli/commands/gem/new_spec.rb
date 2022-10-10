@@ -56,6 +56,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     subject.call(app: app)
 
     expect(fs.directory?(app)).to be(true)
+    expect(output).to include("Created #{app}/")
+    expect(output).to include("-> Within #{app}/")
 
     fs.chdir(app) do
       # .env

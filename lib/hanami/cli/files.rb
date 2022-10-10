@@ -25,6 +25,11 @@ module Hanami
         end
       end
 
+      def chdir(path, &blk)
+        within_folder(path)
+        super
+      end
+
       private
 
       attr_reader :out
@@ -35,6 +40,10 @@ module Hanami
 
       def created(path)
         out.puts "Created #{path}"
+      end
+
+      def within_folder(path)
+        out.puts "-> Within #{path}/"
       end
     end
   end
