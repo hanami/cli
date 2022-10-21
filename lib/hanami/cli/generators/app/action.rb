@@ -2,6 +2,7 @@
 
 require "erb"
 require "dry/files"
+require "hanami/cli/files"
 require "hanami/cli/generators/app/action_context"
 require "hanami/cli/url"
 
@@ -69,18 +70,16 @@ module Hanami
               route(controller, action, url, http)
             )
 
-            fs.chdir(slice_directory) do
-              fs.mkdir(directory = fs.join("actions", controller))
-              fs.write(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
+            fs.mkdir(directory = fs.join(slice_directory, "actions", controller))
+            fs.write(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
 
-              # unless skip_view
-              #   fs.mkdir(directory = fs.join("views", controller))
-              #   fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
-              #
-              #   fs.mkdir(directory = fs.join("templates", controller))
-              #   fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
-              # end
-            end
+            # unless skip_view
+            #   fs.mkdir(directory = fs.join(slice_directory, "views", controller))
+            #   fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
+            #
+            #   fs.mkdir(directory = fs.join(slice_directory, "templates", controller))
+            #   fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_format(format), context))
+            # end
           end
 
           def generate_for_app(controller, action, url, http, _format, _skip_view, context)
