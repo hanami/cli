@@ -21,20 +21,18 @@ module Hanami
 
             fs.mkdir(directory = "slices/#{slice}")
 
-            fs.chdir(directory) do
-              # fs.write("config/slice.rb", t("slice.erb", context))
-              fs.write("action.rb", t("action.erb", context))
-              # fs.write("view.rb", t("view.erb", context))
-              # fs.write("entities.rb", t("entities.erb", context))
-              # fs.write("repository.rb", t("repository.erb", context))
+            # fs.write("#{directory}/config/slice.rb", t("slice.erb", context))
+            fs.write(fs.join(directory, "action.rb"), t("action.erb", context))
+            # fs.write(fs.join(directory, "/view.rb"), t("view.erb", context))
+            # fs.write(fs.join(directory, "/entities.rb"), t("entities.erb", context))
+            # fs.write(fs.join(directory, "/repository.rb"), t("repository.erb", context))
 
-              fs.write("actions/.keep", t("keep.erb", context))
-              # fs.write("views/.keep", t("keep.erb", context))
-              # fs.write("templates/.keep", t("keep.erb", context))
-              # fs.write("templates/layouts/.keep", t("keep.erb", context))
-              # fs.write("entities/.keep", t("keep.erb", context))
-              # fs.write("repositories/.keep", t("keep.erb", context))
-            end
+            fs.write(fs.join(directory, "actions/.keep"), t("keep.erb", context))
+            # fs.write(fs.join(directory, views/.keep"), t("keep.erb", context))
+            # fs.write(fs.join(directory, templates/.keep"), t("keep.erb", context))
+            # fs.write(fs.join(directory, templates/layouts/.keep"), t("keep.erb", context))
+            # fs.write(fs.join(directory, entities/.keep"), t("keep.erb", context))
+            # fs.write(fs.join(directory, repositories/.keep"), t("keep.erb", context))
           end
 
           private

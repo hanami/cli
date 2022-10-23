@@ -7,13 +7,18 @@ require "securerandom"
 RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
   subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
 
-  let(:fs) { Dry::Files.new(memory: true) }
+  let(:out) { StringIO.new }
+  let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::App::Slice.new(fs: fs, inflector: inflector) }
   let(:app) { "Bookshelf" }
   let(:underscored_app) { inflector.underscore(app) }
   let(:dir) { underscored_app }
   let(:slice) { "admin" }
+
+  def output
+    out.rewind && out.read.chomp
+  end
 
   it "generates slice" do
     within_application_directory do
@@ -36,9 +41,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       CODE
 
       expect(fs.read("config/routes.rb")).to include(routes)
+      expect(output).to include("Created config/routes.rb")
 
       # Slice directory
       expect(fs.directory?("slices/#{slice}")).to be(true)
+      expect(output).to include("Created slices/#{slice}/")
 
       # # Slice
       # slice_class = <<~CODE
@@ -63,8 +70,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       CODE
 
       expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
+      expect(output).to include("Created slices/#{slice}/action.rb")
 
       expect(fs.read("slices/#{slice}/actions/.keep")).to eq("")
+      expect(output).to include("Created slices/#{slice}/actions/.keep")
     end
   end
 
@@ -98,6 +107,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
   it "generates multiple slices over time" do
     within_application_directory do
       subject.call(name: "admin")
+      expect(output).to include("Created config/routes.rb")
+
       subject.call(name: "billing")
 
       # Route
@@ -120,6 +131,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       CODE
 
       expect(fs.read("config/routes.rb")).to eq(routes)
+      expect(output).to include("Updated config/routes.rb")
     end
   end
 

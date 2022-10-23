@@ -4,7 +4,7 @@ require "hanami/cli/command"
 require "hanami/cli/bundler"
 require "hanami/cli/command_line"
 require "hanami/cli/generators/gem/app"
-require "dry/files"
+require "hanami/cli/files"
 require "dry/inflector"
 
 module Hanami
@@ -30,7 +30,7 @@ module Hanami
 
           # rubocop:disable Metrics/ParameterLists
           def initialize(
-            fs: Dry::Files.new,
+            fs: Hanami::CLI::Files.new,
             inflector: Dry::Inflector.new,
             bundler: CLI::Bundler.new(fs: fs),
             command_line: CLI::CommandLine.new(bundler: bundler),

@@ -44,7 +44,7 @@ module Hanami
             ]
             # rubocop:enable Layout/LineLength
 
-            def initialize(fs: Dry::Files.new, inflector: Dry::Inflector.new,
+            def initialize(fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::App::Action.new(fs: fs, inflector: inflector), **)
               @generator = generator
               super(fs: fs)
