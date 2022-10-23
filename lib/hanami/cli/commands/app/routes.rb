@@ -37,6 +37,11 @@ module Hanami
                  required: false,
                  desc: "Output format"
 
+          example [
+            "routes              # Print app routes",
+            "routes --format=csv # Print app routes, using CSV format",
+          ]
+
           # @api private
           def call(format: DEFAULT_FORMAT, **)
             require "hanami/router/inspector"
