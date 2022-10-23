@@ -2,6 +2,13 @@
 
 Hanami Command Line Interface
 
+## v2.0.0.beta4 - 2022-10-24
+
+### Changed
+
+- [Sean Collins] Show output when generating files (e.g. in `hanami new`) (#49)
+- [Luca Guidi] Advertise Bundler and Hanami install steps when running `hanami new` (#54)
+
 ## v2.0.0.beta3 - 2022-09-21
 
 ### Added
