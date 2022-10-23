@@ -58,6 +58,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.directory?(app)).to be(true)
     expect(output).to include("Created #{app}/")
     expect(output).to include("-> Within #{app}/")
+    expect(output).to include("Running Bundler install..")
+    expect(output).to include("Running Hanami install..")
 
     fs.chdir(app) do
       # .env
