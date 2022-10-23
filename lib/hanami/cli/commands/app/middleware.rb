@@ -31,6 +31,11 @@ module Hanami
           option :with_arguments, default: DEFAULT_WITH_ARGUMENTS, required: false,
                                   desc: "Include inspected arguments", type: :boolean
 
+          example [
+            "middleware                  # Print app Rack middleware stack",
+            "middleware --with-arguments # Print app Rack middleware stack, including initialize arguments",
+          ]
+
           # @api private
           def call(with_arguments: DEFAULT_WITH_ARGUMENTS)
             require "hanami/prepare"
