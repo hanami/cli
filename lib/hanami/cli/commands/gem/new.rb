@@ -43,7 +43,9 @@ module Hanami
             fs.chdir(app) do
               generator.call(app) do
                 unless skip_bundle
+                  out.puts "Running Bundler install..."
                   bundler.install!
+                  out.puts "Running Hanami install..."
                   run_install_commmand!
                 end
               end
