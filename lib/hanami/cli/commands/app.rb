@@ -10,7 +10,7 @@ module Hanami
         require_relative "app/server"
         require_relative "app/routes"
         require_relative "app/generate"
-        require_relative "app/middlewares"
+        require_relative "app/middleware"
         # require_relative "app/db/create"
         # require_relative "app/db/create_migration"
         # require_relative "app/db/drop"
@@ -30,7 +30,7 @@ module Hanami
             register "console", Commands::App::Console, aliases: ["c"]
             register "server", Commands::App::Server, aliases: ["s"]
             register "routes", Commands::App::Routes
-            register "middlewares", Commands::App::Middlewares
+            register "middleware", Commands::App::Middleware
 
             register "generate", aliases: ["g"] do |prefix|
               prefix.register "slice", Generate::Slice
