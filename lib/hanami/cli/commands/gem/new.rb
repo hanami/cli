@@ -53,7 +53,9 @@ module Hanami
                 if skip_install
                   out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"
                 else
+                  out.puts "Running Bundler install..."
                   bundler.install!
+                  out.puts "Running Hanami install..."
                   run_install_commmand!
                 end
               end
