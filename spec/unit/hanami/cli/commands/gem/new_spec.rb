@@ -144,8 +144,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       settings = <<~EXPECTED
         # frozen_string_literal: true
 
-        require "bookshelf/types"
-
         module Bookshelf
           class Settings < Hanami::Settings
             # Define your app settings here, for example:
