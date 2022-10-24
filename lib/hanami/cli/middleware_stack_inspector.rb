@@ -11,9 +11,9 @@ module Hanami
       def inspect(include_arguments: false)
         max_path_length = @stack.map { |(path)| path.length }.max
 
-        @stack.map { |path, middlewares|
-          middlewares.map { |(middleware, arguments)|
-            "#{path.ljust(max_path_length + 3)} #{format_middleware(middleware)}".tap { |line|
+        @stack.map { |path, middleware|
+          middleware.map { |(mware, arguments)|
+            "#{path.ljust(max_path_length + 3)} #{format_middleware(mware)}".tap { |line|
               line << " #{format_arguments(arguments)}" if include_arguments
             }
           }

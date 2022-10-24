@@ -12,13 +12,21 @@ module Hanami
     module Commands
       module Gem
         class New < Command
-          SKIP_BUNDLE_DEFAULT = false
-          private_constant :SKIP_BUNDLE_DEFAULT
+          SKIP_INSTALL_DEFAULT = false
+          private_constant :SKIP_INSTALL_DEFAULT
+
+          desc "Generate a new Hanami app"
 
           argument :app, required: true, desc: "App name"
 
-          option :skip_bundle, type: :boolean, required: false,
-                               default: SKIP_BUNDLE_DEFAULT, desc: "Skip bundle install"
+          option :skip_install, type: :boolean, required: false,
+                                default: SKIP_INSTALL_DEFAULT,
+                                desc: "Skip app installation (Bundler, third-party Hanami plugins)"
+
+          example [
+            "bookshelf                # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace", # rubocop:disable Layout/LineLength
+            "bookshelf --skip-install # Generate a new Hanami app, but it skips Hanami installation"
+          ]
 
           # rubocop:disable Metrics/ParameterLists
           def initialize(
@@ -36,13 +44,15 @@ module Hanami
           end
           # rubocop:enable Metrics/ParameterLists
 
-          def call(app:, skip_bundle: SKIP_BUNDLE_DEFAULT, **)
+          def call(app:, skip_install: SKIP_INSTALL_DEFAULT, **)
             app = inflector.underscore(app)
 
             fs.mkdir(app)
             fs.chdir(app) do
               generator.call(app) do
-                unless skip_bundle
+                if skip_install
+                  out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"
+                else
                   out.puts "Running Bundler install..."
                   bundler.install!
                   out.puts "Running Hanami install..."

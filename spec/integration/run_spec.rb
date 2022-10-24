@@ -49,7 +49,7 @@ RSpec.describe "bin/hanami", :app do
     end
 
     context "pry" do
-      let(:args) { ["console --repl pry"] }
+      let(:args) { ["console --engine pry"] }
 
       it "starts pry console" do
         expect(output[0]).to include("test[development]")
@@ -59,14 +59,6 @@ RSpec.describe "bin/hanami", :app do
     describe "hanami environment" do
       context "HANAMI_ENV is present in the environment" do
         let(:hanami_env) { "production" }
-
-        context "forced env option provided" do
-          let(:args) { ["console --env staging"] }
-
-          it "respects the option" do
-            expect(output[0]).to include("test[staging]")
-          end
-        end
 
         context "forced env option absent" do
           let(:args) { ["console"] }
@@ -79,14 +71,6 @@ RSpec.describe "bin/hanami", :app do
 
       context "HANAMI_ENV is absent from the environment" do
         let(:hanami_env) { nil }
-
-        context "forced env option provided" do
-          let(:args) { ["console --env production"] }
-
-          it "respects the provided env" do
-            expect(output[0]).to include("test[production]")
-          end
-        end
 
         context "forced env option absent" do
           let(:args) { ["console"] }

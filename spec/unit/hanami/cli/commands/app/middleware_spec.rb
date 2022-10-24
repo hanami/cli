@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/middlewares"
+require "hanami/cli/commands/app/middleware"
 
-RSpec.describe Hanami::CLI::Commands::App::Middlewares, :app, :command do
+RSpec.describe Hanami::CLI::Commands::App::Middleware, :app, :command do
   # TODO: better Hanami tear down
   after do
     app = Hanami.app
     app.remove_instance_variable(:@_router) if app.instance_variable_defined?(:@_router)
   end
 
-  it "lists registered middlewares" do
+  it "lists registered middleware" do
     command.call
 
     expect(output).to eq <<~OUTPUT

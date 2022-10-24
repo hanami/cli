@@ -11,14 +11,14 @@ module Hanami
         # All the formatters available from `hanami-router` are available:
         #
         # ```
-        # $ hanami routes --format=csv
+        # $ bundle exec hanami routes --format=csv
         # ```
         #
         # Experimental: You can also use a custom formatter registered in the
         # application container. You can identify it by its key:
         #
         # ```
-        # $ hanami routes --format=custom_routes_formatter
+        # $ bundle exec hanami routes --format=custom_routes_formatter
         # ```
         class Routes < Hanami::CLI::Command
           DEFAULT_FORMAT = "human_friendly"
@@ -30,12 +30,17 @@ module Hanami
           ].freeze
           private_constant :VALID_FORMATS
 
-          desc "Inspect application"
+          desc "Print app routes"
 
           option :format,
                  default: DEFAULT_FORMAT,
                  required: false,
                  desc: "Output format"
+
+          example [
+            "routes              # Print app routes",
+            "routes --format=csv # Print app routes, using CSV format",
+          ]
 
           # @api private
           def call(format: DEFAULT_FORMAT, **)

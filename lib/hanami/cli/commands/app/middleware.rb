@@ -7,29 +7,34 @@ module Hanami
   module CLI
     module Commands
       module App
-        # List registered middlewares in the app router
+        # List registered middleware in the app router
         #
-        # It outputs middlewares registered along with the paths where they
+        # It outputs middleware registered along with the paths where they
         # apply:
         #
         # ```
-        # $ hanami middlewares
+        # $ bundle exec hanami middleware
         # /    Rack::Session::Cookie
         # ```
         #
         # Given arguments can be inspected:
         #
         # ```
-        # $ hanami middlewares --with-arguments
+        # $ bundle exec hanami middleware --with-arguments
         # /    Rack::Session::Cookie args: [{:secret=>"foo"}]
         # ```
-        class Middlewares < Hanami::CLI::Command
-          desc "List all the registered middlewares"
+        class Middleware < Hanami::CLI::Command
+          desc "Print app Rack middleware stack"
 
           DEFAULT_WITH_ARGUMENTS = false
 
           option :with_arguments, default: DEFAULT_WITH_ARGUMENTS, required: false,
                                   desc: "Include inspected arguments", type: :boolean
+
+          example [
+            "middleware                  # Print app Rack middleware stack",
+            "middleware --with-arguments # Print app Rack middleware stack, including initialize arguments",
+          ]
 
           # @api private
           def call(with_arguments: DEFAULT_WITH_ARGUMENTS)

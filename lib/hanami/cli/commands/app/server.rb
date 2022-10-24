@@ -28,13 +28,16 @@ module Hanami
           DEFAULT_PORT = 2300
           private_constant :DEFAULT_PORT
 
-          desc "Start Hanami server"
+          DEFAULT_CONFIG_PATH = "config.ru"
+          private_constant :DEFAULT_CONFIG_PATH
+
+          desc "Start Hanami app server"
 
           option :host, default: nil, required: false,
                         desc: "The host address to bind to (falls back to the rack handler)"
           option :port, default: DEFAULT_PORT, required: false,
                         desc: "The port to run the server on (falls back to the rack handler)"
-          option :config, default: "config.ru", required: false, desc: "Rack configuration file"
+          option :config, default: DEFAULT_CONFIG_PATH, required: false, desc: "Rack configuration file"
           option :debug, default: false, required: false, desc: "Turn on/off debug output", type: :boolean
           option :warn, default: false, required: false, desc: "Turn on/off warnings", type: :boolean
 
