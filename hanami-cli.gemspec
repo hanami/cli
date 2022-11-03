@@ -32,8 +32,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "bundler", "~> 2.1"
   spec.add_dependency "rake", "~> 13.0"
-  spec.add_dependency "dry-cli", "~> 0.7"
-  spec.add_dependency "dry-files", "~> 0.3", ">= 0.3.0"
+  spec.add_dependency "dry-cli", ">= 1.0.0.rc1", "< 2"
+  spec.add_dependency "dry-files", ">= 1.0.0.rc1", "< 2"
   spec.add_dependency "dry-inflector", ">= 1.0.0.rc1", "< 2"
 
   spec.add_development_dependency "rspec", "~> 3.9"
