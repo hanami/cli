@@ -2,6 +2,8 @@
 
 Hanami Command Line Interface
 
+## v2.0.0.rc1 - 2022-11-08
+
 ## v2.0.0.beta4 - 2022-10-24
 
 ### Changed

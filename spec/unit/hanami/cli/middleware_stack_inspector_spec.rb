@@ -9,7 +9,7 @@ RSpec.describe Hanami::CLI::MiddlewareStackInspector do
   describe "#inspect" do
     it "indents from the longest path" do
       stack.use(proc {})
-      stack.with("/a/really/really/long/path") { stack.use(proc {}) }
+      stack.use(proc {}, path_prefix: "/a/really/really/long/path")
 
       inspected = described_class.new(stack: stack).inspect
 
