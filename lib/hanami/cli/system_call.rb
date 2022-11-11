@@ -35,7 +35,8 @@ module Hanami
 
         ::Bundler.with_unbundled_env do
           Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
-            yield stdin, stdout, wait_thr if block_given?
+            yield stdin, stdout, stderr, wait_thr if block_given?
+
             stdin.close
 
             exitstatus = wait_thr&.value&.exitstatus
