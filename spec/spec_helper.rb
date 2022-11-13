@@ -46,7 +46,7 @@ RSpec.configure do |config|
 
   RSpec.shared_context "database" do
     let(:database) do
-      instance_double(Hanami::CLI::Commands::DB::Utils::Database, name: "test")
+      instance_double(Hanami::CLI::Commands::App::DB::Utils::Database, name: "test")
     end
 
     before do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "dry/files"
-require_relative "../db/utils/database"
+require_relative "db/utils/database"
 
 module Hanami
   module CLI
