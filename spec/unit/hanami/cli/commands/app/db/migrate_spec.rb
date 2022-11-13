@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/db/migrate"
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app, :command, :db do
   it "runs migrations" do
     expect(database).to receive(:run_migrations)

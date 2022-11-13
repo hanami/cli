@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/gem/new"
-
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject {
     described_class.new(bundler: bundler, command_line: command_line, out: out, fs: fs, inflector: inflector)

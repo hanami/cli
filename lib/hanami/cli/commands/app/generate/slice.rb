@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-require "hanami/cli/command"
-require "hanami/cli/generators/app/slice"
 require "dry/inflector"
 require "dry/files"
 require "shellwords"
-require "hanami/cli/files"
-require "hanami/cli/url"
 
 module Hanami
   module CLI

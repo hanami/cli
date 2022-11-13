@@ -13,13 +13,11 @@ module Hanami
           ENGINES = {
             "pry" => -> (*args) {
               begin
-                require "hanami/cli/repl/pry"
                 Repl::Pry.new(*args)
               rescue LoadError # rubocop:disable Lint/SuppressedException
               end
             },
             "irb" => -> (*args) {
-              require "hanami/cli/repl/irb"
               Repl::Irb.new(*args)
             },
           }.freeze

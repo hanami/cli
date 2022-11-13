@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/db/rollback"
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app, :command, :db do
   it "rolls back to specified migration" do
     expect(database).to receive(:applied_migrations).and_return(["312_create_users"])

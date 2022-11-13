@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/server"
 require "open-uri"
 require "puma"
 

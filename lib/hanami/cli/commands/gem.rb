@@ -4,13 +4,10 @@ module Hanami
   module CLI
     module Commands
       module Gem
-        require_relative "gem/version"
-        require_relative "gem/new"
-
         def self.extended(base)
           base.module_eval do
-            register "version", Version, aliases: ["v", "-v", "--version"]
-            register "new", New
+            register "version", Commands::Gem::Version, aliases: ["v", "-v", "--version"]
+            register "new", Commands::Gem::New
           end
         end
       end

@@ -2,7 +2,6 @@
 
 require "erb"
 require "shellwords"
-require "hanami/cli/generators/context"
 
 module Hanami
   module CLI

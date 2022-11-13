@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "hanami"
-require "hanami/cli/commands/app/generate/slice"
 require "securerandom"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do

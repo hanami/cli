@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/middleware"
-
 RSpec.describe Hanami::CLI::Commands::App::Middleware, :app, :command do
   # TODO: better Hanami tear down
   after do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/db/seed"
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Seed, :app, :command, :db do
   it "loads sample data file" do
     command.call

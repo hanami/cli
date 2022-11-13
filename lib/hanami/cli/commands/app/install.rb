@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/command"
-
 module Hanami
   module CLI
     module Commands

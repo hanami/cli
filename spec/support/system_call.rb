@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/system_call"
-
 module RSpec
   module Support
     module SystemCall

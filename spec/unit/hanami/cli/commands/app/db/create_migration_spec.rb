@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/db/create_migration"
-
 RSpec.describe Hanami::CLI::Commands::App::DB::CreateMigration, :app, :command, :db do
   let(:migrator) do
     double(:migrator, generate_version: 312)

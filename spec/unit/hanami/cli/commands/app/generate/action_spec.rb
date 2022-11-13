@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "hanami"
-require "hanami/cli/commands/app/generate/action"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
