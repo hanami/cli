@@ -29,12 +29,10 @@ module Hanami
             fs: Hanami::CLI::Files.new,
             inflector: Dry::Inflector.new,
             bundler: CLI::Bundler.new(fs: fs),
-            command_line: CLI::CommandLine.new(bundler: bundler),
-            generator: Generators::Gem::App.new(fs: fs, inflector: inflector, command_line: command_line),
+            generator: Generators::Gem::App.new(fs: fs, inflector: inflector),
             **other
           )
             @bundler = bundler
-            @command_line = command_line
             @generator = generator
             super(fs: fs, inflector: inflector, **other)
           end
@@ -61,12 +59,16 @@ module Hanami
           private
 
           attr_reader :bundler
-          attr_reader :command_line
           attr_reader :generator
 
           def run_install_commmand!
+<<<<<<< HEAD
             command_line.call("hanami install").tap do |result|
               raise HanamiInstallError.new(result.err) unless result.successful?
+=======
+            bundler.exec("hanami install").tap do |result|
+              raise "hanami install failed\n\n\n#{result.err.inspect}" unless result.successful?
+>>>>>>> 6b76973 (Remove CommandLine)
             end
           end
         end

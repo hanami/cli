@@ -8,11 +8,10 @@ module Hanami
     module Generators
       module Gem
         class App
-          def initialize(fs:, inflector:, command_line:)
+          def initialize(fs:, inflector:)
             super()
             @fs = fs
             @inflector = inflector
-            @command_line = command_line
           end
 
           def call(app, context: Context.new(inflector, app), &blk)
@@ -25,8 +24,6 @@ module Hanami
           attr_reader :fs
 
           attr_reader :inflector
-
-          attr_reader :command_line
 
           def generate_app(app, context) # rubocop:disable Metrics/AbcSize
             fs.write(".env", t("env.erb", context))
