@@ -8,11 +8,13 @@ module Hanami
     module Commands
       module App
         module DB
+          # @api private
           class Seed < App::Command
             FILE_PATH = "db/seeds.rb"
 
             desc "Load seed data"
 
+            # @api private
             def call(**)
               if has_file?
                 measure "seed data loaded from #{FILE_PATH}" do

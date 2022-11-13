@@ -7,9 +7,11 @@ module Hanami
     module Commands
       module App
         module DB
+          # @api private
           class Create < App::Command
             desc "Create database"
 
+            # @api private
             def call(**)
               if database.create_command
                 out.puts "=> database #{database.name} created"

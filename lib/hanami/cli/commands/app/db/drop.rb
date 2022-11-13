@@ -7,9 +7,11 @@ module Hanami
     module Commands
       module App
         module DB
+          # @api private
           class Drop < App::Command
             desc "Delete database"
 
+            # @api private
             def call(**)
               if database.drop_command
                 out.puts "=> database #{database.name} dropped"

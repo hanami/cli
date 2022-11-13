@@ -8,9 +8,15 @@ module Hanami
     module Commands
       module DB
         module Utils
+          # @api private
           class Database
-            attr_reader :app, :config
+            # @api private
+            attr_reader :app
 
+            # @api private
+            attr_reader :config
+
+            # @api private
             SCHEME_MAP = {
               "sqlite" => -> {
                 require_relative("sqlite")
@@ -30,6 +36,7 @@ module Hanami
               }
             }.freeze
 
+            # @api private
             def self.[](app)
               database_url =
                 if app.key?(:settings) && app[:settings].respond_to?(:database_url)
@@ -49,31 +56,38 @@ module Hanami
               klass.new(app: app, config: config)
             end
 
+            # @api private
             def initialize(app:, config:)
               @app = app
               @config = config
             end
 
+            # @api private
             def create_command
               raise Hanami::CLI::NotImplementedError
             end
 
+            # @api private
             def drop_command
               raise Hanami::CLI::NotImplementedError
             end
 
+            # @api private
             def dump_command
               raise Hanami::CLI::NotImplementedError
             end
 
+            # @api private
             def load_command
               raise Hanami::CLI::NotImplementedError
             end
 
+            # @api private
             def root_path
               app.root
             end
 
+            # @api private
             def rom_config
               @rom_config ||=
                 begin
@@ -82,18 +96,22 @@ module Hanami
                 end
             end
 
+            # @api private
             def name
               config.db_name
             end
 
+            # @api private
             def gateway
               rom_config.gateways[:default]
             end
 
+            # @api private
             def connection
               gateway.connection
             end
 
+            # @api private
             def run_migrations(**options)
               require "rom/sql"
               ROM::SQL.with_gateway(gateway) do
@@ -101,6 +119,7 @@ module Hanami
               end
             end
 
+            # @api private
             def migrator
               @migrator ||=
                 begin
@@ -109,6 +128,7 @@ module Hanami
                 end
             end
 
+            # @api private
             def applied_migrations
               sequel_migrator.applied_migrations
             end

@@ -10,7 +10,9 @@ module Hanami
     module Commands
       module DB
         module Utils
+          # @api private
           class Postgres < Database
+            # @api private
             def create_command
               existing_stdout, status = Open3.capture2(cli_env_vars, "psql -t -c '\\l #{escaped_name}'")
 
@@ -19,22 +21,27 @@ module Hanami
               system(cli_env_vars, "createdb #{escaped_name}")
             end
 
+            # @api private
             def drop_command
               system(cli_env_vars, "dropdb #{escaped_name}")
             end
 
+            # @api private
             def dump_command
               system(cli_env_vars, "pg_dump --schema-only --no-owner #{escaped_name} > #{dump_file}")
             end
 
+            # @api private
             def load_command
               raise Hanami::CLI::NotImplementedError
             end
 
+            # @api private
             def escaped_name
               Shellwords.escape(name)
             end
 
+            # @api private
             def cli_env_vars
               @cli_env_vars ||= {}.tap do |vars|
                 vars["PGHOST"] = config.host.to_s
@@ -44,6 +51,7 @@ module Hanami
               end
             end
 
+            # @api private
             def dump_file
               "#{root_path}/db/structure.sql"
             end
