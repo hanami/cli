@@ -2,25 +2,36 @@
 
 module Hanami
   module CLI
+    # @since 2.0.0
     # @api private
     class Server
+      # @since 2.0.0
+      # @api private
       attr_reader :rack_server
 
+      # @since 2.0.0
+      # @api private
       RACK_FALLBACK_OPTIONS = {
         host: :Host,
         port: :Port
       }.freeze
 
+      # @since 2.0.0
+      # @api private
       OVERRIDING_OPTIONS = {
         config: :config,
         debug: :debug,
         warn: :warn
       }.freeze
 
+      # @since 2.0.0
+      # @api private
       def initialize(rack_server: Rack::Server)
         @rack_server = rack_server
       end
 
+      # @since 2.0.0
+      # @api private
       def call(**options)
         rack_server.start(Hash[
           extract_rack_fallback_options(options) + extract_overriding_options(options)

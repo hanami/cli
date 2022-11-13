@@ -2,12 +2,17 @@
 
 module Hanami
   module CLI
+    # @since 2.0.0
     # @api private
     class MiddlewareStackInspector
+      # @since 2.0.0
+      # @api private
       def initialize(stack:)
         @stack = stack
       end
 
+      # @since 2.0.0
+      # @api private
       def inspect(include_arguments: false)
         max_path_length = @stack.map { |(path)| path.length }.max
 

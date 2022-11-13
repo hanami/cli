@@ -10,6 +10,8 @@ module Hanami
     module Commands
       module App
         module Generate
+          # @since 2.0.0
+          # @api private
           class Action < App::Command
             # TODO: ideally the default format should lookup
             #       slice configuration (Action's `default_response_format`)
@@ -43,6 +45,8 @@ module Hanami
             ]
             # rubocop:enable Layout/LineLength
 
+            # @since 2.0.0
+            # @api private
             def initialize(fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::App::Action.new(fs: fs, inflector: inflector), **)
               @generator = generator
@@ -50,6 +54,9 @@ module Hanami
             end
 
             # rubocop:disable Metrics/ParameterLists
+
+            # @since 2.0.0
+            # @api private
             def call(name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, slice: nil, **)
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
               name = inflector.underscore(Shellwords.shellescape(name))
@@ -61,6 +68,7 @@ module Hanami
 
               generator.call(app.namespace, controller, action, url, http, format, skip_view, slice)
             end
+
             # rubocop:enable Metrics/ParameterLists
 
             private

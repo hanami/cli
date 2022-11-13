@@ -21,14 +21,44 @@ module Hanami
         SUCCESSFUL_EXIT_CODE = 0
         private_constant :SUCCESSFUL_EXIT_CODE
 
-        attr_reader :exit_code, :out, :err
+        # Returns the command's exit code
+        #
+        # @return [Integer]
+        #
+        # @since 2.0.0
+        # @api public
+        attr_reader :exit_code
 
+        # Returns the command's standard output stream
+        #
+        # @return [IO]
+        #
+        # @since 2.0.0
+        # @api public
+        attr_reader :out
+
+        # Returns the command's error ouptut stream
+        #
+        # @return [IO]
+        #
+        # @since 2.0.0
+        # @api public
+        attr_reader :err
+
+        # @since 2.0.0
+        # @api private
         def initialize(exit_code:, out:, err:)
           @exit_code = exit_code
           @out = out
           @err = err
         end
 
+        # Returns true if the command executed successfully (if its {#exit_code} is 0).
+        #
+        # @return [Boolean]
+        #
+        # @since 2.0.0
+        # @api public
         def successful?
           exit_code == SUCCESSFUL_EXIT_CODE
         end

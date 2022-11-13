@@ -7,12 +7,18 @@ module Hanami
   module CLI
     module Generators
       module App
+        # @since 2.0.0
+        # @api private
         class Slice
+          # @since 2.0.0
+          # @api private
           def initialize(fs:, inflector:)
             @fs = fs
             @inflector = inflector
           end
 
+          # @since 2.0.0
+          # @api private
           def call(app, slice, url, context: SliceContext.new(inflector, app, slice, url))
             fs.inject_line_at_class_bottom(
               fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp

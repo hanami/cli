@@ -10,6 +10,8 @@ module Hanami
     module Commands
       module App
         module Generate
+          # @since 2.0.0
+          # @api private
           class Slice < Command
             argument :name, required: true, desc: "The slice name"
             option :url, required: false, type: :string, desc: "The slice URL prefix"
@@ -19,12 +21,16 @@ module Hanami
               "users --url=/u # Users slice (/u URL prefix)",
             ]
 
+            # @since 2.0.0
+            # @api private
             def initialize(fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new,
                            generator: Generators::App::Slice.new(fs: fs, inflector: inflector), **)
               @generator = generator
               super(fs: fs)
             end
 
+            # @since 2.0.0
+            # @api private
             def call(name:, url: nil, **)
               require "hanami/setup"
 

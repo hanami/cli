@@ -6,14 +6,22 @@ require "shellwords"
 module Hanami
   module CLI
     module Generators
+      # @since 2.0.0
+      # @api private
       module Gem
+        # @since 2.0.0
+        # @api private
         class App
+          # @since 2.0.0
+          # @api private
           def initialize(fs:, inflector:)
             super()
             @fs = fs
             @inflector = inflector
           end
 
+          # @since 2.0.0
+          # @api private
           def call(app, context: Context.new(inflector, app), &blk)
             generate_app(app, context)
             blk.call

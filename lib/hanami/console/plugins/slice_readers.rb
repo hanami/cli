@@ -8,6 +8,7 @@ module Hanami
       # @api private
       # @since 2.0.0
       class SliceReaders < Module
+        # @since 2.0.0
         # @api private
         def initialize(app)
           super()

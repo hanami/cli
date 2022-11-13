@@ -9,13 +9,20 @@ module Hanami
   module CLI
     module Generators
       module App
+        # @since 2.0.0
+        # @api private
         class Action
+          # @since 2.0.0
+          # @api private
           def initialize(fs:, inflector:)
             @fs = fs
             @inflector = inflector
           end
 
           # rubocop:disable Layout/LineLength
+
+          # @since 2.0.0
+          # @api private
           def call(app, controller, action, url, http, format, skip_view, slice, context: ActionContext.new(inflector, app, slice, controller, action))
             if slice
               generate_for_slice(controller, action, url, http, format, skip_view, slice, context)
@@ -23,6 +30,7 @@ module Hanami
               generate_for_app(controller, action, url, http, format, skip_view, context)
             end
           end
+
           # rubocop:enable Layout/LineLength
 
           private
