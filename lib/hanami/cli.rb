@@ -15,7 +15,7 @@ module Hanami
         loader.push_dir(root)
         loader.ignore(
           "#{root}/hanami-cli.rb",
-          "#{root}/hanami/cli/{errors}.rb"
+          "#{root}/hanami/cli/{errors,version}.rb"
         )
         loader.inflector.inflect("cli" => "CLI")
         loader.inflector.inflect("db" => "DB")
@@ -24,9 +24,9 @@ module Hanami
     end
 
     gem_loader.setup
-
-    require_relative "cli/errors"
     require_relative "cli/commands"
+    require_relative "cli/errors"
+    require_relative "cli/version"
 
     extend Dry::CLI::Registry
 
