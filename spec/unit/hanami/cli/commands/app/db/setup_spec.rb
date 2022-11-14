@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/db/setup"
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Setup, :app, :command do
   let(:database) do
     instance_double(Hanami::CLI::Commands::DB::Utils::Database, name: "test")

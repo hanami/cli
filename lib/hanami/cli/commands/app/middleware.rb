@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "hanami"
-require "hanami/cli/middleware_stack_inspector"
 
 module Hanami
   module CLI

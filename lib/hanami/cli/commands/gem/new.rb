@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/command"
-require "hanami/cli/bundler"
-require "hanami/cli/command_line"
-require "hanami/cli/generators/gem/app"
-require "hanami/cli/files"
 require "dry/inflector"
 
 module Hanami

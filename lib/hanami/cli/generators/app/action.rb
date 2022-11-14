@@ -2,9 +2,6 @@
 
 require "erb"
 require "dry/files"
-require "hanami/cli/files"
-require "hanami/cli/generators/app/action_context"
-require "hanami/cli/url"
 
 # rubocop:disable Metrics/ParameterLists
 module Hanami

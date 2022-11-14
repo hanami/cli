@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "rake"
-require "hanami/cli/bundler"
 
 module Hanami
   module CLI

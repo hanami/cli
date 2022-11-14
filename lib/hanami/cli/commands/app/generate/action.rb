@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/command"
-require "hanami/cli/generators/app/action"
 require "dry/inflector"
 require "dry/files"
 require "shellwords"

@@ -2,7 +2,6 @@
 
 require "erb"
 require "dry/files"
-require "hanami/cli/generators/app/slice_context"
 
 module Hanami
   module CLI

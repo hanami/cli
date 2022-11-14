@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "open3"
+
 RSpec.describe "bin/hanami", :app do
   def output
     Open3.capture3({"HANAMI_ENV" => hanami_env}, "bin/hanami #{args.join(' ')}", chdir: app.root)

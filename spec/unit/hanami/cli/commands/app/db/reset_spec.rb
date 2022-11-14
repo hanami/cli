@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/db/reset"
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Reset, :app, :command, :db do
   it "drops, creates and migrates a database" do
     pending "ugh too much to mock"

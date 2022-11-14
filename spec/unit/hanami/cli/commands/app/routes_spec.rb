@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/app/routes"
-
 RSpec.describe Hanami::CLI::Commands::App::Routes, :app, :command do # see fixture app for the defined routes
   # TODO: better Hanami tear down
   after do

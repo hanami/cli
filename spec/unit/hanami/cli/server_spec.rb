@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/server"
-
 RSpec.describe Hanami::CLI::Server do
   describe "#call" do
     subject { described_class.new(rack_server: rack_server) }
