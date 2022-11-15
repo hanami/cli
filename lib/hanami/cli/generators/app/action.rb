@@ -2,6 +2,7 @@
 
 require "erb"
 require "dry/files"
+require_relative "../../errors"
 
 # rubocop:disable Metrics/ParameterLists
 module Hanami
@@ -59,7 +60,7 @@ module Hanami
 
           def generate_for_slice(controller, action, url, http, _format, _skip_view, slice, context)
             slice_directory = fs.join("slices", slice)
-            raise ArgumentError.new("slice not found `#{slice}'") unless fs.directory?(slice_directory)
+            raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
             fs.inject_line_at_block_bottom(
               fs.join("config", "routes.rb"),
