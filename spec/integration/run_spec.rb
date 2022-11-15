@@ -38,7 +38,7 @@ RSpec.describe "bin/hanami", :app do
 
       it "prints error message and exits with error code" do
         expect(exit_code).to be(1)
-        expect(stderr).to include("missing")
+        expect(stderr).to include("slice `foo' is missing")
       end
     end
   end

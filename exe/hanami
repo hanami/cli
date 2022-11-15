@@ -10,7 +10,6 @@ Hanami::CLI::Bundler.require(:cli)
 begin
   cli.call
 rescue Hanami::CLI::Error => exception
-  require "shellwords"
-  $stderr.puts(Shellwords.shellescape(exception.message)) # rubocop:disable Style/StderrPuts
+  $stderr.puts(exception.message) # rubocop:disable Style/StderrPuts
   exit(1)
 end
