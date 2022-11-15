@@ -8,19 +8,38 @@ RSpec.describe "bin/hanami", :app do
   end
 
   let(:hanami_env) { nil }
-
-  let(:stdout) do
-    output[1]
-  end
+  let(:stdout) { output[0] }
+  let(:stderr) { output[1] }
+  let(:exit_code) { output[2].exitstatus }
 
   context "no args" do
     let(:args) { [] }
 
     it "prints out usage" do
-      expect(stdout).to include("install")
-      expect(stdout).to include("console")
-      expect(stdout).to include("generate")
-      # expect(stdout).to include("db [SUBCOMMAND]")
+      expect(stderr).to include("install")
+      expect(stderr).to include("console")
+      expect(stderr).to include("generate")
+      # expect(stderr).to include("db [SUBCOMMAND]")
+    end
+  end
+
+  context "error" do
+    context "with unknown command" do
+      let(:args) { %w[unknown command] }
+
+      it "prints help and exits with error code" do
+        expect(exit_code).to be(1)
+        expect(stderr).to include("Commands:")
+      end
+    end
+
+    context "when sub command raises an error" do
+      let(:args) { %w[generate action home.index --slice=foo] }
+
+      it "prints error message and exits with error code" do
+        expect(exit_code).to be(1)
+        expect(stderr).to include("missing")
+      end
     end
   end
 
@@ -28,8 +47,8 @@ RSpec.describe "bin/hanami", :app do
   #   let(:args) { ["db"] }
   #
   #   it "prints put db usage" do
-  #     expect(stdout).to include("db create")
-  #     expect(stdout).to include("db structure [SUBCOMMAND]")
+  #     expect(stderr).to include("db create")
+  #     expect(stderr).to include("db structure [SUBCOMMAND]")
   #   end
   # end
 
@@ -38,7 +57,7 @@ RSpec.describe "bin/hanami", :app do
       let(:args) { ["console"] }
 
       xit "starts irb console" do
-        expect(output[0]).to include("test[development]")
+        expect(stdout).to include("test[development]")
       end
     end
 
@@ -46,7 +65,7 @@ RSpec.describe "bin/hanami", :app do
       let(:args) { ["console"] }
 
       it "starts pry console" do
-        expect(output[0]).to include("test[development]")
+        expect(stdout).to include("test[development]")
       end
     end
 
@@ -54,7 +73,7 @@ RSpec.describe "bin/hanami", :app do
       let(:args) { ["console --engine pry"] }
 
       it "starts pry console" do
-        expect(output[0]).to include("test[development]")
+        expect(stdout).to include("test[development]")
       end
     end
 
@@ -66,7 +85,7 @@ RSpec.describe "bin/hanami", :app do
           let(:args) { ["console"] }
 
           it "respects HANAMI_ENV" do
-            expect(output[0]).to include("test[production]")
+            expect(stdout).to include("test[production]")
           end
         end
       end
@@ -78,7 +97,7 @@ RSpec.describe "bin/hanami", :app do
           let(:args) { ["console"] }
 
           it "defaults to development" do
-            expect(output[0]).to include("test[development]")
+            expect(stdout).to include("test[development]")
           end
         end
       end
