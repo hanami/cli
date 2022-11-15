@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "uri"
+require_relative "./errors"
 
 module Hanami
   module CLI
@@ -14,12 +15,12 @@ module Hanami
           result = URI.parse(result).path
 
           unless valid?(result)
-            raise ArgumentError.new("invalid URL: `#{url}'")
+            raise InvalidURLError.new(url)
           end
 
           result
         rescue URI::InvalidURIError
-          raise ArgumentError.new("invalid URL: `#{url}'")
+          raise InvalidURLError.new(url)
         end
         alias_method :[], :call
 

@@ -130,7 +130,7 @@ module Hanami
             result = (http ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
 
             unless ROUTE_HTTP_METHODS.include?(result)
-              raise ArgumentError.new("unknown HTTP method: `#{http}'")
+              raise UnknownHTTPMethodError.new(http)
             end
 
             result

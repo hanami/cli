@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dry/inflector"
+require_relative "../../errors"
 
 module Hanami
   module CLI
@@ -65,7 +66,7 @@ module Hanami
 
           def run_install_commmand!
             command_line.call("hanami install").tap do |result|
-              raise "hanami install failed\n\n\n#{result.err.inspect}" unless result.successful?
+              raise HanamiInstallError.new(result.err) unless result.successful?
             end
           end
         end

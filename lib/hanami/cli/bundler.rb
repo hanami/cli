@@ -5,6 +5,7 @@ require "open3"
 require "etc"
 require "dry/files"
 require_relative "./system_call"
+require_relative "./errors"
 
 module Hanami
   module CLI
@@ -33,7 +34,7 @@ module Hanami
 
       def install!
         install.tap do |result|
-          raise "Bundle install failed\n\n\n#{result.err.inspect}" unless result.successful?
+          raise BundleInstallError.new(result.err) unless result.successful?
         end
       end
 

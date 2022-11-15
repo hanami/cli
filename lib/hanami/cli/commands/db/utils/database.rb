@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "database_config"
+require_relative "../../../errors"
 
 module Hanami
   module CLI
@@ -40,7 +41,7 @@ module Hanami
               config = DatabaseConfig.new(database_url)
 
               resolver = SCHEME_MAP.fetch(config.db_type) do
-                raise "#{config.db_type} is not a supported db scheme"
+                raise UnsupportedDatabaseSchemeError.new(config.db_type)
               end
 
               klass = resolver.()
@@ -54,19 +55,19 @@ module Hanami
             end
 
             def create_command
-              raise NotImplementedError
+              raise Hanami::CLI::NotImplementedError
             end
 
             def drop_command
-              raise NotImplementedError
+              raise Hanami::CLI::NotImplementedError
             end
 
             def dump_command
-              raise NotImplementedError
+              raise Hanami::CLI::NotImplementedError
             end
 
             def load_command
-              raise NotImplementedError
+              raise Hanami::CLI::NotImplementedError
             end
 
             def root_path

@@ -3,6 +3,7 @@
 require "shellwords"
 require "open3"
 require_relative "database"
+require_relative "../../../errors"
 
 module Hanami
   module CLI
@@ -27,7 +28,7 @@ module Hanami
             end
 
             def load_command
-              raise "Not Implemented Yet"
+              raise Hanami::CLI::NotImplementedError
             end
 
             def escaped_name

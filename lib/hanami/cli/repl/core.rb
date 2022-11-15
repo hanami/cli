@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "hanami/console/context"
+require_relative "../errors"
 
 module Hanami
   module CLI
@@ -21,7 +22,7 @@ module Hanami
 
         # @api private
         def start
-          raise NotImplementedError
+          raise Hanami::CLI::NotImplementedError
         end
 
         # @api private
