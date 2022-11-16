@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "database"
+require_relative "../../../errors"
 
 module Hanami
   module CLI
@@ -19,11 +20,11 @@ module Hanami
             end
 
             def dump_command
-              raise "Not Implemented Yet"
+              raise Hanami::CLI::NotImplementedError
             end
 
             def load_command
-              raise "Not Implemented Yet"
+              raise Hanami::CLI::NotImplementedError
             end
 
             def file_path

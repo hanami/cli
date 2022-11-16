@@ -96,19 +96,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     it "raises error if action name doesn't respect the convention" do
       expect {
         subject.call(name: "foo")
-      }.to raise_error(ArgumentError, "cannot parse controller and action name: `foo'\n\texample: users.show")
+      }.to raise_error(Hanami::CLI::InvalidActionNameError, "cannot parse controller and action name: `foo'\n\texample: `hanami generate action users.show'")
     end
 
     it "raises error if HTTP method is unknown" do
       expect {
         subject.call(name: action_name, http: "foo")
-      }.to raise_error(ArgumentError, "unknown HTTP method: `foo'")
+      }.to raise_error(Hanami::CLI::UnknownHTTPMethodError, "unknown HTTP method: `foo'")
     end
 
     it "raises error if URL is invalid" do
       expect {
         subject.call(name: action_name, url: "//")
-      }.to raise_error(ArgumentError, "invalid URL: `//'")
+      }.to raise_error(Hanami::CLI::InvalidURLError, "invalid URL: `//'")
     end
 
     it "infers RESTful action URL and HTTP method for routes" do

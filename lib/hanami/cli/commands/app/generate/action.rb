@@ -3,6 +3,7 @@
 require "dry/inflector"
 require "dry/files"
 require "shellwords"
+require_relative "../../../errors"
 
 module Hanami
   module CLI
@@ -55,7 +56,7 @@ module Hanami
               *controller, action = name.split(ACTION_SEPARATOR)
 
               if controller.empty?
-                raise ArgumentError.new("cannot parse controller and action name: `#{name}'\n\texample: users.show")
+                raise InvalidActionNameError.new(name)
               end
 
               generator.call(app.namespace, controller, action, url, http, format, skip_view, slice)

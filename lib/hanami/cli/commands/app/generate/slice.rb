@@ -3,6 +3,7 @@
 require "dry/inflector"
 require "dry/files"
 require "shellwords"
+require_relative "../../../errors"
 
 module Hanami
   module CLI
@@ -47,8 +48,8 @@ module Hanami
 
               result ||= DEFAULT_URL_PREFIX + name
               CLI::URL.call(result)
-            rescue ArgumentError
-              raise ArgumentError.new("invalid URL prefix: `#{url}'")
+            rescue InvalidURLError
+              raise InvalidURLPrefixError.new(url)
             end
 
             def valid_url?(url)

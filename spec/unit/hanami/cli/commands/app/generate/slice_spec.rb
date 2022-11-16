@@ -94,12 +94,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       expected = %(slice :#{slice_name}, at: "/foo_bar" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      expect { subject.call(name: slice, url: " ") }.to raise_error(ArgumentError, "invalid URL prefix: ` '")
-      expect { subject.call(name: slice, url: "a") }.to raise_error(ArgumentError, "invalid URL prefix: `a'")
-      expect { subject.call(name: slice, url: "//") }.to raise_error(ArgumentError, "invalid URL prefix: `//'")
+      expect { subject.call(name: slice, url: " ") }.to raise_error(Hanami::CLI::InvalidURLPrefixError, "invalid URL prefix: ` '")
+      expect { subject.call(name: slice, url: "a") }.to raise_error(Hanami::CLI::InvalidURLPrefixError, "invalid URL prefix: `a'")
+      expect { subject.call(name: slice, url: "//") }.to raise_error(Hanami::CLI::InvalidURLPrefixError, "invalid URL prefix: `//'")
       expect {
         subject.call(name: slice, url: "//FooBar")
-      }.to raise_error(ArgumentError, "invalid URL prefix: `//FooBar'")
+      }.to raise_error(Hanami::CLI::InvalidURLPrefixError, "invalid URL prefix: `//FooBar'")
     end
   end
 
