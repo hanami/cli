@@ -24,10 +24,17 @@ module Hanami
         # - All others are always given by the Hanami command.
         #
         # Run `bundle exec hanami server -h` to see all the supported options.
+        #
+        # @since 2.0.0
+        # @api private
         class Server < Command
+          # @since 2.0.0
+          # @api private
           DEFAULT_PORT = 2300
           private_constant :DEFAULT_PORT
 
+          # @since 2.0.0
+          # @api private
           DEFAULT_CONFIG_PATH = "config.ru"
           private_constant :DEFAULT_CONFIG_PATH
 
@@ -41,11 +48,14 @@ module Hanami
           option :debug, default: false, required: false, desc: "Turn on/off debug output", type: :boolean
           option :warn, default: false, required: false, desc: "Turn on/off warnings", type: :boolean
 
+          # @since 2.0.0
+          # @api private
           def initialize(server: Hanami::CLI::Server.new)
             super()
             @server = server
           end
 
+          # @since 2.0.0
           # @api private
           def call(port: DEFAULT_PORT, **kwargs)
             server.call(port: port, **kwargs)

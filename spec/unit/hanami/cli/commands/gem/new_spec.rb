@@ -2,11 +2,10 @@
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject {
-    described_class.new(bundler: bundler, command_line: command_line, out: out, fs: fs, inflector: inflector)
+    described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
   }
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
-  let(:command_line) { Hanami::CLI::CommandLine.new(bundler: bundler) }
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
@@ -19,7 +18,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .at_least(1)
       .and_return(true)
 
-    expect(command_line).to receive(:call)
+    expect(bundler).to receive(:exec)
       .with("hanami install")
       .at_least(1)
       .and_return(successful_system_call_result)
@@ -47,7 +46,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(bundler).to receive(:install!)
       .and_return(true)
 
-    expect(command_line).to receive(:call)
+    expect(bundler).to receive(:exec)
       .with("hanami install")
       .and_return(successful_system_call_result)
 
@@ -233,7 +232,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(bundler).to receive(:install!)
       .and_return(true)
 
-    expect(command_line).to receive(:call)
+    expect(bundler).to receive(:exec)
       .with("hanami install")
       .and_return(successful_system_call_result)
 

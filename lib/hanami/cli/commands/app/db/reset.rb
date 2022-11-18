@@ -10,9 +10,11 @@ module Hanami
     module Commands
       module App
         module DB
+          # @api private
           class Reset < App::Command
             desc "Drop, create, and migrate database"
 
+            # @api private
             def call(**)
               run_command Drop
               run_command Create

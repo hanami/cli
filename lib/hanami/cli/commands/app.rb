@@ -3,7 +3,13 @@
 module Hanami
   module CLI
     module Commands
+      # Commands made available when the `hanami` CLI is executed within an Hanami app.
+      #
+      # @api private
+      # @since 2.0.0
       module App
+        # @since 2.0.0
+        # @api private
         def self.extended(base)
           base.module_eval do
             register "version", Commands::App::Version, aliases: ["v", "-v", "--version"]

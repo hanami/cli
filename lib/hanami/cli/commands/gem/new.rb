@@ -7,6 +7,8 @@ module Hanami
   module CLI
     module Commands
       module Gem
+        # @since 2.0.0
+        # @api private
         class New < Command
           SKIP_INSTALL_DEFAULT = false
           private_constant :SKIP_INSTALL_DEFAULT
@@ -24,22 +26,22 @@ module Hanami
             "bookshelf --skip-install # Generate a new Hanami app, but it skips Hanami installation"
           ]
 
-          # rubocop:disable Metrics/ParameterLists
+          # @since 2.0.0
+          # @api private
           def initialize(
             fs: Hanami::CLI::Files.new,
             inflector: Dry::Inflector.new,
             bundler: CLI::Bundler.new(fs: fs),
-            command_line: CLI::CommandLine.new(bundler: bundler),
-            generator: Generators::Gem::App.new(fs: fs, inflector: inflector, command_line: command_line),
+            generator: Generators::Gem::App.new(fs: fs, inflector: inflector),
             **other
           )
             @bundler = bundler
-            @command_line = command_line
             @generator = generator
             super(fs: fs, inflector: inflector, **other)
           end
-          # rubocop:enable Metrics/ParameterLists
 
+          # @since 2.0.0
+          # @api private
           def call(app:, skip_install: SKIP_INSTALL_DEFAULT, **)
             app = inflector.underscore(app)
 
@@ -61,11 +63,10 @@ module Hanami
           private
 
           attr_reader :bundler
-          attr_reader :command_line
           attr_reader :generator
 
           def run_install_commmand!
-            command_line.call("hanami install").tap do |result|
+            bundler.exec("hanami install").tap do |result|
               raise HanamiInstallError.new(result.err) unless result.successful?
             end
           end

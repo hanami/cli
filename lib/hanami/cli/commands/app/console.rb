@@ -8,8 +8,11 @@ module Hanami
   module CLI
     module Commands
       module App
-        # @api public
+        # @since 2.0.0
+        # @api private
         class Console < App::Command
+          # @since 2.0.0
+          # @api private
           ENGINES = {
             "pry" => -> (*args) {
               begin
@@ -23,6 +26,8 @@ module Hanami
           }.freeze
           private_constant :ENGINES
 
+          # @since 2.0.0
+          # @api private
           DEFAULT_ENGINE = "irb"
           private_constant :DEFAULT_ENGINE
 
@@ -30,6 +35,7 @@ module Hanami
 
           option :engine, required: false, desc: "Console engine", values: ENGINES.keys
 
+          # @since 2.0.0
           # @api private
           def call(engine: nil, **opts)
             console_engine = resolve_engine(engine, opts)

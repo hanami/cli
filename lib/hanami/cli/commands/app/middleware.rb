@@ -22,10 +22,16 @@ module Hanami
         # $ bundle exec hanami middleware --with-arguments
         # /    Rack::Session::Cookie args: [{:secret=>"foo"}]
         # ```
+        #
+        # @since 2.0.0
+        # @api private
         class Middleware < Hanami::CLI::Command
           desc "Print app Rack middleware stack"
 
+          # @since 2.0.0
+          # @api private
           DEFAULT_WITH_ARGUMENTS = false
+          private_constant :DEFAULT_WITH_ARGUMENTS
 
           option :with_arguments, default: DEFAULT_WITH_ARGUMENTS, required: false,
                                   desc: "Include inspected arguments", type: :boolean
@@ -35,6 +41,7 @@ module Hanami
             "middleware --with-arguments # Print app Rack middleware stack, including initialize arguments",
           ]
 
+          # @since 2.0.0
           # @api private
           def call(with_arguments: DEFAULT_WITH_ARGUMENTS)
             require "hanami/prepare"

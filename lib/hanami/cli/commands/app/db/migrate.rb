@@ -8,11 +8,13 @@ module Hanami
     module Commands
       module App
         module DB
+          # @api private
           class Migrate < App::Command
             desc "Migrates database"
 
             option :target, desc: "Target migration number", aliases: ["-t"]
 
+            # @api private
             def call(target: nil, **)
               return true if Dir[File.join(app.root, "db/migrate/*.rb")].empty?
 

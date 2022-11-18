@@ -3,15 +3,17 @@
 require_relative "plugins/slice_readers"
 
 module Hanami
+  # @since 2.0.0
+  # @api private
   module Console
     # Hanami app console context
     #
-    # @api private
     # @since 2.0.0
+    # @api private
     class Context < Module
-      # @api private
       attr_reader :app
 
+      # @since 2.0.0
       # @api private
       def initialize(app)
         super()

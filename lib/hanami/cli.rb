@@ -4,6 +4,10 @@ require "dry/cli"
 require "zeitwerk"
 
 module Hanami
+  # Extensible command line interface for Hanami.
+  #
+  # @api public
+  # @since 2.0.0
   module CLI
     # @api private
     # @since 2.0.0

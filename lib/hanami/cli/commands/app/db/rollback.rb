@@ -8,12 +8,14 @@ module Hanami
     module Commands
       module App
         module DB
+          # @api private
           class Rollback < App::Command
             desc "Rollback database to a previous migration"
 
             option :target, desc: "Target migration number", aliases: ["-t"]
             option :dump, desc: "Dump structure after rolling back"
 
+            # @api private
             def call(target: nil, dump: true, **)
               migration_code, migration_name = find_migration(target)
 

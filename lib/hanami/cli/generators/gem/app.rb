@@ -6,15 +6,22 @@ require "shellwords"
 module Hanami
   module CLI
     module Generators
+      # @since 2.0.0
+      # @api private
       module Gem
+        # @since 2.0.0
+        # @api private
         class App
-          def initialize(fs:, inflector:, command_line:)
+          # @since 2.0.0
+          # @api private
+          def initialize(fs:, inflector:)
             super()
             @fs = fs
             @inflector = inflector
-            @command_line = command_line
           end
 
+          # @since 2.0.0
+          # @api private
           def call(app, context: Context.new(inflector, app), &blk)
             generate_app(app, context)
             blk.call
@@ -25,8 +32,6 @@ module Hanami
           attr_reader :fs
 
           attr_reader :inflector
-
-          attr_reader :command_line
 
           def generate_app(app, context) # rubocop:disable Metrics/AbcSize
             fs.write(".env", t("env.erb", context))

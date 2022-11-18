@@ -5,11 +5,15 @@ require_relative "./errors"
 
 module Hanami
   module CLI
+    # @since 2.0.0
+    # @api private
     module URL
       DEFAULT_URL_PREFIX = "/"
       private_constant :DEFAULT_URL_PREFIX
 
       class << self
+        # @since 2.0.0
+        # @api private
         def call(url)
           result = url
           result = URI.parse(result).path
@@ -24,6 +28,8 @@ module Hanami
         end
         alias_method :[], :call
 
+        # @since 2.0.0
+        # @api private
         def valid?(url)
           return false if url.nil?
 

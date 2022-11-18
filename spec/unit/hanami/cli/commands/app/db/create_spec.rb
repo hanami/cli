@@ -2,7 +2,7 @@
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app, :command do
   let(:database) do
-    instance_double(Hanami::CLI::Commands::DB::Utils::Database, name: "test")
+    instance_double(Hanami::CLI::Commands::App::DB::Utils::Database, name: "test")
   end
 
   it "creates a database" do

@@ -7,13 +7,22 @@ module Hanami
     # This is typically used to determine whether to register commands that are applicable either
     # inside or outside an app.
     #
-    # @api public
+    # @return [Boolean]
+    #
+    # @api private
     # @since 2.0.0
     def self.within_hanami_app?
       File.exist?("config/app.rb") ||
         File.exist?("app.rb")
     end
 
+    # Contains the commands available for the current `hanami` CLI execution, depending on whether
+    # the CLI is executed inside or outside an Hanami app.
+    #
+    # @see .within_hanami_app?
+    #
+    # @api public
+    # @since 2.0.0
     module Commands
     end
 

@@ -7,9 +7,10 @@ module Hanami
   module CLI
     module Repl
       # @since 2.0.0
-      # @api public
+      # @api private
       class Irb < Core
-        # @api public
+        # @since 2.0.0
+        # @api private
         def start
           $stdout.sync = true
 

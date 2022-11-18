@@ -20,10 +20,17 @@ module Hanami
         # ```
         # $ bundle exec hanami routes --format=custom_routes_formatter
         # ```
+        #
+        # @since 2.0.0
+        # @api private
         class Routes < Hanami::CLI::Command
+          # @since 2.0.0
+          # @api private
           DEFAULT_FORMAT = "human_friendly"
           private_constant :DEFAULT_FORMAT
 
+          # @since 2.0.0
+          # @api private
           VALID_FORMATS = [
             DEFAULT_FORMAT,
             "csv"
@@ -42,6 +49,7 @@ module Hanami
             "routes --format=csv # Print app routes, using CSV format",
           ]
 
+          # @since 2.0.0
           # @api private
           def call(format: DEFAULT_FORMAT, **)
             require "hanami/router/inspector"

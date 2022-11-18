@@ -4,9 +4,13 @@ module Hanami
   module CLI
     module Commands
       module Gem
+        # @since 2.0.0
+        # @api private
         class Version < Command
           desc "Hanami version"
 
+          # @since 2.0.0
+          # @api private
           def call(*)
             version = detect_version
             out.puts "v#{version}"

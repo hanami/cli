@@ -3,6 +3,8 @@
 module Hanami
   module CLI
     module Generators
+      # @since 2.0.0
+      # @api private
       module Version
         # @since 2.0.0
         # @api private
@@ -30,22 +32,22 @@ module Hanami
           version =~ /alpha|beta|rc/
         end
 
-        # @since 2.0.0
-        # @api private
-        #
         # @example
         #   Hanami::VERSION # => 2.0.0
         #   Hanami::CLI::Generators::Version.stable_version # => "2.0"
+        #
+        # @since 2.0.0
+        # @api private
         def self.stable_version
           version.scan(/\A\d{1,2}\.\d{1,2}/).first
         end
 
-        # @since 2.0.0
-        # @api private
-        #
         # @example
         #   Hanami::VERSION # => 2.0.0.alpha8.1
         #   Hanami::CLI::Generators::Version.stable_version # => "2.0.0.alpha"
+        #
+        # @since 2.0.0
+        # @api private
         def self.prerelease_version
           version.sub(/[[[:digit:]].]*\Z/, "")
         end

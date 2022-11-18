@@ -8,11 +8,13 @@ module Hanami
     module Commands
       module App
         module DB
+          # @api private
           class SampleData < App::Command
             FILE_PATH = "db/sample_data.rb"
 
             desc "Load sample data"
 
+            # @api private
             def call(**)
               if has_file?
                 measure "sample data loaded from #{FILE_PATH}" do

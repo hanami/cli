@@ -4,8 +4,9 @@ source "https://rubygems.org"
 gemspec
 
 unless ENV["CI"]
-  gem "byebug", require: false, platforms: :mri
-  gem "yard",   require: false
+  gem "byebug", platforms: :mri
+  gem "yard"
+  gem "yard-junk"
 end
 
 gem "dry-system", "~> 1.0.0.rc1"
