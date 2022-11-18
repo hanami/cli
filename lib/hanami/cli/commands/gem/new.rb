@@ -66,7 +66,7 @@ module Hanami
           attr_reader :generator
 
           def run_install_commmand!
-            command_line.call("hanami install").tap do |result|
+            bundler.exec("hanami install").tap do |result|
               raise HanamiInstallError.new(result.err) unless result.successful?
             end
           end
