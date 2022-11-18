@@ -5,7 +5,7 @@ module Hanami
     module Commands
       # Commands made available when the `hanami` CLI is executed within an Hanami app.
       #
-      # @api public
+      # @api private
       # @since 2.0.0
       module App
         # @since 2.0.0

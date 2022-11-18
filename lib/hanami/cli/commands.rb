@@ -9,7 +9,7 @@ module Hanami
     #
     # @return [Boolean]
     #
-    # @api public
+    # @api private
     # @since 2.0.0
     def self.within_hanami_app?
       File.exist?("config/app.rb") ||
