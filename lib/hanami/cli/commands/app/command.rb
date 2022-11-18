@@ -17,8 +17,8 @@ module Hanami
           # @api private
           ACTION_SEPARATOR = "." # TODO: rename to container key separator
 
-          # Overloads {Hanami::CLI::Commands::App::Command#call} to ensure an appropriate `HANAMI_ENV` environment variable is
-          # set.
+          # Overloads {Hanami::CLI::Commands::App::Command#call} to ensure an appropriate `HANAMI_ENV`
+          # environment variable is set.
           #
           # Uses an `--env` option if provided, then falls back to an already-set `HANAMI_ENV`
           # environment variable, and defaults to "development" in the absence of both.
