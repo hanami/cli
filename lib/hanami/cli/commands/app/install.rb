@@ -9,7 +9,7 @@ module Hanami
         #
         # Third parties should register their install commands like so:
         #
-        # ```ruby
+        # ```
         # if Hanami::CLI.within_hanami_app?
         #   Hanami::CLI.after "install", MyHanamiGem::CLI::Commands::Install
         # end
