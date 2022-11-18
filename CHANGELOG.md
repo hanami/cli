@@ -2,6 +2,17 @@
 
 Hanami Command Line Interface
 
+## v2.0.0 - 2022-11-22
+
+### Added
+
+- [Tim Riley] Use Zeitwerk to autoload the gem
+
+### Fixed
+
+- [Luca Guidi] In case of internal exception, don't print the stack trace to stderr, print the error message, exit with 1.
+- [Tim Riley] Ensure to be able to run `hanami` CLI in Hanami app subdirectories.
+
 ## v2.0.0.rc1 - 2022-11-08
 
 ## v2.0.0.beta4 - 2022-10-24
