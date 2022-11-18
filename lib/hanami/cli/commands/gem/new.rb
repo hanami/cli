@@ -66,13 +66,8 @@ module Hanami
           attr_reader :generator
 
           def run_install_commmand!
-<<<<<<< HEAD
             command_line.call("hanami install").tap do |result|
               raise HanamiInstallError.new(result.err) unless result.successful?
-=======
-            bundler.exec("hanami install").tap do |result|
-              raise "hanami install failed\n\n\n#{result.err.inspect}" unless result.successful?
->>>>>>> 6b76973 (Remove CommandLine)
             end
           end
         end
