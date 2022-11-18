@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami/cli/commands/gem/version"
-
 RSpec.describe Hanami::CLI::Commands::Gem::Version do
   subject { described_class.new(out: stdout) }
   let(:stdout) { StringIO.new }

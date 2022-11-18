@@ -8,31 +8,14 @@ module Hanami
       # @api private
       # @since 2.0.0
       class SliceReaders < Module
-        # @api private
-        def initialize(application)
-          application.slices.each do |(name, slice)|
-            define_method(name) do
-              SliceDelegator.new(slice)
-            end
-          end
-        end
-
-        # @api private
         # @since 2.0.0
-        class SliceDelegator < SimpleDelegator
-          # @api private
-          def respond_to_missing?(name)
-            key?(name)
-          end
+        # @api private
+        def initialize(app)
+          super()
 
-          private
-
-          # @api private
-          def method_missing(name, *args, &block)
-            if args.empty? && key?(name)
-              self[name]
-            else
-              super
+          app.slices.each do |slice|
+            define_method(slice.slice_name.to_sym) do
+              slice
             end
           end
         end

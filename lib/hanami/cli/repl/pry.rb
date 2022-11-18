@@ -7,13 +7,11 @@ module Hanami
   module CLI
     module Repl
       # @since 2.0.0
-      # @api public
+      # @api private
       class Pry < Core
-        # @api private
         class Context
         end
 
-        # @api public
         def start
           ::Pry.config.prompt = ::Pry::Prompt.new(
             "hanami",

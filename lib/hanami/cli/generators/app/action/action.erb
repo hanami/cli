@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+module <%= camelized_app_name %>
+  module Actions
+<%= module_controller_declaration %>
+<%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_app_name %>::Action
+<%= module_controller_offset %>  def handle(*, response)
+<%= module_controller_offset %>    response.body = self.class.name
+<%= module_controller_offset %>  end
+<%= module_controller_offset %>end
+<%= module_controller_end %>
+  end
+end

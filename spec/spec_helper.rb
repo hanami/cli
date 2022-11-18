@@ -2,8 +2,6 @@
 
 require "hanami/cli"
 
-begin; require "byebug"; rescue LoadError; end
-
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
@@ -31,7 +29,7 @@ RSpec.configure do |config|
 
   RSpec.shared_context "app" do
     let(:app) do
-      Test::Application
+      Test::App
     end
   end
 
@@ -40,12 +38,15 @@ RSpec.configure do |config|
 
     let(:out) { StringIO.new }
 
-    let(:output) { out.rewind; out.read }
+    let(:output) {
+      out.rewind
+      out.read
+    }
   end
 
   RSpec.shared_context "database" do
     let(:database) do
-      instance_double(Hanami::CLI::Commands::DB::Utils::Database, name: "test")
+      instance_double(Hanami::CLI::Commands::App::DB::Utils::Database, name: "test")
     end
 
     before do
@@ -58,9 +59,9 @@ RSpec.configure do |config|
   config.include_context("app", app: true)
 
   config.around(app: true) do |example|
-    require_relative "fixtures/test/config/application" unless defined?(Test::Application)
+    require_relative "fixtures/test/config/app" unless defined?(Test::App)
     example.run
   end
 end
 
-Dir.glob("#{__dir__}/support/**/*.rb").sort.each(&method(:require))
+Dir.glob("#{__dir__}/support/**/*.rb").each(&method(:require))

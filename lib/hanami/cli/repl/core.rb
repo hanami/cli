@@ -1,53 +1,61 @@
 # frozen_string_literal: true
 
 require "hanami/console/context"
+require_relative "../errors"
 
 module Hanami
   module CLI
+    # @since 2.0.0
+    # @api private
     module Repl
+      # @since 2.0.0
       # @api private
       class Core
-        # @api private
-        attr_reader :application
-
-        # @api private
+        attr_reader :app
         attr_reader :opts
 
+        # @since 2.0.0
         # @api private
-        def initialize(application, opts)
-          @application = application
+        def initialize(app, opts)
+          @app = app
           @opts = opts
         end
 
+        # @since 2.0.0
         # @api private
         def start
-          raise NotImplementedError
+          raise Hanami::CLI::NotImplementedError
         end
 
+        # @since 2.0.0
         # @api private
         def context
-          @context ||= Hanami::Console::Context.new(application)
+          @context ||= Hanami::Console::Context.new(app)
         end
 
+        # @since 2.0.0
         # @api private
         def prompt
           "#{name}[#{env}]"
         end
 
+        # @since 2.0.0
         # @api private
         def name
-          (application.container.config.name || inflector.underscore(application.name))
-            .split("/")[0]
+          (app.container.config.name || inflector.underscore(app.name))
+            .to_s.split("/")[0]
         end
 
+        # @since 2.0.0
         # @api private
         def env
-          application.container.env
+          app.container.env
         end
 
+        # @since 2.0.0
         # @api private
         def inflector
-          application.inflector
+          app.inflector
         end
       end
     end

@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+require "<%= underscored_app_name %>/repository"
+require_relative "entities"
+
+module <%= camelized_slice_name %>
+  class Repository < <%= camelized_app_name %>::Repository
+    struct_namespace Entities
+  end
+end

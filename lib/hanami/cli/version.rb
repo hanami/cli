@@ -2,6 +2,10 @@
 
 module Hanami
   module CLI
-    VERSION = "2.0.0.alpha2"
+    # The current hanami-cli version.
+    #
+    # @api public
+    # @since 2.0.0
+    VERSION = "2.0.0"
   end
 end

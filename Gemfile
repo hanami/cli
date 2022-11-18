@@ -4,12 +4,17 @@ source "https://rubygems.org"
 gemspec
 
 unless ENV["CI"]
-  gem "byebug", require: false, platforms: :mri
-  gem "yard",   require: false
+  gem "byebug", platforms: :mri
+  gem "yard"
+  gem "yard-junk"
 end
 
-gem "hanami", require: false, git: "https://github.com/hanami/hanami.git", branch: "unstable"
-gem "hanami-view", require: false, git: "https://github.com/hanami/view.git", branch: "unstable"
+gem "dry-system", "~> 1.0.0.rc1"
+
+gem "hanami", github: "hanami/hanami", branch: "main"
+gem "hanami-utils", github: "hanami/utils", branch: "main"
+gem "hanami-router", github: "hanami/router", branch: "main"
+gem "hanami-controller", github: "hanami/controller", branch: "main"
 
 gem "rack"
 

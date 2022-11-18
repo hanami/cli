@@ -7,33 +7,31 @@ module Hanami
   module CLI
     module Repl
       # @since 2.0.0
-      # @api public
+      # @api private
       class Irb < Core
-        # @api public
+        # @since 2.0.0
+        # @api private
         def start
+          $stdout.sync = true
+
           ARGV.shift until ARGV.empty?
-          TOPLEVEL_BINDING.eval('self').extend(context)
+          TOPLEVEL_BINDING.eval("self").extend(context)
 
-          IRB.conf[:PROMPT] = {}
+          # Initializes the IRB.conf; our own conf changes must be after this
+          IRB.setup(nil)
 
-          IRB.conf[:PROMPT][:MY_PROMPT] = {
-            :AUTO_INDENT => true,
-            :PROMPT_I =>  ">> ",
-            :PROMPT_S => nil,
-            :PROMPT_C => nil,
-            :RETURN => "    ==>%s\n"
+          IRB.conf[:PROMPT][:HANAMI] = {
+            AUTO_INDENT: true,
+            PROMPT_I: "#{prompt}> ",
+            PROMPT_N: "#{prompt}> ",
+            PROMPT_S: "#{prompt} %l> ",
+            PROMPT_C: "#{prompt} ?> ",
+            RETURN: "=> %s\n"
           }
 
-          IRB.conf[:PROMPT_MODE] = :MY_PROMPT
+          IRB.conf[:PROMPT_MODE] = :HANAMI
 
-          IRB.start
-        end
-
-        private
-
-        # @api private
-        def conf
-          @conf ||= IRB.conf
+          IRB::Irb.new.run
         end
       end
     end

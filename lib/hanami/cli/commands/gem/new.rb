@@ -1,53 +1,61 @@
 # frozen_string_literal: true
 
-require "hanami/cli/command"
-require "hanami/cli/bundler"
-require "hanami/cli/command_line"
-require "hanami/cli/generators/gem/application"
-require "dry/files"
+require "dry/inflector"
+require_relative "../../errors"
 
 module Hanami
   module CLI
     module Commands
       module Gem
+        # @since 2.0.0
+        # @api private
         class New < Command
-          ARCHITECTURES = %w[monolith micro].freeze
-          private_constant :ARCHITECTURES
+          SKIP_INSTALL_DEFAULT = false
+          private_constant :SKIP_INSTALL_DEFAULT
 
-          DEFAULT_ARCHITECTURE = ARCHITECTURES.first
-          private_constant :DEFAULT_ARCHITECTURE
+          desc "Generate a new Hanami app"
 
-          DEFAULT_SLICE_NAME = "main"
-          private_constant :DEFAULT_SLICE_NAME
+          argument :app, required: true, desc: "App name"
 
-          DEFAULT_SLICE_URL_PREFIX = "/"
-          private_constant :DEFAULT_SLICE_URL_PREFIX
+          option :skip_install, type: :boolean, required: false,
+                                default: SKIP_INSTALL_DEFAULT,
+                                desc: "Skip app installation (Bundler, third-party Hanami plugins)"
 
-          argument :app, required: true, desc: "The application name"
+          example [
+            "bookshelf                # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace", # rubocop:disable Layout/LineLength
+            "bookshelf --skip-install # Generate a new Hanami app, but it skips Hanami installation"
+          ]
 
-          option :architecture, alias: "arch", default: DEFAULT_ARCHITECTURE,
-                                values: ARCHITECTURES, desc: "The architecture"
-
-          option :slice, default: DEFAULT_SLICE_NAME, desc: %(The initial slice name, only for "monolith" architecture)
-          option :slice_url_prefix, default: DEFAULT_SLICE_URL_PREFIX,
-                                    desc: %(The initial slice URL prefix, only for "monolith" architecture)
-
-          def initialize(fs: Dry::Files.new, bundler: CLI::Bundler.new(fs: fs),
-                         command_line: CLI::CommandLine.new(bundler: bundler), **other)
+          # @since 2.0.0
+          # @api private
+          def initialize(
+            fs: Hanami::CLI::Files.new,
+            inflector: Dry::Inflector.new,
+            bundler: CLI::Bundler.new(fs: fs),
+            generator: Generators::Gem::App.new(fs: fs, inflector: inflector),
+            **other
+          )
             @bundler = bundler
-            @command_line = command_line
-            super(fs: fs, **other)
+            @generator = generator
+            super(fs: fs, inflector: inflector, **other)
           end
 
-          def call(app:, architecture: DEFAULT_ARCHITECTURE, slice: DEFAULT_SLICE_NAME,
-                   slice_url_prefix: DEFAULT_SLICE_URL_PREFIX, **)
+          # @since 2.0.0
+          # @api private
+          def call(app:, skip_install: SKIP_INSTALL_DEFAULT, **)
             app = inflector.underscore(app)
 
             fs.mkdir(app)
             fs.chdir(app) do
-              generator(architecture).call(app, slice, slice_url_prefix) do
-                bundler.install!
-                run_install_commmand!
+              generator.call(app) do
+                if skip_install
+                  out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"
+                else
+                  out.puts "Running Bundler install..."
+                  bundler.install!
+                  out.puts "Running Hanami install..."
+                  run_install_commmand!
+                end
               end
             end
           end
@@ -55,19 +63,11 @@ module Hanami
           private
 
           attr_reader :bundler
-          attr_reader :command_line
-
-          def generator(architecture)
-            unless ARCHITECTURES.include?(architecture)
-              raise ArgumentError.new("unknown architecture `#{architecture}'")
-            end
-
-            Generators::Gem::Application[architecture, fs, inflector, command_line]
-          end
+          attr_reader :generator
 
           def run_install_commmand!
-            command_line.call("hanami install").tap do |result|
-              raise "hanami install failed\n\n\n#{result.err.inspect}" unless result.successful?
+            bundler.exec("hanami install").tap do |result|
+              raise HanamiInstallError.new(result.err) unless result.successful?
             end
           end
         end
