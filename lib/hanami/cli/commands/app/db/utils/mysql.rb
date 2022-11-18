@@ -12,17 +12,17 @@ module Hanami
             class Mysql < Database
               # @api private
               def create_command
-                raise "Not Implemented Yet"
+                raise Hanami::CLI::NotImplementedError
               end
 
               # @api private
               def dump_command
-                raise "Not Implemented Yet"
+                raise Hanami::CLI::NotImplementedError
               end
 
               # @api private
               def load_command
-                raise "Not Implemented Yet"
+                raise Hanami::CLI::NotImplementedError
               end
             end
           end

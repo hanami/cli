@@ -64,22 +64,22 @@ module Hanami
 
               # @api private
               def create_command
-                raise NotImplementedError
+                raise Hanami::CLI::NotImplementedError
               end
 
               # @api private
               def drop_command
-                raise NotImplementedError
+                raise Hanami::CLI::NotImplementedError
               end
 
               # @api private
               def dump_command
-                raise NotImplementedError
+                raise Hanami::CLI::NotImplementedError
               end
 
               # @api private
               def load_command
-                raise NotImplementedError
+                raise Hanami::CLI::NotImplementedError
               end
 
               # @api private
