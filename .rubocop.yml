@@ -16,6 +16,8 @@ Naming/HeredocDelimiterNaming:
 Naming/MethodParameterName:
   AllowedNames:
     - fs
+Naming/RescuedExceptionsVariableName:
+  Enabled: false
 Style/AccessorGrouping:
   Enabled: false
 Style/BlockDelimiters:

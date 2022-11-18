@@ -12,8 +12,15 @@ module Hanami
     # @api private
     # @since 2.0.0
     def self.within_hanami_app?
-      File.exist?("config/app.rb") ||
-        File.exist?("app.rb")
+      require "hanami"
+
+      !!Hanami.app_path
+    rescue LoadError => e
+      raise e unless e.path == "hanami"
+
+      # If for any reason the hanami gem isn't installed, make a simple best effort to determine
+      # whether we're inside an app.
+      File.exist?("config/app.rb") || File.exist?("app.rb")
     end
 
     # Contains the commands available for the current `hanami` CLI execution, depending on whether
