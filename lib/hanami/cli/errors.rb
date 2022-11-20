@@ -22,7 +22,7 @@ module Hanami
 
     class PathAlreadyExistsError < Error
       def initialize(path)
-        super("Cannot create new Hanami app in an existing file or folder: #{path}")
+        super("Cannot create new Hanami app in an existing path: `#{path}'")
       end
     end
 
