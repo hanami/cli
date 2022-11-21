@@ -12,6 +12,7 @@ Hanami Command Line Interface
 
 - [Luca Guidi] In case of internal exception, don't print the stack trace to stderr, print the error message, exit with 1.
 - [Tim Riley] Ensure to be able to run `hanami` CLI in Hanami app subdirectories.
+- [Sean Collins] Return an error when trying to run `hanami new` with an existing target path (file or directory)
 
 ## v2.0.0.rc1 - 2022-11-08
 
