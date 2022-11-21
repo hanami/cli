@@ -20,6 +20,12 @@ module Hanami
       end
     end
 
+    class PathAlreadyExistsError < Error
+      def initialize(path)
+        super("Cannot create new Hanami app in an existing path: `#{path}'")
+      end
+    end
+
     class MissingSliceError < Error
       def initialize(slice)
         super("slice `#{slice}' is missing, please generate with `hanami generate slice #{slice}'")

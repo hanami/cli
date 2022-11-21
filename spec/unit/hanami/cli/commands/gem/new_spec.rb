@@ -261,4 +261,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("config/app.rb")).to eq(hanami_app)
     end
   end
+
+  it "doesn't create app in existing folder" do
+    fs.mkdir("bookshelf")
+
+    expect(bundler).to_not receive(:install!)
+    expect(bundler).to_not receive(:exec)
+
+    expect { subject.call(app: app) }.to raise_error(Hanami::CLI::PathAlreadyExistsError)
+  end
 end

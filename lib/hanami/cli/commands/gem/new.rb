@@ -45,6 +45,8 @@ module Hanami
           def call(app:, skip_install: SKIP_INSTALL_DEFAULT, **)
             app = inflector.underscore(app)
 
+            raise PathAlreadyExistsError.new(app) if fs.exist?(app)
+
             fs.mkdir(app)
             fs.chdir(app) do
               generator.call(app) do
