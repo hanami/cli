@@ -114,7 +114,7 @@ module Hanami
           #
           # @api private
           def database
-            @database ||= Commands::DB::Utils::Database[app]
+            @database ||= Commands::App::DB::Utils::Database[app]
           end
 
           # This is NOT AVAILABLE as of the 2.0.0 release.
