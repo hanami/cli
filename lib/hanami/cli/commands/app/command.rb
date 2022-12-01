@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dry/files"
+require "hanami/env"
 require_relative "db/utils/database"
 
 module Hanami
@@ -34,6 +35,7 @@ module Hanami
               hanami_env = env ? env.to_s : ENV.fetch("HANAMI_ENV", "development")
 
               ENV["HANAMI_ENV"] = hanami_env
+              Hanami::Env.load
 
               super(*args, **opts)
             end

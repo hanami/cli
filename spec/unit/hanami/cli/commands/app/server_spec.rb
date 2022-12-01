@@ -1,40 +1,25 @@
 # frozen_string_literal: true
 
-require "open-uri"
-require "puma"
-
 RSpec.describe Hanami::CLI::Commands::App::Server do
-  subject { described_class.new }
+  subject { described_class.new(server: server) }
+  let(:server) { proc { |**| } }
 
-  it "starts rack server in the given environment" do
-    host = ENV.fetch("HANAMI_CLI_TEST_HOST", "0.0.0.0")
-    port = ENV.fetch("HANAMI_CLI_TEST_PORT", "2300")
-    begin
-      pid = fork do
-        $stdout.reopen "/dev/null", "a"
-        $stderr.reopen "/dev/null", "a"
-        subject.call(
-          config: File.join(File.dirname(__FILE__), "../../../../../fixtures/test/config.ru"),
-          host: host,
-          port: port,
-          env: "staging"
-        )
-      end
+  context "#call" do
+    it "invokes server" do
+      expect(server).to receive(:call)
 
-      response = open_uri("http://#{host}:#{port}/")
-
-      expect(response).to eq("Hello, world! (staging)")
-    ensure
-      Process.kill(:KILL, pid)
+      subject.call
     end
-  end
 
-  def open_uri(uri, attempts = 5)
-    URI.open(uri).read # rubocop:disable Security/Open
-  rescue Errno::ECONNREFUSED
-    raise if attempts.zero?
+    context "it uses Hanami::Port#call port" do
+      let(:port) { 7890 }
 
-    sleep 1
-    open_uri(uri, attempts - 1)
+      it "invokes server" do
+        allow(Hanami::Port).to receive(:[]).and_return(port)
+        expect(server).to receive(:call).with(port: port)
+
+        subject.call
+      end
+    end
   end
 end
