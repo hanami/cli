@@ -2,6 +2,13 @@
 
 Hanami Command Line Interface
 
+## v2.0.1 - 2022-12-06
+
+### Fixed
+
+- [Luca Guidi] Ensure to load `.env` files during CLI commands execution
+- [Luca Guidi] Ensure `hanami server` to respect HTTP port used in `.env` or the value given as CLI argument (`--port`)
+
 ## v2.0.0 - 2022-11-22
 
 ### Added
