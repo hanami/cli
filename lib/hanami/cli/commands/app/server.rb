@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rack"
+require "hanami/port"
 require_relative "../app"
 require_relative "../../server"
 
@@ -30,11 +31,6 @@ module Hanami
         class Server < Command
           # @since 2.0.0
           # @api private
-          DEFAULT_PORT = 2300
-          private_constant :DEFAULT_PORT
-
-          # @since 2.0.0
-          # @api private
           DEFAULT_CONFIG_PATH = "config.ru"
           private_constant :DEFAULT_CONFIG_PATH
 
@@ -42,7 +38,7 @@ module Hanami
 
           option :host, default: nil, required: false,
                         desc: "The host address to bind to (falls back to the rack handler)"
-          option :port, default: DEFAULT_PORT, required: false,
+          option :port, default: Hanami::Port::DEFAULT, required: false,
                         desc: "The port to run the server on (falls back to the rack handler)"
           option :config, default: DEFAULT_CONFIG_PATH, required: false, desc: "Rack configuration file"
           option :debug, default: false, required: false, desc: "Turn on/off debug output", type: :boolean
@@ -57,8 +53,8 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(port: DEFAULT_PORT, **kwargs)
-            server.call(port: port, **kwargs)
+          def call(port: Hanami::Port::DEFAULT, **kwargs)
+            server.call(port: Hanami::Port[port], **kwargs)
           end
 
           private
