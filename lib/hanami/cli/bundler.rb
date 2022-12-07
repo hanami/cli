@@ -146,10 +146,14 @@ module Hanami
       # @since 2.0.0
       # @api private
       def which(cmd)
+        exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(";") : ['']
+        
         # Adapted from https://stackoverflow.com/a/5471032/498386
         ENV["PATH"].split(File::PATH_SEPARATOR).each do |path|
-          exe = fs.join(path, cmd)
-          return exe if fs.executable?(exe) && !fs.directory?(exe)
+          exts.each do |ext|
+            exe = fs.join(path, "#{cmd}#{ext}")
+            return exe if fs.executable?(exe) && !fs.directory?(exe)
+          end
         end
 
         nil
