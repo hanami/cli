@@ -10,7 +10,11 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app, :command, :db do
   end
 
   it "runs migrations against a specific target" do
-    expect(database).to receive(:run_migrations).with(target: 312)
+    if RUBY_VERSION > "3.2"
+      expect(database).to receive(:run_migrations).with({target: 312})
+    else
+      expect(database).to receive(:run_migrations).with(target: 312)
+    end
 
     command.call(target: "312")
 
