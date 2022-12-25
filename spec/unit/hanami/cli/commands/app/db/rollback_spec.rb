@@ -3,7 +3,12 @@
 RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app, :command, :db do
   it "rolls back to specified migration" do
     expect(database).to receive(:applied_migrations).and_return(["312_create_users"])
-    expect(database).to receive(:run_migrations).with(target: 312).and_return(true)
+
+    if RUBY_VERSION > "3.2"
+      expect(database).to receive(:run_migrations).with({target: 312}).and_return(true)
+    else
+      expect(database).to receive(:run_migrations).with(target: 312).and_return(true)
+    end
 
     command.call(target: "312", dump: false)
 

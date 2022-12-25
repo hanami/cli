@@ -8,6 +8,8 @@ Layout/LineLength:
   Exclude:
     - Gemfile
     - 'spec/**/*.rb'
+Lint/DuplicateBranch:
+  Enabled: false
 Lint/EmptyFile:
   Exclude:
     - 'spec/fixtures/**/*.rb'
@@ -25,6 +27,8 @@ Style/BlockDelimiters:
 Style/CommentedKeyword:
   Enabled: false
 Style/EmptyHeredoc:
+  Enabled: false
+Style/IdenticalConditionalBranches:
   Enabled: false
 Style/LambdaCall:
   Enabled: false
