@@ -3,9 +3,7 @@
 sources:
   - repo: hanami/template-gem
     sync:
-      - ".action_hero.yml.erb"
+      - ".repobot.yml.erb"
       - ".github/FUNDING.yml"
-      - ".rspec"
-      - ".rubocop.yml"
       - "CODE_OF_CONDUCT.md"
       - "LICENSE.md.erb"
