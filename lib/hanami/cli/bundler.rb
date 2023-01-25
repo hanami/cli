@@ -146,7 +146,7 @@ module Hanami
       # @since 2.0.0
       # @api private
       def which(cmd)
-        exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+        exts = ENV["PATHEXT"] ? ENV["PATHEXT"].split(";") : [""]
         # Adapted from https://stackoverflow.com/a/5471032/498386
         ENV["PATH"].split(File::PATH_SEPARATOR).each do |path|
           exts.each do |ext|
