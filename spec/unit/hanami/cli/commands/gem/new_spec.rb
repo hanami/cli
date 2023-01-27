@@ -59,6 +59,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(output).to include("Running Hanami install...")
 
     fs.chdir(app) do
+      # .gitignore
+      gitignore = <<~EXPECTED
+        .env
+        log/*
+      EXPECTED
+      expect(fs.read(".gitignore")).to eq(gitignore)
+      expect(output).to include("Created .gitignore")
+
       # .env
       env = <<~EXPECTED
       EXPECTED
