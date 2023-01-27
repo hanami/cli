@@ -3,6 +3,7 @@
 require "dry/inflector"
 require "dry/files"
 require "shellwords"
+require_relative "../../../naming"
 require_relative "../../../errors"
 
 module Hanami
@@ -48,7 +49,9 @@ module Hanami
             # @since 2.0.0
             # @api private
             def initialize(fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new,
+                           naming: Naming.new(inflector: inflector),
                            generator: Generators::App::Action.new(fs: fs, inflector: inflector), **)
+              @naming = naming
               @generator = generator
               super(fs: fs)
             end
@@ -59,7 +62,7 @@ module Hanami
             # @api private
             def call(name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, slice: nil, **)
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
-              name = inflector.underscore(Shellwords.shellescape(name))
+              name = naming.action_name(name)
               *controller, action = name.split(ACTION_SEPARATOR)
 
               if controller.empty?
@@ -73,7 +76,7 @@ module Hanami
 
             private
 
-            attr_reader :generator
+            attr_reader :naming, :generator
           end
         end
       end
