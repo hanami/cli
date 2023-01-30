@@ -2,6 +2,17 @@
 
 Hanami Command Line Interface
 
+## v2.0.3 - 2023-02-01
+
+### Added
+
+- [Luca Guidi] Generate a default `.gitignore` when using `hanami new`
+
+### Fixed
+
+- [dsisnero] Ensure to run automatically bundle gems when using `hanami new` on Windows
+- [Luca Guidi] Ensure to generate the correct action identifier in routes when using `hanami generate action` with deeply nested action name
+
 ## v2.0.2 - 2022-12-25
 
 ### Added
