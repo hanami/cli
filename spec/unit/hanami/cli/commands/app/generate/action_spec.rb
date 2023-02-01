@@ -167,6 +167,37 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
       end
     end
 
+    it "allows to specify nested action name" do
+      within_application_directory do
+        action_name = "api/users.thing"
+        subject.call(name: action_name)
+
+        expect(fs.read("config/routes.rb")).to match(%(get "/api/users/thing", to: "api.users.thing"))
+        expect(output).to include("Updated config/routes.rb")
+
+        action_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module #{inflector.camelize(app)}
+            module Actions
+              module API
+                module Users
+                  class Thing < #{inflector.camelize(app)}::Action
+                    def handle(*, response)
+                      response.body = self.class.name
+                    end
+                  end
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/actions/api/users/thing.rb")).to eq(action_file)
+        expect(output).to include("Created app/actions/api/users/thing.rb")
+      end
+    end
+
     xit "allows to specify MIME Type for template" do
       within_application_directory do
         subject.call(name: action_name, format: format = "json")
