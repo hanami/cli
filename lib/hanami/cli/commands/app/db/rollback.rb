@@ -18,7 +18,13 @@ module Hanami
               migration_code, migration_name = find_migration(target)
 
               if migration_name.nil?
-                out.puts "==> migration file for target #{target} was not found"
+                output = if target
+                  "==> migration file for target #{target} was not found"
+                else
+                  "==> no migrations to rollback"
+                end
+
+                out.puts output
                 return
               end
 
@@ -32,13 +38,29 @@ module Hanami
             private
 
             def find_migration(code)
-              migration = database.applied_migrations.then { |migrations|
+              applied_migrations = database.applied_migrations
+
+              return if applied_migrations.empty?
+
+              # Rollback to initial state if we have only one migration and
+              # no target is specified. In this case the rollback target
+              # will be the current migration timestamp minus 1
+              if applied_migrations.one? && code.nil?
+                migration = applied_migrations.first
+
+                migration_code = Integer(migration.split("_").first) - 1
+                migration_name = "initial state"
+
+                return [migration_code, migration_name]
+              end
+
+              # Otherwise rollback to target or to previous migration
+              migration =
                 if code
-                  migrations.detect { |m| m.split("_").first == code }
+                  applied_migrations.detect { |m| m.split("_").first == code }
                 else
-                  migrations.last
+                  applied_migrations[-2]
                 end
-              }
 
               return unless migration
 
