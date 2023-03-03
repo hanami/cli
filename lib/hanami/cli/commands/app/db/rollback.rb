@@ -32,6 +32,8 @@ module Hanami
 
               measure "database #{database.name} rolled back to #{migration_name}" do
                 database.run_migrations(target: Integer(migration_code))
+
+                true
               end
 
               run_command Structure::Dump if dump
