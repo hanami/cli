@@ -139,7 +139,11 @@ module Hanami
                 @sequel_migrator ||= begin
                   require "sequel"
                   Sequel.extension :migration
-                  Sequel::TimestampMigrator.new(migrator.connection, migrations_path, {})
+
+                  require "rom/sql"
+                  ROM::SQL.with_gateway(gateway) do
+                    Sequel::TimestampMigrator.new(migrator.connection, migrations_path, {})
+                  end
                 end
               end
 
