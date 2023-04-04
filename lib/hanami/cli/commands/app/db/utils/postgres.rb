@@ -23,7 +23,7 @@ module Hanami
 
               # @api private
               def drop_command
-                system(cli_env_vars, "dropdb #{escaped_name}")
+                system(cli_env_vars, "dropdb --force #{escaped_name}")
               end
 
               # @api private
