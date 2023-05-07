@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module <%= camelized_app_name %>
+module <%= camelized_slice_name %>
   module Views
 <%= module_controller_declaration %>
-<%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_app_name %>::View
+<%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_slice_name %>::View
 <%= module_controller_offset %>end
 <%= module_controller_end %>
   end
