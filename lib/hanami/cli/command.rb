@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "dry/cli"
 require "dry/files"
 require "dry/inflector"

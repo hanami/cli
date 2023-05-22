@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::DB::CreateMigration, :app, :command, :db do
   let(:migrator) do
     double(:migrator, generate_version: 312)

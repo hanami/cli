@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::Server do
   subject { described_class.new(server: server) }
   let(:server) { proc { |**| } }

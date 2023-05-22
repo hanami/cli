@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject {
     described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
@@ -83,8 +81,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # Gemfile
       hanami_version = Hanami::CLI::Generators::Version.gem_requirement
       gemfile = <<~EXPECTED
-        # frozen_string_literal: true
-
         source "https://rubygems.org"
 
         gem "hanami", "#{hanami_version}"
@@ -113,8 +109,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # Rakefile
       rakefile = <<~EXPECTED
-        # frozen_string_literal: true
-
         require "hanami/rake_tasks"
       EXPECTED
       expect(fs.read("Rakefile")).to eq(rakefile)
@@ -122,8 +116,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # config.ru
       config_ru = <<~EXPECTED
-        # frozen_string_literal: true
-
         require "hanami/boot"
 
         run Hanami.app
@@ -133,8 +125,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # config/app.rb
       hanami_app = <<~EXPECTED
-        # frozen_string_literal: true
-
         require "hanami"
 
         module Bookshelf
@@ -147,8 +137,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # config/settings.rb
       settings = <<~EXPECTED
-        # frozen_string_literal: true
-
         module Bookshelf
           class Settings < Hanami::Settings
             # Define your app settings here, for example:
@@ -162,8 +150,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # config/routes.rb
       routes = <<~EXPECTED
-        # frozen_string_literal: true
-
         module Bookshelf
           class Routes < Hanami::Routes
             root { "Hello from Hanami" }
@@ -175,8 +161,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # config/puma.rb
       puma = <<~EXPECTED
-        # frozen_string_literal: true
-
         max_threads_count = ENV.fetch("HANAMI_MAX_THREADS", 5)
         min_threads_count = ENV.fetch("HANAMI_MIN_THREADS") { max_threads_count }
         threads min_threads_count, max_threads_count
@@ -203,8 +187,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # app/action.rb
       action = <<~EXPECTED
         # auto_register: false
-        # frozen_string_literal: true
-
         require "hanami/action"
 
         module #{inflector.camelize(app)}
@@ -217,8 +199,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
-        # frozen_string_literal: true
-
         require "dry/types"
 
         module #{inflector.camelize(app)}
@@ -257,8 +237,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # config/app.rb
       hanami_app = <<~EXPECTED
-        # frozen_string_literal: true
-
         require "hanami"
 
         module #{inflector.camelize(app)}

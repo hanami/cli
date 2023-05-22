@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app, :command, :db do
   it "runs migrations" do
     expect(database).to receive(:run_migrations)

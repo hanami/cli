@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Hanami
   module CLI
     # Returns true if the CLI is being called from inside an Hanami app.

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app, :command, :db do
   context "given no target is specified" do
     context "there a no previous migrations" do

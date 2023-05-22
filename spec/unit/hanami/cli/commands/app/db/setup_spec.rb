@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Setup, :app, :command do
   let(:database) do
     instance_double(Hanami::CLI::Commands::DB::Utils::Database, name: "test")

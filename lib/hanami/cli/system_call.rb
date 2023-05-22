@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # SystemCall#call is adapted from hanami-devtools as well as the Bundler source code. Bundler is
 # released under the MIT license: https://github.com/bundler/bundler/blob/master/LICENSE.md.
 #

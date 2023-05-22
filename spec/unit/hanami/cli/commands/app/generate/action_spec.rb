@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "hanami"
 require "ostruct"
 
@@ -27,8 +25,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
         # Route
         routes = <<~CODE
-          # frozen_string_literal: true
-
           require "hanami/routes"
 
           module #{app}
@@ -44,8 +40,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(output).to include("Updated config/routes.rb")
 
         action_file = <<~EXPECTED
-          # frozen_string_literal: true
-
           module #{inflector.camelize(app)}
             module Actions
               module #{inflector.camelize(controller)}
@@ -176,8 +170,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(output).to include("Updated config/routes.rb")
 
         action_file = <<~EXPECTED
-          # frozen_string_literal: true
-
           module #{inflector.camelize(app)}
             module Actions
               module API
@@ -240,8 +232,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
         # Route
         routes = <<~CODE
-          # frozen_string_literal: true
-
           require "hanami/routes"
 
           module #{app}
@@ -265,8 +255,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
 
         action_file = <<~EXPECTED
-          # frozen_string_literal: true
-
           module #{inflector.camelize(slice)}
             module Actions
               module #{inflector.camelize(controller)}
@@ -331,8 +319,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
           # Route
           routes = <<~CODE
-            # frozen_string_literal: true
-
             require "hanami/routes"
 
             module #{app}
@@ -353,8 +339,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           expect(fs.directory?("slices/#{slice}/actions/books/bestsellers/nonfiction")).to be(true)
 
           action_file = <<~EXPECTED
-            # frozen_string_literal: true
-
             module #{inflector.camelize(slice)}
               module Actions
                 module Books
@@ -415,8 +399,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         fs.mkdir("slices/api")
 
         routes_contents = <<~CODE
-          # frozen_string_literal: true
-
           require "hanami/routes"
 
           module #{app}
@@ -436,8 +418,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         fs.write("config/routes.rb", routes_contents)
 
         expected = <<~CODE
-          # frozen_string_literal: true
-
           require "hanami/routes"
 
           module #{app}
@@ -475,8 +455,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     fs.mkdir(dir)
     fs.chdir(dir) do
       routes = <<~CODE
-        # frozen_string_literal: true
-
         require "hanami/routes"
 
         module #{app}
@@ -495,8 +473,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   def prepare_slice!
     fs.mkdir("slices/#{slice}")
     routes = <<~CODE
-      # frozen_string_literal: true
-
       require "hanami/routes"
 
       module #{app}

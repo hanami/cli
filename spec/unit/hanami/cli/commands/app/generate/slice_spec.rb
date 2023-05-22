@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "hanami"
 require "securerandom"
 
@@ -25,8 +23,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
       # Route
       routes = <<~CODE
-        # frozen_string_literal: true
-
         require "hanami/routes"
 
         module #{app}
@@ -60,8 +56,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       # Action
       action = <<~CODE
         # auto_register: false
-        # frozen_string_literal: true
-
         module Admin
           class Action < #{app}::Action
           end
@@ -112,8 +106,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
       # Route
       routes = <<~CODE
-        # frozen_string_literal: true
-
         require "hanami/routes"
 
         module #{app}
@@ -145,8 +137,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
     fs.mkdir(dir)
     fs.chdir(dir) do
       routes = <<~CODE
-        # frozen_string_literal: true
-
         require "hanami/routes"
 
         module #{app}

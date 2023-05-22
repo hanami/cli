@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::Middleware, :app, :command do
   # TODO: better Hanami tear down
   after do

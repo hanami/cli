@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Hanami
   module CLI
     # @since 2.0.0

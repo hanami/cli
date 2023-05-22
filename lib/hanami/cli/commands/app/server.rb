@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "rack"
 require "hanami/port"
 require_relative "../app"

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "hanami/slice/routing/middleware/stack"
 
 RSpec.describe Hanami::CLI::MiddlewareStackInspector do

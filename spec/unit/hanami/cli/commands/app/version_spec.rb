@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::Version do
   subject { described_class.new(out: stdout) }
   let(:stdout) { StringIO.new }

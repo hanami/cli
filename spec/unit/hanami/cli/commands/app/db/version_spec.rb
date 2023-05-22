@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app, :command, :db do
   it "outputs schema version" do
     expect(database).to receive(:applied_migrations).and_return(["312_create_users"])

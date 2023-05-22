@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "dry/files"
 require "hanami/env"
 require_relative "db/utils/database"
