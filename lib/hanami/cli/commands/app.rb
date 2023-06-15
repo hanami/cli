@@ -22,6 +22,7 @@ module Hanami
             register "generate", aliases: ["g"] do |prefix|
               prefix.register "slice", Generate::Slice
               prefix.register "action", Generate::Action
+              prefix.register "view", Generate::View
             end
           end
         end

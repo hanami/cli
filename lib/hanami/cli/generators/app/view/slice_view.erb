@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+module <%= camelized_slice_name %>
+  module Views
+<%= module_namespace_declaration %>
+<%= module_namespace_offset %>class <%= camelized_name %> < <%= camelized_slice_name %>::View
+<%= module_namespace_offset %>end
+<%= module_namespace_end %>
+  end
+end

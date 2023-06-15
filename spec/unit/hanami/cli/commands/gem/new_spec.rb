@@ -217,6 +217,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("app/action.rb")).to eq(action)
       expect(output).to include("Created app/action.rb")
 
+      # app/view.rb
+      view = <<~RUBY
+        # auto_register: false
+        # frozen_string_literal: true
+
+        require "hanami/view"
+
+        module #{inflector.camelize(app)}
+          class View < Hanami::View
+          end
+        end
+      RUBY
+      expect(fs.read("app/view.rb")).to eq(view)
+      expect(output).to include("Created app/view.rb")
+
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
         # frozen_string_literal: true

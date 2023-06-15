@@ -43,6 +43,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(fs.read("config/routes.rb")).to eq(routes)
         expect(output).to include("Updated config/routes.rb")
 
+        # action
         action_file = <<~EXPECTED
           # frozen_string_literal: true
 
@@ -62,34 +63,32 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(fs.read("app/actions/#{controller}/#{action}.rb")).to eq(action_file)
         expect(output).to include("Created app/actions/#{controller}/#{action}.rb")
 
-        # # view
-        # view_file = <<~EXPECTED
-        #   # auto_register: false
-        #   # frozen_string_literal: true
-        #
-        #   require "#{inflector.underscore(slice)}/view"
-        #
-        #   module #{inflector.camelize(slice)}
-        #     module Views
-        #       module #{inflector.camelize(controller)}
-        #         class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
-        #         end
-        #       end
-        #     end
-        #   end
-        # EXPECTED
-        # expect(fs.read("slices/#{slice}/views/#{controller}/#{action}.rb")).to eq(view_file)
-        # expect(output).to include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
+        # view
+        view_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module #{inflector.camelize(app)}
+            module Views
+              module #{inflector.camelize(controller)}
+                class #{inflector.camelize(action)} < #{inflector.camelize(app)}::View
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/views/#{controller}/#{action}.rb")).to eq(view_file)
+        expect(output).to include("Created app/views/#{controller}/#{action}.rb")
 
         # template
-        # expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
-        #
-        # template_file = <<~EXPECTED
-        #   <h1>#{inflector.camelize(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
-        #   <h2>slices/#{slice}/templates/#{controller}/#{action}.html.erb</h2>
-        # EXPECTED
-        # expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
-        # expect(output).to include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
+        expect(fs.directory?("app/templates/#{controller}")).to be(true)
+
+        template_file = <<~EXPECTED
+          <h1>#{inflector.camelize(app)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
+        EXPECTED
+
+        expect(fs.read("app/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+        expect(output).to include("Created app/views/#{controller}/#{action}.rb")
       end
     end
 
@@ -213,7 +212,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
       end
     end
 
-    xit "can skip view creation" do
+    it "can skip view creation" do
       within_application_directory do
         subject.call(name: action_name, skip_view: true)
 
@@ -373,38 +372,34 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           EXPECTED
           expect(fs.read("slices/#{slice}/actions/books/bestsellers/nonfiction/#{action}.rb")).to eq(action_file)
 
-          # # view
-          # expect(fs.directory?("slices/#{slice}/views/books/bestsellers/nonfiction")).to be(true)
-          #
-          # view_file = <<~EXPECTED
-          #   # auto_register: false
-          #   # frozen_string_literal: true
-          #
-          #   require "#{inflector.underscore(slice)}/view"
-          #
-          #   module #{inflector.camelize(slice)}
-          #     module Views
-          #       module Books
-          #         module Bestsellers
-          #           module Nonfiction
-          #             class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
-          #             end
-          #           end
-          #         end
-          #       end
-          #     end
-          #   end
-          # EXPECTED
-          # expect(fs.read("slices/#{slice}/views/books/bestsellers/nonfiction/#{action}.rb")).to eq(view_file)
+          # view
+          expect(fs.directory?("slices/#{slice}/views/books/bestsellers/nonfiction")).to be(true)
 
-          # # template
-          # expect(fs.directory?("slices/#{slice}/templates/books/bestsellers/nonfiction")).to be(true)
-          #
-          # template_file = <<~EXPECTED
-          #   <h1>#{inflector.camelize(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
-          #   <h2>slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb</h2>
-          # EXPECTED
-          # expect(fs.read("slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb")).to eq(template_file)
+          view_file = <<~EXPECTED
+            # frozen_string_literal: true
+
+            module #{inflector.camelize(slice)}
+              module Views
+                module Books
+                  module Bestsellers
+                    module Nonfiction
+                      class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          EXPECTED
+          expect(fs.read("slices/#{slice}/views/books/bestsellers/nonfiction/#{action}.rb")).to eq(view_file)
+
+          # template
+          expect(fs.directory?("slices/#{slice}/templates/books/bestsellers/nonfiction")).to be(true)
+
+          template_file = <<~EXPECTED
+            <h1>#{inflector.camelize(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
+          EXPECTED
+          expect(fs.read("slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb")).to eq(template_file)
         end
       end
     end

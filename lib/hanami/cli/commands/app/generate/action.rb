@@ -26,8 +26,8 @@ module Hanami
             option :url, required: false, type: :string, desc: "Action URL"
             option :http, required: false, type: :string, desc: "Action HTTP method"
             # option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
-            # option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
-            #                    desc: "Skip view and template generation"
+            option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
+                               desc: "Skip view and template generation"
             option :slice, required: false, desc: "Slice name"
 
             # rubocop:disable Layout/LineLength
