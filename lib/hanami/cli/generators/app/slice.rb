@@ -28,7 +28,8 @@ module Hanami
 
             # fs.write("#{directory}/config/slice.rb", t("slice.erb", context))
             fs.write(fs.join(directory, "action.rb"), t("action.erb", context))
-            fs.write(fs.join(directory, "/view.rb"), t("view.erb", context))
+            fs.write(fs.join(directory, "view.rb"), t("view.erb", context))
+            fs.write(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
             # fs.write(fs.join(directory, "/entities.rb"), t("entities.erb", context))
             # fs.write(fs.join(directory, "/repository.rb"), t("repository.erb", context))
 

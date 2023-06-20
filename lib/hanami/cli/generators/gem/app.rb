@@ -53,6 +53,7 @@ module Hanami
             fs.write("app/actions/.keep", t("keep.erb", context))
             fs.write("app/action.rb", t("action.erb", context))
             fs.write("app/view.rb", t("view.erb", context))
+            fs.write("app/views/helpers.rb", t("helpers.erb", context))
 
             fs.write("public/404.html", File.read(File.join(__dir__, "app", "404.html")))
             fs.write("public/500.html", File.read(File.join(__dir__, "app", "500.html")))
