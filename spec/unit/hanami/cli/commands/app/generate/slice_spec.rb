@@ -73,6 +73,33 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
       expect(fs.read("slices/#{slice}/actions/.keep")).to eq("")
       expect(output).to include("Created slices/#{slice}/actions/.keep")
+
+      view = <<~RUBY
+        # auto_register: false
+        # frozen_string_literal: true
+
+        module Admin
+          class View < Bookshelf::View
+          end
+        end
+      RUBY
+      expect(fs.read("slices/#{slice}/view.rb")).to eq(view)
+      expect(output).to include("Created slices/#{slice}/view.rb")
+
+      helpers = <<~RUBY
+        # auto_register: false
+        # frozen_string_literal: true
+
+        module Admin
+          module Views
+            module Helpers
+              # Add your view helpers here
+            end
+          end
+        end
+      RUBY
+      expect(fs.read("slices/#{slice}/views/helpers.rb")).to eq(helpers)
+      expect(output).to include("Created slices/#{slice}/views/helpers.rb")
     end
   end
 
