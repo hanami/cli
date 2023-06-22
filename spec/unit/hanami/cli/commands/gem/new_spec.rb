@@ -250,6 +250,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("app/views/helpers.rb")).to eq(helpers)
       expect(output).to include("Created app/views/helpers.rb")
 
+      # templates/layouts/app.html.erb
+      layout = <<~ERB
+        <%= yield %>
+      ERB
+      expect(fs.read("app/templates/layouts/app.html.erb")).to eq(layout)
+      expect(output).to include("Created app/templates/layouts/app.html.erb")
+
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
         # frozen_string_literal: true

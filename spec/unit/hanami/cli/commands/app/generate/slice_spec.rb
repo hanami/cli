@@ -100,6 +100,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       RUBY
       expect(fs.read("slices/#{slice}/views/helpers.rb")).to eq(helpers)
       expect(output).to include("Created slices/#{slice}/views/helpers.rb")
+
+      layout = <<~ERB
+        <%= yield %>
+      ERB
+      expect(fs.read("slices/#{slice}/templates/layouts/app.html.erb")).to eq(layout)
+      expect(output).to include("Created slices/#{slice}/templates/layouts/app.html.erb")
     end
   end
 

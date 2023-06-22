@@ -30,6 +30,7 @@ module Hanami
             fs.write(fs.join(directory, "action.rb"), t("action.erb", context))
             fs.write(fs.join(directory, "view.rb"), t("view.erb", context))
             fs.write(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
+            fs.write(fs.join(directory, "templates", "layouts", "app.html.erb"), File.read(File.join(__dir__, "slice", "layouts_app.html.erb")))
             # fs.write(fs.join(directory, "/entities.rb"), t("entities.erb", context))
             # fs.write(fs.join(directory, "/repository.rb"), t("repository.erb", context))
 
