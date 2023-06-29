@@ -4,7 +4,6 @@ require "erb"
 require "dry/files"
 require_relative "../../errors"
 
-# rubocop:disable Metrics/ParameterLists
 module Hanami
   module CLI
     module Generators
@@ -19,8 +18,6 @@ module Hanami
             @inflector = inflector
           end
 
-          # rubocop:disable Layout/LineLength
-
           # @since 2.0.0
           # @api private
           def call(app, key, format, slice)
@@ -32,8 +29,6 @@ module Hanami
               generate_for_app(context, format, slice)
             end
           end
-
-          # rubocop:enable Layout/LineLength
 
           private
 
@@ -51,15 +46,17 @@ module Hanami
             fs.write(fs.join(directory, "#{context.name}.rb"), t("slice_view.erb", context))
 
             fs.mkdir(directory = fs.join(slice_directory, "templates", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.#{format}.erb"), t(template_with_format_ext("slice_template", format), context))
+            fs.write(fs.join(directory, "#{context.name}.#{format}.erb"),
+                     t(template_with_format_ext("slice_template", format), context))
           end
 
-          def generate_for_app(context, format, slice)
+          def generate_for_app(context, format, _slice)
             fs.mkdir(directory = fs.join("app", "views", context.namespaces))
             fs.write(fs.join(directory, "#{context.name}.rb"), t("app_view.erb", context))
 
             fs.mkdir(directory = fs.join("app", "templates", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.#{format}.erb"), t(template_with_format_ext("app_template", format), context))
+            fs.write(fs.join(directory, "#{context.name}.#{format}.erb"),
+                     t(template_with_format_ext("app_template", format), context))
           end
 
           # rubocop:enable Metrics/AbcSize
@@ -90,4 +87,3 @@ module Hanami
     end
   end
 end
-# rubocop:enable Metrics/ParameterLists

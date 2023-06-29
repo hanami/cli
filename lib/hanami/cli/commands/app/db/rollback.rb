@@ -21,10 +21,10 @@ module Hanami
 
               if migration_name.nil?
                 output = if target
-                  "==> migration file for target #{target} was not found"
-                else
-                  "==> no migrations to rollback"
-                end
+                           "==> migration file for target #{target} was not found"
+                         else
+                           "==> no migrations to rollback"
+                         end
 
                 out.puts output
                 return
@@ -41,7 +41,7 @@ module Hanami
 
             private
 
-            def find_migration(code)
+            def find_migration(code) # rubocop:disable Metrics/PerceivedComplexity
               applied_migrations = database.applied_migrations
 
               return if applied_migrations.empty?

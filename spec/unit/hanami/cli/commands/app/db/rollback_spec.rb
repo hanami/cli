@@ -32,9 +32,9 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app, :command, :db do
     context "there are multiple previous migrations" do
       it "rolls back to one before the current migration" do
         expect(database).to receive(:applied_migrations).and_return(
-          [
-            "312_create_users",
-            "313_create_books",
+          %w[
+            312_create_users
+            313_create_books
           ]
         )
 

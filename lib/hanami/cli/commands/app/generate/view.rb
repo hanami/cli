@@ -23,13 +23,10 @@ module Hanami
             argument :name, required: true, desc: "View name"
             option :slice, required: false, desc: "Slice name"
 
-            # rubocop:disable Layout/LineLength
             example [
               %(books.index               (MyApp::Actions::Books::Index)),
               %(books.index --slice=admin (Admin::Actions::Books::Index)),
             ]
-            # rubocop:enable Layout/LineLength
-
             attr_reader :generator
             private :generator
 
@@ -45,8 +42,6 @@ module Hanami
               super(fs: fs)
             end
 
-            # rubocop:disable Metrics/ParameterLists
-
             # @since 2.0.0
             # @api private
             def call(name:, format: DEFAULT_FORMAT, slice: nil, **)
@@ -54,8 +49,6 @@ module Hanami
 
               generator.call(app.namespace, name, format, slice)
             end
-
-            # rubocop:enable Metrics/ParameterLists
           end
         end
       end

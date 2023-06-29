@@ -7,8 +7,8 @@ module Hanami
         # @since 2.0.0
         # @api private
         module Generate
-          require_relative "./generate/slice"
-          require_relative "./generate/action"
+          require_relative "generate/slice"
+          require_relative "generate/action"
         end
       end
     end

@@ -19,7 +19,7 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, slice, url, context: SliceContext.new(inflector, app, slice, url))
+          def call(app, slice, url, context: SliceContext.new(inflector, app, slice, url)) # rubocop:disable Metrics/AbcSize
             fs.inject_line_at_class_bottom(
               fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
             )
@@ -30,7 +30,8 @@ module Hanami
             fs.write(fs.join(directory, "action.rb"), t("action.erb", context))
             fs.write(fs.join(directory, "view.rb"), t("view.erb", context))
             fs.write(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
-            fs.write(fs.join(directory, "templates", "layouts", "app.html.erb"), File.read(File.join(__dir__, "slice", "layouts_app.html.erb")))
+            fs.write(fs.join(directory, "templates", "layouts", "app.html.erb"),
+                     File.read(File.join(__dir__, "slice", "layouts_app.html.erb")))
             # fs.write(fs.join(directory, "/entities.rb"), t("entities.erb", context))
             # fs.write(fs.join(directory, "/repository.rb"), t("repository.erb", context))
 

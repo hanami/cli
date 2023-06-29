@@ -85,7 +85,8 @@ module Hanami
               fs.write(fs.join(directory, "#{action}.rb"), t("slice_view.erb", context))
 
               fs.mkdir(directory = fs.join(slice_directory, "templates", controller))
-              fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_with_format_ext("slice_template", format), context))
+              fs.write(fs.join(directory, "#{action}.#{format}.erb"),
+                       t(template_with_format_ext("slice_template", format), context))
             end
           end
 
@@ -104,7 +105,8 @@ module Hanami
               fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
 
               fs.mkdir(directory = fs.join("app", "templates", controller))
-              fs.write(fs.join(directory, "#{action}.#{format}.erb"), t(template_with_format_ext("template", format), context))
+              fs.write(fs.join(directory, "#{action}.#{format}.erb"),
+                       t(template_with_format_ext("template", format), context))
             end
           end
           # rubocop:enable Metrics/AbcSize

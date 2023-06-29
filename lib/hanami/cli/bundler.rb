@@ -4,8 +4,8 @@ require "bundler"
 require "open3"
 require "etc"
 require "dry/files"
-require_relative "./system_call"
-require_relative "./errors"
+require_relative "system_call"
+require_relative "errors"
 
 module Hanami
   module CLI
