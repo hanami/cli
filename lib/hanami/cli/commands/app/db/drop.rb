@@ -13,7 +13,7 @@ module Hanami
 
             # @api private
             def call(force: false)
-              if database.drop_command(force)
+              if database.drop_command(force:)
                 out.puts "=> database #{database.name} dropped"
               else
                 out.puts "=> failed to drop #{database.name}"
