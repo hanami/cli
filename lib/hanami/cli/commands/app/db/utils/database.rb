@@ -68,7 +68,7 @@ module Hanami
               end
 
               # @api private
-              def drop_command
+              def drop_command(force: false)
                 raise Hanami::CLI::NotImplementedError
               end
 

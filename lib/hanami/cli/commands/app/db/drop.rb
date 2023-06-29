@@ -12,8 +12,8 @@ module Hanami
             desc "Delete database"
 
             # @api private
-            def call(**)
-              if database.drop_command
+            def call(force: false)
+              if database.drop_command(force)
                 out.puts "=> database #{database.name} dropped"
               else
                 out.puts "=> failed to drop #{database.name}"

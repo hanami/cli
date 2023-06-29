@@ -22,8 +22,10 @@ module Hanami
               end
 
               # @api private
-              def drop_command
-                system(cli_env_vars, "dropdb --force #{escaped_name}")
+              def drop_command(force: false)
+                command = force ? "dropdb --force" : "dropdb"
+
+                system(cli_env_vars, "#{command} #{escaped_name}")
               end
 
               # @api private
