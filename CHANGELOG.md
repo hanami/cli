@@ -2,6 +2,21 @@
 
 Hanami Command Line Interface
 
+## v2.1.0.beta1 - 2023-06-29
+
+### Added
+
+- [Tim Riley] `hanami new` to generate default views, templates, and helpers
+- [Tim Riley] `hanami generate slice` to generate default views, templates, and helpers
+- [Tim Riley] `hanami generate action` to generate associated view and template
+- [Tim Riley] Introduced `hanami generate view`
+- [Tim Riley] `hanami new` to generate `Gemfile` with `hanami-view` and `hanami-webconsole` gems
+- [Tim Riley] `hanami new` to generate default error pages for `404` and `500` HTTP errors
+
+### Fixed
+
+- [Philip Arndt] `hanami server` to start only one Puma worker by default
+
 ## v2.0.3 - 2023-02-01
 
 ### Added

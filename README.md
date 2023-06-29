@@ -44,4 +44,4 @@ Everyone interacting in the `Hanami::CLI` project's codebases, issue trackers, c
 
 ## Copyright
 
-Copyright © 2014-2022 Hanami Team – Released under MIT License
+Copyright © 2014 Hanami Team – Released under MIT License
