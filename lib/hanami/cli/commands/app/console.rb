@@ -37,7 +37,7 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(engine: nil, **opts)
+          def call(engine: DEFAULT_ENGINE, **opts)
             console_engine = resolve_engine(engine, opts)
 
             if console_engine.nil?
