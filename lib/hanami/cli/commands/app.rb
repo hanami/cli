@@ -18,6 +18,9 @@ module Hanami
             register "server", Commands::App::Server, aliases: ["s"]
             register "routes", Commands::App::Routes
             register "middleware", Commands::App::Middleware
+            register "assets" do |prefix|
+              prefix.register "watch", Assets::Watch
+            end
 
             register "generate", aliases: ["g"] do |prefix|
               prefix.register "slice", Generate::Slice
