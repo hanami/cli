@@ -92,6 +92,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gem "hanami-controller", "#{hanami_version}"
         gem "hanami-validations", "#{hanami_version}"
         gem "hanami-view", "#{hanami_version}"
+        gem "hanami-assets", "#{hanami_version}"
         gem "hanami-webconsole", "#{hanami_version}"
 
         gem "dry-types", "~> 1.0", ">= 1.6.1"
