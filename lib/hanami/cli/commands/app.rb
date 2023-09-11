@@ -19,6 +19,7 @@ module Hanami
             register "routes", Commands::App::Routes
             register "middleware", Commands::App::Middleware
             register "assets" do |prefix|
+              prefix.register "compile", Assets::Compile
               prefix.register "watch", Assets::Watch
             end
 

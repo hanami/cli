@@ -15,6 +15,8 @@ module Hanami
             WATCH_OPTION = "--watch"
             private_constant :WATCH_OPTION
 
+            desc "Start assets watch mode"
+
             # @since 2.1.0
             # @api private
             #
