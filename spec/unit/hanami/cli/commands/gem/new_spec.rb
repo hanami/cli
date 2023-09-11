@@ -352,6 +352,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # Procfile.dev
         expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
 
+        # app/templates/layouts/app.html.erb
+        expect(fs.read("app/templates/layouts/app.html.erb")).to_not match(/favicon/)
+
         # app/assets/javascripts/.keep
         expect(fs.exist?("app/assets/javascripts/.keep")).to be(false)
 
