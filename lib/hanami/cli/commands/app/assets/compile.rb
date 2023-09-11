@@ -16,7 +16,8 @@ module Hanami
             # @api private
             #
             # TODO: Take `executable` from Hanami::Assets::Config
-            def initialize(system_call: SystemCall.new, executable: File.join("node_modules", "hanami-assets", "dist", "hanami-assets.js"), **)
+            def initialize(system_call: SystemCall.new,
+                           executable: File.join("node_modules", "hanami-assets", "dist", "hanami-assets.js"), **)
               @system_call = system_call
               @executable = executable
               super()

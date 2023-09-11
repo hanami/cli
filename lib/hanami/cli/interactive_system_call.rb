@@ -22,7 +22,8 @@ module Hanami
           threads = []
           exit_status = 0
 
-          Open3.popen3(executable, *args) do |stdin, stdout, stderr, wait_thr|
+          # rubocop:disable Lint/SuppressedException
+          Open3.popen3(executable, *args) do |_stdin, stdout, stderr, wait_thr|
             threads << Thread.new do
               stdout.each_line do |line|
                 out.puts(line)
@@ -41,6 +42,7 @@ module Hanami
 
             exit_status = wait_thr.value
           end
+          # rubocop:enable Lint/SuppressedException
 
           exit(exit_status.exitstatus)
         end
