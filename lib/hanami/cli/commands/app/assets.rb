@@ -7,6 +7,7 @@ module Hanami
         # @since 2.1.0
         # @api private
         module Assets
+          require_relative "assets/compile"
           require_relative "assets/watch"
         end
       end
