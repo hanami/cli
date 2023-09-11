@@ -5,6 +5,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
   end
 
+  # TODO: remove this block
   before do
     allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(true)
   end
@@ -14,6 +15,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { "bookshelf" }
+  let(:kwargs) { {skip_assets: skip_assets} }
+  let(:skip_assets) { false }
 
   let(:output) { out.rewind && out.read.chomp }
 
@@ -54,7 +57,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .with("hanami install")
       .and_return(successful_system_call_result)
 
-    subject.call(app: app)
+    subject.call(app: app, **kwargs)
 
     expect(fs.directory?(app)).to be(true)
     expect(output).to include("Created #{app}/")
@@ -311,9 +314,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   end
 
   context "without hanami-assets" do
-    before do
-      allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(false)
-    end
+    let(:skip_assets) { true }
 
     it "generates a new app without hanami-assets" do
       expect(bundler).to receive(:install!)
@@ -323,7 +324,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install")
         .and_return(successful_system_call_result)
 
-      subject.call(app: app)
+      subject.call(app: app, **kwargs)
 
       expect(fs.directory?(app)).to be(true)
 
