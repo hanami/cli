@@ -85,13 +85,13 @@ module Hanami
       #
       # @since 2.0.0
       # @api public
-      def call(cmd, env: {})
+      def call(cmd, *args, env: {})
         exitstatus = nil
         out = nil
         err = nil
 
         ::Bundler.with_unbundled_env do
-          Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
+          Open3.popen3(env, command(cmd, *args)) do |stdin, stdout, stderr, wait_thr|
             yield stdin, stdout, stderr, wait_thr if block_given?
 
             stdin.close
@@ -103,6 +103,12 @@ module Hanami
         end
 
         Result.new(exit_code: exitstatus, out: out, err: err)
+      end
+
+      # @since 2.1.0
+      # @api public
+      def command(cmd, *args)
+        [cmd, args].flatten(1).compact.join(" ")
       end
     end
   end
