@@ -14,6 +14,7 @@ module Hanami
           base.module_eval do
             register "version", Commands::App::Version, aliases: ["v", "-v", "--version"]
             register "install", Commands::App::Install
+            register "dev", Commands::App::Dev
             register "console", Commands::App::Console, aliases: ["c"]
             register "server", Commands::App::Server, aliases: ["s"]
             register "routes", Commands::App::Routes
