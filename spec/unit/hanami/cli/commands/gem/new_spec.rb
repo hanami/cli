@@ -114,6 +114,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("Gemfile")).to eq(gemfile)
       expect(output).to include("Created Gemfile")
 
+      # Procfile
+      procfile = <<~EXPECTED
+        web: bundle exec hanami server
+        assets: bundle exec hanami assets watch
+      EXPECTED
+      expect(fs.read("Procfile.dev")).to eq(procfile)
+      expect(output).to include("Created Procfile")
+
       # Rakefile
       rakefile = <<~EXPECTED
         # frozen_string_literal: true

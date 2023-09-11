@@ -40,6 +40,7 @@ module Hanami
             fs.write("README.md", t("readme.erb", context))
             fs.write("Gemfile", t("gemfile.erb", context))
             fs.write("Rakefile", t("rakefile.erb", context))
+            fs.write("Procfile.dev", t("procfile.erb", context))
             fs.write("config.ru", t("config_ru.erb", context))
 
             fs.write("config/app.rb", t("app.erb", context))
