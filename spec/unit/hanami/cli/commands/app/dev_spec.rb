@@ -12,5 +12,16 @@ RSpec.describe Hanami::CLI::Commands::App::Dev do
 
       subject.call
     end
+
+    context "with custom Procfile" do
+      let(:args) { ["start", "-f", procfile] }
+      let(:procfile) { "Procfile.test" }
+
+      it "invokes external command to start Procfile based session" do
+        expect(interactive_system_call).to receive(:call).with(bin, *args)
+
+        subject.call(procfile: procfile)
+      end
+    end
   end
 end

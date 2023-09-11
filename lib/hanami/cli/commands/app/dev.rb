@@ -11,6 +11,20 @@ module Hanami
         class Dev < App::Command
           # @since 2.1.0
           # @api private
+          desc "Start the application in development mode"
+
+          # @since 2.1.0
+          # @api private
+          option :procfile, type: :string, desc: "Path to Procfile", aliases: ["-f"]
+
+          # @since 2.1.0
+          # @api private
+          example [
+            "-f /path/to/Procfile",
+          ]
+
+          # @since 2.1.0
+          # @api private
           def initialize(interactive_system_call: InteractiveSystemCall.new, **)
             @interactive_system_call = interactive_system_call
             super()
@@ -18,8 +32,8 @@ module Hanami
 
           # @since 2.1.0
           # @api private
-          def call(**)
-            bin, args = executable
+          def call(procfile: nil, **)
+            bin, args = executable(procfile: procfile)
             interactive_system_call.call(bin, *args)
           end
 
@@ -31,10 +45,10 @@ module Hanami
 
           # @since 2.1.0
           # @api private
-          def executable
+          def executable(procfile: nil)
             # TODO: support other implementations of Foreman
             # See: https://github.com/ddollar/foreman#ports
-            ["foreman", ["start", "-f", "Procfile.dev"]]
+            ["foreman", ["start", "-f", procfile || "Procfile.dev"]]
           end
         end
       end
