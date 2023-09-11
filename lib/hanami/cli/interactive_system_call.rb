@@ -4,13 +4,19 @@ require "open3"
 
 module Hanami
   module CLI
+    # @api private
+    # @since 2.1.0
     class InteractiveSystemCall
+      # @api private
+      # @since 2.1.0
       def initialize(out: $stdout, err: $stderr)
         @out = out
         @err = err
         super()
       end
 
+      # @api private
+      # @since 2.1.0
       def call(executable, *args)
         ::Bundler.with_unbundled_env do
           threads = []
@@ -42,6 +48,8 @@ module Hanami
 
       private
 
+      # @api private
+      # @since 2.1.0
       attr_reader :out, :err
     end
   end
