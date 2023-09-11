@@ -1,2 +1,4 @@
 web: bundle exec hanami server
+<%- if Hanami.bundled?("hanami-assets") -%>
 assets: bundle exec hanami assets watch
+<%- end -%>

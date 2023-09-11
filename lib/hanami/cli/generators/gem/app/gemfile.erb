@@ -7,7 +7,9 @@ gem "hanami-router", "<%= hanami_version %>"
 gem "hanami-controller", "<%= hanami_version %>"
 gem "hanami-validations", "<%= hanami_version %>"
 gem "hanami-view", "<%= hanami_version %>"
+<%- if Hanami.bundled?("hanami-assets") -%>
 gem "hanami-assets", "<%= hanami_version %>"
+<%- end -%>
 gem "hanami-webconsole", "<%= hanami_version %>"
 
 gem "dry-types", "~> 1.0", ">= 1.6.1"

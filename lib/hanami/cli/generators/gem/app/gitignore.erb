@@ -1,2 +1,6 @@
 .env
 log/*
+<%- if Hanami.bundled?("hanami-assets") -%>
+public/
+node_modules/
+<%- end -%>

@@ -57,6 +57,12 @@ module Hanami
             fs.write("app/views/helpers.rb", t("helpers.erb", context))
             fs.write("app/templates/layouts/app.html.erb", File.read(File.join(__dir__, "app", "layouts_app.html.erb")))
 
+            if Hanami.bundled?("hanami-assets")
+              fs.write("app/assets/javascripts/.keep", t("keep.erb", context))
+              fs.write("app/assets/stylesheets/.keep", t("keep.erb", context))
+              fs.write("app/assets/images/favicon.ico", File.read(File.join(__dir__, "app", "favicon.ico")))
+            end
+
             fs.write("public/404.html", File.read(File.join(__dir__, "app", "404.html")))
             fs.write("public/500.html", File.read(File.join(__dir__, "app", "500.html")))
           end
@@ -65,7 +71,8 @@ module Hanami
             require "erb"
 
             ERB.new(
-              File.read(File.join(__dir__, "app", path))
+              File.read(File.join(__dir__, "app", path)),
+              trim_mode: "-"
             ).result(context.ctx)
           end
 

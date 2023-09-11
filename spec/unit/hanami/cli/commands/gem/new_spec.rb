@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
-  subject {
+  subject do
     described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
-  }
+  end
+
+  before do
+    allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(true)
+  end
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
   let(:out) { StringIO.new }
@@ -63,6 +67,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       gitignore = <<~EXPECTED
         .env
         log/*
+        public/
+        node_modules/
       EXPECTED
       expect(fs.read(".gitignore")).to eq(gitignore)
       expect(output).to include("Created .gitignore")
@@ -259,12 +265,27 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("app/views/helpers.rb")).to eq(helpers)
       expect(output).to include("Created app/views/helpers.rb")
 
-      # templates/layouts/app.html.erb
+      # app/templates/layouts/app.html.erb
       layout = <<~ERB
         <%= yield %>
       ERB
       expect(fs.read("app/templates/layouts/app.html.erb")).to eq(layout)
       expect(output).to include("Created app/templates/layouts/app.html.erb")
+
+      # app/assets/javascripts/.keep
+      javascripts_keep = <<~EXPECTED
+      EXPECTED
+      expect(fs.read("app/assets/javascripts/.keep")).to eq(javascripts_keep)
+      expect(output).to include("Created app/assets/javascripts/.keep")
+
+      # app/assets/stylesheets/.keep
+      stylesheets_keep = <<~EXPECTED
+      EXPECTED
+      expect(fs.read("app/assets/stylesheets/.keep")).to eq(stylesheets_keep)
+      expect(output).to include("Created app/assets/stylesheets/.keep")
+
+      # app/assets/images/favicon.ico
+      expect(fs.exist?("app/assets/images/favicon.ico")).to be(true)
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
@@ -286,6 +307,47 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # public/ error pages
       expect(fs.read("public/404.html")).to include %(<title>The page you were looking for doesn’t exist (404)</title>)
       expect(fs.read("public/500.html")).to include %(<title>We’re sorry, but something went wrong (500)</title>)
+    end
+  end
+
+  context "without hanami-assets" do
+    before do
+      allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(false)
+    end
+
+    it "generates a new app without hanami-assets" do
+      expect(bundler).to receive(:install!)
+        .and_return(true)
+
+      expect(bundler).to receive(:exec)
+        .with("hanami install")
+        .and_return(successful_system_call_result)
+
+      subject.call(app: app)
+
+      expect(fs.directory?(app)).to be(true)
+
+      fs.chdir(app) do
+        # .gitignore
+        gitignore = fs.read(".gitignore")
+        expect(gitignore).to_not match(/public/)
+        expect(gitignore).to_not match(/node_modules/)
+
+        # Gemfile
+        expect(fs.read("Gemfile")).to_not match(/hanami-assets/)
+
+        # Procfile.dev
+        expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
+
+        # app/assets/javascripts/.keep
+        expect(fs.exist?("app/assets/javascripts/.keep")).to be(false)
+
+        # app/assets/stylesheets/.keep
+        expect(fs.exist?("app/assets/stylesheets/.keep")).to be(false)
+
+        # app/assets/images/favicon.ico
+        expect(fs.exist?("app/assets/images/favicon.ico")).to be(false)
+      end
     end
   end
 
