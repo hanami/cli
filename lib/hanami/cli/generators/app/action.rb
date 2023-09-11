@@ -136,7 +136,7 @@ module Hanami
             require "erb"
 
             ERB.new(
-              File.read(__dir__ + "/action/#{path}")
+              File.read(__dir__ + "/action/#{path}"), trim_mode: "-",
             ).result(context.ctx)
           end
 
