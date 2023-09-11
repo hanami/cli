@@ -77,6 +77,12 @@ module Hanami
                              "#{underscored_action_name}.html.erb"]
           end
 
+          # @since 2.1.0
+          # @api private
+          def hanami_view_bundled?
+            Hanami.bundled?("hanami-view")
+          end
+
           private
 
           NAMESPACE_SEPARATOR = "::"
