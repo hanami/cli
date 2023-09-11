@@ -44,6 +44,12 @@ module Hanami
 
         # @since 2.1.0
         # @api private
+        def humanized_app_name
+          inflector.humanize(app)
+        end
+
+        # @since 2.1.0
+        # @api private
         def bundled_assets?
           !options.fetch(:skip_assets, false)
         end

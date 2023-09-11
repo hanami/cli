@@ -52,6 +52,8 @@ module Hanami
           # @api private
           attr_reader :system_call
 
+          # @since 2.1.0
+          # @api private
           def install_hanami_assets!(edge:)
             return unless Hanami.bundled?("hanami-assets")
 

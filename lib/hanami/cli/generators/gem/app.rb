@@ -55,7 +55,7 @@ module Hanami
             fs.write("app/action.rb", t("action.erb", context))
             fs.write("app/view.rb", t("view.erb", context))
             fs.write("app/views/helpers.rb", t("helpers.erb", context))
-            fs.write("app/templates/layouts/app.html.erb", File.read(File.join(__dir__, "app", "layouts_app.html.erb")))
+            fs.write("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
 
             if context.bundled_assets?
               fs.write("app/assets/javascripts/.keep", t("keep.erb", context))
