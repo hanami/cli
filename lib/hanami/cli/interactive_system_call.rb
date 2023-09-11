@@ -42,7 +42,7 @@ module Hanami
             exit_status = wait_thr.value
           end
 
-          exit(exit_status)
+          exit(exit_status.exitstatus)
         end
       end
 
