@@ -282,14 +282,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("app/templates/layouts/app.html.erb")).to eq(layout)
       expect(output).to include("Created app/templates/layouts/app.html.erb")
 
-      # app/assets/javascripts/app.js
+      # app/assets/js/app.js
       app_js = <<~EXPECTED
-        import "../stylesheets/app.css";
+        import "../css/app.css";
       EXPECTED
-      expect(fs.read("app/assets/javascripts/app.js")).to eq(app_js)
-      expect(output).to include("Created app/assets/javascripts/app.js")
+      expect(fs.read("app/assets/js/app.js")).to eq(app_js)
+      expect(output).to include("Created app/assets/js/app.js")
 
-      # app/assets/stylesheets/app.css
+      # app/assets/css/app.css
       app_css = <<~EXPECTED
         body {
           background-color: #fff;
@@ -297,8 +297,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           font-family: sans-serif;
         }
       EXPECTED
-      expect(fs.read("app/assets/stylesheets/app.css")).to eq(app_css)
-      expect(output).to include("Created app/assets/stylesheets/app.css")
+      expect(fs.read("app/assets/css/app.css")).to eq(app_css)
+      expect(output).to include("Created app/assets/css/app.css")
 
       # app/assets/images/favicon.ico
       expect(fs.exist?("app/assets/images/favicon.ico")).to be(true)
@@ -358,11 +358,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(app_layout).to_not match(/favicon/)
         expect(app_layout).to_not match(/stylesheet/)
 
-        # app/assets/javascripts/app.js
-        expect(fs.exist?("app/assets/javascripts/app.js")).to be(false)
+        # app/assets/js/app.js
+        expect(fs.exist?("app/assets/js/app.js")).to be(false)
 
-        # app/assets/stylesheets/app.css
-        expect(fs.exist?("app/assets/stylesheets/app.css")).to be(false)
+        # app/assets/css/app.css
+        expect(fs.exist?("app/assets/css/app.css")).to be(false)
 
         # app/assets/images/favicon.ico
         expect(fs.exist?("app/assets/images/favicon.ico")).to be(false)

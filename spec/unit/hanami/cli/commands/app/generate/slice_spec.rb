@@ -126,14 +126,14 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       expect(fs.read("slices/#{slice}/templates/layouts/app.html.erb")).to eq(layout)
       expect(output).to include("Created slices/#{slice}/templates/layouts/app.html.erb")
 
-      # slices/admin/assets/javascripts/app.js
+      # slices/admin/assets/js/app.js
       app_js = <<~EXPECTED
-        import "../stylesheets/app.css";
+        import "../css/app.css";
       EXPECTED
-      expect(fs.read("slices/#{slice}/assets/javascripts/app.js")).to eq(app_js)
-      expect(output).to include("Created slices/#{slice}/assets/javascripts/app.js")
+      expect(fs.read("slices/#{slice}/assets/js/app.js")).to eq(app_js)
+      expect(output).to include("Created slices/#{slice}/assets/js/app.js")
 
-      # slices/admin/assets/stylesheets/app.css
+      # slices/admin/assets/css/app.css
       app_css = <<~EXPECTED
         body {
           background-color: #fff;
@@ -141,8 +141,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
           font-family: sans-serif;
         }
       EXPECTED
-      expect(fs.read("slices/#{slice}/assets/stylesheets/app.css")).to eq(app_css)
-      expect(output).to include("Created slices/#{slice}/assets/stylesheets/app.css")
+      expect(fs.read("slices/#{slice}/assets/css/app.css")).to eq(app_css)
+      expect(output).to include("Created slices/#{slice}/assets/css/app.css")
     end
   end
 
@@ -216,11 +216,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
         expect(app_layout).to_not match(/favicon/)
         expect(app_layout).to_not match(/stylesheet/)
 
-        # slices/admin/assets/javascripts/app.js
-        expect(fs.exist?("slices/admin/assets/javascripts/app.js")).to be(false)
+        # slices/admin/assets/js/app.js
+        expect(fs.exist?("slices/admin/assets/js/app.js")).to be(false)
 
-        # slices/admin/app/assets/stylesheets/app.css
-        expect(fs.exist?("slices/admin/assets/stylesheets/app.css")).to be(false)
+        # slices/admin/app/assets/css/app.css
+        expect(fs.exist?("slices/admin/assets/css/app.css")).to be(false)
       end
     end
   end
