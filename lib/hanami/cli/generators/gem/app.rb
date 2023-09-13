@@ -57,7 +57,7 @@ module Hanami
             fs.write("app/views/helpers.rb", t("helpers.erb", context))
             fs.write("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
 
-            if context.bundled_assets?
+            if context.generate_assets?
               fs.write("app/assets/javascripts/app.js", t("app_js.erb", context))
               fs.write("app/assets/stylesheets/app.css", t("app_css.erb", context))
               fs.write("app/assets/images/favicon.ico", File.read(File.join(__dir__, "app", "favicon.ico")))

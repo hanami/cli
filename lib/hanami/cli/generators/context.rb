@@ -50,8 +50,14 @@ module Hanami
 
         # @since 2.1.0
         # @api private
-        def bundled_assets?
+        def generate_assets?
           !options.fetch(:skip_assets, false)
+        end
+
+        # @since 2.1.0
+        # @api private
+        def bundled_assets?
+          Hanami.bundled?("hanami-assets")
         end
 
         private
