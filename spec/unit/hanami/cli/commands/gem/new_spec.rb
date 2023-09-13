@@ -278,6 +278,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
             <title>#{inflector.humanize(app)}</title>
             <%= favicon %>
+            <%= stylesheet "app" %>
           </head>
           <body>
             <%= yield %>
@@ -287,17 +288,23 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("app/templates/layouts/app.html.erb")).to eq(layout)
       expect(output).to include("Created app/templates/layouts/app.html.erb")
 
-      # app/assets/javascripts/.keep
-      javascripts_keep = <<~EXPECTED
+      # app/assets/javascripts/app.js
+      app_js = <<~EXPECTED
+        import "../stylesheets/app.css";
       EXPECTED
-      expect(fs.read("app/assets/javascripts/.keep")).to eq(javascripts_keep)
-      expect(output).to include("Created app/assets/javascripts/.keep")
+      expect(fs.read("app/assets/javascripts/app.js")).to eq(app_js)
+      expect(output).to include("Created app/assets/javascripts/app.js")
 
-      # app/assets/stylesheets/.keep
-      stylesheets_keep = <<~EXPECTED
+      # app/assets/stylesheets/app.css
+      app_css = <<~EXPECTED
+        body {
+          background-color: #fff;
+          color: #000;
+          font-family: sans-serif;
+        }
       EXPECTED
-      expect(fs.read("app/assets/stylesheets/.keep")).to eq(stylesheets_keep)
-      expect(output).to include("Created app/assets/stylesheets/.keep")
+      expect(fs.read("app/assets/stylesheets/app.css")).to eq(app_css)
+      expect(output).to include("Created app/assets/stylesheets/app.css")
 
       # app/assets/images/favicon.ico
       expect(fs.exist?("app/assets/images/favicon.ico")).to be(true)
@@ -353,13 +360,15 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
 
         # app/templates/layouts/app.html.erb
-        expect(fs.read("app/templates/layouts/app.html.erb")).to_not match(/favicon/)
+        app_layout = fs.read("app/templates/layouts/app.html.erb")
+        expect(app_layout).to_not match(/favicon/)
+        expect(app_layout).to_not match(/stylesheet/)
 
-        # app/assets/javascripts/.keep
-        expect(fs.exist?("app/assets/javascripts/.keep")).to be(false)
+        # app/assets/javascripts/app.js
+        expect(fs.exist?("app/assets/javascripts/app.js")).to be(false)
 
-        # app/assets/stylesheets/.keep
-        expect(fs.exist?("app/assets/stylesheets/.keep")).to be(false)
+        # app/assets/stylesheets/app.css
+        expect(fs.exist?("app/assets/stylesheets/app.css")).to be(false)
 
         # app/assets/images/favicon.ico
         expect(fs.exist?("app/assets/images/favicon.ico")).to be(false)
