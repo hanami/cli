@@ -5,11 +5,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
   end
 
-  # TODO: remove this block
-  before do
-    allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(true)
-  end
-
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
