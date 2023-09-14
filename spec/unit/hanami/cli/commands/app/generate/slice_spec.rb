@@ -120,6 +120,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
           </head>
           <body>
             <%= yield %>
+            <%= javascript "#{slice}/app" %>
           </body>
         </html>
       ERB
@@ -215,6 +216,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
         app_layout = fs.read("slices/#{slice}/templates/layouts/app.html.erb")
         expect(app_layout).to_not match(/favicon/)
         expect(app_layout).to_not match(/stylesheet/)
+        expect(app_layout).to_not match(/javascript/)
 
         # slices/admin/assets/js/app.js
         expect(fs.exist?("slices/admin/assets/js/app.js")).to be(false)

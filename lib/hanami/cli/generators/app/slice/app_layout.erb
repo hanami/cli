@@ -11,5 +11,8 @@
   </head>
   <body>
     <%%= yield %>
+    <%- if bundled_assets? -%>
+    <%= javascript_erb_tag %>
+    <%- end -%>
   </body>
 </html>

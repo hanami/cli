@@ -11,5 +11,8 @@
   </head>
   <body>
     <%%= yield %>
+    <%- if generate_assets? -%>
+    <%%= javascript "app" %>
+    <%- end -%>
   </body>
 </html>

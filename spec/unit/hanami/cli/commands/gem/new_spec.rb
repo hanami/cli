@@ -276,6 +276,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           </head>
           <body>
             <%= yield %>
+            <%= javascript "app" %>
           </body>
         </html>
       ERB
@@ -357,6 +358,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         app_layout = fs.read("app/templates/layouts/app.html.erb")
         expect(app_layout).to_not match(/favicon/)
         expect(app_layout).to_not match(/stylesheet/)
+        expect(app_layout).to_not match(/javascript/)
 
         # app/assets/js/app.js
         expect(fs.exist?("app/assets/js/app.js")).to be(false)

@@ -41,6 +41,12 @@ module Hanami
             %(<%= stylesheet "#{slice}/app" %>)
           end
 
+          # @since 2.1.0
+          # @api private
+          def javascript_erb_tag
+            %(<%= javascript "#{slice}/app" %>)
+          end
+
           private
 
           attr_reader :slice
