@@ -29,6 +29,24 @@ module Hanami
             inflector.underscore(slice)
           end
 
+          # @since 2.1.0
+          # @api private
+          def humanized_slice_name
+            inflector.humanize(slice)
+          end
+
+          # @since 2.1.0
+          # @api private
+          def stylesheet_erb_tag
+            %(<%= css "#{slice}/app" %>)
+          end
+
+          # @since 2.1.0
+          # @api private
+          def javascript_erb_tag
+            %(<%= js "#{slice}/app" %>)
+          end
+
           private
 
           attr_reader :slice

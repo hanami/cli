@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
-  subject {
+  subject do
     described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
-  }
+  end
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { "bookshelf" }
+  let(:kwargs) { {skip_assets: skip_assets} }
+  let(:skip_assets) { false }
 
   let(:output) { out.rewind && out.read.chomp }
 
@@ -50,7 +52,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .with("hanami install")
       .and_return(successful_system_call_result)
 
-    subject.call(app: app)
+    subject.call(app: app, **kwargs)
 
     expect(fs.directory?(app)).to be(true)
     expect(output).to include("Created #{app}/")
@@ -63,6 +65,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       gitignore = <<~EXPECTED
         .env
         log/*
+        public/
+        node_modules/
       EXPECTED
       expect(fs.read(".gitignore")).to eq(gitignore)
       expect(output).to include("Created .gitignore")
@@ -92,6 +96,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gem "hanami-controller", "#{hanami_version}"
         gem "hanami-validations", "#{hanami_version}"
         gem "hanami-view", "#{hanami_version}"
+        gem "hanami-assets", "#{hanami_version}"
         gem "hanami-webconsole", "#{hanami_version}"
 
         gem "dry-types", "~> 1.0", ">= 1.6.1"
@@ -112,6 +117,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("Gemfile")).to eq(gemfile)
       expect(output).to include("Created Gemfile")
+
+      # Procfile
+      procfile = <<~EXPECTED
+        web: bundle exec hanami server
+        assets: bundle exec hanami assets watch
+      EXPECTED
+      expect(fs.read("Procfile.dev")).to eq(procfile)
+      expect(output).to include("Created Procfile")
 
       # Rakefile
       rakefile = <<~EXPECTED
@@ -250,12 +263,46 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("app/views/helpers.rb")).to eq(helpers)
       expect(output).to include("Created app/views/helpers.rb")
 
-      # templates/layouts/app.html.erb
+      # app/templates/layouts/app.html.erb
       layout = <<~ERB
-        <%= yield %>
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>#{inflector.humanize(app)}</title>
+            <%= favicon %>
+            <%= css "app" %>
+          </head>
+          <body>
+            <%= yield %>
+            <%= js "app" %>
+          </body>
+        </html>
       ERB
       expect(fs.read("app/templates/layouts/app.html.erb")).to eq(layout)
       expect(output).to include("Created app/templates/layouts/app.html.erb")
+
+      # app/assets/js/app.js
+      app_js = <<~EXPECTED
+        import "../css/app.css";
+      EXPECTED
+      expect(fs.read("app/assets/js/app.js")).to eq(app_js)
+      expect(output).to include("Created app/assets/js/app.js")
+
+      # app/assets/css/app.css
+      app_css = <<~EXPECTED
+        body {
+          background-color: #fff;
+          color: #000;
+          font-family: sans-serif;
+        }
+      EXPECTED
+      expect(fs.read("app/assets/css/app.css")).to eq(app_css)
+      expect(output).to include("Created app/assets/css/app.css")
+
+      # app/assets/images/favicon.ico
+      expect(fs.exist?("app/assets/images/favicon.ico")).to be(true)
 
       # lib/bookshelf/types.rb
       types = <<~EXPECTED
@@ -277,6 +324,51 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # public/ error pages
       expect(fs.read("public/404.html")).to include %(<title>The page you were looking for doesn’t exist (404)</title>)
       expect(fs.read("public/500.html")).to include %(<title>We’re sorry, but something went wrong (500)</title>)
+    end
+  end
+
+  context "without hanami-assets" do
+    let(:skip_assets) { true }
+
+    it "generates a new app without hanami-assets" do
+      expect(bundler).to receive(:install!)
+        .and_return(true)
+
+      expect(bundler).to receive(:exec)
+        .with("hanami install")
+        .and_return(successful_system_call_result)
+
+      subject.call(app: app, **kwargs)
+
+      expect(fs.directory?(app)).to be(true)
+
+      fs.chdir(app) do
+        # .gitignore
+        gitignore = fs.read(".gitignore")
+        expect(gitignore).to_not match(/public/)
+        expect(gitignore).to_not match(/node_modules/)
+
+        # Gemfile
+        expect(fs.read("Gemfile")).to_not match(/hanami-assets/)
+
+        # Procfile.dev
+        expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
+
+        # app/templates/layouts/app.html.erb
+        app_layout = fs.read("app/templates/layouts/app.html.erb")
+        expect(app_layout).to_not match(/favicon/)
+        expect(app_layout).to_not match(/css/)
+        expect(app_layout).to_not match(/js/)
+
+        # app/assets/js/app.js
+        expect(fs.exist?("app/assets/js/app.js")).to be(false)
+
+        # app/assets/css/app.css
+        expect(fs.exist?("app/assets/css/app.css")).to be(false)
+
+        # app/assets/images/favicon.ico
+        expect(fs.exist?("app/assets/images/favicon.ico")).to be(false)
+      end
     end
   end
 

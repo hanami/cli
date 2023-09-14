@@ -12,9 +12,10 @@ module Hanami
       class Context
         # @since 2.0.0
         # @api private
-        def initialize(inflector, app)
+        def initialize(inflector, app, **options)
           @inflector = inflector
           @app = app
+          @options = options
         end
 
         # @since 2.0.0
@@ -41,11 +42,37 @@ module Hanami
           inflector.underscore(app)
         end
 
+        # @since 2.1.0
+        # @api private
+        def humanized_app_name
+          inflector.humanize(app)
+        end
+
+        # @since 2.1.0
+        # @api private
+        def generate_assets?
+          !options.fetch(:skip_assets, false)
+        end
+
+        # @since 2.1.0
+        # @api private
+        def bundled_assets?
+          Hanami.bundled?("hanami-assets")
+        end
+
         private
 
+        # @since 2.0.0
+        # @api private
         attr_reader :inflector
 
+        # @since 2.0.0
+        # @api private
         attr_reader :app
+
+        # @since 2.1.0
+        # @api private
+        attr_reader :options
       end
     end
   end

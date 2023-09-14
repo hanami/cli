@@ -6,6 +6,11 @@ require "securerandom"
 RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
   subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
 
+  before do
+    allow(Hanami).to receive(:bundled?)
+    allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(bundled_assets)
+  end
+
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
@@ -14,6 +19,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
   let(:underscored_app) { inflector.underscore(app) }
   let(:dir) { underscored_app }
   let(:slice) { "admin" }
+
+  let(:bundled_assets) { true }
 
   def output
     out.rewind && out.read.chomp
@@ -102,10 +109,41 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
       expect(output).to include("Created slices/#{slice}/views/helpers.rb")
 
       layout = <<~ERB
-        <%= yield %>
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>#{inflector.humanize(app)} - #{inflector.humanize(slice)}</title>
+            <%= favicon %>
+            <%= css "#{slice}/app" %>
+          </head>
+          <body>
+            <%= yield %>
+            <%= js "#{slice}/app" %>
+          </body>
+        </html>
       ERB
       expect(fs.read("slices/#{slice}/templates/layouts/app.html.erb")).to eq(layout)
       expect(output).to include("Created slices/#{slice}/templates/layouts/app.html.erb")
+
+      # slices/admin/assets/js/app.js
+      app_js = <<~EXPECTED
+        import "../css/app.css";
+      EXPECTED
+      expect(fs.read("slices/#{slice}/assets/js/app.js")).to eq(app_js)
+      expect(output).to include("Created slices/#{slice}/assets/js/app.js")
+
+      # slices/admin/assets/css/app.css
+      app_css = <<~EXPECTED
+        body {
+          background-color: #fff;
+          color: #000;
+          font-family: sans-serif;
+        }
+      EXPECTED
+      expect(fs.read("slices/#{slice}/assets/css/app.css")).to eq(app_css)
+      expect(output).to include("Created slices/#{slice}/assets/css/app.css")
     end
   end
 
@@ -164,6 +202,28 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
 
       expect(fs.read("config/routes.rb")).to eq(routes)
       expect(output).to include("Updated config/routes.rb")
+    end
+  end
+
+  context "without hanami-assets" do
+    let(:bundled_assets) { false }
+
+    it "generates a slice without hanami-assets" do
+      within_application_directory do
+        subject.call(name: slice)
+
+        # slices/admin/templates/layouts/app.html.erb
+        app_layout = fs.read("slices/#{slice}/templates/layouts/app.html.erb")
+        expect(app_layout).to_not match(/favicon/)
+        expect(app_layout).to_not match(/css/)
+        expect(app_layout).to_not match(/js/)
+
+        # slices/admin/assets/js/app.js
+        expect(fs.exist?("slices/admin/assets/js/app.js")).to be(false)
+
+        # slices/admin/app/assets/css/app.css
+        expect(fs.exist?("slices/admin/assets/css/app.css")).to be(false)
+      end
     end
   end
 

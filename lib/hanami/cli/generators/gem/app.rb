@@ -40,6 +40,7 @@ module Hanami
             fs.write("README.md", t("readme.erb", context))
             fs.write("Gemfile", t("gemfile.erb", context))
             fs.write("Rakefile", t("rakefile.erb", context))
+            fs.write("Procfile.dev", t("procfile.erb", context))
             fs.write("config.ru", t("config_ru.erb", context))
 
             fs.write("config/app.rb", t("app.erb", context))
@@ -54,7 +55,13 @@ module Hanami
             fs.write("app/action.rb", t("action.erb", context))
             fs.write("app/view.rb", t("view.erb", context))
             fs.write("app/views/helpers.rb", t("helpers.erb", context))
-            fs.write("app/templates/layouts/app.html.erb", File.read(File.join(__dir__, "app", "layouts_app.html.erb")))
+            fs.write("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
+
+            if context.generate_assets?
+              fs.write("app/assets/js/app.js", t("app_js.erb", context))
+              fs.write("app/assets/css/app.css", t("app_css.erb", context))
+              fs.write("app/assets/images/favicon.ico", File.read(File.join(__dir__, "app", "favicon.ico")))
+            end
 
             fs.write("public/404.html", File.read(File.join(__dir__, "app", "404.html")))
             fs.write("public/500.html", File.read(File.join(__dir__, "app", "500.html")))
@@ -64,7 +71,8 @@ module Hanami
             require "erb"
 
             ERB.new(
-              File.read(File.join(__dir__, "app", path))
+              File.read(File.join(__dir__, "app", path)),
+              trim_mode: "-"
             ).result(context.ctx)
           end
 
