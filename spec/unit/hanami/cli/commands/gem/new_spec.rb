@@ -272,11 +272,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>#{inflector.humanize(app)}</title>
             <%= favicon %>
-            <%= stylesheet "app" %>
+            <%= css "app" %>
           </head>
           <body>
             <%= yield %>
-            <%= javascript "app" %>
+            <%= js "app" %>
           </body>
         </html>
       ERB
@@ -357,8 +357,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # app/templates/layouts/app.html.erb
         app_layout = fs.read("app/templates/layouts/app.html.erb")
         expect(app_layout).to_not match(/favicon/)
-        expect(app_layout).to_not match(/stylesheet/)
-        expect(app_layout).to_not match(/javascript/)
+        expect(app_layout).to_not match(/css/)
+        expect(app_layout).to_not match(/js/)
 
         # app/assets/js/app.js
         expect(fs.exist?("app/assets/js/app.js")).to be(false)

@@ -6,13 +6,13 @@
     <title><%= humanized_app_name %></title>
     <%- if generate_assets? -%>
     <%%= favicon %>
-    <%%= stylesheet "app" %>
+    <%%= css "app" %>
     <%- end -%>
   </head>
   <body>
     <%%= yield %>
     <%- if generate_assets? -%>
-    <%%= javascript "app" %>
+    <%%= js "app" %>
     <%- end -%>
   </body>
 </html>

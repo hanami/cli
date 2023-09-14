@@ -116,11 +116,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>#{inflector.humanize(app)} - #{inflector.humanize(slice)}</title>
             <%= favicon %>
-            <%= stylesheet "#{slice}/app" %>
+            <%= css "#{slice}/app" %>
           </head>
           <body>
             <%= yield %>
-            <%= javascript "#{slice}/app" %>
+            <%= js "#{slice}/app" %>
           </body>
         </html>
       ERB
@@ -215,8 +215,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
         # slices/admin/templates/layouts/app.html.erb
         app_layout = fs.read("slices/#{slice}/templates/layouts/app.html.erb")
         expect(app_layout).to_not match(/favicon/)
-        expect(app_layout).to_not match(/stylesheet/)
-        expect(app_layout).to_not match(/javascript/)
+        expect(app_layout).to_not match(/css/)
+        expect(app_layout).to_not match(/js/)
 
         # slices/admin/assets/js/app.js
         expect(fs.exist?("slices/admin/assets/js/app.js")).to be(false)
