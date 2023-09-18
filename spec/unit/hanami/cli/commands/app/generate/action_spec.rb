@@ -468,7 +468,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
                   module Bestsellers
                     module Nonfiction
                       class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
-                        def handle(_request, response)
+                        def handle(request, response)
                           response.body = self.class.name
                         end
                       end
