@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-RSpec.describe Hanami::CLI::Commands::App::Assets::Compile do
+RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, :app do
   subject { described_class.new(system_call: system_call) }
   let(:system_call) { proc { |**| } }
-  let(:executable) { File.join("node_modules", "hanami-assets", "dist", "hanami-assets.js") }
 
   context "#call" do
     it "invokes hanami-assets executable" do
-      expect(system_call).to receive(:call).with(executable)
+      expect(system_call).to receive(:call).with(Hanami.app.config.assets.exe_path)
 
       subject.call
     end

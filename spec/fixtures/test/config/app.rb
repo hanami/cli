@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# FIXME: require "hanami/app" should work but it fails
-#       due to missing Hanami.env
 require "hanami"
 
 module Test
