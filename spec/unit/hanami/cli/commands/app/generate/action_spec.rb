@@ -260,7 +260,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             module Actions
               module #{inflector.camelize(controller)}
                 class #{inflector.camelize(action)} < #{inflector.camelize(app)}::Action
-                  def handle(_request, _response)
+                  def handle(request, response)
                   end
                 end
               end
