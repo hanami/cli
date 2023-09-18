@@ -319,7 +319,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
               module API
                 module Users
                   class Thing < #{inflector.camelize(app)}::Action
-                    def handle(_request, _response)
+                    def handle(request, response)
                     end
                   end
                 end
