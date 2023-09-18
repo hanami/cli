@@ -5,7 +5,7 @@ module <%= camelized_slice_name %>
 <%= module_controller_declaration %>
 <%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_slice_name %>::Action
 <%- if hanami_view_bundled?  -%>
-<%= module_controller_offset %>  def handle(_request, _response)
+<%= module_controller_offset %>  def handle(request, response)
 <%- else -%>
 <%= module_controller_offset %>  def handle(_request, response)
 <%= module_controller_offset %>    response.body = self.class.name
