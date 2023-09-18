@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "shellwords"
+require_relative "../command"
 require_relative "../../../system_call"
 
 module Hanami
