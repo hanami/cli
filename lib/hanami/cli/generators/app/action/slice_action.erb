@@ -7,7 +7,7 @@ module <%= camelized_slice_name %>
 <%- if hanami_view_bundled?  -%>
 <%= module_controller_offset %>  def handle(request, response)
 <%- else -%>
-<%= module_controller_offset %>  def handle(_request, response)
+<%= module_controller_offset %>  def handle(request, response)
 <%= module_controller_offset %>    response.body = self.class.name
 <%- end -%>
 <%= module_controller_offset %>  end
