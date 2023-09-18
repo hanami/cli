@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../../system_call"
+require_relative "command"
 
 module Hanami
   module CLI
@@ -9,30 +9,21 @@ module Hanami
         module Assets
           # @since 2.1.0
           # @api private
-          class Compile < App::Command
+          class Compile < Assets::Command
             desc "Compile assets for deployments"
 
             # @since 2.1.0
             # @api private
-            #
-            # TODO: Take `executable` from Hanami::Assets::Config
-            def initialize(system_call: SystemCall.new, executable: nil, **)
-              @system_call = system_call
-              @executable = executable || app.config.assets.exe_path
-              super()
+            def cmd_with_args
+              result = super
+
+              if config.subresource_integrity.any?
+                result << "--"
+                result << "--sri=#{config.subresource_integrity.join(',')}"
+              end
+
+              result
             end
-
-            # @since 2.1.0
-            # @api private
-            def call(**)
-              system_call.call(executable)
-            end
-
-            private
-
-            # @since 2.1.0
-            # @api private
-            attr_reader :system_call, :executable
           end
         end
       end

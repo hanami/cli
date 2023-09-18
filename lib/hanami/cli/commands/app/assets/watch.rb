@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "command"
 require_relative "../../../interactive_system_call"
 
 module Hanami
@@ -9,35 +10,24 @@ module Hanami
         module Assets
           # @since 2.1.0
           # @api private
-          class Watch < App::Command
-            # @since 2.1.0
-            # @api private
-            WATCH_OPTION = "--watch"
-            private_constant :WATCH_OPTION
-
+          class Watch < Assets::Command
             desc "Start assets watch mode"
 
-            # @since 2.1.0
-            # @api private
-            #
-            # TODO: Take `executable` from Hanami::Assets::Config
-            def initialize(interactive_system_call: InteractiveSystemCall.new, executable: nil, **)
-              @interactive_system_call = interactive_system_call
-              @executable = executable || app.config.assets.exe_path
-              super()
-            end
-
-            # @since 2.1.0
-            # @api private
-            def call(**)
-              interactive_system_call.call(executable, WATCH_OPTION)
+            def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new, **)
+              super(config: config, system_call: system_call)
             end
 
             private
 
             # @since 2.1.0
             # @api private
-            attr_reader :interactive_system_call, :executable
+            def cmd_with_args
+              super +
+                [
+                  "--",
+                  "--watch"
+                ]
+            end
           end
         end
       end

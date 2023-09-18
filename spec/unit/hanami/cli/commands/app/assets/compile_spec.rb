@@ -6,7 +6,8 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, :app do
 
   context "#call" do
     it "invokes hanami-assets executable" do
-      expect(system_call).to receive(:call).with(Hanami.app.config.assets.exe_path)
+      env = {"ESBUILD_ENTRY_POINTS" => "", "ESBUILD_OUTDIR" => File.join(Dir.pwd, "public", "assets")}
+      expect(system_call).to receive(:call).with("npm", "exec", "hanami-assets", env: hash_including(env))
 
       subject.call
     end

@@ -17,13 +17,13 @@ module Hanami
 
       # @api private
       # @since 2.1.0
-      def call(executable, *args)
+      def call(cmd, *args, env: {})
         ::Bundler.with_unbundled_env do
           threads = []
           exit_status = 0
 
           # rubocop:disable Lint/SuppressedException
-          Open3.popen3(executable, *args) do |_stdin, stdout, stderr, wait_thr|
+          Open3.popen3(env, command(cmd, *args)) do |_stdin, stdout, stderr, wait_thr|
             threads << Thread.new do
               stdout.each_line do |line|
                 out.puts(line)
@@ -53,6 +53,12 @@ module Hanami
       # @api private
       # @since 2.1.0
       attr_reader :out, :err
+
+      # @since 2.1.0
+      # @api public
+      def command(cmd, *args)
+        [cmd, args].flatten(1).compact.join(" ")
+      end
     end
   end
 end

@@ -60,7 +60,8 @@ module Hanami
 
             # @since 2.0.0
             # @api private
-            def call(name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, slice: nil, context: nil, **)
+            def call(name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, slice: nil,
+                     context: nil, **)
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
               name = naming.action_name(name)
               *controller, action = name.split(ACTION_SEPARATOR)

@@ -19,8 +19,6 @@ module Hanami
             @inflector = inflector
           end
 
-          # rubocop:disable Layout/LineLength
-
           # @since 2.0.0
           # @api private
           def call(app, controller, action, url, http, format, skip_view, slice, context: nil)
@@ -31,8 +29,6 @@ module Hanami
               generate_for_app(controller, action, url, http, format, skip_view, context)
             end
           end
-
-          # rubocop:enable Layout/LineLength
 
           private
 

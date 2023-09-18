@@ -301,7 +301,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     end
 
     it "allows to specify nested action name" do
-      context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, ["api", "users"], "thing")
+      context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, %w[api users], "thing")
       allow(context).to receive(:hanami_view_bundled?) { true }
 
       within_application_directory do
