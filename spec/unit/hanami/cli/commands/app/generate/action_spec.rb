@@ -20,7 +20,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     out.rewind && out.read.chomp
   end
 
-  context "generate for app" do
+  context "generate for app, without hanami view bundled" do
     it "generates action" do
       within_application_directory do
         subject.call(name: action_name)
@@ -51,7 +51,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             module Actions
               module #{inflector.camelize(controller)}
                 class #{inflector.camelize(action)} < #{inflector.camelize(app)}::Action
-                  def handle(*, response)
+                  def handle(request, response)
                     response.body = self.class.name
                   end
                 end
@@ -182,7 +182,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
               module API
                 module Users
                   class Thing < #{inflector.camelize(app)}::Action
-                    def handle(*, response)
+                    def handle(request, response)
                       response.body = self.class.name
                     end
                   end
@@ -222,6 +222,114 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(output).to_not include("app/views/#{controller}/#{action}.rb")
         expect(fs.exist?("app/templates/#{controller}/#{action}.html.erb")).to be(false)
         expect(output).to_not include("app/templates/#{controller}/#{action}.html.erb")
+      end
+    end
+  end
+
+  context "generate for app, with hanami view bundled" do
+    it "generates action" do
+      context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+      allow(context).to receive(:hanami_view_bundled?) { true }
+
+      within_application_directory do
+        subject.call(name: action_name, context: context)
+
+        # Route
+        routes = <<~CODE
+          # frozen_string_literal: true
+
+          require "hanami/routes"
+
+          module #{app}
+            class Routes < Hanami::Routes
+              root { "Hello from Hanami" }
+              get "/users", to: "users.index"
+            end
+          end
+        CODE
+
+        # route
+        expect(fs.read("config/routes.rb")).to eq(routes)
+        expect(output).to include("Updated config/routes.rb")
+
+        # action
+        action_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module #{inflector.camelize(app)}
+            module Actions
+              module #{inflector.camelize(controller)}
+                class #{inflector.camelize(action)} < #{inflector.camelize(app)}::Action
+                  def handle(request, response)
+                  end
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/actions/#{controller}/#{action}.rb")).to eq(action_file)
+        expect(output).to include("Created app/actions/#{controller}/#{action}.rb")
+
+        # view
+        view_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module #{inflector.camelize(app)}
+            module Views
+              module #{inflector.camelize(controller)}
+                class #{inflector.camelize(action)} < #{inflector.camelize(app)}::View
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/views/#{controller}/#{action}.rb")).to eq(view_file)
+        expect(output).to include("Created app/views/#{controller}/#{action}.rb")
+
+        # template
+        expect(fs.directory?("app/templates/#{controller}")).to be(true)
+
+        template_file = <<~EXPECTED
+          <h1>#{inflector.camelize(app)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
+        EXPECTED
+
+        expect(fs.read("app/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+        expect(output).to include("Created app/views/#{controller}/#{action}.rb")
+      end
+    end
+
+    it "allows to specify nested action name" do
+      context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, ["api", "users"], "thing")
+      allow(context).to receive(:hanami_view_bundled?) { true }
+
+      within_application_directory do
+        action_name = "api/users.thing"
+        subject.call(name: action_name, context: context)
+
+        expect(fs.read("config/routes.rb")).to match(%(get "/api/users/thing", to: "api.users.thing"))
+        expect(output).to include("Updated config/routes.rb")
+
+        action_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module #{inflector.camelize(app)}
+            module Actions
+              module API
+                module Users
+                  class Thing < #{inflector.camelize(app)}::Action
+                    def handle(request, response)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/actions/api/users/thing.rb")).to eq(action_file)
+        expect(output).to include("Created app/actions/api/users/thing.rb")
       end
     end
   end
@@ -270,7 +378,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             module Actions
               module #{inflector.camelize(controller)}
                 class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
-                  def handle(*, response)
+                  def handle(request, response)
                     response.body = self.class.name
                   end
                 end
@@ -360,7 +468,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
                   module Bestsellers
                     module Nonfiction
                       class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
-                        def handle(*, response)
+                        def handle(request, response)
                           response.body = self.class.name
                         end
                       end

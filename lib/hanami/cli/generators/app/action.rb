@@ -23,7 +23,8 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, controller, action, url, http, format, skip_view, slice, context: ActionContext.new(inflector, app, slice, controller, action))
+          def call(app, controller, action, url, http, format, skip_view, slice, context: nil)
+            context ||= ActionContext.new(inflector, app, slice, controller, action)
             if slice
               generate_for_slice(controller, action, url, http, format, skip_view, slice, context)
             else
@@ -136,7 +137,7 @@ module Hanami
             require "erb"
 
             ERB.new(
-              File.read(__dir__ + "/action/#{path}")
+              File.read(__dir__ + "/action/#{path}"), trim_mode: "-",
             ).result(context.ctx)
           end
 

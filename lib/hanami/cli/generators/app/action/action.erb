@@ -4,8 +4,12 @@ module <%= camelized_app_name %>
   module Actions
 <%= module_controller_declaration %>
 <%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_app_name %>::Action
-<%= module_controller_offset %>  def handle(*, response)
+<%- if hanami_view_bundled? -%>
+<%= module_controller_offset %>  def handle(request, response)
+<%- else -%>
+<%= module_controller_offset %>  def handle(request, response)
 <%= module_controller_offset %>    response.body = self.class.name
+<%- end -%>
 <%= module_controller_offset %>  end
 <%= module_controller_offset %>end
 <%= module_controller_end %>
