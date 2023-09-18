@@ -19,9 +19,12 @@ module Hanami
             register "server", Commands::App::Server, aliases: ["s"]
             register "routes", Commands::App::Routes
             register "middleware", Commands::App::Middleware
-            register "assets" do |prefix|
-              prefix.register "compile", Assets::Compile
-              prefix.register "watch", Assets::Watch
+
+            if Hanami.bundled?("hanami-assets")
+              register "assets" do |prefix|
+                prefix.register "compile", Assets::Compile
+                prefix.register "watch", Assets::Watch
+              end
             end
 
             register "generate", aliases: ["g"] do |prefix|
