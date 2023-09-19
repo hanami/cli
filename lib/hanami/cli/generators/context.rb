@@ -56,6 +56,12 @@ module Hanami
 
         # @since 2.1.0
         # @api private
+        def bundled_views?
+          Hanami.bundled?("hanami-view")
+        end
+
+        # @since 2.1.0
+        # @api private
         def bundled_assets?
           Hanami.bundled?("hanami-assets")
         end

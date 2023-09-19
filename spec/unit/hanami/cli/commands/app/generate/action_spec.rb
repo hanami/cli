@@ -229,7 +229,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   context "generate for app, with hanami view bundled" do
     it "generates action" do
       context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
-      allow(context).to receive(:hanami_view_bundled?) { true }
+      allow(context).to receive(:bundled_views?) { true }
 
       within_application_directory do
         subject.call(name: action_name, context: context)
@@ -302,7 +302,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "allows to specify nested action name" do
       context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, %w[api users], "thing")
-      allow(context).to receive(:hanami_view_bundled?) { true }
+      allow(context).to receive(:bundled_views?) { true }
 
       within_application_directory do
         action_name = "api/users.thing"

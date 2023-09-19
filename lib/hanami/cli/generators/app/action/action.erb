@@ -4,7 +4,7 @@ module <%= camelized_app_name %>
   module Actions
 <%= module_controller_declaration %>
 <%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_app_name %>::Action
-<%- if hanami_view_bundled? -%>
+<%- if bundled_views? -%>
 <%= module_controller_offset %>  def handle(request, response)
 <%- else -%>
 <%= module_controller_offset %>  def handle(request, response)
