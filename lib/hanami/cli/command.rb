@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "dry/cli"
-require "dry/files"
 require "dry/inflector"
+require_relative "files"
 
 module Hanami
   module CLI
@@ -19,12 +19,12 @@ module Hanami
       #
       # @param out [IO] I/O stream for standard command output
       # @param err [IO] I/O stream for comment errror output
-      # @param fs [Dry::Files] object for managing file system interactions
+      # @param fs [Hanami::CLI::Files] object for managing file system interactions
       # @param inflector [Dry::Inflector] inflector for any command-level inflections
       #
       # @since 2.0.0
       # @api public
-      def initialize(out: $stdout, err: $stderr, fs: Dry::Files.new, inflector: Dry::Inflector.new)
+      def initialize(out: $stdout, err: $stderr, fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new)
         super()
         @out = out
         @err = err
@@ -52,7 +52,7 @@ module Hanami
 
       # Returns the object for managing file system interactions.
       #
-      # @return [Dry::Files]
+      # @return [Hanami::CLI::Files]
       #
       # @since 2.0.0
       # @api public
