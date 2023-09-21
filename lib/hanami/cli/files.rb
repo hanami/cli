@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "dry/files"
+
 module Hanami
   module CLI
     # @since 2.0.0
@@ -29,7 +31,7 @@ module Hanami
       def mkdir(path)
         unless exist?(path)
           super
-          created("#{path}/")
+          created(_path(path))
         end
       end
 
@@ -53,7 +55,11 @@ module Hanami
       end
 
       def within_folder(path)
-        out.puts "-> Within #{path}/"
+        out.puts "-> Within #{_path(path)}"
+      end
+
+      def _path(path)
+        path + ::File::SEPARATOR
       end
     end
   end

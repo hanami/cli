@@ -3,7 +3,7 @@
 require "bundler"
 require "open3"
 require "etc"
-require "dry/files"
+require_relative "files"
 require_relative "system_call"
 require_relative "errors"
 
@@ -45,12 +45,12 @@ module Hanami
 
       # Returns a new bundler.
       #
-      # @param fs [Dry::Files] the filesystem interaction object
+      # @param fs [Hanami::CLI::Files] the filesystem interaction object
       # @param system_call [SystemCall] convenience object for making system calls
       #
       # @since 2.0.0
       # @api public
-      def initialize(fs: Dry::Files.new, system_call: SystemCall.new)
+      def initialize(fs: Hanami::CLI::Files.new, system_call: SystemCall.new)
         @fs = fs
         @system_call = system_call
       end
@@ -127,7 +127,7 @@ module Hanami
 
       private
 
-      # @return [Dry::Files]
+      # @return [Hanami::CLI::Files]
       #
       # @since 2.0.0
       # @api public

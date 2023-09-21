@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "dry/files"
 require "hanami/env"
 require_relative "db/utils/database"
+require_relative "../../files"
 
 module Hanami
   module CLI
@@ -75,7 +75,7 @@ module Hanami
             klass.new(
               out: out,
               inflector: app.inflector,
-              fs: Dry::Files
+              fs: Hanami::CLI::Files,
             ).call(*args)
           end
 
