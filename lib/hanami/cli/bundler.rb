@@ -71,13 +71,27 @@ module Hanami
       #
       # @return [SystemCall::Result] the result of the `bundle` command execution
       #
-      # @raise [StandardError] if the `bundle` command does not execute successfully
+      # @raise [Hanami::CLI::BundleInstallError] if the `bundle` command does not execute successfully
       #
       # @since 2.0.0
       # @api public
       def install!
         install.tap do |result|
           raise BundleInstallError.new(result.err) unless result.successful?
+        end
+      end
+
+      # Runs the given Hanami CLI command via `bundle exec hanami`
+      #
+      # @return [SystemCall::Result] the result of the command execution
+      #
+      # @raise [Hanami::CLI::HanamiExecError] if the does not execute successfully
+      #
+      # @since 2.1.0
+      # @api public
+      def hanami_exec(cmd, env: nil, &blk)
+        exec("hanami #{cmd}", env: env, &blk).tap do |result|
+          raise HanamiExecError.new(cmd, result.err) unless result.successful?
         end
       end
 
