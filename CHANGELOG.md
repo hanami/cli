@@ -2,6 +2,18 @@
 
 Hanami Command Line Interface
 
+## v2.1.0.beta2 - 2023-10-04
+
+### Added
+
+- [Luca Guidi] `hanami new` generates `Procfile.dev`
+- [Luca Guidi] `hanami new` generates basic app assets, if `hanami-assets` is bundled by the app
+- [Luca Guidi] `hanami generate slice` generates basic slice assets, if `hanami-assets` is bundled by the app
+- [Ryan Bigg] `hanami generate action` generates corresponding view, if `hanami-view` is bundled by the app
+- [Luca Guidi] `hanami assets compile` to compile assets at the deploy time
+- [Luca Guidi] `hanami assets watch` to watch and compile assets at the development time
+- [Luca Guidi] `hanami dev` to start the processes in `Procfile.dev`
+
 ## v2.1.0.beta1 - 2023-06-29
 
 ### Added
