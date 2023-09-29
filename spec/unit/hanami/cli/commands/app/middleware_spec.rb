@@ -13,6 +13,7 @@ RSpec.describe Hanami::CLI::Commands::App::Middleware, :app, :command do
     expect(output).to eq <<~OUTPUT
       /    Dry::Monitor::Rack::Middleware (instance)
       /    Hanami::Middleware::RenderErrors
+      /    Hanami::Middleware::Assets
     OUTPUT
   end
 
