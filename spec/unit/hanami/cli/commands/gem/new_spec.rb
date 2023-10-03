@@ -340,7 +340,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .and_return(true)
 
       expect(bundler).to receive(:exec)
-        .with("hanami install")
+        .with("hanami install --head")
         .and_return(successful_system_call_result)
 
       subject.call(app: app, **kwargs)

@@ -89,7 +89,7 @@ module Hanami
                   out.puts "Running Bundler install..."
                   bundler.install!
                   out.puts "Running Hanami install..."
-                  run_install_commmand!
+                  run_install_commmand!(head: head)
                 end
               end
             end
@@ -100,8 +100,9 @@ module Hanami
           attr_reader :bundler
           attr_reader :generator
 
-          def run_install_commmand!
-            bundler.exec("hanami install").tap do |result|
+          def run_install_commmand!(head:)
+            head_flag = head ? " --head" : ""
+            bundler.exec("hanami install#{head_flag}").tap do |result|
               raise HanamiInstallError.new(result.err) unless result.successful?
             end
           end

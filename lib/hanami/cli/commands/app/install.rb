@@ -22,8 +22,8 @@ module Hanami
         class Install < Command
           # @since 2.1.0
           # @api private
-          DEFAULT_EDGE = false
-          private_constant :DEFAULT_EDGE
+          DEFAULT_HEAD = false
+          private_constant :DEFAULT_HEAD
 
           # @since 2.1.0
           # @api private
@@ -31,7 +31,7 @@ module Hanami
 
           # @since 2.1.0
           # @api private
-          option :edge, type: :boolean, desc: "Install edge deps", default: DEFAULT_EDGE
+          option :head, type: :boolean, desc: "Install head deps", default: DEFAULT_HEAD
 
           # @since 2.1.0
           # @api private
@@ -42,8 +42,8 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(edge: DEFAULT_EDGE, **)
-            install_hanami_assets!(edge: edge)
+          def call(head: DEFAULT_HEAD, **)
+            install_hanami_assets!(head: head)
           end
 
           private
@@ -54,12 +54,12 @@ module Hanami
 
           # @since 2.1.0
           # @api private
-          def install_hanami_assets!(edge:)
+          def install_hanami_assets!(head:)
             return unless Hanami.bundled?("hanami-assets")
 
             system_call.call("npm", ["init", "-y"])
 
-            if edge
+            if head
               system_call.call("npm", %w[install https://github.com/hanami/assets-js])
             else
               system_call.call("npm", %w[install hanami-assets])
