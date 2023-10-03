@@ -10,11 +10,14 @@ gem "hanami-view", "<%= hanami_version %>"
 <%- if generate_assets? -%>
 gem "hanami-assets", "<%= hanami_version %>"
 <%- end -%>
-gem "hanami-webconsole", "<%= hanami_version %>"
 
 gem "dry-types", "~> 1.0", ">= 1.6.1"
 gem "puma"
 gem "rake"
+
+group :development do
+  gem "hanami-webconsole", "<%= hanami_version %>"
+end
 
 group :development, :test do
   gem "dotenv"
