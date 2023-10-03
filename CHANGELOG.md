@@ -8,6 +8,7 @@ Hanami Command Line Interface
 
 - [Luca Guidi] `hanami new` generates `Procfile.dev`
 - [Luca Guidi] `hanami new` generates basic app assets, if `hanami-assets` is bundled by the app
+- [Luca Guidi] `hanami new` accepts `--head` to generate the app using Hanami HEAD version from GitHub
 - [Luca Guidi] `hanami generate slice` generates basic slice assets, if `hanami-assets` is bundled by the app
 - [Ryan Bigg] `hanami generate action` generates corresponding view, if `hanami-view` is bundled by the app
 - [Luca Guidi] `hanami assets compile` to compile assets at the deploy time
@@ -17,6 +18,7 @@ Hanami Command Line Interface
 ### Fixed
 
 - [Luca Guidi] `hanami new` generates a `Gemfile` with `hanami-webconsole` in `:development` group
+- [Luca Guidi] `hanami new` generates a `Gemfile` with versioned `hanami-webconsole`, `hanami-rspec`, and `hanami-reloader`
 
 ## v2.1.0.beta1 - 2023-06-29
 
