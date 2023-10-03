@@ -2,13 +2,13 @@
 
 source "https://rubygems.org"
 
-gem "hanami", "<%= hanami_version %>"
-gem "hanami-router", "<%= hanami_version %>"
-gem "hanami-controller", "<%= hanami_version %>"
-gem "hanami-validations", "<%= hanami_version %>"
-gem "hanami-view", "<%= hanami_version %>"
+gem "hanami", <%= hanami_version %>
+gem "hanami-router", <%= hanami_version %>
+gem "hanami-controller", <%= hanami_version %>
+gem "hanami-validations", <%= hanami_version %>
+gem "hanami-view", <%= hanami_version %>
 <%- if generate_assets? -%>
-gem "hanami-assets", "<%= hanami_version %>"
+gem "hanami-assets", <%= hanami_version %>
 <%- end -%>
 
 gem "dry-types", "~> 1.0", ">= 1.6.1"
@@ -16,7 +16,7 @@ gem "puma"
 gem "rake"
 
 group :development do
-  gem "hanami-webconsole", "<%= hanami_version %>"
+  gem "hanami-webconsole", <%= hanami_version %>
 end
 
 group :development, :test do
@@ -24,9 +24,9 @@ group :development, :test do
 end
 
 group :cli, :development do
-  gem "hanami-reloader"
+  gem "hanami-reloader", <%= hanami_version %>
 end
 
 group :cli, :development, :test do
-  gem "hanami-rspec"
+  gem "hanami-rspec", <%= hanami_version %>
 end

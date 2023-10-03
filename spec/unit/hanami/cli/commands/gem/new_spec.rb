@@ -10,7 +10,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { "bookshelf" }
-  let(:kwargs) { {skip_assets: skip_assets} }
+  let(:kwargs) { {head: hanami_head, skip_assets: skip_assets} }
+
+  let(:hanami_head) { false }
   let(:skip_assets) { false }
 
   let(:output) { out.rewind && out.read.chomp }
@@ -111,11 +113,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         end
 
         group :cli, :development do
-          gem "hanami-reloader"
+          gem "hanami-reloader", "#{hanami_version}"
         end
 
         group :cli, :development, :test do
-          gem "hanami-rspec"
+          gem "hanami-rspec", "#{hanami_version}"
         end
       EXPECTED
       expect(fs.read("Gemfile")).to eq(gemfile)
@@ -327,6 +329,61 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # public/ error pages
       expect(fs.read("public/404.html")).to include %(<title>The page you were looking for doesn’t exist (404)</title>)
       expect(fs.read("public/500.html")).to include %(<title>We’re sorry, but something went wrong (500)</title>)
+    end
+  end
+
+  context "with head" do
+    let(:hanami_head) { true }
+
+    xit "generates a new app with Gemfile pointing to hanami HEAD" do
+      expect(bundler).to receive(:install!)
+        .and_return(true)
+
+      expect(bundler).to receive(:exec)
+        .with("hanami install")
+        .and_return(successful_system_call_result)
+
+      subject.call(app: app, **kwargs)
+
+      expect(fs.directory?(app)).to be(true)
+
+      fs.chdir(app) do
+        # Gemfile
+        gemfile = <<~EXPECTED
+          # frozen_string_literal: true
+
+          source "https://rubygems.org"
+
+          gem "hanami",             github: "hanami/hanami",      branch: "main"
+          gem "hanami-router",      github: "hanami/router",      branch: "main"
+          gem "hanami-controller",  github: "hanami/controller",  branch: "main"
+          gem "hanami-validations", github: "hanami/validations", branch: "main"
+          gem "hanami-view",        github: "hanami/view",        branch: "main"
+          gem "hanami-assets",      github: "hanami/assets",      branch: "main"
+
+          gem "dry-types", "~> 1.0", ">= 1.6.1"
+          gem "puma"
+          gem "rake"
+
+          group :development do
+            gem "hanami-webconsole", github: "hanami/webconsole", branch: "main"
+          end
+
+          group :development, :test do
+            gem "dotenv"
+          end
+
+          group :cli, :development do
+            gem "hanami-reloader", github: "hanami/reloader", branch: "main"
+          end
+
+          group :cli, :development, :test do
+            gem "hanami-rspec", github: "hanami/rspec", branch: "main"
+          end
+        EXPECTED
+        expect(fs.read("Gemfile")).to eq(gemfile)
+        expect(output).to include("Created Gemfile")
+      end
     end
   end
 

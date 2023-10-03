@@ -27,7 +27,9 @@ module Hanami
         # @since 2.0.0
         # @api private
         def hanami_version
-          Version.gem_requirement
+          unless hanami_head?
+            %("#{Version.gem_requirement}")
+          end
         end
 
         # @since 2.0.0
@@ -46,6 +48,12 @@ module Hanami
         # @api private
         def humanized_app_name
           inflector.humanize(app)
+        end
+
+        # @since 2.1.0
+        # @api private
+        def hanami_head?
+          options.fetch(:head)
         end
 
         # @since 2.1.0
