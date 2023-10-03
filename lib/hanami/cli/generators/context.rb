@@ -24,10 +24,18 @@ module Hanami
           binding
         end
 
+        def hanami_gem(name)
+          gem_name = name == "hanami" ? "hanami" : "hanami-#{name}"
+
+          %(gem "#{gem_name}", #{hanami_version(name)})
+        end
+
         # @since 2.0.0
         # @api private
-        def hanami_version
-          unless hanami_head?
+        def hanami_version(gem_name)
+          if hanami_head?
+            %(github: "hanami/#{gem_name}", branch: "main")
+          else
             %("#{Version.gem_requirement}")
           end
         end

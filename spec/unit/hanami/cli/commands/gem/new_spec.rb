@@ -335,7 +335,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   context "with head" do
     let(:hanami_head) { true }
 
-    xit "generates a new app with Gemfile pointing to hanami HEAD" do
+    it "generates a new app with Gemfile pointing to hanami HEAD" do
       expect(bundler).to receive(:install!)
         .and_return(true)
 
@@ -354,12 +354,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
           source "https://rubygems.org"
 
-          gem "hanami",             github: "hanami/hanami",      branch: "main"
-          gem "hanami-router",      github: "hanami/router",      branch: "main"
-          gem "hanami-controller",  github: "hanami/controller",  branch: "main"
+          gem "hanami", github: "hanami/hanami", branch: "main"
+          gem "hanami-router", github: "hanami/router", branch: "main"
+          gem "hanami-controller", github: "hanami/controller", branch: "main"
           gem "hanami-validations", github: "hanami/validations", branch: "main"
-          gem "hanami-view",        github: "hanami/view",        branch: "main"
-          gem "hanami-assets",      github: "hanami/assets",      branch: "main"
+          gem "hanami-view", github: "hanami/view", branch: "main"
+          gem "hanami-assets", github: "hanami/assets", branch: "main"
 
           gem "dry-types", "~> 1.0", ">= 1.6.1"
           gem "puma"
