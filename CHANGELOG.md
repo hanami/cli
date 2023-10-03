@@ -14,6 +14,10 @@ Hanami Command Line Interface
 - [Luca Guidi] `hanami assets watch` to watch and compile assets at the development time
 - [Luca Guidi] `hanami dev` to start the processes in `Procfile.dev`
 
+### Fixed
+
+- [Luca Guidi] `hanami new` generates a `Gemfile` with `hanami-webconsole` in `:development` group
+
 ## v2.1.0.beta1 - 2023-06-29
 
 ### Added
