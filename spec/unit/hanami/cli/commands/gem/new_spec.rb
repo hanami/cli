@@ -217,18 +217,18 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # Workers (aka Puma/Ruby processes)
         #
 
-        hanami_concurrency = ENV.fetch("HANAMI_WEB_CONCURRENCY", 0)
-        hanami_cluster_mode = hanami_concurrency.positive?
+        puma_concurrency = ENV.fetch("HANAMI_WEB_CONCURRENCY", 0)
+        puma_cluster_mode = puma_concurrency.positive?
 
         # How many worker (Puma/Ruby) processes to run.
         # Typically this is set to the number of available cores.
-        workers hanami_concurrency
+        workers puma_concurrency
 
         #
         # Cluster mode (aka multiple workers)
         #
 
-        if hanami_cluster_mode
+        if puma_cluster_mode
           # Preload the application before starting the workers. Only in cluster mode.
           preload_app!
 
