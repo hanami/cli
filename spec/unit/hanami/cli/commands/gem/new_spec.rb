@@ -204,7 +204,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         environment ENV.fetch("HANAMI_ENV", "development")
 
         #
-        # Threads within each Puma/Ruby process (aka worker).
+        # Threads within each Puma/Ruby process (aka worker)
         #
 
         # Configure the minimum and maximum number of threads to use to answer requests.
@@ -214,7 +214,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         threads min_threads_count, max_threads_count
 
         #
-        # Workers (aka Puma/Ruby processes).
+        # Workers (aka Puma/Ruby processes)
         #
 
         hanami_concurrency = ENV.fetch("HANAMI_WEB_CONCURRENCY", 0)
@@ -225,7 +225,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         workers hanami_concurrency
 
         #
-        # Cluster mode (aka multiple workers).
+        # Cluster mode (aka multiple workers)
         #
 
         if hanami_cluster_mode
