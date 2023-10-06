@@ -1,17 +1,46 @@
 # frozen_string_literal: true
 
-max_threads_count = ENV.fetch("HANAMI_MAX_THREADS", 5)
-min_threads_count = ENV.fetch("HANAMI_MIN_THREADS") { max_threads_count }
-threads min_threads_count, max_threads_count
-
+#
+# Environment and port
+#
 port        ENV.fetch("<%= Hanami::Port::ENV_VAR %>", <%= Hanami::Port::DEFAULT %>)
 environment ENV.fetch("HANAMI_ENV", "development")
-workers     ENV.fetch("HANAMI_WEB_CONCURRENCY", 0)
 
-if ENV.fetch("HANAMI_WEB_CONCURRENCY", 0) > 0
-  on_worker_boot do
+#
+# Threads within each Puma/Ruby process (aka worker).
+#
+
+# Configure the minimum and maximum number of threads to use to answer requests.
+max_threads_count = ENV.fetch("HANAMI_MAX_THREADS", 5)
+min_threads_count = ENV.fetch("HANAMI_MIN_THREADS") { max_threads_count }
+
+threads min_threads_count, max_threads_count
+
+#
+# Workers (aka Puma/Ruby processes).
+#
+
+hanami_concurrency = ENV.fetch("HANAMI_WEB_CONCURRENCY", 0)
+hanami_cluster_mode = hanami_concurrency.positive?
+
+# How many worker (Puma/Ruby) processes to run.
+# Typically this is set to the number of available cores.
+workers hanami_concurrency
+
+#
+# Cluster mode (aka multiple workers).
+#
+
+if hanami_cluster_mode
+  # Preload the application before starting the workers. Only in cluster mode.
+  preload_app!
+
+  # Code to run immediately before a worker shuts down, after it has finished
+  # processing HTTP requests.
+  #
+  # These hooks can block if necessary to wait for background operations unknown
+  # to Puma to finish before the process terminates.
+  on_worker_shutdown do
     Hanami.shutdown
   end
 end
-
-preload_app!
