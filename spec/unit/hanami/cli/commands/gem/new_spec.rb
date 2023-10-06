@@ -217,7 +217,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # Workers (aka Puma/Ruby processes)
         #
 
-        puma_concurrency = ENV.fetch("HANAMI_WEB_CONCURRENCY", 0)
+        puma_concurrency = Integer(ENV.fetch("HANAMI_WEB_CONCURRENCY", 0))
         puma_cluster_mode = puma_concurrency.positive?
 
         # How many worker (Puma/Ruby) processes to run.
