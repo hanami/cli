@@ -3,7 +3,7 @@
 #
 # Environment and port
 #
-port Integer(ENV.fetch("<%= Hanami::Port::ENV_VAR %>", <%= Hanami::Port::DEFAULT %>))
+port ENV.fetch("<%= Hanami::Port::ENV_VAR %>", <%= Hanami::Port::DEFAULT %>)
 environment ENV.fetch("HANAMI_ENV", "development")
 
 #

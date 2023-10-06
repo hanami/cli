@@ -200,7 +200,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         #
         # Environment and port
         #
-        port Integer(ENV.fetch("HANAMI_PORT", 2300))
+        port ENV.fetch("HANAMI_PORT", 2300)
         environment ENV.fetch("HANAMI_ENV", "development")
 
         #
