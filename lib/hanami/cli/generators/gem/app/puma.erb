@@ -35,12 +35,13 @@ if puma_cluster_mode
   # Preload the application before starting the workers. Only in cluster mode.
   preload_app!
 
-  # Code to run immediately before a worker shuts down, after it has finished
-  # processing HTTP requests.
+  # Code to run immediately before master process forks workers (once on boot).
   #
   # These hooks can block if necessary to wait for background operations unknown
-  # to Puma to finish before the process terminates.
-  on_worker_shutdown do
+  # to puma to finish before the process terminates. This can be used to close
+  # any connections to remote servers (database, redis, …) that were opened when
+  # preloading the code.
+  before_fork do
     Hanami.shutdown
   end
 end
