@@ -58,6 +58,8 @@ module Hanami
           ]
           # rubocop:enable Layout/LineLength
 
+          # rubocop:disable Metrics/ParameterLists
+
           # @since 2.0.0
           # @api private
           def initialize(
@@ -65,12 +67,18 @@ module Hanami
             inflector: Dry::Inflector.new,
             bundler: CLI::Bundler.new(fs: fs),
             generator: Generators::Gem::App.new(fs: fs, inflector: inflector),
+            system_call: SystemCall.new,
             **other
           )
             @bundler = bundler
             @generator = generator
+            @system_call = system_call
             super(fs: fs, inflector: inflector, **other)
           end
+
+          # rubocop:enable Metrics/ParameterLists
+
+          # rubocop:disable Metrics/AbcSize
 
           # @since 2.0.0
           # @api private
@@ -88,17 +96,25 @@ module Hanami
                 else
                   out.puts "Running Bundler install..."
                   bundler.install!
+
+                  unless skip_assets
+                    out.puts "Running npm install..."
+                    system_call.call("npm", ["install"])
+                  end
+
                   out.puts "Running Hanami install..."
                   run_install_commmand!(head: head)
                 end
               end
             end
           end
+          # rubocop:enable Metrics/AbcSize
 
           private
 
           attr_reader :bundler
           attr_reader :generator
+          attr_reader :system_call
 
           def run_install_commmand!(head:)
             head_flag = head ? " --head" : ""

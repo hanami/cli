@@ -33,37 +33,9 @@ module Hanami
           # @api private
           option :head, type: :boolean, desc: "Install head deps", default: DEFAULT_HEAD
 
-          # @since 2.1.0
-          # @api private
-          def initialize(system_call: SystemCall.new, **)
-            @system_call = system_call
-            super()
-          end
-
           # @since 2.0.0
           # @api private
           def call(head: DEFAULT_HEAD, **)
-            install_hanami_assets!(head: head)
-          end
-
-          private
-
-          # @since 2.1.0
-          # @api private
-          attr_reader :system_call
-
-          # @since 2.1.0
-          # @api private
-          def install_hanami_assets!(head:)
-            return unless Hanami.bundled?("hanami-assets")
-
-            system_call.call("npm", ["init", "-y"])
-
-            if head
-              system_call.call("npm", %w[install https://github.com/hanami/assets-js])
-            else
-              system_call.call("npm", %w[install hanami-assets])
-            end
           end
         end
       end
