@@ -6,8 +6,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, :app do
 
   context "#call" do
     it "invokes hanami-assets executable" do
-      env = {"ESBUILD_ENTRY_POINTS" => "", "ESBUILD_OUTDIR" => File.join(Dir.pwd, "public", "assets")}
-      expect(interactive_system_call).to receive(:call).with("npm", "exec", "hanami-assets", "--", "--watch", env: hash_including(env))
+      expect(interactive_system_call).to receive(:call).with("npm run --silent", "assets", "--", "--watch")
 
       subject.call
     end

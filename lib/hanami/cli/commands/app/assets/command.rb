@@ -23,7 +23,7 @@ module Hanami
             def call(**)
               cmd, *args = cmd_with_args
 
-              system_call.call(cmd, *args, env: env)
+              system_call.call(cmd, *args)
             end
 
             private
@@ -39,20 +39,7 @@ module Hanami
             # @since 2.1.0
             # @api private
             def cmd_with_args
-              [
-                config.package_manager_executable,
-                config.package_manager_command,
-                config.executable
-              ]
-            end
-
-            # @since 2.1.0
-            # @api private
-            def env
-              ENV.to_h.merge(
-                "ESBUILD_ENTRY_POINTS" => entry_points,
-                "ESBUILD_OUTDIR" => destination
-              )
+              [config.package_manager_run_command, "assets"]
             end
 
             # @since 2.1.0

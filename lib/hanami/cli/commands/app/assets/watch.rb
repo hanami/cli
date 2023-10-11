@@ -22,11 +22,7 @@ module Hanami
             # @since 2.1.0
             # @api private
             def cmd_with_args
-              super +
-                [
-                  "--",
-                  "--watch"
-                ]
+              super + ["--", "--watch"]
             end
           end
         end
