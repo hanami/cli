@@ -2,13 +2,14 @@
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject do
-    described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
+    described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector, system_call: system_call)
   end
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
+  let(:system_call) { instance_double(Hanami::CLI::SystemCall, call: successful_system_call_result) }
   let(:app) { "bookshelf" }
   let(:kwargs) { {head: hanami_head, skip_assets: skip_assets} }
 
@@ -53,6 +54,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(bundler).to receive(:exec)
       .with("hanami install")
       .and_return(successful_system_call_result)
+
+    expect(system_call).to receive(:call).with("npm", ["install"])
 
     subject.call(app: app, **kwargs)
 
@@ -123,6 +126,23 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("Gemfile")).to eq(gemfile)
       expect(output).to include("Created Gemfile")
 
+      # package.json
+      hanami_npm_version = Hanami::CLI::Generators::Version.npm_package_requirement
+      package_json = <<~EXPECTED
+        {
+          "name": "#{app}",
+          "private": true,
+          "scripts": {
+            "assets": "node config/assets.mjs"
+          },
+          "dependencies": {
+            "hanami-assets": "#{hanami_npm_version}"
+          }
+        }
+      EXPECTED
+      expect(fs.read("package.json")).to eq(package_json)
+      expect(output).to include("Created package.json")
+
       # Procfile
       procfile = <<~EXPECTED
         web: bundle exec hanami server
@@ -164,6 +184,26 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("config/app.rb")).to eq(hanami_app)
       expect(output).to include("Created config/app.rb")
+
+      # config/assets.mjs
+      assets = <<~EXPECTED
+        import * as assets from "hanami-assets";
+
+        await assets.run();
+
+        // To provide additional esbuild (https://esbuild.github.io) options, use the following:
+        //
+        // await assets.run({
+        //   esbuildOptionsFn: (args, esbuildOptions) => {
+        //     // Add to esbuildOptions here. Use `args.watch` as a condition for different options for
+        //     // compile vs watch.
+        //
+        //     return esbuildOptions;
+        //   }
+        // });
+      EXPECTED
+      expect(fs.read("config/assets.mjs")).to eq(assets)
+      expect(output).to include("Created config/assets.mjs")
 
       # config/settings.rb
       settings = <<~EXPECTED
@@ -428,6 +468,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install")
         .and_return(successful_system_call_result)
 
+      expect(system_call).not_to receive(:call).with("npm", ["install"])
+
       subject.call(app: app, **kwargs)
 
       expect(fs.directory?(app)).to be(true)
@@ -441,8 +483,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # Gemfile
         expect(fs.read("Gemfile")).to_not match(/hanami-assets/)
 
+        # package.json
+        expect(fs.exist?("package.json")).to be(false)
+
         # Procfile.dev
         expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
+
+        # config/assets.mjs
+        expect(fs.exist?("config/assets.mjs")).to be(false)
 
         # app/templates/layouts/app.html.erb
         app_layout = fs.read("app/templates/layouts/app.html.erb")
