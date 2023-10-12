@@ -135,7 +135,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           "scripts": {
             "assets": "node config/assets.mjs"
           },
-          "devDependencies": {
+          "dependencies": {
             "hanami-assets": "#{hanami_npm_version}"
           }
         }
