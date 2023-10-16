@@ -143,13 +143,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("package.json")).to eq(package_json)
       expect(output).to include("Created package.json")
 
-      # Procfile
+      # Procfile.dev
       procfile = <<~EXPECTED
         web: bundle exec hanami server
         assets: bundle exec hanami assets watch
       EXPECTED
       expect(fs.read("Procfile.dev")).to eq(procfile)
-      expect(output).to include("Created Procfile")
+      expect(output).to include("Created Procfile.dev")
 
       # Rakefile
       rakefile = <<~EXPECTED
