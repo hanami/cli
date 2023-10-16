@@ -36,7 +36,7 @@ module Hanami
           # @since 2.1.0
           # @api private
           def executable
-            ["bin/dev"]
+            [::File.join("bin", "dev")]
           end
         end
       end
