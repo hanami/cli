@@ -226,7 +226,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         module Bookshelf
           class Routes < Hanami::Routes
-            root { "Hello from Hanami" }
+            # Add your routes here. See https://guides.hanamirb.org/routing/overview/ for details.
           end
         end
       EXPECTED
