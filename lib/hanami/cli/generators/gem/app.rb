@@ -43,6 +43,9 @@ module Hanami
             fs.write("Procfile.dev", t("procfile.erb", context))
             fs.write("config.ru", t("config_ru.erb", context))
 
+            fs.write("bin/dev", file("dev"))
+            fs.chmod("bin/dev", 0o755)
+
             fs.write("config/app.rb", t("app.erb", context))
             fs.write("config/settings.rb", t("settings.erb", context))
             fs.write("config/routes.rb", t("routes.erb", context))

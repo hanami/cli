@@ -171,6 +171,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("config.ru")).to eq(config_ru)
       expect(output).to include("Created config.ru")
 
+      # bin/dev
+      bin_dev = <<~EXPECTED
+        #!/usr/bin/env sh
+
+        if ! gem list foreman -i --silent; then
+          echo "Installing foreman..."
+          gem install foreman
+        fi
+
+        exec foreman start -f Procfile.dev "$@"
+      EXPECTED
+      expect(fs.read("bin/dev")).to eq(bin_dev)
+      expect(fs.executable?("bin/dev")).to be(true)
+      expect(output).to include("Created bin/dev")
+
       # config/app.rb
       hanami_app = <<~EXPECTED
         # frozen_string_literal: true
