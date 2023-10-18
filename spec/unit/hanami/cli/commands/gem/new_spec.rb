@@ -143,13 +143,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("package.json")).to eq(package_json)
       expect(output).to include("Created package.json")
 
-      # Procfile
+      # Procfile.dev
       procfile = <<~EXPECTED
         web: bundle exec hanami server
         assets: bundle exec hanami assets watch
       EXPECTED
       expect(fs.read("Procfile.dev")).to eq(procfile)
-      expect(output).to include("Created Procfile")
+      expect(output).to include("Created Procfile.dev")
 
       # Rakefile
       rakefile = <<~EXPECTED
@@ -170,6 +170,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("config.ru")).to eq(config_ru)
       expect(output).to include("Created config.ru")
+
+      # bin/dev
+      bin_dev = <<~EXPECTED
+        #!/usr/bin/env sh
+
+        if ! gem list foreman -i --silent; then
+          echo "Installing foreman..."
+          gem install foreman
+        fi
+
+        exec foreman start -f Procfile.dev "$@"
+      EXPECTED
+      expect(fs.read("bin/dev")).to eq(bin_dev)
+      expect(fs.executable?("bin/dev")).to be(true)
+      expect(output).to include("Created bin/dev")
 
       # config/app.rb
       hanami_app = <<~EXPECTED
