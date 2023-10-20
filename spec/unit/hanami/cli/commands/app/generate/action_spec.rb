@@ -435,83 +435,149 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           end
         end
 
-        it "generates view when New view is NOT present" do
-          context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
-          allow(context).to receive(:bundled_views?) { true }
+        context "when New view is NOT present" do
+          it "generates view" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
 
-          within_application_directory do
-            # Prepare
-            routes = <<~CODE
-              # frozen_string_literal: true
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
 
-              require "hanami/routes"
+                require "hanami/routes"
 
-              module #{app}
-                class Routes < Hanami::Routes
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
                 end
-              end
-            CODE
+              CODE
 
-            fs.write("config/routes.rb", routes)
+              fs.write("config/routes.rb", routes)
 
-            # Invoke the generator
-            subject.call(name: action_name, context: context)
+              # Invoke the generator
+              subject.call(name: action_name, context: context)
 
-            # Verify
-            expected_routes = <<~CODE
-              # frozen_string_literal: true
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
 
-              require "hanami/routes"
+                require "hanami/routes"
 
-              module #{app}
-                class Routes < Hanami::Routes
-                  post "/users", to: "users.create"
+                module #{app}
+                  class Routes < Hanami::Routes
+                    post "/users", to: "users.create"
+                  end
                 end
-              end
-            CODE
+              CODE
 
-            # route
-            expect(fs.read("config/routes.rb")).to eq(expected_routes)
-            expect(output).to include("Updated config/routes.rb")
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
 
-            expected_action = <<~CODE
-              # frozen_string_literal: true
+              expected_action = <<~CODE
+                # frozen_string_literal: true
 
-              module #{app}
-                module Actions
-                  module Users
-                    class Create < #{app}::Action
-                      def handle(request, response)
+                module #{app}
+                  module Actions
+                    module Users
+                      class Create < #{app}::Action
+                        def handle(request, response)
+                        end
                       end
                     end
                   end
                 end
-              end
-            CODE
-            expect(fs.read("app/actions/users/create.rb")).to eq(expected_action)
-            expect(output).to include("Created app/actions/users/create.rb")
+              CODE
+              expect(fs.read("app/actions/users/create.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/create.rb")
 
-            expected_view = <<~CODE
-              # frozen_string_literal: true
+              expected_view = <<~CODE
+                # frozen_string_literal: true
 
-              module #{app}
-                module Views
-                  module Users
-                    class Create < #{app}::View
+                module #{app}
+                  module Views
+                    module Users
+                      class Create < #{app}::View
+                      end
                     end
                   end
                 end
-              end
-            CODE
-            expect(fs.read("app/views/users/create.rb")).to eq(expected_view)
-            expect(output).to include("Created app/views/users/create.rb")
+              CODE
+              expect(fs.read("app/views/users/create.rb")).to eq(expected_view)
+              expect(output).to include("Created app/views/users/create.rb")
 
-            expected_template = <<~EXPECTED
-              <h1>#{inflector.camelize(app)}::Views::Users::Create</h1>
-            EXPECTED
+              expected_template = <<~EXPECTED
+                <h1>#{inflector.camelize(app)}::Views::Users::Create</h1>
+              EXPECTED
 
-            expect(fs.read("app/templates/users/create.html.erb")).to eq(expected_template)
-            expect(output).to include("Created app/templates/users/create.html.erb")
+              expect(fs.read("app/templates/users/create.html.erb")).to eq(expected_template)
+              expect(output).to include("Created app/templates/users/create.html.erb")
+            end
+          end
+
+          it "skips view generation if --skip-view is used" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
+
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
+                end
+              CODE
+
+              fs.write("config/routes.rb", routes)
+
+              # Invoke the generator
+              subject.call(name: action_name, skip_view: true, context: context)
+
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    post "/users", to: "users.create"
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+
+              expected_action = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Actions
+                    module Users
+                      class Create < #{app}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/actions/users/create.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/create.rb")
+
+              expect(fs.exist?("app/views/users/create.rb")).to be(false)
+              expect(fs.exist?("app/templates/users/create.html.erb")).to be(false)
+
+              expect(output).to_not include("Created app/views/users/create.rb")
+              expect(output).to_not include("Created app/templates/users/create.html.erb")
+            end
           end
         end
       end
@@ -617,83 +683,149 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
           end
         end
 
-        it "generates view when Edit view is NOT present" do
-          context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
-          allow(context).to receive(:bundled_views?) { true }
+        context "when Edit view is NOT present" do
+          it "generates view" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
 
-          within_application_directory do
-            # Prepare
-            routes = <<~CODE
-              # frozen_string_literal: true
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
 
-              require "hanami/routes"
+                require "hanami/routes"
 
-              module #{app}
-                class Routes < Hanami::Routes
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
                 end
-              end
-            CODE
+              CODE
 
-            fs.write("config/routes.rb", routes)
+              fs.write("config/routes.rb", routes)
 
-            # Invoke the generator
-            subject.call(name: action_name, context: context)
+              # Invoke the generator
+              subject.call(name: action_name, context: context)
 
-            # Verify
-            expected_routes = <<~CODE
-              # frozen_string_literal: true
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
 
-              require "hanami/routes"
+                require "hanami/routes"
 
-              module #{app}
-                class Routes < Hanami::Routes
-                  patch "/users/:id", to: "users.update"
+                module #{app}
+                  class Routes < Hanami::Routes
+                    patch "/users/:id", to: "users.update"
+                  end
                 end
-              end
-            CODE
+              CODE
 
-            # route
-            expect(fs.read("config/routes.rb")).to eq(expected_routes)
-            expect(output).to include("Updated config/routes.rb")
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
 
-            expected_action = <<~CODE
-              # frozen_string_literal: true
+              expected_action = <<~CODE
+                # frozen_string_literal: true
 
-              module #{app}
-                module Actions
-                  module Users
-                    class Update < #{app}::Action
-                      def handle(request, response)
+                module #{app}
+                  module Actions
+                    module Users
+                      class Update < #{app}::Action
+                        def handle(request, response)
+                        end
                       end
                     end
                   end
                 end
-              end
-            CODE
-            expect(fs.read("app/actions/users/update.rb")).to eq(expected_action)
-            expect(output).to include("Created app/actions/users/update.rb")
+              CODE
+              expect(fs.read("app/actions/users/update.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/update.rb")
 
-            expected_view = <<~CODE
-              # frozen_string_literal: true
+              expected_view = <<~CODE
+                # frozen_string_literal: true
 
-              module #{app}
-                module Views
-                  module Users
-                    class Update < #{app}::View
+                module #{app}
+                  module Views
+                    module Users
+                      class Update < #{app}::View
+                      end
                     end
                   end
                 end
-              end
-            CODE
-            expect(fs.read("app/views/users/update.rb")).to eq(expected_view)
-            expect(output).to include("Created app/views/users/update.rb")
+              CODE
+              expect(fs.read("app/views/users/update.rb")).to eq(expected_view)
+              expect(output).to include("Created app/views/users/update.rb")
 
-            expected_template = <<~EXPECTED
-              <h1>#{inflector.camelize(app)}::Views::Users::Update</h1>
-            EXPECTED
+              expected_template = <<~EXPECTED
+                <h1>#{inflector.camelize(app)}::Views::Users::Update</h1>
+              EXPECTED
 
-            expect(fs.read("app/templates/users/update.html.erb")).to eq(expected_template)
-            expect(output).to include("Created app/templates/users/update.html.erb")
+              expect(fs.read("app/templates/users/update.html.erb")).to eq(expected_template)
+              expect(output).to include("Created app/templates/users/update.html.erb")
+            end
+          end
+
+          it "skips view if --skip-view is used" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
+
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
+                end
+              CODE
+
+              fs.write("config/routes.rb", routes)
+
+              # Invoke the generator
+              subject.call(name: action_name, skip_view: true, context: context)
+
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    patch "/users/:id", to: "users.update"
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+
+              expected_action = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Actions
+                    module Users
+                      class Update < #{app}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/actions/users/update.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/update.rb")
+
+              expect(fs.exist?("app/views/users/update.rb")).to be(false)
+              expect(fs.exist?("app/templates/users/update.html.erb")).to be(false)
+
+              expect(output).to_not include("Created app/views/users/update.rb")
+              expect(output).to_not include("Created app/templates/users/update.html.erb")
+            end
           end
         end
       end
