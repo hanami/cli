@@ -56,6 +56,14 @@ module Hanami
           }.freeze
           private_constant :ROUTE_RESTFUL_URL_SUFFIXES
 
+          # @api private
+          # @since 2.1.0
+          RESTFUL_ACTIONS = {
+            "create" => "new",
+            "update" => "edit"
+          }.freeze
+          private_constant :RESTFUL_ACTIONS
+
           PATH_SEPARATOR = "/"
           private_constant :PATH_SEPARATOR
 
@@ -130,19 +138,16 @@ module Hanami
             !fs.exist?(fs.join(directory, "#{corresponding_action}.rb"))
           end
 
-          # TODO: refactor
+          # @api private
+          # @since 2.1.0
           def rest_view?(action)
-            %w[create update].include?(action)
+            RESTFUL_ACTIONS.keys.include?(action)
           end
 
-          # TODO: refactor
+          # @api private
+          # @since 2.1.0
           def corresponding_restful_action(action)
-            case action
-            when "create"
-              "new"
-            when "update"
-              "edit"
-            end
+            RESTFUL_ACTIONS.fetch(action, nil)
           end
 
           def template_with_format_ext(name, format)
