@@ -97,7 +97,7 @@ module Hanami
             fs.mkdir(directory = fs.join("app", "actions", controller))
             fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
 
-            unless skip_view
+            if generate_view?(skip_view, action, directory)
               fs.mkdir(directory = fs.join("app", "views", controller))
               fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
 
@@ -115,6 +115,34 @@ module Hanami
           def route(controller, action, url, http)
             %(#{route_http(action,
                            http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
+          end
+
+          def generate_view?(skip_view, action, directory)
+            return false if skip_view
+            return generate_restful_view?(action, directory) if rest_view?(action)
+
+            true
+          end
+
+          def generate_restful_view?(action, directory)
+            corresponding_action = corresponding_restful_action(action)
+
+            !fs.exist?(fs.join(directory, "#{corresponding_action}.rb"))
+          end
+
+          # TODO: refactor
+          def rest_view?(action)
+            %w[create update].include?(action)
+          end
+
+          # TODO: refactor
+          def corresponding_restful_action(action)
+            case action
+            when "create"
+              "new"
+            when "update"
+              "edit"
+            end
           end
 
           def template_with_format_ext(name, format)
