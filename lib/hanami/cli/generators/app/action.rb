@@ -85,7 +85,7 @@ module Hanami
             fs.mkdir(directory = fs.join(slice_directory, "actions", controller))
             fs.write(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
 
-            unless skip_view
+            if generate_view?(skip_view, action, directory)
               fs.mkdir(directory = fs.join(slice_directory, "views", controller))
               fs.write(fs.join(directory, "#{action}.rb"), t("slice_view.erb", context))
 
@@ -125,6 +125,8 @@ module Hanami
                            http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
           end
 
+          # @api private
+          # @since 2.1.0
           def generate_view?(skip_view, action, directory)
             return false if skip_view
             return generate_restful_view?(action, directory) if rest_view?(action)
@@ -132,6 +134,8 @@ module Hanami
             true
           end
 
+          # @api private
+          # @since 2.1.0
           def generate_restful_view?(action, directory)
             corresponding_action = corresponding_restful_action(action)
 

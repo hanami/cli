@@ -1089,6 +1089,113 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             expect(output).to include("Created slices/#{slice}/templates/#{controller}/#{action}.html.erb")
           end
         end
+
+        context "RESTful actions" do
+          context "CREATE" do
+            let(:action) { "create" }
+
+            it "skips view generation when New view is present" do
+              prepare_slice!
+              context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, slice, [controller], action)
+              allow(context).to receive(:bundled_views?) { true }
+
+              # Route
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    root { "Hello from Hanami" }
+
+                    slice :#{slice}, at: "/#{slice}" do
+                      get "/users/new", to: "users.new"
+                    end
+                  end
+                end
+              CODE
+              fs.write("config/routes.rb", routes)
+
+              action_file = <<~EXPECTED
+                # frozen_string_literal: true
+
+                module #{inflector.camelize(slice)}
+                  module Actions
+                    module Users
+                      class New < #{inflector.camelize(slice)}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              EXPECTED
+              fs.write("slices/#{slice}/actions/users/new.rb", action_file)
+
+              view_file = <<~EXPECTED
+                # frozen_string_literal: true
+
+                module #{inflector.camelize(slice)}
+                  module Views
+                    module Users
+                      class New < #{inflector.camelize(slice)}::Action
+                      end
+                    end
+                  end
+                end
+              EXPECTED
+              fs.write("slices/#{slice}/views/users/new.rb", view_file)
+
+              subject.call(name: action_name, slice: slice, context: context)
+
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    root { "Hello from Hanami" }
+
+                    slice :#{slice}, at: "/#{slice}" do
+                      get "/users/new", to: "users.new"
+                      post "/users", to: "users.create"
+                    end
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+              expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
+
+              # action
+              expected_action = <<~EXPECTED
+                # frozen_string_literal: true
+
+                module #{inflector.camelize(slice)}
+                  module Actions
+                    module Users
+                      class Create < #{inflector.camelize(slice)}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              EXPECTED
+              expect(fs.read("slices/#{slice}/actions/#{controller}/#{action}.rb")).to eq(expected_action)
+              expect(output).to include("Created slices/#{slice}/actions/#{controller}/#{action}.rb")
+
+              # view
+              expect(output).to_not include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
+              # template
+              expect(output).to_not include("Created slices/#{slice}/templates/#{controller}/#{action}.html.erb")
+            end
+          end
+        end
       end
 
       context "deeply nested action" do
