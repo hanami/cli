@@ -208,6 +208,14 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
         end
       end
     end
+
+    context "with missing slice" do
+      it "raises error" do
+        within_application_directory do
+          expect { subject.call(name: "user", slice: "foo") }.to raise_error(Hanami::CLI::MissingSliceError)
+        end
+      end
+    end
   end
 
   private
