@@ -13,15 +13,19 @@ module Hanami
         # @api private
         class PartContext < SliceContext
           # TODO: move these constants somewhere that will let us reuse them
+
+          # @since 2.1.0
+          # @api private
           KEY_SEPARATOR = "."
           private_constant :KEY_SEPARATOR
 
-          NAMESPACE_SEPARATOR = "::"
-          private_constant :NAMESPACE_SEPARATOR
-
+          # @since 2.1.0
+          # @api private
           INDENTATION = "  "
           private_constant :INDENTATION
 
+          # @since 2.1.0
+          # @api private
           OFFSET = INDENTATION * 2
           private_constant :OFFSET
 
@@ -46,12 +50,6 @@ module Hanami
           # @api private
           def name
             @name ||= key.split(KEY_SEPARATOR)[-1]
-          end
-
-          # @since 2.1.0
-          # @api private
-          def camelized_namespace
-            namespaces.map { inflector.camelize(_1) }.join(NAMESPACE_SEPARATOR)
           end
 
           # @since 2.1.0

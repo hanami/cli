@@ -40,13 +40,13 @@ module Hanami
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
-            fs.mkdir(directory = fs.join(slice_directory, "views", "parts", *context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.rb"), t("slice_part.erb", context))
+            fs.mkdir(directory = fs.join(slice_directory, "views", "parts", *context.underscored_namespace))
+            fs.write(fs.join(directory, "#{context.underscored_name}.rb"), t("slice_part.erb", context))
           end
 
           def generate_for_app(context)
-            fs.mkdir(directory = fs.join("app", "views", "parts", *context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.rb"), t("app_part.erb", context))
+            fs.mkdir(directory = fs.join("app", "views", "parts", *context.underscored_namespace))
+            fs.write(fs.join(directory, "#{context.underscored_name}.rb"), t("app_part.erb", context))
           end
 
           def template(path, context)
