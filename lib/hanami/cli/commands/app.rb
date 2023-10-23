@@ -31,6 +31,7 @@ module Hanami
               prefix.register "slice", Generate::Slice
               prefix.register "action", Generate::Action
               prefix.register "view", Generate::View
+              prefix.register "part", Generate::Part
             end
           end
         end
