@@ -5,7 +5,7 @@ module <%= camelized_app_name %>
   module Views
     module Parts
 <%= module_namespace_declaration -%>
-  <%= module_namespace_offset %>class <%= camelized_name %> < <%= camelized_app_name %>::Part
+  <%= module_namespace_offset %>class <%= camelized_name %> < <%= camelized_app_name %>::Views::Part
   <%= module_namespace_offset %>end
 <%= module_namespace_end -%>
     end

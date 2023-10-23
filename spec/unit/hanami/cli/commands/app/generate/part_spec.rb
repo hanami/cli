@@ -18,54 +18,194 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
   end
 
   context "generating for app" do
-    it "generates a part in a top-level namespace" do
-      within_application_directory do
-        subject.call(name: "user")
+    context "without base part" do
+      it "generates base part and the part" do
+        within_application_directory do
+          subject.call(name: "user")
 
-        # part
-        part = <<~EXPECTED
-          # auto_register: false
-          # frozen_string_literal: true
+          # base_part
+          base_part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
 
-          module Test
-            module Views
-              module Parts
-                class User < Test::Part
+            module Test
+              module Views
+                class Part < Hanami::View::Part
                 end
               end
             end
-          end
-        EXPECTED
+          EXPECTED
 
-        expect(fs.read("app/views/parts/user.rb")).to eq(part)
-        expect(output).to include("Created app/views/parts/user.rb")
+          expect(fs.read("app/views/part.rb")).to eq(base_part)
+          expect(output).to include("Created app/views/part.rb")
+
+          # part
+          part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
+
+            module Test
+              module Views
+                module Parts
+                  class User < Test::Views::Part
+                  end
+                end
+              end
+            end
+          EXPECTED
+
+          expect(fs.read("app/views/parts/user.rb")).to eq(part)
+          expect(output).to include("Created app/views/parts/user.rb")
+        end
+      end
+    end
+
+    context "with base part" do
+      it "generates the part" do
+        within_application_directory do
+          # base_part
+          base_part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
+
+            module Test
+              module Views
+                class Part < Hanami::View::Part
+                end
+              end
+            end
+          EXPECTED
+          fs.write("app/views/part.rb", base_part)
+
+          subject.call(name: "user")
+
+          # part
+          part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
+
+            module Test
+              module Views
+                module Parts
+                  class User < Test::Views::Part
+                  end
+                end
+              end
+            end
+          EXPECTED
+
+          expect(fs.read("app/views/parts/user.rb")).to eq(part)
+          expect(output).to include("Created app/views/parts/user.rb")
+
+          # This is still printed because the fs.write above still prints
+          # expect(output).to_not include("Created app/views/part.rb")
+        end
       end
     end
   end
 
   context "generating for a slice" do
-    it "generates a view in a top-level namespace" do
-      within_application_directory do
-        fs.mkdir("slices/main")
-        subject.call(name: "user", slice: "main")
+    context "without base part" do
+      it "generates base part and the part" do
+        within_application_directory do
+          fs.mkdir("slices/main")
+          subject.call(name: "user", slice: "main")
 
-        # view
-        view_file = <<~EXPECTED
-          # auto_register: false
-          # frozen_string_literal: true
+          # app_base_part
+          app_base_part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
 
-          module Main
-            module Views
-              module Parts
-                class User < Main::Part
+            module Test
+              module Views
+                class Part < Hanami::View::Part
                 end
               end
             end
-          end
-        EXPECTED
+          EXPECTED
 
-        expect(fs.read("slices/main/views/parts/user.rb")).to eq(view_file)
-        expect(output).to include("Created slices/main/views/parts/user.rb")
+          expect(fs.read("app/views/part.rb")).to eq(app_base_part)
+          expect(output).to include("Created app/views/part.rb")
+
+          # base_part
+          base_part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
+
+            module Main
+              module Views
+                class Part < Test::Views::Part
+                end
+              end
+            end
+          EXPECTED
+
+          expect(fs.read("slices/main/views/part.rb")).to eq(base_part)
+          expect(output).to include("Created slices/main/views/part.rb")
+
+          # part
+          part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
+
+            module Main
+              module Views
+                module Parts
+                  class User < Main::Views::Part
+                  end
+                end
+              end
+            end
+          EXPECTED
+
+          expect(fs.read("slices/main/views/parts/user.rb")).to eq(part)
+          expect(output).to include("Created slices/main/views/parts/user.rb")
+        end
+      end
+    end
+
+    context "with base part" do
+      it "generates the part" do
+        within_application_directory do
+          fs.mkdir("slices/main")
+
+          # base_part
+          base_part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
+
+            module Main
+              module Views
+                class Part < Test::Views::Part
+                end
+              end
+            end
+          EXPECTED
+          fs.write("slices/main/views/part.rb", base_part)
+
+          subject.call(name: "user", slice: "main")
+
+          # part
+          part = <<~EXPECTED
+            # auto_register: false
+            # frozen_string_literal: true
+
+            module Main
+              module Views
+                module Parts
+                  class User < Main::Views::Part
+                  end
+                end
+              end
+            end
+          EXPECTED
+
+          expect(fs.read("slices/main/views/parts/user.rb")).to eq(part)
+          expect(output).to include("Created slices/main/views/parts/user.rb")
+
+          # This is still printed because the fs.write above still prints
+          # expect(output).to_not include("Created slices/main/views/part.rb")
+        end
       end
     end
   end
