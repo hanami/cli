@@ -56,6 +56,14 @@ module Hanami
           }.freeze
           private_constant :ROUTE_RESTFUL_URL_SUFFIXES
 
+          # @api private
+          # @since 2.1.0
+          RESTFUL_COUNTERPART_VIEWS = {
+            "create" => "new",
+            "update" => "edit"
+          }.freeze
+          private_constant :RESTFUL_COUNTERPART_VIEWS
+
           PATH_SEPARATOR = "/"
           private_constant :PATH_SEPARATOR
 
@@ -77,7 +85,7 @@ module Hanami
             fs.mkdir(directory = fs.join(slice_directory, "actions", controller))
             fs.write(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
 
-            unless skip_view
+            if generate_view?(skip_view, action, directory)
               fs.mkdir(directory = fs.join(slice_directory, "views", controller))
               fs.write(fs.join(directory, "#{action}.rb"), t("slice_view.erb", context))
 
@@ -97,12 +105,15 @@ module Hanami
             fs.mkdir(directory = fs.join("app", "actions", controller))
             fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
 
-            unless skip_view
-              fs.mkdir(directory = fs.join("app", "views", controller))
-              fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
+            view = action
+            view_directory = fs.join("app", "views", controller)
 
-              fs.mkdir(directory = fs.join("app", "templates", controller))
-              fs.write(fs.join(directory, "#{action}.#{format}.erb"),
+            if generate_view?(skip_view, view, view_directory)
+              fs.mkdir(view_directory)
+              fs.write(fs.join(view_directory, "#{view}.rb"), t("view.erb", context))
+
+              fs.mkdir(template_directory = fs.join("app", "templates", controller))
+              fs.write(fs.join(template_directory, "#{view}.#{format}.erb"),
                        t(template_with_format_ext("template", format), context))
             end
           end
@@ -115,6 +126,35 @@ module Hanami
           def route(controller, action, url, http)
             %(#{route_http(action,
                            http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
+          end
+
+          # @api private
+          # @since 2.1.0
+          def generate_view?(skip_view, view, directory)
+            return false if skip_view
+            return generate_restful_view?(view, directory) if rest_view?(view)
+
+            true
+          end
+
+          # @api private
+          # @since 2.1.0
+          def generate_restful_view?(view, directory)
+            corresponding_action = corresponding_restful_view(view)
+
+            !fs.exist?(fs.join(directory, "#{corresponding_action}.rb"))
+          end
+
+          # @api private
+          # @since 2.1.0
+          def rest_view?(view)
+            RESTFUL_COUNTERPART_VIEWS.keys.include?(view)
+          end
+
+          # @api private
+          # @since 2.1.0
+          def corresponding_restful_view(view)
+            RESTFUL_COUNTERPART_VIEWS.fetch(view, nil)
           end
 
           def template_with_format_ext(name, format)
