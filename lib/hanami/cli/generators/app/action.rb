@@ -58,11 +58,11 @@ module Hanami
 
           # @api private
           # @since 2.1.0
-          RESTFUL_ACTIONS = {
+          RESTFUL_COUNTERPART_VIEWS = {
             "create" => "new",
             "update" => "edit"
           }.freeze
-          private_constant :RESTFUL_ACTIONS
+          private_constant :RESTFUL_COUNTERPART_VIEWS
 
           PATH_SEPARATOR = "/"
           private_constant :PATH_SEPARATOR
@@ -145,13 +145,13 @@ module Hanami
           # @api private
           # @since 2.1.0
           def rest_view?(action)
-            RESTFUL_ACTIONS.keys.include?(action)
+            RESTFUL_COUNTERPART_VIEWS.keys.include?(action)
           end
 
           # @api private
           # @since 2.1.0
           def corresponding_restful_action(action)
-            RESTFUL_ACTIONS.fetch(action, nil)
+            RESTFUL_COUNTERPART_VIEWS.fetch(action, nil)
           end
 
           def template_with_format_ext(name, format)
