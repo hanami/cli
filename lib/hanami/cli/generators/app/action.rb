@@ -105,12 +105,15 @@ module Hanami
             fs.mkdir(directory = fs.join("app", "actions", controller))
             fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
 
-            if generate_view?(skip_view, action, directory)
-              fs.mkdir(directory = fs.join("app", "views", controller))
-              fs.write(fs.join(directory, "#{action}.rb"), t("view.erb", context))
+            view = action
+            view_directory = fs.join("app", "views", controller)
 
-              fs.mkdir(directory = fs.join("app", "templates", controller))
-              fs.write(fs.join(directory, "#{action}.#{format}.erb"),
+            if generate_view?(skip_view, view, view_directory)
+              fs.mkdir(view_directory)
+              fs.write(fs.join(view_directory, "#{view}.rb"), t("view.erb", context))
+
+              fs.mkdir(template_directory = fs.join("app", "templates", controller))
+              fs.write(fs.join(template_directory, "#{view}.#{format}.erb"),
                        t(template_with_format_ext("template", format), context))
             end
           end
@@ -127,31 +130,31 @@ module Hanami
 
           # @api private
           # @since 2.1.0
-          def generate_view?(skip_view, action, directory)
+          def generate_view?(skip_view, view, directory)
             return false if skip_view
-            return generate_restful_view?(action, directory) if rest_view?(action)
+            return generate_restful_view?(view, directory) if rest_view?(view)
 
             true
           end
 
           # @api private
           # @since 2.1.0
-          def generate_restful_view?(action, directory)
-            corresponding_action = corresponding_restful_action(action)
+          def generate_restful_view?(view, directory)
+            corresponding_action = corresponding_restful_view(view)
 
             !fs.exist?(fs.join(directory, "#{corresponding_action}.rb"))
           end
 
           # @api private
           # @since 2.1.0
-          def rest_view?(action)
-            RESTFUL_COUNTERPART_VIEWS.keys.include?(action)
+          def rest_view?(view)
+            RESTFUL_COUNTERPART_VIEWS.keys.include?(view)
           end
 
           # @api private
           # @since 2.1.0
-          def corresponding_restful_action(action)
-            RESTFUL_COUNTERPART_VIEWS.fetch(action, nil)
+          def corresponding_restful_view(view)
+            RESTFUL_COUNTERPART_VIEWS.fetch(view, nil)
           end
 
           def template_with_format_ext(name, format)
