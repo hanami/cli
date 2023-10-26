@@ -92,6 +92,14 @@ module Hanami
           Hanami.bundled?("hanami-assets")
         end
 
+        # @since 2.1.0
+        # @api private
+        #
+        # @see https://rubyreferences.github.io/rubychanges/3.1.html#values-in-hash-literals-and-keyword-arguments-can-be-omitted
+        def ruby_implicity_keyword_argument?
+          RUBY_VERSION >= "3.1"
+        end
+
         private
 
         # @since 2.0.0
