@@ -96,7 +96,7 @@ module Hanami
         # @api private
         #
         # @see https://rubyreferences.github.io/rubychanges/3.1.html#values-in-hash-literals-and-keyword-arguments-can-be-omitted
-        def ruby_implicity_keyword_argument?
+        def ruby_omit_hash_values?
           RUBY_VERSION >= "3.1"
         end
 

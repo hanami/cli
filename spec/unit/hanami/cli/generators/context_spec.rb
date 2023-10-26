@@ -8,14 +8,14 @@ RSpec.describe Hanami::CLI::Generators::Context do
   let(:inflector) { Dry::Inflector.new }
   let(:app) { double("app") }
 
-  describe "#ruby_implicity_keyword_argument?" do
+  describe "#ruby_omit_hash_values?" do
     if RUBY_VERSION >= "3.1"
       it "returns true" do
-        expect(subject.ruby_implicity_keyword_argument?).to be(true)
+        expect(subject.ruby_omit_hash_values?).to be(true)
       end
     else
       it "returns false" do
-        expect(subject.ruby_implicity_keyword_argument?).to be(false)
+        expect(subject.ruby_omit_hash_values?).to be(false)
       end
     end
   end
