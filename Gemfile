@@ -15,6 +15,8 @@ gem "hanami-controller", github: "hanami/controller", branch: "main"
 gem "hanami-router", github: "hanami/router", branch: "main"
 gem "hanami-utils", github: "hanami/utils", branch: "main"
 
+gem "dry-files", github: "dry-rb/dry-files", branch: "main"
+
 gem "rack"
 
 group :test do

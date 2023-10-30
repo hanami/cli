@@ -43,6 +43,9 @@ module Hanami
             fs.write("Procfile.dev", t("procfile.erb", context))
             fs.write("config.ru", t("config_ru.erb", context))
 
+            fs.write("bin/dev", file("dev"))
+            fs.chmod("bin/dev", 0o755)
+
             fs.write("config/app.rb", t("app.erb", context))
             fs.write("config/settings.rb", t("settings.erb", context))
             fs.write("config/routes.rb", t("routes.erb", context))
@@ -58,13 +61,15 @@ module Hanami
             fs.write("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
 
             if context.generate_assets?
+              fs.write("package.json", t("package.json.erb", context))
+              fs.write("config/assets.mjs", file("assets.mjs"))
               fs.write("app/assets/js/app.js", t("app_js.erb", context))
               fs.write("app/assets/css/app.css", t("app_css.erb", context))
-              fs.write("app/assets/images/favicon.ico", File.read(File.join(__dir__, "app", "favicon.ico")))
+              fs.write("app/assets/images/favicon.ico", file("favicon.ico"))
             end
 
-            fs.write("public/404.html", File.read(File.join(__dir__, "app", "404.html")))
-            fs.write("public/500.html", File.read(File.join(__dir__, "app", "500.html")))
+            fs.write("public/404.html", file("404.html"))
+            fs.write("public/500.html", file("500.html"))
           end
 
           def template(path, context)
@@ -77,6 +82,10 @@ module Hanami
           end
 
           alias_method :t, :template
+
+          def file(path)
+            File.read(File.join(__dir__, "app", path))
+          end
         end
       end
     end

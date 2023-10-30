@@ -332,6 +332,504 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(output).to include("Created app/actions/api/users/thing.rb")
       end
     end
+
+    context "RESTful actions" do
+      context "CREATE" do
+        let(:action) { "create" }
+
+        it "skips view generation when New view is present" do
+          context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+          allow(context).to receive(:bundled_views?) { true }
+
+          within_application_directory do
+            # Prepare
+            routes = <<~CODE
+              # frozen_string_literal: true
+
+              require "hanami/routes"
+
+              module #{app}
+                class Routes < Hanami::Routes
+                  get "/users/new", to: "users.new"
+                end
+              end
+            CODE
+
+            fs.write("config/routes.rb", routes)
+
+            action = <<~CODE
+              # frozen_string_literal: true
+
+              module #{app}
+                module Actions
+                  module Users
+                    class New < #{app}::Action
+                      def handle(request, response)
+                      end
+                    end
+                  end
+                end
+              end
+            CODE
+
+            fs.write("app/actions/users/new.rb", action)
+
+            view = <<~CODE
+              # frozen_string_literal: true
+
+              module #{app}
+                module Views
+                  module Users
+                    class New < #{app}::View
+                    end
+                  end
+                end
+              end
+            CODE
+
+            fs.write("app/views/users/new.rb", view)
+
+            # Invoke the generator
+            subject.call(name: action_name, context: context)
+
+            # Verify
+            expected_routes = <<~CODE
+              # frozen_string_literal: true
+
+              require "hanami/routes"
+
+              module #{app}
+                class Routes < Hanami::Routes
+                  get "/users/new", to: "users.new"
+                  post "/users", to: "users.create"
+                end
+              end
+            CODE
+
+            # route
+            expect(fs.read("config/routes.rb")).to eq(expected_routes)
+            expect(output).to include("Updated config/routes.rb")
+
+            expected_action = <<~CODE
+              # frozen_string_literal: true
+
+              module #{app}
+                module Actions
+                  module Users
+                    class Create < #{app}::Action
+                      def handle(request, response)
+                      end
+                    end
+                  end
+                end
+              end
+            CODE
+            expect(fs.read("app/actions/users/create.rb")).to eq(expected_action)
+            expect(output).to include("Created app/actions/users/create.rb")
+
+            expect(fs.exist?("app/views/users/create.rb")).to be(false)
+            expect(fs.exist?("app/templates/users/create.html.erb")).to be(false)
+
+            expect(output).to_not include("Created app/views/users/create.rb")
+            expect(output).to_not include("Created app/templates/users/create.html.erb")
+          end
+        end
+
+        context "when New view is NOT present" do
+          it "generates view" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
+
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
+                end
+              CODE
+
+              fs.write("config/routes.rb", routes)
+
+              # Invoke the generator
+              subject.call(name: action_name, context: context)
+
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    post "/users", to: "users.create"
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+
+              expected_action = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Actions
+                    module Users
+                      class Create < #{app}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/actions/users/create.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/create.rb")
+
+              expected_view = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Views
+                    module Users
+                      class Create < #{app}::View
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/views/users/create.rb")).to eq(expected_view)
+              expect(output).to include("Created app/views/users/create.rb")
+
+              expected_template = <<~EXPECTED
+                <h1>#{inflector.camelize(app)}::Views::Users::Create</h1>
+              EXPECTED
+
+              expect(fs.read("app/templates/users/create.html.erb")).to eq(expected_template)
+              expect(output).to include("Created app/templates/users/create.html.erb")
+            end
+          end
+
+          it "skips view generation if --skip-view is used" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
+
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
+                end
+              CODE
+
+              fs.write("config/routes.rb", routes)
+
+              # Invoke the generator
+              subject.call(name: action_name, skip_view: true, context: context)
+
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    post "/users", to: "users.create"
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+
+              expected_action = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Actions
+                    module Users
+                      class Create < #{app}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/actions/users/create.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/create.rb")
+
+              expect(fs.exist?("app/views/users/create.rb")).to be(false)
+              expect(fs.exist?("app/templates/users/create.html.erb")).to be(false)
+
+              expect(output).to_not include("Created app/views/users/create.rb")
+              expect(output).to_not include("Created app/templates/users/create.html.erb")
+            end
+          end
+        end
+      end
+
+      context "UPDATE" do
+        let(:action) { "update" }
+
+        it "skips view generation when Edit view is present" do
+          context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+          allow(context).to receive(:bundled_views?) { true }
+
+          within_application_directory do
+            # Prepare
+            routes = <<~CODE
+              # frozen_string_literal: true
+
+              require "hanami/routes"
+
+              module #{app}
+                class Routes < Hanami::Routes
+                  get "/users/:id/edit", to: "users.edit"
+                end
+              end
+            CODE
+
+            fs.write("config/routes.rb", routes)
+
+            action = <<~CODE
+              # frozen_string_literal: true
+
+              module #{app}
+                module Actions
+                  module Users
+                    class Edit < #{app}::Action
+                      def handle(request, response)
+                      end
+                    end
+                  end
+                end
+              end
+            CODE
+
+            fs.write("app/actions/users/edit.rb", action)
+
+            view = <<~CODE
+              # frozen_string_literal: true
+
+              module #{app}
+                module Views
+                  module Users
+                    class Edit < #{app}::View
+                    end
+                  end
+                end
+              end
+            CODE
+
+            fs.write("app/views/users/edit.rb", view)
+
+            # Invoke the generator
+            subject.call(name: action_name, context: context)
+
+            # Verify
+            expected_routes = <<~CODE
+              # frozen_string_literal: true
+
+              require "hanami/routes"
+
+              module #{app}
+                class Routes < Hanami::Routes
+                  get "/users/:id/edit", to: "users.edit"
+                  patch "/users/:id", to: "users.update"
+                end
+              end
+            CODE
+
+            # route
+            expect(fs.read("config/routes.rb")).to eq(expected_routes)
+            expect(output).to include("Updated config/routes.rb")
+
+            expected_action = <<~CODE
+              # frozen_string_literal: true
+
+              module #{app}
+                module Actions
+                  module Users
+                    class Update < #{app}::Action
+                      def handle(request, response)
+                      end
+                    end
+                  end
+                end
+              end
+            CODE
+            expect(fs.read("app/actions/users/update.rb")).to eq(expected_action)
+            expect(output).to include("Created app/actions/users/update.rb")
+
+            expect(fs.exist?("app/views/users/update.rb")).to be(false)
+            expect(fs.exist?("app/templates/users/update.html.erb")).to be(false)
+
+            expect(output).to_not include("Created app/views/users/update.rb")
+            expect(output).to_not include("Created app/templates/users/update.html.erb")
+          end
+        end
+
+        context "when Edit view is NOT present" do
+          it "generates view" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
+
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
+                end
+              CODE
+
+              fs.write("config/routes.rb", routes)
+
+              # Invoke the generator
+              subject.call(name: action_name, context: context)
+
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    patch "/users/:id", to: "users.update"
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+
+              expected_action = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Actions
+                    module Users
+                      class Update < #{app}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/actions/users/update.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/update.rb")
+
+              expected_view = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Views
+                    module Users
+                      class Update < #{app}::View
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/views/users/update.rb")).to eq(expected_view)
+              expect(output).to include("Created app/views/users/update.rb")
+
+              expected_template = <<~EXPECTED
+                <h1>#{inflector.camelize(app)}::Views::Users::Update</h1>
+              EXPECTED
+
+              expect(fs.read("app/templates/users/update.html.erb")).to eq(expected_template)
+              expect(output).to include("Created app/templates/users/update.html.erb")
+            end
+          end
+
+          it "skips view if --skip-view is used" do
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
+
+            within_application_directory do
+              # Prepare
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                  end
+                end
+              CODE
+
+              fs.write("config/routes.rb", routes)
+
+              # Invoke the generator
+              subject.call(name: action_name, skip_view: true, context: context)
+
+              # Verify
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    patch "/users/:id", to: "users.update"
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+
+              expected_action = <<~CODE
+                # frozen_string_literal: true
+
+                module #{app}
+                  module Actions
+                    module Users
+                      class Update < #{app}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              CODE
+              expect(fs.read("app/actions/users/update.rb")).to eq(expected_action)
+              expect(output).to include("Created app/actions/users/update.rb")
+
+              expect(fs.exist?("app/views/users/update.rb")).to be(false)
+              expect(fs.exist?("app/templates/users/update.html.erb")).to be(false)
+
+              expect(output).to_not include("Created app/views/users/update.rb")
+              expect(output).to_not include("Created app/templates/users/update.html.erb")
+            end
+          end
+        end
+      end
+    end
   end
 
   context "generate for a slice" do
@@ -339,102 +837,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     before { prepare_slice! }
 
-    it "generates action" do
-      within_application_directory do
-        prepare_slice!
-
-        subject.call(name: action_name, slice: slice)
-
-        # Route
-        routes = <<~CODE
-          # frozen_string_literal: true
-
-          require "hanami/routes"
-
-          module #{app}
-            class Routes < Hanami::Routes
-              root { "Hello from Hanami" }
-
-              slice :#{slice}, at: "/#{slice}" do
-                get "/users", to: "users.index"
-              end
-            end
-          end
-        CODE
-
-        # route
-        expect(fs.read("config/routes.rb")).to eq(routes)
-        expect(output).to include("Updated config/routes.rb")
-        expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
-
-        # action
-        expect(fs.directory?("slices/#{slice}/actions/#{controller}")).to be(true)
-        expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
-
-        action_file = <<~EXPECTED
-          # frozen_string_literal: true
-
-          module #{inflector.camelize(slice)}
-            module Actions
-              module #{inflector.camelize(controller)}
-                class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
-                  def handle(request, response)
-                    response.body = self.class.name
-                  end
-                end
-              end
-            end
-          end
-        EXPECTED
-        expect(fs.read("slices/#{slice}/actions/#{controller}/#{action}.rb")).to eq(action_file)
-        expect(output).to include("Created slices/#{slice}/actions/#{controller}/#{action}.rb")
-
-        # # view
-        # expect(fs.directory?("slices/#{slice}/views/#{controller}")).to be(true)
-        # expect(output).to include("Created slices/#{slice}/views/#{controller}/")
-        #
-        # view_file = <<~EXPECTED
-        #   # auto_register: false
-        #   # frozen_string_literal: true
-        #
-        #   require "#{inflector.underscore(slice)}/view"
-        #
-        #   module #{inflector.camelize(slice)}
-        #     module Views
-        #       module #{inflector.camelize(controller)}
-        #         class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
-        #         end
-        #       end
-        #     end
-        #   end
-        # EXPECTED
-        # expect(fs.read("slices/#{slice}/views/#{controller}/#{action}.rb")).to eq(view_file)
-        # expect(output).to include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
-
-        # template
-        # expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
-        # expect(output).to include("Created slices/#{slice}/templates/#{controller}/")
-        #
-        # template_file = <<~EXPECTED
-        #   <h1>#{inflector.camelize(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
-        #   <h2>slices/#{slice}/templates/#{controller}/#{action}.html.erb</h2>
-        # EXPECTED
-        # expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
-        # expect(output).to include("Created slices/#{slice}/templates/#{controller}/#{action}.html.erb")
-      end
-    end
-
-    context "deeply nested action" do
-      let(:controller) { %w[books bestsellers nonfiction] }
-      let(:controller_name) { controller.join(".") }
-      let(:action) { "index" }
-      let(:action_name) { "#{controller_name}.#{action}" }
-
+    context "without hanami view bundled" do
       it "generates action" do
         within_application_directory do
           prepare_slice!
 
-          subject.call(slice: slice, name: action_name)
+          subject.call(name: action_name, slice: slice)
 
           # Route
           routes = <<~CODE
@@ -447,7 +855,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
                 root { "Hello from Hanami" }
 
                 slice :#{slice}, at: "/#{slice}" do
-                  get "/books/bestsellers/nonfiction", to: "books.bestsellers.nonfiction.index"
+                  get "/users", to: "users.index"
                 end
               end
             end
@@ -455,120 +863,487 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
           # route
           expect(fs.read("config/routes.rb")).to eq(routes)
+          expect(output).to include("Updated config/routes.rb")
+          expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
 
           # action
-          expect(fs.directory?("slices/#{slice}/actions/books/bestsellers/nonfiction")).to be(true)
+          expect(fs.directory?("slices/#{slice}/actions/#{controller}")).to be(true)
+          expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
 
           action_file = <<~EXPECTED
             # frozen_string_literal: true
 
             module #{inflector.camelize(slice)}
               module Actions
-                module Books
-                  module Bestsellers
-                    module Nonfiction
-                      class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
-                        def handle(request, response)
-                          response.body = self.class.name
-                        end
-                      end
+                module #{inflector.camelize(controller)}
+                  class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
+                    def handle(request, response)
+                      response.body = self.class.name
                     end
                   end
                 end
               end
             end
           EXPECTED
-          expect(fs.read("slices/#{slice}/actions/books/bestsellers/nonfiction/#{action}.rb")).to eq(action_file)
+          expect(fs.read("slices/#{slice}/actions/#{controller}/#{action}.rb")).to eq(action_file)
+          expect(output).to include("Created slices/#{slice}/actions/#{controller}/#{action}.rb")
 
           # view
-          expect(fs.directory?("slices/#{slice}/views/books/bestsellers/nonfiction")).to be(true)
+          expect(fs.directory?("slices/#{slice}/views/#{controller}")).to be(true)
+          expect(output).to include("Created slices/#{slice}/views/#{controller}/")
 
           view_file = <<~EXPECTED
             # frozen_string_literal: true
 
             module #{inflector.camelize(slice)}
               module Views
-                module Books
-                  module Bestsellers
-                    module Nonfiction
-                      class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
-                      end
-                    end
+                module #{inflector.camelize(controller)}
+                  class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
                   end
                 end
               end
             end
           EXPECTED
-          expect(fs.read("slices/#{slice}/views/books/bestsellers/nonfiction/#{action}.rb")).to eq(view_file)
+          expect(fs.read("slices/#{slice}/views/#{controller}/#{action}.rb")).to eq(view_file)
+          expect(output).to include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
 
           # template
-          expect(fs.directory?("slices/#{slice}/templates/books/bestsellers/nonfiction")).to be(true)
+          expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
+          expect(output).to include("Created slices/#{slice}/templates/#{controller}/")
 
           template_file = <<~EXPECTED
-            <h1>#{inflector.camelize(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
+            <h1>#{inflector.camelize(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
           EXPECTED
-          expect(fs.read("slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb")).to eq(template_file)
+          expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+          expect(output).to include("Created slices/#{slice}/templates/#{controller}/#{action}.html.erb")
         end
       end
-    end
 
-    it "appends routes within the proper slice block" do
-      within_application_directory do
-        prepare_slice!
-        fs.mkdir("slices/api")
+      context "deeply nested action" do
+        let(:controller) { %w[books bestsellers nonfiction] }
+        let(:controller_name) { controller.join(".") }
+        let(:action) { "index" }
+        let(:action_name) { "#{controller_name}.#{action}" }
 
-        routes_contents = <<~CODE
-          # frozen_string_literal: true
+        it "generates action" do
+          within_application_directory do
+            prepare_slice!
 
-          require "hanami/routes"
+            subject.call(slice: slice, name: action_name)
 
-          module #{app}
-            class Routes < Hanami::Routes
-              root { "Hello from Hanami" }
+            # Route
+            routes = <<~CODE
+              # frozen_string_literal: true
 
-              slice :#{slice}, at: "/#{slice}" do
-                root to: "home.index"
+              require "hanami/routes"
+
+              module #{app}
+                class Routes < Hanami::Routes
+                  root { "Hello from Hanami" }
+
+                  slice :#{slice}, at: "/#{slice}" do
+                    get "/books/bestsellers/nonfiction", to: "books.bestsellers.nonfiction.index"
+                  end
+                end
               end
+            CODE
 
-              slice :api, at: "/api" do
-                root to: "home.index"
+            # route
+            expect(fs.read("config/routes.rb")).to eq(routes)
+
+            # action
+            expect(fs.directory?("slices/#{slice}/actions/books/bestsellers/nonfiction")).to be(true)
+
+            action_file = <<~EXPECTED
+              # frozen_string_literal: true
+
+              module #{inflector.camelize(slice)}
+                module Actions
+                  module Books
+                    module Bestsellers
+                      module Nonfiction
+                        class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
+                          def handle(request, response)
+                            response.body = self.class.name
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
               end
-            end
+            EXPECTED
+            expect(fs.read("slices/#{slice}/actions/books/bestsellers/nonfiction/#{action}.rb")).to eq(action_file)
+
+            # view
+            expect(fs.directory?("slices/#{slice}/views/books/bestsellers/nonfiction")).to be(true)
+
+            view_file = <<~EXPECTED
+              # frozen_string_literal: true
+
+              module #{inflector.camelize(slice)}
+                module Views
+                  module Books
+                    module Bestsellers
+                      module Nonfiction
+                        class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            EXPECTED
+            expect(fs.read("slices/#{slice}/views/books/bestsellers/nonfiction/#{action}.rb")).to eq(view_file)
+
+            # template
+            expect(fs.directory?("slices/#{slice}/templates/books/bestsellers/nonfiction")).to be(true)
+
+            template_file = <<~EXPECTED
+              <h1>#{inflector.camelize(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
+            EXPECTED
+            expect(fs.read("slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb")).to eq(template_file)
           end
-        CODE
-        fs.write("config/routes.rb", routes_contents)
-
-        expected = <<~CODE
-          # frozen_string_literal: true
-
-          require "hanami/routes"
-
-          module #{app}
-            class Routes < Hanami::Routes
-              root { "Hello from Hanami" }
-
-              slice :#{slice}, at: "/#{slice}" do
-                root to: "home.index"
-                get "/users", to: "users.index"
-              end
-
-              slice :api, at: "/api" do
-                root to: "home.index"
-                get "/users/:id", to: "users.show"
-              end
-            end
-          end
-        CODE
-
-        subject.call(slice: slice, name: "users.index")
-        subject.call(slice: "api", name: "users.show")
-
-        expect(fs.read("config/routes.rb")).to eq(expected)
+        end
       end
-    end
 
-    it "raises error if slice is unexisting" do
-      expect { subject.call(slice: "foo", name: action_name) }.to raise_error(Hanami::CLI::MissingSliceError, "slice `foo' is missing, please generate with `hanami generate slice foo'")
+      context "with hanami view bundled" do
+        it "generates action with view" do
+          within_application_directory do
+            prepare_slice!
+            context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, slice, [controller], action)
+            allow(context).to receive(:bundled_views?) { true }
+
+            subject.call(name: action_name, slice: slice, context: context)
+
+            # Route
+            routes = <<~CODE
+              # frozen_string_literal: true
+
+              require "hanami/routes"
+
+              module #{app}
+                class Routes < Hanami::Routes
+                  root { "Hello from Hanami" }
+
+                  slice :#{slice}, at: "/#{slice}" do
+                    get "/users", to: "users.index"
+                  end
+                end
+              end
+            CODE
+
+            # route
+            expect(fs.read("config/routes.rb")).to eq(routes)
+            expect(output).to include("Updated config/routes.rb")
+            expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
+
+            # action
+            expect(fs.directory?("slices/#{slice}/actions/#{controller}")).to be(true)
+            expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
+
+            action_file = <<~EXPECTED
+              # frozen_string_literal: true
+
+              module #{inflector.camelize(slice)}
+                module Actions
+                  module #{inflector.camelize(controller)}
+                    class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
+                      def handle(request, response)
+                      end
+                    end
+                  end
+                end
+              end
+            EXPECTED
+            expect(fs.read("slices/#{slice}/actions/#{controller}/#{action}.rb")).to eq(action_file)
+            expect(output).to include("Created slices/#{slice}/actions/#{controller}/#{action}.rb")
+
+            # view
+            expect(fs.directory?("slices/#{slice}/views/#{controller}")).to be(true)
+            expect(output).to include("Created slices/#{slice}/views/#{controller}/")
+
+            view_file = <<~EXPECTED
+              # frozen_string_literal: true
+
+              module #{inflector.camelize(slice)}
+                module Views
+                  module #{inflector.camelize(controller)}
+                    class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
+                    end
+                  end
+                end
+              end
+            EXPECTED
+            expect(fs.read("slices/#{slice}/views/#{controller}/#{action}.rb")).to eq(view_file)
+            expect(output).to include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
+
+            # template
+            expect(fs.directory?("slices/#{slice}/templates/#{controller}")).to be(true)
+            expect(output).to include("Created slices/#{slice}/templates/#{controller}/")
+
+            template_file = <<~EXPECTED
+              <h1>#{inflector.camelize(slice)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
+            EXPECTED
+            expect(fs.read("slices/#{slice}/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+            expect(output).to include("Created slices/#{slice}/templates/#{controller}/#{action}.html.erb")
+          end
+        end
+
+        context "RESTful actions" do
+          context "CREATE" do
+            let(:action) { "create" }
+
+            it "skips view generation when New view is present" do
+              prepare_slice!
+              context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, slice, [controller], action)
+              allow(context).to receive(:bundled_views?) { true }
+
+              # Route
+              routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    root { "Hello from Hanami" }
+
+                    slice :#{slice}, at: "/#{slice}" do
+                      get "/users/new", to: "users.new"
+                    end
+                  end
+                end
+              CODE
+              fs.write("config/routes.rb", routes)
+
+              action_file = <<~EXPECTED
+                # frozen_string_literal: true
+
+                module #{inflector.camelize(slice)}
+                  module Actions
+                    module Users
+                      class New < #{inflector.camelize(slice)}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              EXPECTED
+              fs.write("slices/#{slice}/actions/users/new.rb", action_file)
+
+              view_file = <<~EXPECTED
+                # frozen_string_literal: true
+
+                module #{inflector.camelize(slice)}
+                  module Views
+                    module Users
+                      class New < #{inflector.camelize(slice)}::Action
+                      end
+                    end
+                  end
+                end
+              EXPECTED
+              fs.write("slices/#{slice}/views/users/new.rb", view_file)
+
+              subject.call(name: action_name, slice: slice, context: context)
+
+              expected_routes = <<~CODE
+                # frozen_string_literal: true
+
+                require "hanami/routes"
+
+                module #{app}
+                  class Routes < Hanami::Routes
+                    root { "Hello from Hanami" }
+
+                    slice :#{slice}, at: "/#{slice}" do
+                      get "/users/new", to: "users.new"
+                      post "/users", to: "users.create"
+                    end
+                  end
+                end
+              CODE
+
+              # route
+              expect(fs.read("config/routes.rb")).to eq(expected_routes)
+              expect(output).to include("Updated config/routes.rb")
+              expect(output).to include("Created slices/#{slice}/actions/#{controller}/")
+
+              # action
+              expected_action = <<~EXPECTED
+                # frozen_string_literal: true
+
+                module #{inflector.camelize(slice)}
+                  module Actions
+                    module Users
+                      class Create < #{inflector.camelize(slice)}::Action
+                        def handle(request, response)
+                        end
+                      end
+                    end
+                  end
+                end
+              EXPECTED
+              expect(fs.read("slices/#{slice}/actions/#{controller}/#{action}.rb")).to eq(expected_action)
+              expect(output).to include("Created slices/#{slice}/actions/#{controller}/#{action}.rb")
+
+              # view
+              expect(output).to_not include("Created slices/#{slice}/views/#{controller}/#{action}.rb")
+              # template
+              expect(output).to_not include("Created slices/#{slice}/templates/#{controller}/#{action}.html.erb")
+            end
+          end
+        end
+      end
+
+      context "deeply nested action" do
+        let(:controller) { %w[books bestsellers nonfiction] }
+        let(:controller_name) { controller.join(".") }
+        let(:action) { "index" }
+        let(:action_name) { "#{controller_name}.#{action}" }
+
+        it "generates action" do
+          within_application_directory do
+            prepare_slice!
+
+            subject.call(slice: slice, name: action_name)
+
+            # Route
+            routes = <<~CODE
+              # frozen_string_literal: true
+
+              require "hanami/routes"
+
+              module #{app}
+                class Routes < Hanami::Routes
+                  root { "Hello from Hanami" }
+
+                  slice :#{slice}, at: "/#{slice}" do
+                    get "/books/bestsellers/nonfiction", to: "books.bestsellers.nonfiction.index"
+                  end
+                end
+              end
+            CODE
+
+            # route
+            expect(fs.read("config/routes.rb")).to eq(routes)
+
+            # action
+            expect(fs.directory?("slices/#{slice}/actions/books/bestsellers/nonfiction")).to be(true)
+
+            action_file = <<~EXPECTED
+              # frozen_string_literal: true
+
+              module #{inflector.camelize(slice)}
+                module Actions
+                  module Books
+                    module Bestsellers
+                      module Nonfiction
+                        class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::Action
+                          def handle(request, response)
+                            response.body = self.class.name
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            EXPECTED
+            expect(fs.read("slices/#{slice}/actions/books/bestsellers/nonfiction/#{action}.rb")).to eq(action_file)
+
+            # view
+            expect(fs.directory?("slices/#{slice}/views/books/bestsellers/nonfiction")).to be(true)
+
+            view_file = <<~EXPECTED
+              # frozen_string_literal: true
+
+              module #{inflector.camelize(slice)}
+                module Views
+                  module Books
+                    module Bestsellers
+                      module Nonfiction
+                        class #{inflector.camelize(action)} < #{inflector.camelize(slice)}::View
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            EXPECTED
+            expect(fs.read("slices/#{slice}/views/books/bestsellers/nonfiction/#{action}.rb")).to eq(view_file)
+
+            # template
+            expect(fs.directory?("slices/#{slice}/templates/books/bestsellers/nonfiction")).to be(true)
+
+            template_file = <<~EXPECTED
+              <h1>#{inflector.camelize(slice)}::Views::Books::Bestsellers::Nonfiction::Index</h1>
+            EXPECTED
+            expect(fs.read("slices/#{slice}/templates/books/bestsellers/nonfiction/#{action}.html.erb")).to eq(template_file)
+          end
+        end
+      end
+
+      it "appends routes within the proper slice block" do
+        within_application_directory do
+          prepare_slice!
+          fs.mkdir("slices/api")
+
+          routes_contents = <<~CODE
+            # frozen_string_literal: true
+
+            require "hanami/routes"
+
+            module #{app}
+              class Routes < Hanami::Routes
+                root { "Hello from Hanami" }
+
+                slice :#{slice}, at: "/#{slice}" do
+                  root to: "home.index"
+                end
+
+                slice :api, at: "/api" do
+                  root to: "home.index"
+                end
+              end
+            end
+          CODE
+          fs.write("config/routes.rb", routes_contents)
+
+          expected = <<~CODE
+            # frozen_string_literal: true
+
+            require "hanami/routes"
+
+            module #{app}
+              class Routes < Hanami::Routes
+                root { "Hello from Hanami" }
+
+                slice :#{slice}, at: "/#{slice}" do
+                  root to: "home.index"
+                  get "/users", to: "users.index"
+                end
+
+                slice :api, at: "/api" do
+                  root to: "home.index"
+                  get "/users/:id", to: "users.show"
+                end
+              end
+            end
+          CODE
+
+          subject.call(slice: slice, name: "users.index")
+          subject.call(slice: "api", name: "users.show")
+
+          expect(fs.read("config/routes.rb")).to eq(expected)
+        end
+      end
+
+      it "raises error if slice is unexisting" do
+        expect { subject.call(slice: "foo", name: action_name) }.to raise_error(Hanami::CLI::MissingSliceError, "slice `foo' is missing, please generate with `hanami generate slice foo'")
+      end
     end
   end
 

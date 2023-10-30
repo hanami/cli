@@ -26,6 +26,18 @@ module Hanami
           "~> #{result}"
         end
 
+        def self.npm_package_requirement
+          result = version
+          # Change "2.1.0.beta2.1" to "2.1.0-beta.2" (the only format tolerable by `npm install`)
+          if prerelease?
+            result = result
+              .sub(/\.(alpha|beta|rc)/, '-\1')
+              .sub(/(alpha|beta|rc)(.+)\.(.+)$/, '\1.\2')
+          end
+
+          "^#{result}"
+        end
+
         # @since 2.0.0
         # @api private
         def self.prerelease?

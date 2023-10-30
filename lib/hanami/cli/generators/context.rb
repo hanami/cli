@@ -27,16 +27,26 @@ module Hanami
         def hanami_gem(name)
           gem_name = name == "hanami" ? "hanami" : "hanami-#{name}"
 
-          %(gem "#{gem_name}", #{hanami_version(name)})
+          %(gem "#{gem_name}", #{hanami_gem_version(name)})
         end
 
         # @since 2.0.0
         # @api private
-        def hanami_version(gem_name)
+        def hanami_gem_version(gem_name)
           if hanami_head?
             %(github: "hanami/#{gem_name}", branch: "main")
           else
             %("#{Version.gem_requirement}")
+          end
+        end
+
+        # @since 2.1.0
+        # @api private
+        def hanami_assets_npm_package
+          if hanami_head?
+            %("hanami-assets": "hanami/assets-js#main")
+          else
+            %("hanami-assets": "#{Version.npm_package_requirement}")
           end
         end
 
@@ -80,6 +90,14 @@ module Hanami
         # @api private
         def bundled_assets?
           Hanami.bundled?("hanami-assets")
+        end
+
+        # @since 2.1.0
+        # @api private
+        #
+        # @see https://rubyreferences.github.io/rubychanges/3.1.html#values-in-hash-literals-and-keyword-arguments-can-be-omitted
+        def ruby_omit_hash_values?
+          RUBY_VERSION >= "3.1"
         end
 
         private

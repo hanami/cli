@@ -2,13 +2,14 @@
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject do
-    described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector)
+    described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector, system_call: system_call)
   end
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
+  let(:system_call) { instance_double(Hanami::CLI::SystemCall, call: successful_system_call_result) }
   let(:app) { "bookshelf" }
   let(:kwargs) { {head: hanami_head, skip_assets: skip_assets} }
 
@@ -53,6 +54,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(bundler).to receive(:exec)
       .with("hanami install")
       .and_return(successful_system_call_result)
+
+    expect(system_call).to receive(:call).with("npm", ["install"])
 
     subject.call(app: app, **kwargs)
 
@@ -123,13 +126,30 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("Gemfile")).to eq(gemfile)
       expect(output).to include("Created Gemfile")
 
-      # Procfile
+      # package.json
+      hanami_npm_version = Hanami::CLI::Generators::Version.npm_package_requirement
+      package_json = <<~EXPECTED
+        {
+          "name": "#{app}",
+          "private": true,
+          "scripts": {
+            "assets": "node config/assets.mjs"
+          },
+          "dependencies": {
+            "hanami-assets": "#{hanami_npm_version}"
+          }
+        }
+      EXPECTED
+      expect(fs.read("package.json")).to eq(package_json)
+      expect(output).to include("Created package.json")
+
+      # Procfile.dev
       procfile = <<~EXPECTED
         web: bundle exec hanami server
         assets: bundle exec hanami assets watch
       EXPECTED
       expect(fs.read("Procfile.dev")).to eq(procfile)
-      expect(output).to include("Created Procfile")
+      expect(output).to include("Created Procfile.dev")
 
       # Rakefile
       rakefile = <<~EXPECTED
@@ -151,6 +171,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("config.ru")).to eq(config_ru)
       expect(output).to include("Created config.ru")
 
+      # bin/dev
+      bin_dev = <<~EXPECTED
+        #!/usr/bin/env sh
+
+        if ! gem list foreman -i --silent; then
+          echo "Installing foreman..."
+          gem install foreman
+        fi
+
+        exec foreman start -f Procfile.dev "$@"
+      EXPECTED
+      expect(fs.read("bin/dev")).to eq(bin_dev)
+      expect(fs.executable?("bin/dev")).to be(true)
+      expect(output).to include("Created bin/dev")
+
       # config/app.rb
       hanami_app = <<~EXPECTED
         # frozen_string_literal: true
@@ -164,6 +199,26 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       EXPECTED
       expect(fs.read("config/app.rb")).to eq(hanami_app)
       expect(output).to include("Created config/app.rb")
+
+      # config/assets.mjs
+      assets = <<~EXPECTED
+        import * as assets from "hanami-assets";
+
+        await assets.run();
+
+        // To provide additional esbuild (https://esbuild.github.io) options, use the following:
+        //
+        // await assets.run({
+        //   esbuildOptionsFn: (args, esbuildOptions) => {
+        //     // Add to esbuildOptions here. Use `args.watch` as a condition for different options for
+        //     // compile vs watch.
+        //
+        //     return esbuildOptions;
+        //   }
+        // });
+      EXPECTED
+      expect(fs.read("config/assets.mjs")).to eq(assets)
+      expect(output).to include("Created config/assets.mjs")
 
       # config/settings.rb
       settings = <<~EXPECTED
@@ -186,7 +241,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         module Bookshelf
           class Routes < Hanami::Routes
-            root { "Hello from Hanami" }
+            # Add your routes here. See https://guides.hanamirb.org/routing/overview/ for details.
           end
         end
       EXPECTED
@@ -197,21 +252,51 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       puma = <<~EXPECTED
         # frozen_string_literal: true
 
+        #
+        # Environment and port
+        #
+        port ENV.fetch("HANAMI_PORT", 2300)
+        environment ENV.fetch("HANAMI_ENV", "development")
+
+        #
+        # Threads within each Puma/Ruby process (aka worker)
+        #
+
+        # Configure the minimum and maximum number of threads to use to answer requests.
         max_threads_count = ENV.fetch("HANAMI_MAX_THREADS", 5)
         min_threads_count = ENV.fetch("HANAMI_MIN_THREADS") { max_threads_count }
+
         threads min_threads_count, max_threads_count
 
-        port        ENV.fetch("HANAMI_PORT", 2300)
-        environment ENV.fetch("HANAMI_ENV", "development")
-        workers     ENV.fetch("HANAMI_WEB_CONCURRENCY", 0)
+        #
+        # Workers (aka Puma/Ruby processes)
+        #
 
-        if ENV.fetch("HANAMI_WEB_CONCURRENCY", 0) > 0
-          on_worker_boot do
+        puma_concurrency = Integer(ENV.fetch("HANAMI_WEB_CONCURRENCY", 0))
+        puma_cluster_mode = puma_concurrency > 1
+
+        # How many worker (Puma/Ruby) processes to run.
+        # Typically this is set to the number of available cores.
+        workers puma_concurrency
+
+        #
+        # Cluster mode (aka multiple workers)
+        #
+
+        if puma_cluster_mode
+          # Preload the application before starting the workers. Only in cluster mode.
+          preload_app!
+
+          # Code to run immediately before master process forks workers (once on boot).
+          #
+          # These hooks can block if necessary to wait for background operations unknown
+          # to puma to finish before the process terminates. This can be used to close
+          # any connections to remote servers (database, redis, …) that were opened when
+          # preloading the code.
+          before_fork do
             Hanami.shutdown
           end
         end
-
-        preload_app!
       EXPECTED
       expect(fs.read("config/puma.rb")).to eq(puma)
       expect(output).to include("Created config/puma.rb")
@@ -398,6 +483,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install")
         .and_return(successful_system_call_result)
 
+      expect(system_call).not_to receive(:call).with("npm", ["install"])
+
       subject.call(app: app, **kwargs)
 
       expect(fs.directory?(app)).to be(true)
@@ -411,8 +498,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # Gemfile
         expect(fs.read("Gemfile")).to_not match(/hanami-assets/)
 
+        # package.json
+        expect(fs.exist?("package.json")).to be(false)
+
         # Procfile.dev
         expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
+
+        # config/assets.mjs
+        expect(fs.exist?("config/assets.mjs")).to be(false)
 
         # app/templates/layouts/app.html.erb
         app_layout = fs.read("app/templates/layouts/app.html.erb")
