@@ -2,6 +2,25 @@
 
 Hanami Command Line Interface
 
+## v2.1.0.rc1 - 2023-11-01
+
+### Added
+
+- [Tim Riley] `hanami new` to generate `bin/dev` as configuration for `hanami dev`
+- [Luca Guidi] Introducing `hanami generate part` to generate view parts
+
+### Fixed
+
+- [Luca Guidi] `hanami new` generates a fully documented Puma configuration in `config/puma.rb`
+
+### Changed
+
+- [Tim Riley] `hanami new` generates a `config/assets.mjs` as Assets configuration
+- [Tim Riley] `hanami new` generates a leaner `package.json`
+- [Tim Riley] `hanami new` doesn't generate a default root route anymore
+- [Aaron Moodie & Tim Riley] `hanami new` to generate a redesigned 404 and 500 error pages
+- [Luca Guidi] When generating a RESTful action, skip `create`, if `new` is present, and `update`, if `edit` is present
+
 ## v2.1.0.beta2 - 2023-10-04
 
 ### Added
