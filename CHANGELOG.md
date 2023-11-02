@@ -2,6 +2,10 @@
 
 Hanami Command Line Interface
 
+### Changed
+
+- [Tim Riley] Rename `config/assets.mjs` to `config/assets.js` (use a plain `.js` file extension)
+
 ## v2.1.0.rc1 - 2023-11-01
 
 ### Added
