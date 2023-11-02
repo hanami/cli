@@ -361,12 +361,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>#{inflector.humanize(app)}</title>
-            <%= favicon %>
-            <%= css "app" %>
+            <%= favicon_tag %>
+            <%= stylesheet_tag "app" %>
           </head>
           <body>
             <%= yield %>
-            <%= js "app" %>
+            <%= javascript_tag "app" %>
           </body>
         </html>
       ERB
