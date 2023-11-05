@@ -32,7 +32,7 @@ module Hanami
           if prerelease?
             result = result
               .sub(/\.(alpha|beta|rc)/, '-\1')
-              .sub(/(alpha|beta|rc)(.+)\.(.+)$/, '\1.\2')
+              .sub(/(alpha|beta|rc)(\d+)(\..+)?$/, '\1.\2')
           end
 
           "^#{result}"
