@@ -2,6 +2,10 @@
 
 Hanami Command Line Interface
 
+### Fixed
+
+- [Tim Riley] Use correct helper names in generated app layout
+
 ## v2.1.0.rc1 - 2023-11-01
 
 ### Added
