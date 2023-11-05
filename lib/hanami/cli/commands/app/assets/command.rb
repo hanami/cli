@@ -44,20 +44,6 @@ module Hanami
 
             # @since 2.1.0
             # @api private
-            def entry_points
-              config.entry_points.map do |entry_point|
-                escape(entry_point)
-              end.join(" ")
-            end
-
-            # @since 2.1.0
-            # @api private
-            def destination
-              escape(config.destination)
-            end
-
-            # @since 2.1.0
-            # @api private
             def escape(str)
               Shellwords.shellescape(str)
             end
