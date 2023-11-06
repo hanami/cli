@@ -22,12 +22,25 @@ module Hanami
             DEFAULT_SKIP_VIEW = false
             private_constant :DEFAULT_SKIP_VIEW
 
+            DEFAULT_SKIP_TESTS = false
+            private_constant :DEFAULT_SKIP_TESTS
+
             argument :name, required: true, desc: "Action name"
             option :url, required: false, type: :string, desc: "Action URL"
             option :http, required: false, type: :string, desc: "Action HTTP method"
             # option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
-            option :skip_view, required: false, type: :boolean, default: DEFAULT_SKIP_VIEW,
-                               desc: "Skip view and template generation"
+            option \
+              :skip_view,
+              required: false,
+              type: :boolean,
+              default: DEFAULT_SKIP_VIEW,
+              desc: "Skip view and template generation"
+            option \
+              :skip_tests,
+              required: false,
+              type: :boolean,
+              default: DEFAULT_SKIP_TESTS,
+              desc: "Skip test generation"
             option :slice, required: false, desc: "Slice name"
 
             # rubocop:disable Layout/LineLength
@@ -60,8 +73,16 @@ module Hanami
 
             # @since 2.0.0
             # @api private
-            def call(name:, url: nil, http: nil, format: DEFAULT_FORMAT, skip_view: DEFAULT_SKIP_VIEW, slice: nil,
-                     context: nil, **)
+            def call(
+              name:,
+              url: nil,
+              http: nil,
+              format: DEFAULT_FORMAT,
+              skip_view: DEFAULT_SKIP_VIEW,
+              skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument
+              slice: nil,
+              context: nil, **
+            )
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
               name = naming.action_name(name)
               *controller, action = name.split(ACTION_SEPARATOR)
