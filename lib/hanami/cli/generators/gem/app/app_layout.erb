@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= humanized_app_name %></title>
     <%- if generate_assets? -%>
-    <%%= favicon %>
-    <%%= css "app" %>
+    <%%= favicon_tag %>
+    <%%= stylesheet_tag "app" %>
     <%- end -%>
   </head>
   <body>
     <%%= yield %>
     <%- if generate_assets? -%>
-    <%%= js "app" %>
+    <%%= javascript_tag "app" %>
     <%- end -%>
   </body>
 </html>

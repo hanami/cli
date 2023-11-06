@@ -7,6 +7,10 @@ Hanami Command Line Interface
 - [Tim Riley] Set `"type": "module"` in package.json, enabling ES modules by default
 - [Tim Riley] Rename `config/assets.mjs` to `config/assets.js` (use a plain `.js` file extension)
 
+### Fixed
+
+- [Tim Riley] Use correct helper names in generated app layout
+
 ## v2.1.0.rc1 - 2023-11-01
 
 ### Added

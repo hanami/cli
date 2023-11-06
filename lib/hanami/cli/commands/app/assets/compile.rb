@@ -19,7 +19,7 @@ module Hanami
 
               if config.subresource_integrity.any?
                 result << "--"
-                result << "--sri=#{config.subresource_integrity.join(',')}"
+                result << "--sri=#{escape(config.subresource_integrity.join(','))}"
               end
 
               result
