@@ -9,7 +9,7 @@ module Hanami
         # @since 2.0.0
         # @api private
         def self.version
-          return Hanami::VERSION if defined?(Hanami::VERSION)
+          return Hanami::VERSION if Hanami.const_defined?(:VERSION)
 
           Hanami::CLI::VERSION
         end
@@ -32,7 +32,7 @@ module Hanami
           if prerelease?
             result = result
               .sub(/\.(alpha|beta|rc)/, '-\1')
-              .sub(/(alpha|beta|rc)(.+)\.(.+)$/, '\1.\2')
+              .sub(/(alpha|beta|rc)(\d+)(?:\.\d+)?\Z/, '\1.\2')
           end
 
           "^#{result}"
@@ -41,7 +41,7 @@ module Hanami
         # @since 2.0.0
         # @api private
         def self.prerelease?
-          version =~ /alpha|beta|rc/
+          version.match?(/alpha|beta|rc/)
         end
 
         # @example
