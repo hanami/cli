@@ -38,13 +38,13 @@ module Hanami
           # @since 2.1.0
           # @api private
           def stylesheet_erb_tag
-            %(<%= css "#{slice}/app" %>)
+            %(<%= stylesheet_tag "#{slice}/app" %>)
           end
 
           # @since 2.1.0
           # @api private
           def javascript_erb_tag
-            %(<%= js "#{slice}/app" %>)
+            %(<%= javascript_tag "#{slice}/app" %>)
           end
 
           private
