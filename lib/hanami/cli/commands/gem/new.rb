@@ -99,7 +99,12 @@ module Hanami
 
                   unless skip_assets
                     out.puts "Running npm install..."
-                    system_call.call("npm", ["install"])
+                    system_call.call("npm", ["install"]).tap do |result|
+                      unless result.successful?
+                        puts "NPM ERROR:"
+                        puts result.err.lines.map {|line| line.prepend("    ")}
+                      end
+                    end
                   end
 
                   out.puts "Running Hanami install..."
