@@ -28,6 +28,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .at_least(1)
       .and_return(successful_system_call_result)
 
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
     app_name = "HanamiTeam"
     app = "hanami_team"
     subject.call(app: app_name)
@@ -53,6 +58,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     expect(bundler).to receive(:exec)
       .with("hanami install")
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
       .and_return(successful_system_call_result)
 
     expect(system_call).to receive(:call).with("npm", ["install"])
@@ -428,6 +438,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install --head")
         .and_return(successful_system_call_result)
 
+      expect(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
       subject.call(app: app, **kwargs)
 
       expect(fs.directory?(app)).to be(true)
@@ -483,6 +498,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install")
         .and_return(successful_system_call_result)
 
+      expect(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
       expect(system_call).not_to receive(:call).with("npm", ["install"])
 
       subject.call(app: app, **kwargs)
@@ -535,6 +555,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .with("hanami install")
       .and_return(successful_system_call_result)
 
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
     subject.call(app: app)
 
     expect(fs.directory?(app)).to be(true)
@@ -568,5 +593,31 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(bundler).to_not receive(:exec)
 
     expect { subject.call(app: app) }.to raise_error(Hanami::CLI::PathAlreadyExistsError)
+  end
+
+  it "calls bundle install if bundle check fails" do
+    expect(bundler).to receive(:install!)
+      .at_least(1)
+      .and_return(true)
+
+    expect(bundler).to receive(:exec)
+      .with("hanami install")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(
+        instance_double(Hanami::CLI::SystemCall::Result, successful?: false)
+      )
+
+    expect(bundler).to receive(:exec)
+      .with("install")
+      .once
+      .and_return(successful_system_call_result)
+
+    app_name = "no_gems_installed"
+    subject.call(app: app_name)
   end
 end
