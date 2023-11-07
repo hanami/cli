@@ -120,7 +120,7 @@ module Hanami
             head_flag = head ? " --head" : ""
             bundler.exec("hanami install#{head_flag}").tap do |result|
               if result.successful?
-                bundler.exec("check").successful? || bundle.exec("install")
+                bundler.exec("check").successful? || bundler.exec("install")
               else
                 raise HanamiInstallError.new(result.err)
               end

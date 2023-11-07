@@ -594,4 +594,30 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     expect { subject.call(app: app) }.to raise_error(Hanami::CLI::PathAlreadyExistsError)
   end
+
+  it "calls bundle install if bundle check fails" do
+    expect(bundler).to receive(:install!)
+      .at_least(1)
+      .and_return(true)
+
+    expect(bundler).to receive(:exec)
+      .with("hanami install")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(
+        instance_double(Hanami::CLI::SystemCall::Result, successful?: false)
+      )
+
+    expect(bundler).to receive(:exec)
+      .with("install")
+      .once
+      .and_return(successful_system_call_result)
+
+    app_name = "no_gems_installed"
+    subject.call(app: app_name)
+  end
 end
