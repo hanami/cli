@@ -2,6 +2,24 @@
 
 Hanami Command Line Interface
 
+## v2.1.0.rc2 - 2023-11-08
+
+### Added
+
+- [Tim Riley] Add `--skip-tests` for `hanami generate` commands. This CLI option will skip tests generation.
+
+### Changed
+
+- [Tim Riley] Set `"type": "module"` in package.json, enabling ES modules by default
+- [Tim Riley] Rename `config/assets.mjs` to `config/assets.js` (use a plain `.js` file extension)
+
+### Fixed
+
+- [Tim Riley] Use correct helper names in generated app layout
+- [Luca Guidi] Ensure to generate apps with correct pre-release version of `hanami-assets` NPM package
+- [Sean Collins] Print to stderr NPM installation errors when running `hanami install`
+- [Sean Collins] Ensure to install missing gems after `hanami install` is ran
+
 ## v2.1.0.rc1 - 2023-11-01
 
 ### Added

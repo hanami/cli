@@ -1,8 +1,9 @@
 {
   "name": "<%= underscored_app_name %>",
   "private": true,
+  "type": "module",
   "scripts": {
-    "assets": "node config/assets.mjs"
+    "assets": "node config/assets.js"
   },
   "dependencies": {
     <%= hanami_assets_npm_package %>

@@ -28,6 +28,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .at_least(1)
       .and_return(successful_system_call_result)
 
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
     app_name = "HanamiTeam"
     app = "hanami_team"
     subject.call(app: app_name)
@@ -53,6 +58,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     expect(bundler).to receive(:exec)
       .with("hanami install")
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
       .and_return(successful_system_call_result)
 
     expect(system_call).to receive(:call).with("npm", ["install"])
@@ -132,8 +142,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         {
           "name": "#{app}",
           "private": true,
+          "type": "module",
           "scripts": {
-            "assets": "node config/assets.mjs"
+            "assets": "node config/assets.js"
           },
           "dependencies": {
             "hanami-assets": "#{hanami_npm_version}"
@@ -200,7 +211,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("config/app.rb")).to eq(hanami_app)
       expect(output).to include("Created config/app.rb")
 
-      # config/assets.mjs
+      # config/assets.js
       assets = <<~EXPECTED
         import * as assets from "hanami-assets";
 
@@ -217,8 +228,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         //   }
         // });
       EXPECTED
-      expect(fs.read("config/assets.mjs")).to eq(assets)
-      expect(output).to include("Created config/assets.mjs")
+      expect(fs.read("config/assets.js")).to eq(assets)
+      expect(output).to include("Created config/assets.js")
 
       # config/settings.rb
       settings = <<~EXPECTED
@@ -361,12 +372,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>#{inflector.humanize(app)}</title>
-            <%= favicon %>
-            <%= css "app" %>
+            <%= favicon_tag %>
+            <%= stylesheet_tag "app" %>
           </head>
           <body>
             <%= yield %>
-            <%= js "app" %>
+            <%= javascript_tag "app" %>
           </body>
         </html>
       ERB
@@ -428,6 +439,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install --head")
         .and_return(successful_system_call_result)
 
+      expect(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
       subject.call(app: app, **kwargs)
 
       expect(fs.directory?(app)).to be(true)
@@ -483,6 +499,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install")
         .and_return(successful_system_call_result)
 
+      expect(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
       expect(system_call).not_to receive(:call).with("npm", ["install"])
 
       subject.call(app: app, **kwargs)
@@ -504,8 +525,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # Procfile.dev
         expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
 
-        # config/assets.mjs
-        expect(fs.exist?("config/assets.mjs")).to be(false)
+        # config/assets.js
+        expect(fs.exist?("config/assets.js")).to be(false)
 
         # app/templates/layouts/app.html.erb
         app_layout = fs.read("app/templates/layouts/app.html.erb")
@@ -533,6 +554,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     expect(bundler).to receive(:exec)
       .with("hanami install")
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
       .and_return(successful_system_call_result)
 
     subject.call(app: app)
@@ -568,5 +594,31 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(bundler).to_not receive(:exec)
 
     expect { subject.call(app: app) }.to raise_error(Hanami::CLI::PathAlreadyExistsError)
+  end
+
+  it "calls bundle install if bundle check fails" do
+    expect(bundler).to receive(:install!)
+      .at_least(1)
+      .and_return(true)
+
+    expect(bundler).to receive(:exec)
+      .with("hanami install")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(
+        instance_double(Hanami::CLI::SystemCall::Result, successful?: false)
+      )
+
+    expect(bundler).to receive(:exec)
+      .with("install")
+      .once
+      .and_return(successful_system_call_result)
+
+    app_name = "no_gems_installed"
+    subject.call(app: app_name)
   end
 end

@@ -62,7 +62,7 @@ module Hanami
 
             if context.generate_assets?
               fs.write("package.json", t("package.json.erb", context))
-              fs.write("config/assets.mjs", file("assets.mjs"))
+              fs.write("config/assets.js", file("assets.js"))
               fs.write("app/assets/js/app.js", t("app_js.erb", context))
               fs.write("app/assets/css/app.css", t("app_css.erb", context))
               fs.write("app/assets/images/favicon.ico", file("favicon.ico"))
