@@ -142,8 +142,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         {
           "name": "#{app}",
           "private": true,
+          "type": "module",
           "scripts": {
-            "assets": "node config/assets.mjs"
+            "assets": "node config/assets.js"
           },
           "dependencies": {
             "hanami-assets": "#{hanami_npm_version}"
@@ -210,7 +211,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("config/app.rb")).to eq(hanami_app)
       expect(output).to include("Created config/app.rb")
 
-      # config/assets.mjs
+      # config/assets.js
       assets = <<~EXPECTED
         import * as assets from "hanami-assets";
 
@@ -227,8 +228,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         //   }
         // });
       EXPECTED
-      expect(fs.read("config/assets.mjs")).to eq(assets)
-      expect(output).to include("Created config/assets.mjs")
+      expect(fs.read("config/assets.js")).to eq(assets)
+      expect(output).to include("Created config/assets.js")
 
       # config/settings.rb
       settings = <<~EXPECTED
@@ -524,8 +525,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # Procfile.dev
         expect(fs.read("Procfile.dev")).to_not match(/hanami assets watch/)
 
-        # config/assets.mjs
-        expect(fs.exist?("config/assets.mjs")).to be(false)
+        # config/assets.js
+        expect(fs.exist?("config/assets.js")).to be(false)
 
         # app/templates/layouts/app.html.erb
         app_layout = fs.read("app/templates/layouts/app.html.erb")
