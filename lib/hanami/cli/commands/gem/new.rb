@@ -102,7 +102,7 @@ module Hanami
                     system_call.call("npm", ["install"]).tap do |result|
                       unless result.successful?
                         puts "NPM ERROR:"
-                        puts result.err.lines.map {|line| line.prepend("    ")}
+                        puts(result.err.lines.map { |line| line.prepend("    ") })
                       end
                     end
                   end
