@@ -28,6 +28,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       .at_least(1)
       .and_return(successful_system_call_result)
 
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
     app_name = "HanamiTeam"
     app = "hanami_team"
     subject.call(app: app_name)
@@ -53,6 +58,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     expect(bundler).to receive(:exec)
       .with("hanami install")
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
       .and_return(successful_system_call_result)
 
     expect(system_call).to receive(:call).with("npm", ["install"])
@@ -428,6 +438,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install --head")
         .and_return(successful_system_call_result)
 
+      expect(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
       subject.call(app: app, **kwargs)
 
       expect(fs.directory?(app)).to be(true)
@@ -483,6 +498,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .with("hanami install")
         .and_return(successful_system_call_result)
 
+      expect(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
       expect(system_call).not_to receive(:call).with("npm", ["install"])
 
       subject.call(app: app, **kwargs)
@@ -533,6 +553,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     expect(bundler).to receive(:exec)
       .with("hanami install")
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
       .and_return(successful_system_call_result)
 
     subject.call(app: app)
