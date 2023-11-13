@@ -219,6 +219,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         // To provide additional esbuild (https://esbuild.github.io) options, use the following:
         //
+        // Read more at: https://guides.hanamirb.org/assets/overview/
+        //
         // await assets.run({
         //   esbuildOptionsFn: (args, esbuildOptions) => {
         //     // Add to esbuildOptions here. Use `args.watch` as a condition for different options for
