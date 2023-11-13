@@ -98,7 +98,7 @@ module Hanami
                   bundler.install!
 
                   unless skip_assets
-                    out.puts "Running npm install..."
+                    out.puts "Running NPM install..."
                     system_call.call("npm", ["install"]).tap do |result|
                       unless result.successful?
                         puts "NPM ERROR:"
