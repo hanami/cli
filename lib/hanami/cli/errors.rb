@@ -91,5 +91,13 @@ module Hanami
         super("`#{scheme}' is not a supported db scheme")
       end
     end
+
+    # since 2.1.0
+    # @api public
+    class AssetsCompilationError < Error
+      def initialize(stdout, stderr)
+        super("#{stdout}\n\nErrors on assets compilation:\n\n#{stderr}")
+      end
+    end
   end
 end
