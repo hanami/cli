@@ -17,13 +17,87 @@ module Hanami
               super(config: config, system_call: system_call)
             end
 
-            private
+            def call(**)
+              slices = app.slices.with_nested + [app]
+
+              # capture pids here
+              pids = start_children(slices)
+
+
+              %w[INT USR1 TERM].each do |sig|
+                Signal.trap(sig) do
+                  pids.each do |pid|
+                    puts "killing..."
+                    p sig
+                    p pid
+                    Process.kill(sig, pid)
+                  end
+                end
+              end
+
+              Process.waitall
+            end
 
             # @since 2.1.0
             # @api private
-            def cmd_with_args
-              super + ["--", "--watch"]
+            def cmd_with_args(slice)
+              result = super()
+
+              result << "--"
+
+              result << "--watch"
+
+              if slice.eql?(slice.app)
+                result << "--path=app"
+                result << "--target=public/assets"
+              else
+                result << "--path=#{slice.root.relative_path_from(slice.app.root)}"
+                result << "--target=public/assets/#{slice.slice_name}"
+                # TODO: work for nested slices
+              end
+
+              result
             end
+
+            private
+
+            def start_children(slices)
+              slices.map do |slice|
+                fork_child(slice)
+              end
+            end
+
+            def fork_child(slice)
+              Process.fork do
+                cmd, *args = cmd_with_args(slice)
+                p cmd_with_args(slice)
+                result = system_call.call(cmd, *args)
+
+                if result.exit_code == 0
+                  puts result.out
+
+                  if result.err && result.err != ""
+                    puts ""
+                    puts result.err
+                  end
+                else
+                  puts "AssetsCompilationError"
+                  puts result.out
+                  puts result.err
+                  raise "AssetsCompilationError"
+                  # raise AssetsCompilationError.new(result.out, result.err)
+                end
+              end
+            end
+
+
+            # private
+
+            # # @since 2.1.0
+            # # @api private
+            # def cmd_with_args
+            #   super + ["--", "--watch"]
+            # end
           end
         end
       end
