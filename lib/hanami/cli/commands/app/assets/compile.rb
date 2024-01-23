@@ -48,6 +48,8 @@ module Hanami
               slices.each do |slice|
                 fork_child(slice)
               end
+
+              Process.waitall
             end
 
             def fork_child(slice)
@@ -56,7 +58,7 @@ module Hanami
                 p cmd_with_args(slice)
                 result = system_call.call(cmd, *args)
 
-                if result.exit_code == 0
+                if result.exit_code == 0 # rubocop:disable Style/NumericPredicate TODO disable this entirely
                   puts result.out
 
                   if result.err && result.err != ""
