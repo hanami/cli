@@ -19,28 +19,7 @@ module Hanami
               start_children(slices)
             end
 
-            # @since 2.1.0
-            # @api private
-            def cmd_with_args(slice)
-              result = super()
 
-              result << "--"
-
-              if slice.eql?(slice.app)
-                result << "--path=app"
-                result << "--target=public/assets"
-              else
-                result << "--path=#{slice.root.relative_path_from(slice.app.root)}"
-                result << "--target=public/assets/#{slice.slice_name}"
-                # TODO: work for nested slices
-              end
-
-              if config.subresource_integrity.any?
-                result << "--sri=#{escape(config.subresource_integrity.join(','))}"
-              end
-
-              result
-            end
 
             private
 
@@ -73,6 +52,37 @@ module Hanami
                   # raise AssetsCompilationError.new(result.out, result.err)
                 end
               end
+            end
+
+            # @since 2.1.0
+            # @api private
+            def cmd_with_args(slice)
+              result = [config.node_command, assets_config(slice).to_s, "--"]
+
+              if slice.eql?(slice.app)
+                result << "--path=app"
+                result << "--target=public/assets"
+              else
+                result << "--path=#{slice.root.relative_path_from(slice.app.root)}"
+                result << "--target=public/assets/#{slice.slice_name}"
+              end
+
+              if config.subresource_integrity.any?
+                result << "--sri=#{escape(config.subresource_integrity.join(','))}"
+              end
+
+              result
+            end
+
+            def assets_config(slice)
+              config = slice.root.join("config", "assets.js")
+              return config if config.exist?
+
+              config = slice.app.root.join("config", "assets.js")
+              return config if config.exist?
+
+              # TODO: real error
+              raise "no asset config found"
             end
           end
         end
