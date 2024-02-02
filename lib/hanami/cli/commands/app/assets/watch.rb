@@ -70,11 +70,7 @@ module Hanami
             # @since 2.1.0
             # @api private
             def cmd_with_args(slice)
-              result = super()
-
-              result << "--"
-
-              result << "--watch"
+              result = [config.node_command, assets_config(slice).to_s, "--", "--watch"]
 
               if slice.eql?(slice.app)
                 result << "--path=app"
@@ -85,6 +81,17 @@ module Hanami
               end
 
               result
+            end
+
+            def assets_config(slice)
+              config = slice.root.join("config", "assets.js")
+              return config if config.exist?
+
+              config = slice.app.root.join("config", "assets.js")
+              return config if config.exist?
+
+              # TODO: real error
+              raise "no asset config found"
             end
           end
         end
