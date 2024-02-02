@@ -82,7 +82,6 @@ module Hanami
               else
                 result << "--path=#{slice.root.relative_path_from(slice.app.root)}"
                 result << "--target=public/assets/#{slice.slice_name}"
-                # TODO: work for nested slices
               end
 
               result
