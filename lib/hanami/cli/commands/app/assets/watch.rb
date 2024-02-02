@@ -78,6 +78,9 @@ module Hanami
                 else
                   raise AssetsCompilationError.new(result.out, result.err)
                 end
+              rescue Interrupt => e
+                # When this has been interrupted (by the Signal.trap handler in #call), catch the
+                # interrupt and exit cleanly, without showing the default full backtrace.
               end
             end
 
