@@ -19,17 +19,11 @@ module Hanami
 
             def call(**)
               slices = app.slices.with_nested + [app]
-
-              # capture pids here
               pids = start_children(slices)
-
 
               %w[INT USR1 TERM].each do |sig|
                 Signal.trap(sig) do
                   pids.each do |pid|
-                    puts "killing..."
-                    p sig
-                    p pid
                     Process.kill(sig, pid)
                   end
                 end
@@ -70,7 +64,6 @@ module Hanami
             def fork_child(slice)
               Process.fork do
                 cmd, *args = cmd_with_args(slice)
-                p cmd_with_args(slice)
                 result = system_call.call(cmd, *args)
 
                 if result.exit_code == 0
@@ -81,11 +74,7 @@ module Hanami
                     puts result.err
                   end
                 else
-                  puts "AssetsCompilationError"
-                  puts result.out
-                  puts result.err
-                  raise "AssetsCompilationError"
-                  # raise AssetsCompilationError.new(result.out, result.err)
+                  raise AssetsCompilationError.new(result.out, result.err)
                 end
               end
             end
