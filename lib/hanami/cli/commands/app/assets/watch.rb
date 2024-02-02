@@ -32,35 +32,18 @@ module Hanami
               Process.waitall
             end
 
-            # @since 2.1.0
-            # @api private
-            def cmd_with_args(slice)
-              result = super()
-
-              result << "--"
-
-              result << "--watch"
-
-              if slice.eql?(slice.app)
-                result << "--path=app"
-                result << "--target=public/assets"
-              else
-                result << "--path=#{slice.root.relative_path_from(slice.app.root)}"
-                result << "--target=public/assets/#{slice.slice_name}"
-                # TODO: work for nested slices
-              end
-
-              result
-            end
-
             private
 
+            # @since 2.1.0
+            # @api private
             def start_children(slices)
               slices.map do |slice|
                 fork_child(slice)
               end
             end
 
+            # @since 2.1.0
+            # @api private
             def fork_child(slice)
               Process.fork do
                 cmd, *args = cmd_with_args(slice)
@@ -84,14 +67,26 @@ module Hanami
               end
             end
 
+            # @since 2.1.0
+            # @api private
+            def cmd_with_args(slice)
+              result = super()
 
-            # private
+              result << "--"
 
-            # # @since 2.1.0
-            # # @api private
-            # def cmd_with_args
-            #   super + ["--", "--watch"]
-            # end
+              result << "--watch"
+
+              if slice.eql?(slice.app)
+                result << "--path=app"
+                result << "--target=public/assets"
+              else
+                result << "--path=#{slice.root.relative_path_from(slice.app.root)}"
+                result << "--target=public/assets/#{slice.slice_name}"
+                # TODO: work for nested slices
+              end
+
+              result
+            end
           end
         end
       end
