@@ -66,6 +66,8 @@ module Hanami
                 cmd, *args = cmd_with_args(slice)
                 result = system_call.call(cmd, *args)
 
+                # In ordinary usage, watch mode runs until it is interrupted by the user. We should
+                # only get here if the watch command fails for some reason.
                 if result.exit_code == 0
                   puts result.out
 
