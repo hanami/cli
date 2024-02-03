@@ -14,18 +14,12 @@ module Hanami
 
             def call(**)
               slices = app.slices.with_nested + [app]
+              pids = slices.map { |slice| fork_child(slice) }
 
-              # capture pids here
-              start_children(slices)
-            end
-
-
-
-            private
-
-            def start_children(slices)
-              slices.each do |slice|
-                fork_child(slice)
+              Signal.trap("INT") do
+                pids.each do |pid|
+                  Process.kill(sig, pid)
+                end
               end
 
               Process.waitall

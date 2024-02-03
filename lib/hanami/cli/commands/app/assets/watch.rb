@@ -19,13 +19,11 @@ module Hanami
 
             def call(**)
               slices = app.slices.with_nested + [app]
-              pids = start_children(slices)
+              pids = slices.map { |slice| fork_child(slice) }
 
-              %w[INT USR1 TERM].each do |sig|
-                Signal.trap(sig) do
-                  pids.each do |pid|
-                    Process.kill(sig, pid)
-                  end
+              Signal.trap("INT") do
+                pids.each do |pid|
+                  Process.kill(sig, pid)
                 end
               end
 
@@ -33,14 +31,6 @@ module Hanami
             end
 
             private
-
-            # @since 2.1.0
-            # @api private
-            def start_children(slices)
-              slices.map do |slice|
-                fork_child(slice)
-              end
-            end
 
             # @since 2.1.0
             # @api private
