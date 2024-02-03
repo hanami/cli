@@ -12,6 +12,10 @@ module Hanami
           class Compile < Assets::Command
             desc "Compile assets for deployments"
 
+            def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new(exit_after: false), **)
+              super(config: config, system_call: system_call)
+            end
+
             def call(**)
               slices = app.slices.with_nested + [app]
               pids = slices.map { |slice| fork_child(slice) }
@@ -25,26 +29,15 @@ module Hanami
               Process.waitall
             end
 
+            private
+
             def fork_child(slice)
               Process.fork do
                 cmd, *args = cmd_with_args(slice)
-                p cmd_with_args(slice)
-                result = system_call.call(cmd, *args)
-
-                if result.exit_code == 0 # rubocop:disable Style/NumericPredicate TODO disable this entirely
-                  puts result.out
-
-                  if result.err && result.err != ""
-                    puts ""
-                    puts result.err
-                  end
-                else
-                  puts "AssetsCompilationError"
-                  puts result.out
-                  puts result.err
-                  raise "AssetsCompilationError"
-                  # raise AssetsCompilationError.new(result.out, result.err)
-                end
+                system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
+              rescue Interrupt => e
+                # When this has been interrupted (by the Signal.trap handler in #call), catch the
+                # interrupt and exit cleanly, without showing the default full backtrace.
               end
             end
 

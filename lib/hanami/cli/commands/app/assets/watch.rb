@@ -13,7 +13,7 @@ module Hanami
           class Watch < Assets::Command
             desc "Start assets watch mode"
 
-            def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new, **)
+            def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new(exit_after: false), **)
               super(config: config, system_call: system_call)
             end
 
@@ -37,20 +37,7 @@ module Hanami
             def fork_child(slice)
               Process.fork do
                 cmd, *args = cmd_with_args(slice)
-                result = system_call.call(cmd, *args)
-
-                # In ordinary usage, watch mode runs until it is interrupted by the user. We should
-                # only get here if the watch command fails for some reason.
-                if result.exit_code == 0
-                  puts result.out
-
-                  if result.err && result.err != ""
-                    puts ""
-                    puts result.err
-                  end
-                else
-                  raise AssetsCompilationError.new(result.out, result.err)
-                end
+                result = system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
               rescue Interrupt => e
                 # When this has been interrupted (by the Signal.trap handler in #call), catch the
                 # interrupt and exit cleanly, without showing the default full backtrace.
