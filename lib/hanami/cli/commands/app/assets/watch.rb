@@ -19,7 +19,7 @@ module Hanami
 
             def call(**)
               slices = app.slices.with_nested + [app]
-              pids = slices.map { |slice| fork_child(slice) }
+              pids = slices.map { |slice| fork_child(slice) if slice_assets?(slice) }
 
               Signal.trap("INT") do
                 pids.each do |pid|
@@ -37,7 +37,7 @@ module Hanami
             def fork_child(slice)
               Process.fork do
                 cmd, *args = cmd_with_args(slice)
-                result = system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
+                system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
               rescue Interrupt => e
                 # When this has been interrupted (by the Signal.trap handler in #call), catch the
                 # interrupt and exit cleanly, without showing the default full backtrace.
@@ -58,6 +58,10 @@ module Hanami
               end
 
               result
+            end
+
+            def slice_assets?(slice)
+              slice.root.join("assets").directory?
             end
 
             def assets_config(slice)

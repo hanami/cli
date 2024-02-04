@@ -18,7 +18,7 @@ module Hanami
 
             def call(**)
               slices = app.slices.with_nested + [app]
-              pids = slices.map { |slice| fork_child(slice) }
+              pids = slices.map { |slice| fork_child(slice) if slice_assets?(slice) }
 
               Signal.trap("INT") do
                 pids.each do |pid|
@@ -59,6 +59,10 @@ module Hanami
               end
 
               result
+            end
+
+            def slice_assets?(slice)
+              slice.root.join("assets").directory?
             end
 
             def assets_config(slice)

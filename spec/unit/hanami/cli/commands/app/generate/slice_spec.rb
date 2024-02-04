@@ -3,7 +3,7 @@
 require "hanami"
 require "securerandom"
 
-RSpec.describe Hanami::CLI::Commands::App::Generate::Slice do
+RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
 
   before do

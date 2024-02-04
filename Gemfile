@@ -19,6 +19,8 @@ gem "dry-files", github: "dry-rb/dry-files", branch: "main"
 
 gem "rack"
 
+gem "hanami-devtools", github: "hanami/devtools", branch: "main"
+
 group :test do
   gem "pry"
 end

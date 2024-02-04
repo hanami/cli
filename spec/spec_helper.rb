@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "hanami/cli"
+require "pathname"
+
+SPEC_ROOT = Pathname(File.expand_path(__dir__)).freeze
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -61,6 +64,7 @@ RSpec.configure do |config|
   config.around(app: true) do |example|
     require_relative "fixtures/test/config/app" unless defined?(Test::App)
     example.run
+    $LOADED_FEATURES.delete(SPEC_ROOT.join("fixtures/test/config/app.rb").to_s)
   end
 end
 
