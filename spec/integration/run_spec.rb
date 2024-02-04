@@ -28,7 +28,7 @@ RSpec.describe "bin/hanami", :app do
       let(:args) { %w[unknown command] }
 
       it "prints help and exits with error code" do
-        expect(exit_code).to be(1)
+        expect(exit_code).to eq 1
         expect(stderr).to include("Commands:")
       end
     end
@@ -37,7 +37,7 @@ RSpec.describe "bin/hanami", :app do
       let(:args) { %w[generate action home.index --slice=foo] }
 
       it "prints error message and exits with error code" do
-        expect(exit_code).to be(1)
+        expect(exit_code).to eq 1
         expect(stderr).to include("slice `foo' is missing")
       end
     end
