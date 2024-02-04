@@ -15,6 +15,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
 
       write "config/assets.js", ""
 
+      require "hanami/setup"
       before_prepare if respond_to?(:before_prepare)
       require "hanami/prepare"
     end
@@ -133,6 +134,27 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         "--path=slices/main",
         "--target=public/assets/main",
         {out_prefix: "[main] "}
+      )
+
+      compile_command.call
+    end
+  end
+
+  describe "subresource integrity configured" do
+    def before_prepare
+      Hanami.app.config.assets.subresource_integrity = [:sha256, :sha512]
+      write "assets/.keep", ""
+    end
+
+    it "passes the setting via the --sri flag" do
+      expect(interactive_system_call).to receive(:call).with(
+        "node",
+        Hanami.app.root.join("config", "assets.js").to_s,
+        "--",
+        "--path=app",
+        "--target=public/assets",
+        "--sri=sha256,sha512",
+        {out_prefix: "[test_app] "}
       )
 
       compile_command.call
