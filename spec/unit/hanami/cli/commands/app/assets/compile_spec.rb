@@ -1,8 +1,20 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integration do
-  subject(:compile_command) { described_class.new(system_call: interactive_system_call) }
+  subject(:compile_command) {
+    described_class.new(
+      system_call: interactive_system_call,
+      out: out
+    )
+  }
+
   let(:interactive_system_call) { instance_double(Hanami::CLI::InteractiveSystemCall) }
+
+  let(:out) { StringIO.new }
+  let(:output) {
+    out.rewind
+    out.read
+  }
 
   before do
     with_directory(make_tmp_directory) do
@@ -54,6 +66,8 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         expect(interactive_system_call).not_to receive(:call)
 
         compile_command.call
+
+        expect(output).to eq "No assets found.\n"
       end
     end
   end

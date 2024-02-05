@@ -12,8 +12,8 @@ module Hanami
           # @since 2.1.0
           # @api private
           class Command < App::Command
-            def initialize(config: app.config.assets, system_call: SystemCall.new, **)
-              super()
+            def initialize(config: app.config.assets, system_call: SystemCall.new, **opts)
+              super(**opts)
               @system_call = system_call
               @config = config
             end
@@ -21,6 +21,13 @@ module Hanami
             # @since 2.1.0
             # @api private
             def call(**)
+              slices = slices_with_assets
+
+              if slices.empty?
+                out.puts "No assets found."
+                return
+              end
+
               pids = slices_with_assets.map { |slice| fork_child(slice) }
 
               Signal.trap("INT") do

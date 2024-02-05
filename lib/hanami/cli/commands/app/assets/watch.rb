@@ -13,8 +13,8 @@ module Hanami
           class Watch < Assets::Command
             desc "Start assets watch mode"
 
-            def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new(exit_after: false), **)
-              super(config: config, system_call: system_call)
+            def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new(exit_after: false), **opts)
+              super(config: config, system_call: system_call, **opts)
             end
 
             private
