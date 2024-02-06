@@ -68,10 +68,10 @@ module Hanami
 
               if slice.eql?(slice.app)
                 cmd << "--path=app"
-                cmd << "--target=public/assets"
+                cmd << "--dest=public/assets"
               else
                 cmd << "--path=#{slice.root.relative_path_from(slice.app.root)}"
-                cmd << "--target=public/assets/#{slice.slice_name}"
+                cmd << "--dest=public/assets/#{slice.slice_name}"
               end
 
               cmd

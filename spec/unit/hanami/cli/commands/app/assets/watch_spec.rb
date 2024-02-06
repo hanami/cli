@@ -52,7 +52,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
           Hanami.app.root.join("config", "assets.js").to_s,
           "--",
           "--path=app",
-          "--target=public/assets",
+          "--dest=public/assets",
           "--watch",
           {out_prefix: "[test_app] "}
         )
@@ -84,7 +84,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
           Hanami.app.root.join("config", "assets.js").to_s,
           "--",
           "--path=slices/admin",
-          "--target=public/assets/admin",
+          "--dest=public/assets/admin",
           "--watch",
           {out_prefix: "[admin] "}
         )
@@ -105,7 +105,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
           Hanami.app.root.join("slices", "admin", "config", "assets.js").to_s,
           "--",
           "--path=slices/admin",
-          "--target=public/assets/admin",
+          "--dest=public/assets/admin",
           "--watch",
           {out_prefix: "[admin] "}
         )
@@ -139,7 +139,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
         Hanami.app.root.join("config", "assets.js").to_s,
         "--",
         "--path=slices/admin",
-        "--target=public/assets/admin",
+        "--dest=public/assets/admin",
         "--watch",
         {out_prefix: "[admin] "}
       )
@@ -149,7 +149,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
         Hanami.app.root.join("config", "assets.js").to_s,
         "--",
         "--path=slices/main",
-        "--target=public/assets/main",
+        "--dest=public/assets/main",
         "--watch",
         {out_prefix: "[main] "}
       )
