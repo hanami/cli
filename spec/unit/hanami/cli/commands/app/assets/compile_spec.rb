@@ -174,4 +174,19 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
       compile_command.call
     end
   end
+
+  describe "missing config/asset.js" do
+    def before_prepare
+      write "assets/.keep", ""
+      FileUtils.rm_f "config/assets.js"
+    end
+
+    it "prints an error message" do
+      expect(interactive_system_call).not_to receive(:call)
+
+      compile_command.call
+
+      expect(output).to eq "No assets config found for TestApp::App. Please create a config/assets.js.\n"
+    end
+  end
 end

@@ -28,6 +28,13 @@ module Hanami
                 return
               end
 
+              slices.each do |slice|
+                unless assets_config(slice)
+                  out.puts "No assets config found for #{slice}. Please create a config/assets.js."
+                  return
+                end
+              end
+
               pids = slices_with_assets.map { |slice| fork_child_assets_command(slice) }
 
               Signal.trap("INT") do
@@ -88,6 +95,11 @@ module Hanami
               slice.root.join("assets").directory?
             end
 
+            # Returns the path to the assets config (`config/assets.js`) for the given slice.
+            #
+            # Prefers a config file local to the slice, otherwise falls back to app-level config.
+            # Returns nil if no config can be found.
+            #
             # @since 2.1.0
             # @api private
             def assets_config(slice)
@@ -95,10 +107,7 @@ module Hanami
               return config if config.exist?
 
               config = slice.app.root.join("config", "assets.js")
-              return config if config.exist?
-
-              # TODO: real error
-              raise "no asset config found"
+              config if config.exist?
             end
 
             # @since 2.1.0
