@@ -7,11 +7,15 @@ module Hanami
     module Commands
       module App
         module Assets
+          # Compiles assets for each slice.
+          #
           # @since 2.1.0
           # @api private
           class Compile < Assets::Command
             desc "Compile assets for deployments"
 
+            # @since 2.1.0
+            # @api private
             def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new(exit_after: false), **opts)
               super(config: config, system_call: system_call, **opts)
             end

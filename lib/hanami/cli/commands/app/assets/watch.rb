@@ -8,11 +8,15 @@ module Hanami
     module Commands
       module App
         module Assets
+          # Watches for asset changes within each slice.
+          #
           # @since 2.1.0
           # @api private
           class Watch < Assets::Command
             desc "Start assets watch mode"
 
+            # @since 2.1.0
+            # @api private
             def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new(exit_after: false), **opts)
               super(config: config, system_call: system_call, **opts)
             end

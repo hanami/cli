@@ -9,6 +9,21 @@ module Hanami
     module Commands
       module App
         module Assets
+          # Base class for assets commands.
+          #
+          # Finds slices with assets present (anything in an `assets/` dir), then forks a child
+          # process for each slice to run the assets command (`config/assets.js`) for the slice.
+          #
+          # Prefers the slice's own `config/assets.js` if present, otherwise falls back to the
+          # app-level file.
+          #
+          # Passes `--path` and `--dest` arguments to this command to compile assets for the given
+          # slice only and save them into a dedicated directory (`public/assets/` for the app,
+          # `public/[slice_name]/` for slices).
+          #
+          # @see Watch
+          # @see Compile
+          #
           # @since 2.1.0
           # @api private
           class Command < App::Command
@@ -84,6 +99,8 @@ module Hanami
               cmd
             end
 
+            # @since 2.1.0
+            # @api private
             def slices_with_assets
               slices = app.slices.with_nested + [app]
               slices.select { |slice| slice_assets?(slice) }
