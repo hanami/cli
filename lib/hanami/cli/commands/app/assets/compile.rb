@@ -20,7 +20,7 @@ module Hanami
 
             # @since 2.1.0
             # @api private
-            def cmd_with_args(slice)
+            def assets_command(slice)
               cmd = super
 
               if config.subresource_integrity.any?

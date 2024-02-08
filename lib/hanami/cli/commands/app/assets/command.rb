@@ -28,7 +28,7 @@ module Hanami
                 return
               end
 
-              pids = slices_with_assets.map { |slice| fork_child(slice) }
+              pids = slices_with_assets.map { |slice| fork_child_assets_command(slice) }
 
               Signal.trap("INT") do
                 pids.each do |pid|
@@ -51,9 +51,9 @@ module Hanami
 
             # @since 2.1.0
             # @api private
-            def fork_child(slice)
+            def fork_child_assets_command(slice)
               Process.fork do
-                cmd, *args = cmd_with_args(slice)
+                cmd, *args = assets_command(slice)
                 system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
               rescue Interrupt
                 # When this has been interrupted (by the Signal.trap handler in #call), catch the
@@ -63,7 +63,7 @@ module Hanami
 
             # @since 2.1.0
             # @api private
-            def cmd_with_args(slice)
+            def assets_command(slice)
               cmd = [config.node_command, assets_config(slice).to_s, "--"]
 
               if slice.eql?(slice.app)
