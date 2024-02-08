@@ -3,13 +3,13 @@
 source "https://rubygems.org"
 
 <%= hanami_gem("hanami") %>
-<%= hanami_gem("router") %>
-<%= hanami_gem("controller") %>
-<%= hanami_gem("validations") %>
-<%= hanami_gem("view") %>
 <%- if generate_assets? -%>
 <%= hanami_gem("assets") %>
 <%- end -%>
+<%= hanami_gem("controller") %>
+<%= hanami_gem("router") %>
+<%= hanami_gem("validations") %>
+<%= hanami_gem("view") %>
 
 gem "dry-types", "~> 1.0", ">= 1.6.1"
 gem "puma"
