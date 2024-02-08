@@ -9,15 +9,16 @@ module Hanami
     class InteractiveSystemCall
       # @api private
       # @since 2.1.0
-      def initialize(out: $stdout, err: $stderr)
+      def initialize(out: $stdout, err: $stderr, exit_after: true)
         @out = out
         @err = err
+        @exit_after = exit_after
         super()
       end
 
       # @api private
       # @since 2.1.0
-      def call(cmd, *args, env: {})
+      def call(cmd, *args, env: {}, out_prefix: "")
         ::Bundler.with_unbundled_env do
           threads = []
           exit_status = 0
@@ -26,14 +27,14 @@ module Hanami
           Open3.popen3(env, command(cmd, *args)) do |_stdin, stdout, stderr, wait_thr|
             threads << Thread.new do
               stdout.each_line do |line|
-                out.puts(line)
+                out.puts("#{out_prefix}#{line}")
               end
             rescue IOError # FIXME: Check if this is legit
             end
 
             threads << Thread.new do
               stderr.each_line do |line|
-                err.puts(line)
+                err.puts("#{out_prefix}#{line}")
               end
             rescue IOError # FIXME: Check if this is legit
             end
@@ -44,7 +45,7 @@ module Hanami
           end
           # rubocop:enable Lint/SuppressedException
 
-          exit(exit_status.exitstatus)
+          exit(exit_status.exitstatus) if @exit_after
         end
       end
 

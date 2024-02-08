@@ -7,6 +7,8 @@ module Hanami
     module Commands
       module App
         module Assets
+          # Compiles assets for each slice.
+          #
           # @since 2.1.0
           # @api private
           class Compile < Assets::Command
@@ -14,15 +16,22 @@ module Hanami
 
             # @since 2.1.0
             # @api private
-            def cmd_with_args
-              result = super
+            def initialize(config: app.config.assets, system_call: InteractiveSystemCall.new(exit_after: false), **opts)
+              super(config: config, system_call: system_call, **opts)
+            end
+
+            private
+
+            # @since 2.1.0
+            # @api private
+            def assets_command(slice)
+              cmd = super
 
               if config.subresource_integrity.any?
-                result << "--"
-                result << "--sri=#{escape(config.subresource_integrity.join(','))}"
+                cmd << "--sri=#{escape(config.subresource_integrity.join(','))}"
               end
 
-              result
+              cmd
             end
           end
         end

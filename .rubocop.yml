@@ -13,6 +13,8 @@ Lint/DuplicateBranch:
 Lint/EmptyFile:
   Exclude:
     - 'spec/fixtures/**/*.rb'
+Lint/NonLocalExitFromIterator:
+  Enabled: false
 Naming/HeredocDelimiterNaming:
   Enabled: false
 Naming/MethodParameterName:
