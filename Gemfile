@@ -10,7 +10,7 @@ unless ENV["CI"]
 end
 
 gem "hanami", github: "hanami/hanami", branch: "main"
-gem "hanami-assets", github: "hanami/assets", branch: "change-package-manager-setting"
+gem "hanami-assets", github: "hanami/assets", branch: "main"
 gem "hanami-controller", github: "hanami/controller", branch: "main"
 gem "hanami-router", github: "hanami/router", branch: "main"
 gem "hanami-utils", github: "hanami/utils", branch: "main"
