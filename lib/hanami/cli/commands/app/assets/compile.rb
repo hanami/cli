@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "command"
+require_relative "../../../interactive_system_call"
 
 module Hanami
   module CLI
