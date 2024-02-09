@@ -107,11 +107,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         source "https://rubygems.org"
 
         gem "hanami", "#{hanami_version}"
-        gem "hanami-router", "#{hanami_version}"
+        gem "hanami-assets", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
+        gem "hanami-router", "#{hanami_version}"
         gem "hanami-validations", "#{hanami_version}"
         gem "hanami-view", "#{hanami_version}"
-        gem "hanami-assets", "#{hanami_version}"
 
         gem "dry-types", "~> 1.0", ">= 1.6.1"
         gem "puma"
@@ -458,11 +458,11 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           source "https://rubygems.org"
 
           gem "hanami", github: "hanami/hanami", branch: "main"
-          gem "hanami-router", github: "hanami/router", branch: "main"
+          gem "hanami-assets", github: "hanami/assets", branch: "main"
           gem "hanami-controller", github: "hanami/controller", branch: "main"
+          gem "hanami-router", github: "hanami/router", branch: "main"
           gem "hanami-validations", github: "hanami/validations", branch: "main"
           gem "hanami-view", github: "hanami/view", branch: "main"
-          gem "hanami-assets", github: "hanami/assets", branch: "main"
 
           gem "dry-types", "~> 1.0", ">= 1.6.1"
           gem "puma"
