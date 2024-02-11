@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integration do
-  subject(:compile_command) {
+  subject(:command) {
     described_class.new(
       system_call: interactive_system_call,
       out: out
@@ -44,7 +44,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
   describe "assets in app" do
     describe "assets dir present" do
       def before_prepare
-        write "assets/.keep", ""
+        write "app/assets/.keep", ""
       end
 
       it "compiles the app assets" do
@@ -57,7 +57,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           {out_prefix: "[test_app] "}
         )
 
-        compile_command.call
+        command.call
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
       it "does not watch app assets" do
         expect(interactive_system_call).not_to receive(:call)
 
-        compile_command.call
+        command.call
 
         expect(output).to eq "No assets found.\n"
       end
@@ -88,7 +88,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           {out_prefix: "[admin] "}
         )
 
-        compile_command.call
+        command.call
       end
     end
 
@@ -108,7 +108,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           {out_prefix: "[admin] "}
         )
 
-        compile_command.call
+        command.call
       end
     end
 
@@ -120,7 +120,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
       it "does not watch app assets" do
         expect(interactive_system_call).not_to receive(:call)
 
-        compile_command.call
+        command.call
       end
     end
   end
@@ -150,14 +150,14 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         {out_prefix: "[main] "}
       )
 
-      compile_command.call
+      command.call
     end
   end
 
   describe "subresource integrity configured" do
     def before_prepare
       Hanami.app.config.assets.subresource_integrity = [:sha256, :sha512]
-      write "assets/.keep", ""
+      write "app/assets/.keep", ""
     end
 
     it "passes the setting via the --sri flag" do
@@ -171,20 +171,20 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         {out_prefix: "[test_app] "}
       )
 
-      compile_command.call
+      command.call
     end
   end
 
   describe "missing config/asset.js" do
     def before_prepare
-      write "assets/.keep", ""
+      write "app/assets/.keep", ""
       FileUtils.rm_f "config/assets.js"
     end
 
     it "prints an error message" do
       expect(interactive_system_call).not_to receive(:call)
 
-      compile_command.call
+      command.call
 
       expect(output).to eq "No assets config found for TestApp::App. Please create a config/assets.js.\n"
     end
