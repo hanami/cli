@@ -13,18 +13,40 @@ module Hanami
     class Command < Dry::CLI::Command
       # Returns a new command.
       #
-      # This method does not need to be called directly when creating comments for the CLI. Commands
+      # Provides default values so they can be available to any subclasses defining their own
+      # {#initialize} methods.
+      #
+      # @see #initialize
+      #
+      # @since 2.1.0
+      # @api public
+      def self.new(
+        out: $stdout,
+        err: $stderr,
+        fs: Hanami::CLI::Files.new,
+        inflector: Dry::Inflector.new,
+        **opts
+      )
+        super(out: out, err: err, fs: fs, inflector: inflector, **opts)
+      end
+
+      # Returns a new command.
+      #
+      # This method does not need to be called directly when creating commands for the CLI. Commands
       # are registered as classes, and the CLI framework will initialize the command when needed.
-      # This means that all parameters for `#initialize` should also be given default arguments.
+      # This means that all parameters for `#initialize` should also be given default arguments. See
+      # {.new} for the standard default arguments for all commands.
       #
       # @param out [IO] I/O stream for standard command output
       # @param err [IO] I/O stream for comment errror output
       # @param fs [Hanami::CLI::Files] object for managing file system interactions
       # @param inflector [Dry::Inflector] inflector for any command-level inflections
       #
+      # @see .new
+      #
       # @since 2.0.0
       # @api public
-      def initialize(out: $stdout, err: $stderr, fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new)
+      def initialize(out:, err:, fs:, inflector:)
         super()
         @out = out
         @err = err

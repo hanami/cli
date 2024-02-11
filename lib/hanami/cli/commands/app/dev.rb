@@ -15,23 +15,28 @@ module Hanami
 
           # @since 2.1.0
           # @api private
-          def initialize(interactive_system_call: InteractiveSystemCall.new, **)
-            @interactive_system_call = interactive_system_call
-            super()
+          def initialize(
+            out:, err:,
+            system_call: InteractiveSystemCall.new(out: out, err: err),
+            **opts
+          )
+            super(out: out, err: err, **opts)
+
+            @system_call = system_call
           end
 
           # @since 2.1.0
           # @api private
           def call(**)
             bin, args = executable
-            interactive_system_call.call(bin, *args)
+            system_call.call(bin, *args)
           end
 
           private
 
           # @since 2.1.0
           # @api private
-          attr_reader :interactive_system_call
+          attr_reader :system_call
 
           # @since 2.1.0
           # @api private

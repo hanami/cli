@@ -61,12 +61,16 @@ module Hanami
 
             # @since 2.0.0
             # @api private
-            def initialize(fs: Hanami::CLI::Files.new, inflector: Dry::Inflector.new,
-                           naming: Naming.new(inflector: inflector),
-                           generator: Generators::App::Action.new(fs: fs, inflector: inflector), **)
+            def initialize(
+              fs:, inflector:,
+              naming: Naming.new(inflector: inflector),
+              generator: Generators::App::Action.new(fs: fs, inflector: inflector),
+              **opts
+            )
+              super(fs: fs, inflector: inflector, **opts)
+
               @naming = naming
               @generator = generator
-              super(fs: fs)
             end
 
             # rubocop:disable Metrics/ParameterLists

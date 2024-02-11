@@ -63,17 +63,16 @@ module Hanami
           # @since 2.0.0
           # @api private
           def initialize(
-            fs: Hanami::CLI::Files.new,
-            inflector: Dry::Inflector.new,
+            fs:, inflector:,
             bundler: CLI::Bundler.new(fs: fs),
             generator: Generators::Gem::App.new(fs: fs, inflector: inflector),
             system_call: SystemCall.new,
-            **other
+            **opts
           )
+            super(fs: fs, inflector: inflector, **opts)
             @bundler = bundler
             @generator = generator
             @system_call = system_call
-            super(fs: fs, inflector: inflector, **other)
           end
 
           # rubocop:enable Metrics/ParameterLists
