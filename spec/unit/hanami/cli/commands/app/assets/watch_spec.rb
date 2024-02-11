@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integration do
-  subject(:watch_command) {
+  subject(:command) {
     described_class.new(
       system_call: interactive_system_call,
       out: out
@@ -57,7 +57,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
           {out_prefix: "[test_app] "}
         )
 
-        watch_command.call
+        command.call
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
       it "does not watch app assets" do
         expect(interactive_system_call).not_to receive(:call)
 
-        watch_command.call
+        command.call
 
         expect(output).to eq "No assets found.\n"
       end
@@ -89,7 +89,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
           {out_prefix: "[admin] "}
         )
 
-        watch_command.call
+        command.call
       end
     end
 
@@ -110,7 +110,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
           {out_prefix: "[admin] "}
         )
 
-        watch_command.call
+        command.call
       end
     end
 
@@ -122,7 +122,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
       it "does not watch app assets" do
         expect(interactive_system_call).not_to receive(:call)
 
-        watch_command.call
+        command.call
       end
     end
   end
@@ -154,7 +154,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
         {out_prefix: "[main] "}
       )
 
-      watch_command.call
+      command.call
     end
   end
 end

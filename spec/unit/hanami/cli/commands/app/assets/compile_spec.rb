@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integration do
-  subject(:compile_command) {
+  subject(:command) {
     described_class.new(
       system_call: interactive_system_call,
       out: out
@@ -57,7 +57,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           {out_prefix: "[test_app] "}
         )
 
-        compile_command.call
+        command.call
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
       it "does not watch app assets" do
         expect(interactive_system_call).not_to receive(:call)
 
-        compile_command.call
+        command.call
 
         expect(output).to eq "No assets found.\n"
       end
@@ -88,7 +88,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           {out_prefix: "[admin] "}
         )
 
-        compile_command.call
+        command.call
       end
     end
 
@@ -108,7 +108,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           {out_prefix: "[admin] "}
         )
 
-        compile_command.call
+        command.call
       end
     end
 
@@ -120,7 +120,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
       it "does not watch app assets" do
         expect(interactive_system_call).not_to receive(:call)
 
-        compile_command.call
+        command.call
       end
     end
   end
@@ -150,7 +150,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         {out_prefix: "[main] "}
       )
 
-      compile_command.call
+      command.call
     end
   end
 
@@ -171,7 +171,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         {out_prefix: "[test_app] "}
       )
 
-      compile_command.call
+      command.call
     end
   end
 
@@ -184,7 +184,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
     it "prints an error message" do
       expect(interactive_system_call).not_to receive(:call)
 
-      compile_command.call
+      command.call
 
       expect(output).to eq "No assets config found for TestApp::App. Please create a config/assets.js.\n"
     end
