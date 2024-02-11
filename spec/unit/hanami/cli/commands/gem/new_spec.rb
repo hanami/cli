@@ -143,9 +143,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           "name": "#{app}",
           "private": true,
           "type": "module",
-          "scripts": {
-            "assets": "node config/assets.js"
-          },
           "dependencies": {
             "hanami-assets": "#{hanami_npm_version}"
           }
