@@ -2,7 +2,7 @@
 
 require "shellwords"
 require_relative "../command"
-require_relative "../../../system_call"
+require_relative "../../../interactive_system_call"
 
 module Hanami
   module CLI
@@ -27,10 +27,18 @@ module Hanami
           # @since 2.1.0
           # @api private
           class Command < App::Command
-            def initialize(config: app.config.assets, system_call: SystemCall.new, **opts)
-              super(**opts)
-              @system_call = system_call
+            # @since 2.1.0
+            # @api private
+            def initialize(
+              out:, err:,
+              config: app.config.assets,
+              system_call: InteractiveSystemCall.new(out: out, err: err, exit_after: false),
+              **opts
+            )
+              super(out: out, err: err, **opts)
+
               @config = config
+              @system_call = system_call
             end
 
             # @since 2.1.0

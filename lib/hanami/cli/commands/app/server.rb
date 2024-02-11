@@ -46,8 +46,8 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def initialize(server: Hanami::CLI::Server.new)
-            super()
+          def initialize(server: Hanami::CLI::Server.new, **opts)
+            super(**opts)
             @server = server
           end
 
