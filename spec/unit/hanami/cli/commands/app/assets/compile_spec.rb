@@ -44,7 +44,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
   describe "assets in app" do
     describe "assets dir present" do
       def before_prepare
-        write "assets/.keep", ""
+        write "app/assets/.keep", ""
       end
 
       it "compiles the app assets" do
@@ -157,7 +157,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
   describe "subresource integrity configured" do
     def before_prepare
       Hanami.app.config.assets.subresource_integrity = [:sha256, :sha512]
-      write "assets/.keep", ""
+      write "app/assets/.keep", ""
     end
 
     it "passes the setting via the --sri flag" do
@@ -177,7 +177,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
 
   describe "missing config/asset.js" do
     def before_prepare
-      write "assets/.keep", ""
+      write "app/assets/.keep", ""
       FileUtils.rm_f "config/assets.js"
     end
 

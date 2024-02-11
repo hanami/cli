@@ -43,7 +43,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Watch, "#call", :app_integrat
   describe "assets in app" do
     describe "assets dir present" do
       def before_prepare
-        write "assets/.keep", ""
+        write "app/assets/.keep", ""
       end
 
       it "watches the app assets" do

@@ -109,7 +109,14 @@ module Hanami
             # @since 2.1.0
             # @api private
             def slice_assets?(slice)
-              slice.root.join("assets").directory?
+              assets_path =
+                if slice.app.eql?(slice)
+                  slice.root.join("app", "assets")
+                else
+                  slice.root.join("assets")
+                end
+
+              assets_path.directory?
             end
 
             # Returns the path to the assets config (`config/assets.js`) for the given slice.
