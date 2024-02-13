@@ -35,21 +35,35 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     app_name = "HanamiTeam"
     app = "hanami_team"
+    module_name = "HanamiTeam"
     subject.call(app: app_name)
 
     expect(fs.directory?(app)).to be(true)
+    expect(fs.read("#{app}/config/app.rb")).to include("module #{module_name}")
 
     app_name = "Rubygems"
     app = "rubygems"
+    module_name = "Rubygems"
     subject.call(app: app_name)
 
     expect(fs.directory?(app)).to be(true)
+    expect(fs.read("#{app}/config/app.rb")).to include("module #{module_name}")
 
     app_name = "CodeInsights"
     app = "code_insights"
+    module_name = "CodeInsights"
     subject.call(app: app_name)
 
     expect(fs.directory?(app)).to be(true)
+    expect(fs.read("#{app}/config/app.rb")).to include("module #{module_name}")
+
+    app_name = "hanamirb.org"
+    app = "hanamirb.org"
+    module_name = "Hanamirborg"
+    subject.call(app: app_name)
+
+    expect(fs.directory?(app)).to be(true)
+    expect(fs.read("#{app}/config/app.rb")).to include("module #{module_name}")
   end
 
   it "generates an app" do

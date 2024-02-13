@@ -53,7 +53,7 @@ module Hanami
         # @since 2.0.0
         # @api private
         def camelized_app_name
-          inflector.camelize(app)
+          inflector.camelize(app).gsub(/[^\p{Alnum}]/, "")
         end
 
         # @since 2.0.0
