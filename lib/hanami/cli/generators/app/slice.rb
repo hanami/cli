@@ -35,6 +35,7 @@ module Hanami
             if context.bundled_assets?
               fs.write(fs.join(directory, "assets", "js", "app.js"), t("app_js.erb", context))
               fs.write(fs.join(directory, "assets", "css", "app.css"), t("app_css.erb", context))
+              fs.write(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
             end
 
             # fs.write(fs.join(directory, "/entities.rb"), t("entities.erb", context))
@@ -64,6 +65,10 @@ module Hanami
           end
 
           alias_method :t, :template
+
+          def file(path)
+            File.read(File.join(__dir__, "slice", path))
+          end
         end
       end
     end

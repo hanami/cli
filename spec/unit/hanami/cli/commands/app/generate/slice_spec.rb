@@ -144,6 +144,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       EXPECTED
       expect(fs.read("slices/#{slice}/assets/css/app.css")).to eq(app_css)
       expect(output).to include("Created slices/#{slice}/assets/css/app.css")
+
+      # slices/admin/assets/images/favicon.ico
+      expect(fs.exist?("slices/#{slice}/assets/images/favicon.ico")).to be(true)
     end
   end
 
