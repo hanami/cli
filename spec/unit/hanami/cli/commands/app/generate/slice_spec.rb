@@ -116,11 +116,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>#{inflector.humanize(app)} - #{inflector.humanize(slice)}</title>
             <%= favicon_tag %>
-            <%= stylesheet_tag "#{slice}/app" %>
+            <%= stylesheet_tag "app" %>
           </head>
           <body>
             <%= yield %>
-            <%= javascript_tag "#{slice}/app" %>
+            <%= javascript_tag "app" %>
           </body>
         </html>
       ERB
