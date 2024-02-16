@@ -2,7 +2,20 @@
 
 Hanami Command Line Interface
 
-## v2.1.0 - 2023-11-14
+## v2.1.0.rc3 - 2024-02-16
+
+### Changed
+
+- [Tim Riley] For `hanami assets` commands, run a separate assets compilation process per slice (in parallel).
+- [Tim Riley] Generate compiled assets into separate folders per slice, each with its own `assets.js` manifest file: `public/assets/` for the app, and `public/assets/[slice_name]/` for each slice.
+- [Tim Riley] For `hanami assets` commands, directly detect and invoke the `config/assets.js` files. Look for this file within each slice, and fall back to the app-level file.
+- [Tim Riley] Do not generate `"scripts": {"assets": "..."}` section in new app's `package.json`.
+- [Tim Riley] Subclasses of `Hanami::CLI::Command` receive default args to their `#initialize` methods, and do not need to re-declare default args themselves.
+- [Philip Arndt] Alphabetically sort hanami gems in the new app `Gemfile`.
+
+### Fixed
+
+- [Nishiki (錦華)] Strip invalid characters from module name when generating new app.
 
 ## v2.1.0.rc2 - 2023-11-08
 
