@@ -101,7 +101,7 @@ module Hanami
                 cmd << "--dest=public/assets"
               else
                 cmd << "--path=#{slice.root.relative_path_from(slice.app.root)}"
-                cmd << "--dest=public/assets/#{slice.slice_name}"
+                cmd << "--dest=public/assets/#{Hanami::Assets.public_assets_dir(slice)}"
               end
 
               cmd

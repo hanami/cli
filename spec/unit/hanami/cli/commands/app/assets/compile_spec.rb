@@ -84,7 +84,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           Hanami.app.root.join("config", "assets.js").to_s,
           "--",
           "--path=slices/admin",
-          "--dest=public/assets/admin",
+          "--dest=public/assets/_admin",
           {out_prefix: "[admin] "}
         )
 
@@ -104,7 +104,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
           Hanami.app.root.join("slices", "admin", "config", "assets.js").to_s,
           "--",
           "--path=slices/admin",
-          "--dest=public/assets/admin",
+          "--dest=public/assets/_admin",
           {out_prefix: "[admin] "}
         )
 
@@ -137,7 +137,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         Hanami.app.root.join("config", "assets.js").to_s,
         "--",
         "--path=slices/admin",
-        "--dest=public/assets/admin",
+        "--dest=public/assets/_admin",
         {out_prefix: "[admin] "}
       )
 
@@ -146,7 +146,7 @@ RSpec.describe Hanami::CLI::Commands::App::Assets::Compile, "#call", :app_integr
         Hanami.app.root.join("config", "assets.js").to_s,
         "--",
         "--path=slices/main",
-        "--dest=public/assets/main",
+        "--dest=public/assets/_main",
         {out_prefix: "[main] "}
       )
 
