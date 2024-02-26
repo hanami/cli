@@ -230,7 +230,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         // To provide additional esbuild (https://esbuild.github.io) options, use the following:
         //
-        // Read more at: https://guides.hanamirb.org/assets/overview/
+        // Read more at: https://guides.hanamirb.org/assets/customization/
         //
         // await assets.run({
         //   esbuildOptionsFn: (args, esbuildOptions) => {
