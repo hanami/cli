@@ -2,6 +2,12 @@
 
 Hanami Command Line Interface
 
+## v2.1.0 - 2024-02-27
+
+### Changed
+
+- [Tim Riley] Underscore slice names in `public/assets/` to avoid naming conflicts with nested asset entry points. In this arrangement, an "admin" slice will have its assets compiled into `public/assets/_admin/`.
+
 ## v2.1.0.rc3 - 2024-02-16
 
 ### Changed
