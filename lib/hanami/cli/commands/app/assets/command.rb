@@ -62,7 +62,7 @@ module Hanami
 
               Signal.trap("INT") do
                 pids.each do |pid|
-                  Process.kill(sig, pid)
+                  Process.kill("INT", pid)
                 end
               end
 
