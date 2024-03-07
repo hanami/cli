@@ -34,7 +34,7 @@ module Hanami
           DEFAULT_CONFIG_PATH = "config.ru"
           private_constant :DEFAULT_CONFIG_PATH
 
-          desc "Start Hanami app server"
+          desc "Start Hanami server (Ruby only), for development"
 
           option :host, default: nil, required: false,
                         desc: "The host address to bind to (falls back to the rack handler)"
