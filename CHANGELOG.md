@@ -2,6 +2,12 @@
 
 Hanami Command Line Interface
 
+## v2.1.1 - 2024-03-19
+
+### Fixed
+
+- [Ryan Bigg] Properly pass INT signal to child processes when interrupting `hanami assets watch` command
+
 ## v2.1.0 - 2024-02-27
 
 ### Changed
