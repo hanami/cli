@@ -4,7 +4,7 @@ module <%= camelized_slice_name %>
   module Actions
 <%= module_controller_declaration %>
 <%= module_controller_offset %>class <%= camelized_action_name %> < <%= camelized_slice_name %>::Action
-<%- if bundled_views?  -%>
+<%- if bundled_views? -%>
 <%= module_controller_offset %>  def handle(request, response)
 <%- else -%>
 <%= module_controller_offset %>  def handle(request, response)
