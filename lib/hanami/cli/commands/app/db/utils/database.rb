@@ -97,12 +97,6 @@ module Hanami
                 end
               end
 
-              def applied_migrations
-                sequel_migrator.applied_migrations
-              end
-
-              private
-
               def migrator
                 @migrator ||= begin
                   require "rom/sql"
@@ -120,6 +114,10 @@ module Hanami
                     Sequel::TimestampMigrator.new(migrator.connection, migrations_path, {})
                   end
                 end
+              end
+
+              def applied_migrations
+                sequel_migrator.applied_migrations
               end
 
               def migrations_path
