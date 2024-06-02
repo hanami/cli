@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "uri"
 require_relative "database_config"
 
 module Hanami
@@ -10,14 +11,12 @@ module Hanami
           module Utils
             # @api private
             class Database
-              # @api private
-              attr_reader :app
+              MIGRATIONS_DIR = "config/db/migrate"
+              private_constant :MIGRATIONS_DIR
 
-              # @api private
-              attr_reader :config
-
-              # @api private
-              SCHEME_MAP = {
+              DATABASE_CLASS_RESOLVER = Hash.new { |_, key|
+                raise "#{key} is not a supported db scheme"
+              }.update(
                 "sqlite" => -> {
                   require_relative("sqlite")
                   Sqlite
@@ -34,84 +33,63 @@ module Hanami
                   require_relative("mysql")
                   Mysql
                 }
-              }.freeze
+              ).freeze
 
-              # @api private
-              def self.[](app)
-                database_url =
-                  if app.key?(:settings) && app[:settings].respond_to?(:database_url)
-                    app[:settings].database_url
-                  else
-                    ENV.fetch("DATABASE_URL")
-                  end
-
-                config = DatabaseConfig.new(database_url)
-
-                resolver = SCHEME_MAP.fetch(config.db_type) do
-                  raise "#{config.db_type} is not a supported db scheme"
+              def self.[](slice)
+                unless slice.container.providers.find_and_load_provider(:db)
+                  raise "this is not a db slice"
                 end
 
-                klass = resolver.()
+                slice.prepare :db
+                database_scheme = slice["db.gateway"].connection.uri.then { URI(_1).scheme }
 
-                klass.new(app: app, config: config)
+                database_class = DATABASE_CLASS_RESOLVER[database_scheme].call
+                database_class.new(slice: slice)
               end
 
-              # @api private
-              def initialize(app:, config:)
-                @app = app
-                @config = config
+              attr_reader :slice
+
+              def initialize(slice:)
+                @slice = slice
               end
 
-              # @api private
-              def create_command
-                raise Hanami::CLI::NotImplementedError
-              end
-
-              # @api private
-              def drop_command
-                raise Hanami::CLI::NotImplementedError
-              end
-
-              # @api private
-              def dump_command
-                raise Hanami::CLI::NotImplementedError
-              end
-
-              # @api private
-              def load_command
-                raise Hanami::CLI::NotImplementedError
-              end
-
-              # @api private
-              def root_path
-                app.root
-              end
-
-              # @api private
-              def rom_config
-                @rom_config ||=
-                  begin
-                    app.prepare(:persistence)
-                    app.container["persistence.config"]
-                  end
-              end
-
-              # @api private
               def name
-                config.db_name
+                # FIXME: replace with something better
+                database_url
               end
 
-              # @api private
+              def database_url
+                gateway.connection.uri
+              end
+
+              def database_uri
+                @database_uri ||= URI(database_url)
+              end
+
               def gateway
-                rom_config.gateways[:default]
+                slice["db.config"].gateways[:default]
               end
 
-              # @api private
               def connection
                 gateway.connection
               end
 
-              # @api private
+              def create_command
+                raise Hanami::CLI::NotImplementedError
+              end
+
+              def drop_command
+                raise Hanami::CLI::NotImplementedError
+              end
+
+              def dump_command
+                raise Hanami::CLI::NotImplementedError
+              end
+
+              def load_command
+                raise Hanami::CLI::NotImplementedError
+              end
+
               def run_migrations(**options)
                 require "rom/sql"
                 ROM::SQL.with_gateway(gateway) do
@@ -119,21 +97,18 @@ module Hanami
                 end
               end
 
-              # @api private
-              def migrator
-                @migrator ||=
-                  begin
-                    require "rom/sql"
-                    ROM::SQL::Migration::Migrator.new(connection, path: File.join(root_path, "db/migrate"))
-                  end
-              end
-
-              # @api private
               def applied_migrations
                 sequel_migrator.applied_migrations
               end
 
               private
+
+              def migrator
+                @migrator ||= begin
+                  require "rom/sql"
+                  ROM::SQL::Migration::Migrator.new(connection, path: migrations_path)
+                end
+              end
 
               def sequel_migrator
                 @sequel_migrator ||= begin
@@ -148,7 +123,7 @@ module Hanami
               end
 
               def migrations_path
-                File.join(root_path, "db/migrate")
+                slice.root.join(MIGRATIONS_DIR)
               end
             end
           end

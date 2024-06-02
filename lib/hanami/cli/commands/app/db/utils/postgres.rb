@@ -53,7 +53,7 @@ module Hanami
 
               # @api private
               def dump_file
-                "#{root_path}/db/structure.sql"
+                slice.root.join("config/db/structure.sql")
               end
             end
           end

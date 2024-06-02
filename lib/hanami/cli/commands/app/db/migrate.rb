@@ -9,30 +9,23 @@ module Hanami
       module App
         module DB
           # @api private
-          class Migrate < App::Command
+          class Migrate < DB::Command
             desc "Migrates database"
 
             option :target, desc: "Target migration number", aliases: ["-t"]
 
-            # @api private
             def call(target: nil, **)
-              return true if Dir[File.join(app.root, "db/migrate/*.rb")].empty?
+              # FIXME update this to work with new paths (plus app vs slice)
 
               measure "database #{database.name} migrated" do
                 if target
-                  run_migrations(target: Integer(target))
+                  database.run_migrations(target: Integer(target))
                 else
-                  run_migrations
+                  database.run_migrations
                 end
 
                 true
               end
-            end
-
-            private
-
-            def run_migrations(**options)
-              database.run_migrations(**options)
             end
           end
         end

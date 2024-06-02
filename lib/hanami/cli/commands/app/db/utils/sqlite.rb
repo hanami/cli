@@ -34,7 +34,7 @@ module Hanami
 
               # @api private
               def file_path
-                @file_path ||= Pathname("#{root_path}#{config.uri.path}").realpath
+                @file_path ||= Pathname(slice.root.join(config.uri.path)).realpath
               end
             end
           end
