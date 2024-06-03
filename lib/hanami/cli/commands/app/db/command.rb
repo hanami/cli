@@ -48,23 +48,38 @@ module Hanami
                 slice.prepare :db
                 database_url = slice["db.gateway"].connection.uri
 
-                hsh[database_url] ||= [] << slice
+                hsh[database_url] ||= []
+                hsh[database_url] << slice
               }
 
-              canonical_db_slices = slices_by_database_url.each_with_object([]) { |(url, slices), arr|
-                # TODO: refactor into separate method
+              databases = slices_by_database_url.each_with_object([]) { |(url, slices), arr|
                 slices_with_config = slices.select { _1.root.join("config", "db").directory? }
 
-                if slices_with_config.length > 1
-                  # TODO warning
-                elsif slices_with_config.length < 1
-                  # TODO warning
-                end
+                database = Utils::Database[slices_with_config.first || slices.first]
 
-                arr << slices.first
+                warn_on_misconfigured_database database, slices_with_config
+
+                arr << database
               }
 
-              canonical_db_slices.map { Utils::Database[_1] }
+              databases
+            end
+
+            def warn_on_misconfigured_database(database, slices)
+              if slices.length > 1
+                out.puts <<~STR
+                  WARNING: Database #{database.name} has config/db/ directories in multiple slices:
+
+                  #{slices.map { "- " + _1.root.relative_path_from(_1.app.root).join("config", "db").to_s }.join("\n")}
+
+                  Migrating database using #{database.slice.slice_name.to_s.inspect} slice only.
+
+                STR
+              elsif slices.length < 1
+                out.puts <<~STR
+                  WARNING: Database #{database.name} has no config/db/ directory.
+                STR
+              end
             end
           end
         end

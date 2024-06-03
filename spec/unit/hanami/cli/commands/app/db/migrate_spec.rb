@@ -72,7 +72,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     end
 
     before do
-      ENV["DATABASE_URL"] = "sqlite::memory"
+      ENV["DATABASE_URL"] = "sqlite://#{File.join(@dir, "app.db")}"
     end
 
     it "runs the migrations" do
@@ -106,11 +106,11 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
   context "single db with no migration files" do
     def before_prepare
-      write "app/relations/.keep", ""
+      write "config/db/migrate/.keep", ""
     end
 
     before do
-      ENV["DATABASE_URL"] = "sqlite::memory"
+      ENV["DATABASE_URL"] = "sqlite://#{File.join(@dir, "app.db")}"
     end
 
     it "does nothing" do
@@ -144,7 +144,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     end
 
     before do
-      ENV["DATABASE_URL"] = "sqlite::memory"
+      ENV["DATABASE_URL"] = "sqlite://#{File.join(@dir, "slice.db")}"
     end
 
     it "runs the migrations" do
@@ -313,6 +313,85 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Admin::Slice["relations.posts"].to_a).to eq []
       expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
+    end
+  end
+
+  context "multiple dbs across slices, each with the same database_url and config/db/ dirs" do
+    def before_prepare
+      write "slices/admin/config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/admin/relations/posts.rb", <<~RUBY
+        module Admin
+          module Relations
+            class Posts < Hanami::DB::Relation
+              schema :posts, infer: true
+            end
+          end
+        end
+      RUBY
+
+      write "slices/main/config/db/migrate/20240602201330_create_users.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :comments do
+              primary_key :id
+              column :body, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/main/relations/comments.rb", <<~RUBY
+        module Main
+          module Relations
+            class Comments < Hanami::DB::Relation
+              schema :comments, infer: true
+            end
+          end
+        end
+      RUBY
+    end
+
+    before do
+      ENV["ADMIN__DATABASE_URL"] = "sqlite://#{File.join(@dir, "confused.db")}"
+      ENV["MAIN__DATABASE_URL"] = "sqlite://#{File.join(@dir, "confused.db")}"
+    end
+
+    it "prints a warning, and runs migrations from the first slice" do
+      command.call
+
+      expect(output).to match /WARNING:.+multiple slices.+Migrating database using "admin" slice only./m
+
+      expect(output).to include "confused.db migrated"
+
+      expect(Admin::Slice["relations.posts"].to_a).to eq []
+      expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
+    end
+  end
+
+  context "database with no config" do
+    def before_prepare
+      write "app/relations/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "sqlite://#{File.join(@dir, "app.db")}"
+    end
+
+    it "prints a warning, and does not migrate the database" do
+      command.call
+
+      expect(output).to match %{WARNING:.+no config/db/ directory.}
+      expect(output).not_to include "migrated"
     end
   end
 end
