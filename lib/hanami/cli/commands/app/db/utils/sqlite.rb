@@ -10,29 +10,38 @@ module Hanami
           module Utils
             # @api private
             class Sqlite < Database
-              # @api private
+              def name
+                @name ||= begin
+                  db_path = Pathname(database_uri.path).realpath
+                  app_path = slice.app.root.realpath
+
+                  if db_path.to_s.start_with?("#{app_path.to_s}#{File::SEPARATOR}")
+                    db_path.relative_path_from(app_path).to_s
+                  else
+                    db_path.to_s
+                  end
+                end
+              end
+
               def create_command
-                rom_config
                 true
               end
 
-              # @api private
               def drop_command
                 file_path.unlink
                 true
               end
 
-              # @api private
               def dump_command
                 raise Hanami::CLI::NotImplementedError
               end
 
-              # @api private
               def load_command
                 raise Hanami::CLI::NotImplementedError
               end
 
-              # @api private
+              private
+
               def file_path
                 @file_path ||= Pathname(slice.root.join(config.uri.path)).realpath
               end

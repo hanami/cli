@@ -54,8 +54,7 @@ module Hanami
               end
 
               def name
-                # FIXME: replace with something better
-                database_url
+                database_uri.path
               end
 
               def database_url
