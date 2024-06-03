@@ -9,30 +9,35 @@ module Hanami
       module App
         module DB
           # @api private
-          class Migrate < App::Command
+          class Migrate < DB::Command
             desc "Migrates database"
 
             option :target, desc: "Target migration number", aliases: ["-t"]
 
-            # @api private
-            def call(target: nil, **)
-              return true if Dir[File.join(app.root, "db/migrate/*.rb")].empty?
+            def call(target: nil, app: false, slice: nil, **)
+              databases(app: app, slice: slice).each do |database|
+                migrate_database(database, target: target)
+              end
+            end
+
+            private
+
+            def migrate_database(database, target:)
+              return true unless migrations?(database)
 
               measure "database #{database.name} migrated" do
                 if target
-                  run_migrations(target: Integer(target))
+                  database.run_migrations(target: Integer(target))
                 else
-                  run_migrations
+                  database.run_migrations
                 end
 
                 true
               end
             end
 
-            private
-
-            def run_migrations(**options)
-              database.run_migrations(**options)
+            def migrations?(database)
+              database.migrations_path.directory? && database.sequel_migrator.files.any?
             end
           end
         end
