@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../app/command"
-require_relative "structure/dump"
-
 module Hanami
   module CLI
     module Commands
