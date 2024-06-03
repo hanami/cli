@@ -78,6 +78,7 @@ module Hanami
               elsif slices.length < 1
                 out.puts <<~STR
                   WARNING: Database #{database.name} has no config/db/ directory.
+
                 STR
               end
             end
