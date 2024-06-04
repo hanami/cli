@@ -34,7 +34,7 @@ module Hanami
             end
 
             def migrations?(database)
-              database.migrations_path.directory? && database.sequel_migrator.files.any?
+              database.migrations_dir? && database.sequel_migrator.files.any?
             end
           end
         end

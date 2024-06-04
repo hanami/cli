@@ -82,6 +82,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
   end
 
   context "multiple dbs" do
+    let(:app_modules) { super() << :Search }
+
     def before_prepare
       write "config/db/migrate/20240602191330_create_categories.rb", <<~RUBY
         ROM::SQL.migration do
@@ -121,6 +123,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
       RUBY
 
       write "slices/main/relations/.keep", ""
+
+      write "slices/search/relations/.keep", ""
     end
 
     before do
@@ -140,6 +144,9 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
 
       # Ordering of lines
       expect(output).to match /app.db.+admin.db.+main.db/m
+
+      # Doesn't repeat app.db, despite it being available in the "search" slice
+      expect(output).not_to match /app.db.+app.db/m
     end
 
     it "prints the version of the app db only when given --app" do
@@ -160,6 +167,15 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
       expect(output).to include "admin.db current schema version is 20240602201330_create_posts"
       expect(output).not_to include "app.db"
       expect(output).not_to include "main.db"
+    end
+
+    it "prints an error when given a slice without migrations" do
+      migrate
+
+      command.call(slice: "search")
+
+      expect(output).to include %(Cannot find version for slice "search")
+      expect(output).not_to include "current schema version"
     end
   end
 end
