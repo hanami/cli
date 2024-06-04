@@ -12,7 +12,6 @@ module Hanami
             # @api private
             def call(app: false, slice: nil, **)
               databases(app: app, slice: slice).each do |database|
-                p database
                 migration = database.applied_migrations.last
                 version = migration ? File.basename(migration, ".*") : "not available"
 
