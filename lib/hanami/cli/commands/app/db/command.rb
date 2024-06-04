@@ -40,7 +40,7 @@ module Hanami
             end
 
             def all_databases
-              slices = app.slices.with_nested << app
+              slices = [app] + app.slices.with_nested
 
               slices_by_database_url = slices.each_with_object({}) { |slice, hsh|
                 next unless slice.container.providers.find_and_load_provider(:db)
