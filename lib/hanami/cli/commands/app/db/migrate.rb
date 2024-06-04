@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../app/command"
-require_relative "structure/dump"
-
 module Hanami
   module CLI
     module Commands
@@ -37,7 +34,7 @@ module Hanami
             end
 
             def migrations?(database)
-              database.migrations_path.directory? && database.sequel_migrator.files.any?
+              database.migrations_dir? && database.sequel_migrator.files.any?
             end
           end
         end

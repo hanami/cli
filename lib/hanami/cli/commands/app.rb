@@ -30,6 +30,7 @@ module Hanami
             if Hanami.bundled?("hanami-db")
               reigster "db" do |db|
                 db.register "migrate", DB::Migrate
+                db.register "version", DB::Version
               end
             end
 

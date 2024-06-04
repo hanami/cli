@@ -122,6 +122,10 @@ module Hanami
               def migrations_path
                 slice.root.join(MIGRATIONS_DIR)
               end
+
+              def migrations_dir?
+                migrations_path.directory?
+              end
             end
           end
         end
