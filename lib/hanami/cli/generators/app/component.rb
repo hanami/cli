@@ -7,14 +7,17 @@ module Hanami
     module Generators
       module App
         # @api private
+        # @since 2.2.0
         class Component
           # @api private
+          # @since 2.2.0
           def initialize(fs:, inflector:)
             @fs = fs
             @inflector = inflector
           end
 
           # @api private
+          # @since 2.2.0
           def call(app, key, slice)
             context = ComponentContext.new(inflector, app, slice, key)
 
@@ -27,13 +30,10 @@ module Hanami
 
           private
 
-          # @api private
           attr_reader :fs
 
-          # @api private
           attr_reader :inflector
 
-          # @api private
           def generate_for_slice(context, slice)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
@@ -42,7 +42,6 @@ module Hanami
             fs.write(fs.join(directory, "#{context.underscored_name}.rb"), t("slice_component.erb", context))
           end
 
-          # @api private
           def generate_for_app(context)
             fs.mkdir(directory = fs.join("app", context.namespaces))
             fs.write(fs.join(directory, "#{context.underscored_name}.rb"), t("component.erb", context))

@@ -18,48 +18,55 @@ module Hanami
           OFFSET = 1
           private_constant :OFFSET
 
-          # @since 2.1.0
           # @api private
+          # @since 2.2.0
           attr_reader :key
 
-          # @since 2.1.0
           # @api private
+          # @since 2.2.0
           def initialize(inflector, app, slice, key)
             @key = key
             super(inflector, app, slice, nil)
           end
 
           # @api private
+          # @since 2.2.0
           def namespaces
             @namespaces ||= key.split(MATCHER_PATTERN)[..-2].map { inflector.underscore(_1) }
           end
 
           # @api private
+          # @since 2.2.0
           def name
             @name ||= key.split(MATCHER_PATTERN)[-1]
           end
 
           # @api private
+          # @since 2.2.0
           def camelized_namespace
             namespaces.map { inflector.camelize(_1) }.join(NAMESPACE_SEPARATOR)
           end
 
           # @api private
+          # @since 2.2.0
           def camelized_name
             inflector.camelize(name)
           end
 
           # @api private
+          # @since 2.2.0
           def underscored_namespace
             namespaces.map { inflector.underscore(_1) }
           end
 
           # @api private
+          # @since 2.2.0
           def underscored_name
             inflector.underscore(name)
           end
 
           # @api private
+          # @since 2.2.0
           def module_namespace_declaration
             namespaces.each.with_index(OFFSET).map { |token, i|
               "#{INDENTATION * i}module #{inflector.camelize(token)}"
@@ -67,6 +74,7 @@ module Hanami
           end
 
           # @api private
+          # @since 2.2.0
           def module_namespace_end
             namespaces.each.with_index(OFFSET).map { |_, i|
               "#{INDENTATION * i}end"
@@ -74,6 +82,7 @@ module Hanami
           end
 
           # @api private
+          # @since 2.2.0
           def module_namespace_offset
             (INDENTATION * (namespaces.count + OFFSET)).to_s
           end
