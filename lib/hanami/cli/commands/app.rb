@@ -39,6 +39,7 @@ module Hanami
               prefix.register "action", Generate::Action
               prefix.register "view", Generate::View
               prefix.register "part", Generate::Part
+              prefix.register "component", Generate::Component
             end
           end
         end
