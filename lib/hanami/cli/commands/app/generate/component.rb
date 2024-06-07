@@ -26,13 +26,12 @@ module Hanami
             # @api private
             # @since 2.2.0
             def initialize(
-              fs: Hanami::CLI::Files.new,
-              inflector: Dry::Inflector.new,
+              fs:, inflector:,
               generator: Generators::App::Component.new(fs: fs, inflector: inflector),
-              **
+              **opts
             )
               @generator = generator
-              super(fs: fs)
+              super(fs: fs, inflector: inflector, **opts)
             end
 
             # @api private
