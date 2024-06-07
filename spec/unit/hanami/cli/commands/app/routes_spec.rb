@@ -1,10 +1,38 @@
 # frozen_string_literal: true
 
-RSpec.describe Hanami::CLI::Commands::App::Routes, :app, :command do # see fixture app for the defined routes
-  # TODO: better Hanami tear down
-  after do
-    app = Hanami.app
-    app.remove_instance_variable(:@_router) if app.instance_variable_defined?(:@_router)
+RSpec.describe Hanami::CLI::Commands::App::Routes, :app_integration do
+  subject(:command) { described_class.new(out: out) }
+
+  let(:out) { StringIO.new }
+  let(:output) {
+    out.rewind
+    out.read
+  }
+
+  before do
+    with_directory(@dir = make_tmp_directory) do
+      write "config/app.rb", <<~RUBY
+        module TestApp
+          class App < Hanami::App
+          end
+        end
+      RUBY
+
+      write "config/routes.rb", <<~RUBY
+        require "hanami/routes"
+
+        module TestApp
+          class Routes < Hanami::Routes
+            get "/", to: "home.index"
+            get "/about", to: "home.about"
+          end
+        end
+      RUBY
+
+      require "hanami/setup"
+      before_prepare if respond_to?(:before_prepare)
+      require "hanami/prepare"
+    end
   end
 
   it "defaults to the human friendly formatter" do
@@ -25,16 +53,21 @@ RSpec.describe Hanami::CLI::Commands::App::Routes, :app, :command do # see fixtu
     }xm
   end
 
-  it "can use a custom formatter registered in the container" do
-    formatter = ->(routes) do
-      routes.filter_map { |route| !route.head? && route.http_method }.join(" ")
-    end
-    app.register_provider :custom_routes_formatter do
-      start { register "custom_routes_formatter", formatter }
+  context "custom formatter registered" do
+    before do
+      formatter = ->(routes) do
+        routes.filter_map { |route| !route.head? && route.http_method }.join(" ")
+      end
+
+      Hanami.app.register_provider :custom_routes_formatter do
+        start { register "custom_routes_formatter", formatter }
+      end
     end
 
-    command.call(format: "custom_routes_formatter")
+    it "can use a custom formatter registered in the container" do
+      command.call(format: "custom_routes_formatter")
 
-    expect(output).to match %r{GET GET}
+      expect(output).to match %r{GET GET}
+    end
   end
 end
