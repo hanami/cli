@@ -28,7 +28,10 @@ module Hanami
 
               # @api private
               def dump_command
-                system(cli_env_vars, "pg_dump --schema-only --no-owner #{escaped_name} > #{dump_file}")
+                system_call.call(
+                  "pg_dump --schema-only --no-owner #{escaped_name} > #{dump_file}",
+                  env: cli_env_vars
+                )
               end
 
               # @api private
@@ -44,10 +47,10 @@ module Hanami
               # @api private
               def cli_env_vars
                 @cli_env_vars ||= {}.tap do |vars|
-                  vars["PGHOST"] = config.host.to_s
-                  vars["PGPORT"] = config.port.to_s if config.port
-                  vars["PGUSER"] = config.user.to_s if config.user
-                  vars["PGPASSWORD"] = config.pass.to_s if config.pass
+                  vars["PGHOST"] = database_uri.hostname.to_s
+                  vars["PGPORT"] = database_uri.port.to_s if database_uri.port
+                  vars["PGUSER"] = database_uri.user.to_s if database_uri.user
+                  vars["PGPASSWORD"] = database_uri.password.to_s if database_uri.password
                 end
               end
 

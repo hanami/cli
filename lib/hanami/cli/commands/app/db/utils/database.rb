@@ -10,6 +10,7 @@ module Hanami
         module DB
           module Utils
             # @api private
+            # @since 2.2.0
             class Database
               MIGRATIONS_DIR = "config/db/migrate"
               private_constant :MIGRATIONS_DIR
@@ -35,30 +36,31 @@ module Hanami
                 }
               ).freeze
 
-              def self.[](slice)
-                unless slice.container.providers[:db]
-                  raise "this is not a db slice"
-                end
+              def self.[](slice, system_call:)
+                provider = slice.container.providers[:db]
+                raise "this is not a db slice" unless provider
 
-                slice.prepare :db
-                database_scheme = slice["db.gateway"].connection.uri.then { URI(_1).scheme }
-
+                database_scheme = provider.source.send(:database_url).then { URI(_1).scheme }
                 database_class = DATABASE_CLASS_RESOLVER[database_scheme].call
-                database_class.new(slice: slice)
+                database_class.new(slice: slice, system_call: system_call)
               end
 
               attr_reader :slice
 
-              def initialize(slice:)
+              attr_reader :system_call
+
+              def initialize(slice:, system_call:)
                 @slice = slice
+                @system_call = system_call
               end
 
               def name
-                database_uri.path
+                # Strip leading / - should this be skipped for sqlite?
+                database_uri.path.sub(%r{^/}, "")
               end
 
               def database_url
-                gateway.connection.uri
+                slice.container.providers[:db].source.send(:database_url)
               end
 
               def database_uri

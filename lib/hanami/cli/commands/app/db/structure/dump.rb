@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../../app/command"
-
 module Hanami
   module CLI
     module Commands
@@ -10,13 +8,15 @@ module Hanami
           # @api private
           module Structure
             # @api private
-            class Dump < App::Command
-              desc "Dumps database structure to db/structure.sql file"
+            class Dump < DB::Command
+              desc "Dumps database structure to config/db/structure.sql file"
 
               # @api private
-              def call(*)
-                measure("#{database.name} structure dumped to db/structure.sql") do
-                  database.dump_command
+              def call(app: false, slice: nil, **)
+                databases(app: app, slice: slice).each do |database|
+                  measure("#{database.name} structure dumped to config/db/structure.sql") do
+                    database.dump_command
+                  end
                 end
               end
             end

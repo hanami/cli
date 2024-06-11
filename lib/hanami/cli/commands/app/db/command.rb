@@ -17,6 +17,17 @@ module Hanami
             option :app, required: false, type: :boolean, default: false, desc: "Use app database"
             option :slice, required: false, desc: "Use database for slice"
 
+            attr_reader :system_call
+
+            def initialize(
+              out:, err:,
+              system_call: SystemCall.new,
+              **opts
+            )
+              super(out: out, err: err, **opts)
+              @system_call = system_call
+            end
+
             private
 
             def databases(app: false, slice: nil)
@@ -30,24 +41,23 @@ module Hanami
             end
 
             def database_for_app
-              Utils::Database[app]
+              build_database(app)
             end
 
             def database_for_slice(slice)
               slice = inflector.underscore(Shellwords.shellescape(slice)).to_sym
 
-              Utils::Database[app.slices[slice]]
+              build_database(app.slices[slice])
             end
 
             def all_databases
               slices = [app] + app.slices.with_nested
 
               slices_by_database_url = slices.each_with_object({}) { |slice, hsh|
-                next unless slice.container.providers[:db]
+                provider = slice.container.providers[:db]
+                next unless provider
 
-                slice.prepare :db
-                database_url = slice["db.gateway"].connection.uri
-
+                database_url = provider.source.send(:database_url)
                 hsh[database_url] ||= []
                 hsh[database_url] << slice
               }
@@ -55,7 +65,7 @@ module Hanami
               databases = slices_by_database_url.each_with_object([]) { |(url, slices), arr|
                 slices_with_config = slices.select { _1.root.join("config", "db").directory? }
 
-                database = Utils::Database[slices_with_config.first || slices.first]
+                database = build_database(slices_with_config.first || slices.first)
 
                 warn_on_misconfigured_database database, slices_with_config
 
@@ -63,6 +73,10 @@ module Hanami
               }
 
               databases
+            end
+
+            def build_database(slice)
+              Utils::Database[slice, system_call: system_call]
             end
 
             def warn_on_misconfigured_database(database, slices)

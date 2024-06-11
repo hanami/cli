@@ -21,6 +21,7 @@ gem "dry-system", github: "dry-rb/dry-system", branch: "main"
 
 gem "rack"
 
+gem "pg"
 gem "sqlite3"
 
 gem "hanami-devtools", github: "hanami/devtools", branch: "main"
