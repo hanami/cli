@@ -12,7 +12,7 @@ module Hanami
             class Sqlite < Database
               def name
                 @name ||= begin
-                  db_path = Pathname(database_uri.path).realpath
+                  db_path = Pathname(database_uri.path).expand_path
                   app_path = slice.app.root.realpath
 
                   if db_path.to_s.start_with?("#{app_path.to_s}#{File::SEPARATOR}")
