@@ -100,6 +100,8 @@ module Hanami
 
               def migrator
                 @migrator ||= begin
+                  slice.prepare :db
+
                   require "rom/sql"
                   ROM::SQL::Migration::Migrator.new(connection, path: migrations_path)
                 end
@@ -107,6 +109,8 @@ module Hanami
 
               def sequel_migrator
                 @sequel_migrator ||= begin
+                  slice.prepare :db
+
                   require "sequel"
                   Sequel.extension :migration
 
