@@ -36,7 +36,7 @@ module Hanami
               ).freeze
 
               def self.[](slice)
-                unless slice.container.providers.find_and_load_provider(:db)
+                unless slice.container.providers[:db]
                   raise "this is not a db slice"
                 end
 
