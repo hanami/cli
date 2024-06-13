@@ -43,7 +43,7 @@ module Hanami
               slices = [app] + app.slices.with_nested
 
               slices_by_database_url = slices.each_with_object({}) { |slice, hsh|
-                next unless slice.container.providers.find_and_load_provider(:db)
+                next unless slice.container.providers[:db]
 
                 slice.prepare :db
                 database_url = slice["db.gateway"].connection.uri
