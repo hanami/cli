@@ -40,7 +40,7 @@ module Hanami
                 provider = slice.container.providers[:db]
                 raise "this is not a db slice" unless provider
 
-                database_scheme = provider.source.send(:database_url).then { URI(_1).scheme }
+                database_scheme = provider.source.database_url.then { URI(_1).scheme }
                 database_class = DATABASE_CLASS_RESOLVER[database_scheme].call
                 database_class.new(slice: slice, system_call: system_call)
               end
@@ -60,7 +60,7 @@ module Hanami
               end
 
               def database_url
-                slice.container.providers[:db].source.send(:database_url)
+                slice.container.providers[:db].source.database_url
               end
 
               def database_uri

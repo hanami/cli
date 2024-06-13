@@ -57,7 +57,7 @@ module Hanami
                 provider = slice.container.providers[:db]
                 next unless provider
 
-                database_url = provider.source.send(:database_url)
+                database_url = provider.source.database_url
                 hsh[database_url] ||= []
                 hsh[database_url] << slice
               }
