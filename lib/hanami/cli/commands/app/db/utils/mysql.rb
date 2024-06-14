@@ -16,7 +16,7 @@ module Hanami
               end
 
               # @api private
-              def dump_command
+              def exec_dump_command
                 raise Hanami::CLI::NotImplementedError
               end
 

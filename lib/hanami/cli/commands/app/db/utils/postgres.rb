@@ -27,7 +27,7 @@ module Hanami
               end
 
               # @api private
-              def dump_command
+              def exec_dump_command
                 system_call.call(
                   "pg_dump --schema-only --no-privileges --no-owner --file #{structure_file} #{escaped_name}",
                   env: cli_env_vars

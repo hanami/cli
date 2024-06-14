@@ -83,7 +83,7 @@ module Hanami
                 raise Hanami::CLI::NotImplementedError
               end
 
-              def dump_command
+              def exec_dump_command
                 raise Hanami::CLI::NotImplementedError
               end
 
