@@ -54,7 +54,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
@@ -81,7 +81,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
@@ -91,7 +91,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_admin_development > #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
@@ -101,7 +101,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_main_development > #{@dir.realpath.join("slices", "main", "config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "main", "config", "db", "structure.sql")} bookshelf_main_development",
           env: {
             "PGHOST" => "anotherhost",
             "PGPORT" => "2345"
@@ -117,7 +117,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
@@ -132,7 +132,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_admin_development > #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
