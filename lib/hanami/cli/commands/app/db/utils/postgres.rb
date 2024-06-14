@@ -29,14 +29,17 @@ module Hanami
               # @api private
               def dump_command
                 system_call.call(
-                  "pg_dump --schema-only --no-owner #{escaped_name} > #{dump_file}",
+                  "pg_dump --schema-only --no-owner #{escaped_name} > #{structure_file}",
                   env: cli_env_vars
                 )
               end
 
               # @api private
-              def load_command
-                raise "Not Implemented Yet"
+              def exec_load_command
+                system_call.call(
+                  "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output #{File::NULL} --file #{structure_file} #{escaped_name}",
+                  env: cli_env_vars
+                )
               end
 
               # @api private
@@ -55,7 +58,7 @@ module Hanami
               end
 
               # @api private
-              def dump_file
+              def structure_file
                 slice.root.join("config/db/structure.sql")
               end
             end

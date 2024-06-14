@@ -21,7 +21,7 @@ module Hanami
               end
 
               # @api private
-              def load_command
+              def exec_load_command
                 raise Hanami::CLI::NotImplementedError
               end
             end
