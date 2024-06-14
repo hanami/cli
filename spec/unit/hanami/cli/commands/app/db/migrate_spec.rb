@@ -13,9 +13,13 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     out.read
   }
 
+  let(:dump_command) { instance_spy(Hanami::CLI::Commands::App::DB::Structure::Dump) }
+
   before do
     @env = ENV.to_h
     allow(Hanami::Env).to receive(:loaded?).and_return(false)
+
+    allow(Hanami::CLI::Commands::App::DB::Structure::Dump).to receive(:new) { dump_command }
   end
 
   after do
@@ -75,12 +79,15 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       ENV["DATABASE_URL"] = "sqlite://#{File.join(@dir, "app.db")}"
     end
 
-    it "runs the migrations" do
+    it "runs the migrations and dumps the structure" do
       command.call
 
       expect(output).to match /database.+migrated/
 
       expect(Hanami.app["relations.posts"].to_a).to eq []
+
+      expect(dump_command).to have_received(:call).with(app: false, slice: nil)
+      expect(dump_command).to have_received(:call).exactly(1).time
     end
 
     it "runs migrations to a specific target" do
@@ -101,6 +108,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(column_names).to eq %w[id title] # no more body
 
       expect(Hanami.app["relations.posts"].to_a).to eq []
+    end
+
+    it "does not dump the database structure when given --dump=false" do
+      command.call(dump: false)
+
+      expect(dump_command).not_to have_received(:call)
     end
   end
 
@@ -155,12 +168,15 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(Admin::Slice["relations.posts"].to_a).to eq []
     end
 
-    it "runs the migrations when the slice is specified" do
+    it "runs the migrations and dumps the structure when the slice is specified" do
       command.call(slice: "admin")
 
       expect(output).to match /database.+migrated/
 
       expect(Admin::Slice["relations.posts"].to_a).to eq []
+
+      expect(dump_command).to have_received(:call).with(app: false, slice: "admin")
+      expect(dump_command).to have_received(:call).exactly(1).time
     end
   end
 
@@ -214,7 +230,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       ENV["MAIN__DATABASE_URL"] = "sqlite://#{File.join(@dir, "main.db")}"
     end
 
-    it "runs the migrations for all databases" do
+    it "runs the migrations and dumps the structure for all databases" do
       command.call
 
       expect(output).to include "app.db migrated"
@@ -222,9 +238,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Hanami.app["relations.posts"].to_a).to eq []
       expect(Main::Slice["relations.comments"].to_a).to eq []
+
+      expect(dump_command).to have_received(:call).with(app: false, slice: nil)
+      expect(dump_command).to have_received(:call).exactly(1).time
     end
 
-    it "runs the migration for the app" do
+    it "runs the migration and dumps the structure for the app" do
       command.call(app: true)
 
       expect(output).to include "app.db migrated"
@@ -232,9 +251,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Hanami.app["relations.posts"].to_a).to eq []
       expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
+
+      expect(dump_command).to have_received(:call).with(app: true, slice: nil)
+      expect(dump_command).to have_received(:call).exactly(1).time
     end
 
-    it "runs the migration for a given slice" do
+    it "runs the migration and dumps the structure for a given slice" do
       command.call(slice: "main")
 
       expect(output).to include "main.db migrated"
@@ -242,6 +264,9 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Main::Slice["relations.comments"].to_a).to eq []
       expect { Hanami.app["relations.posts"].to_a }.to raise_error Sequel::Error
+
+      expect(dump_command).to have_received(:call).with(app: false, slice: "main")
+      expect(dump_command).to have_received(:call).exactly(1).time
     end
   end
 
@@ -295,7 +320,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       ENV["MAIN__DATABASE_URL"] = "sqlite://#{File.join(@dir, "main.db")}"
     end
 
-    it "runs the migrations for all databases" do
+    it "runs the migrations and dumps the structure for all databases" do
       command.call
 
       expect(output).to include "admin.db migrated"
@@ -303,9 +328,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Admin::Slice["relations.posts"].to_a).to eq []
       expect(Main::Slice["relations.comments"].to_a).to eq []
+
+      expect(dump_command).to have_received(:call).with(app: false, slice: nil)
+      expect(dump_command).to have_received(:call).exactly(1).time
     end
 
-    it "runs the migration for a given slice" do
+    it "runs the migration and dumps the structure for a given slice" do
       command.call(slice: "admin")
 
       expect(output).to include "admin.db migrated"
@@ -313,6 +341,9 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Admin::Slice["relations.posts"].to_a).to eq []
       expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
+
+      expect(dump_command).to have_received(:call).with(app: false, slice: "admin")
+      expect(dump_command).to have_received(:call).exactly(1).time
     end
   end
 

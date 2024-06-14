@@ -38,7 +38,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
   end
 
   def migrate
-    command.run_command(Hanami::CLI::Commands::App::DB::Migrate)
+    command.run_command(Hanami::CLI::Commands::App::DB::Migrate, dump: false)
     out.truncate(0)
   end
 
