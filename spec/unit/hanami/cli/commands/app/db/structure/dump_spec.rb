@@ -8,7 +8,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
     )
   }
 
-  let(:system_call) { instance_spy(Hanami::CLI::SystemCall) }
+  let(:system_call) {
+    instance_spy(
+      Hanami::CLI::SystemCall,
+      call: Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "", err: "")
+    )
+  }
 
   let(:out) { StringIO.new }
   let(:output) {
@@ -42,6 +47,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
   context "single db in app" do
     def before_prepare
+      write "config/db/.keep", ""
       write "app/relations/.keep", ""
     end
 
@@ -54,19 +60,24 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
     end
   end
 
   context "multiple dbs across app and slices" do
     def before_prepare
+      write "config/db/.keep", ""
       write "app/relations/.keep", ""
+      write "slices/admin/config/db/.keep", ""
       write "slices/admin/relations/.keep", ""
+      write "slices/main/config/db/.keep", ""
       write "slices/main/relations/.keep", ""
     end
 
@@ -81,7 +92,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
@@ -91,7 +102,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_admin_development > #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
@@ -101,13 +112,17 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_main_development > #{@dir.realpath.join("slices", "main", "config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "main", "config", "db", "structure.sql")} bookshelf_main_development",
           env: {
             "PGHOST" => "anotherhost",
             "PGPORT" => "2345"
           }
         )
         .once
+
+      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
+      expect(output).to include "bookshelf_admin_development structure dumped to slices/admin/config/db/structure.sql"
+      expect(output).to include "bookshelf_main_development structure dumped to slices/main/config/db/structure.sql"
     end
 
     it "dumps the structure for the app db when given --app" do
@@ -117,12 +132,14 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
     end
 
     it "dumps the structure for a slice db when given --slice" do
@@ -132,12 +149,40 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(system_call).to have_received(:call)
         .with(
-          "pg_dump --schema-only --no-owner bookshelf_admin_development > #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")}",
+          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
           env: {
             "PGHOST" => "localhost",
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_admin_development structure dumped to slices/admin/config/db/structure.sql"
+    end
+  end
+
+  context "dump command fails" do
+    def before_prepare
+      write "config/db/.keep", ""
+      write "app/relations/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+    end
+
+    before do
+      allow(system_call).to receive(:call).and_return Hanami::CLI::SystemCall::Result.new(
+        exit_code: 2,
+        out: "",
+        err: "some-pg_dump-error"
+      )
+    end
+
+    it "prints the error" do
+      command.call
+
+      expect(output).to include "some-pg_dump-error"
+      expect(output).to include %(!!! => "bookshelf_development structure dumped to config/db/structure.sql" FAILED)
     end
   end
 end
