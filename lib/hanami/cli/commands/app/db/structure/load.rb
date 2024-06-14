@@ -18,7 +18,12 @@ module Hanami
                   structure_path = slice_root.join("config", "db", "structure.sql")
 
                   measure("#{database.name} structure loaded from #{structure_path}") do
-                    database.load_command
+                    database.exec_load_command.tap do |result|
+                      unless result.successful?
+                        out.puts result.err
+                        break false
+                      end
+                    end
                   end
                 end
               end

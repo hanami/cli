@@ -87,7 +87,7 @@ module Hanami
                 raise Hanami::CLI::NotImplementedError
               end
 
-              def load_command
+              def exec_load_command
                 raise Hanami::CLI::NotImplementedError
               end
 
