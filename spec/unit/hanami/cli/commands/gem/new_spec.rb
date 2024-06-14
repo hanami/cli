@@ -436,6 +436,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.read("lib/#{app}/types.rb")).to eq(types)
       expect(output).to include("Created lib/bookshelf/types.rb")
 
+      # app/operation.rb
+      action = <<~EXPECTED
+        # auto_register: false
+        # frozen_string_literal: true
+
+        require "dry/operation"
+
+        module #{inflector.camelize(app)}
+          class Operation < Dry::Operation
+          end
+        end
+      EXPECTED
+      expect(fs.read("app/operation.rb")).to eq(action)
+      expect(output).to include("Created app/operation.rb")
+
       # public/ error pages
       expect(fs.read("public/404.html")).to include %(<title>The page you were looking for doesn’t exist (404)</title>)
       expect(fs.read("public/500.html")).to include %(<title>We’re sorry, but something went wrong (500)</title>)

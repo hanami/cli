@@ -68,6 +68,8 @@ module Hanami
               fs.write("app/assets/images/favicon.ico", file("favicon.ico"))
             end
 
+            fs.write("app/operation.rb", t("operation.erb", context))
+
             fs.write("public/404.html", file("404.html"))
             fs.write("public/500.html", file("500.html"))
           end
