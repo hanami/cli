@@ -8,7 +8,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
     )
   }
 
-  let(:system_call) { instance_spy(Hanami::CLI::SystemCall) }
+  let(:system_call) {
+    instance_spy(
+      Hanami::CLI::SystemCall,
+      call: Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "", err: "")
+    )
+  }
 
   let(:out) { StringIO.new }
   let(:output) {
@@ -152,6 +157,32 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
         )
 
       expect(output).to include "bookshelf_admin_development structure dumped to slices/admin/config/db/structure.sql"
+    end
+  end
+
+  context "dump command fails" do
+    def before_prepare
+      write "config/db/.keep", ""
+      write "app/relations/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+    end
+
+    before do
+      allow(system_call).to receive(:call).and_return Hanami::CLI::SystemCall::Result.new(
+        exit_code: 2,
+        out: "",
+        err: "some-pg_dump-error"
+      )
+    end
+
+    it "prints the error" do
+      command.call
+
+      expect(output).to include "some-pg_dump-error"
+      expect(output).to include %(!!! => "bookshelf_development structure dumped to config/db/structure.sql" FAILED)
     end
   end
 end

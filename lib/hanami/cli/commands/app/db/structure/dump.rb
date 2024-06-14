@@ -18,7 +18,12 @@ module Hanami
                   structure_path = slice_root.join("config", "db", "structure.sql")
 
                   measure("#{database.name} structure dumped to #{structure_path}") do
-                    database.exec_dump_command
+                    database.exec_dump_command.tap do |result|
+                      unless result.successful?
+                        out.puts result.err
+                        break false
+                      end
+                    end
                   end
                 end
               end
