@@ -60,6 +60,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_development structure loaded from config/db/structure.sql"
     end
   end
 
@@ -108,6 +110,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
           }
         )
         .once
+
+      expect(output).to include "bookshelf_development structure loaded from config/db/structure.sql"
+      expect(output).to include "bookshelf_admin_development structure loaded from slices/admin/config/db/structure.sql"
+      expect(output).to include "bookshelf_main_development structure loaded from slices/main/config/db/structure.sql"
     end
 
     it "dumps the structure for the app db when given --app" do
@@ -123,6 +129,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_development structure loaded from config/db/structure.sql"
     end
 
     it "dumps the structure for a slice db when given --slice" do
@@ -138,6 +146,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_admin_development structure loaded from slices/admin/config/db/structure.sql"
     end
   end
 end
