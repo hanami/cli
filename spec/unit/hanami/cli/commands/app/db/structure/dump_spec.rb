@@ -40,39 +40,115 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
     end
   end
 
-  context "postgres" do
-    context "single db in app" do
-      def before_prepare
-        write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
-          ROM::SQL.migration do
-            change do
-              create_table :posts do
-                primary_key :id
-                column :title, :text, null: false
-              end
+  context "single db in app" do
+    def before_prepare
+      write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
             end
           end
-        RUBY
+        end
+      RUBY
 
-        write "app/relations/.keep", ""
-      end
+      write "app/relations/.keep", ""
+    end
 
-      before do
-        ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-      end
+    before do
+      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+    end
 
-      it "works?" do
-        command.call
+    it "dumps the structure for the app db" do
+      command.call
 
-        expect(system_call).to have_received(:call)
-          .with(
-            "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
-            env: {
-              "PGHOST" => "localhost",
-              "PGPORT" => "5432"
-            }
-          )
-      end
+      expect(system_call).to have_received(:call)
+        .with(
+          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          env: {
+            "PGHOST" => "localhost",
+            "PGPORT" => "5432"
+          }
+        )
+    end
+  end
+
+  context "multiple dbs across app and slices" do
+    def before_prepare
+      write "app/relations/.keep", ""
+      write "slices/admin/relations/.keep", ""
+      write "slices/main/relations/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+      ENV["ADMIN__DATABASE_URL"] = "postgres://localhost:5432/bookshelf_admin_development"
+      ENV["MAIN__DATABASE_URL"] = "postgres://anotherhost:2345/bookshelf_main_development"
+    end
+
+    it "dumps the structure for each db" do
+      command.call
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          env: {
+            "PGHOST" => "localhost",
+            "PGPORT" => "5432"
+          }
+        )
+        .once
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "pg_dump --schema-only --no-owner bookshelf_admin_development > #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")}",
+          env: {
+            "PGHOST" => "localhost",
+            "PGPORT" => "5432"
+          }
+        )
+        .once
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "pg_dump --schema-only --no-owner bookshelf_main_development > #{@dir.realpath.join("slices", "main", "config", "db", "structure.sql")}",
+          env: {
+            "PGHOST" => "anotherhost",
+            "PGPORT" => "2345"
+          }
+        )
+        .once
+    end
+
+    it "dumps the structure for the app db when given --app" do
+      command.call(app: true)
+
+      expect(system_call).to have_received(:call).exactly(1).time
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "pg_dump --schema-only --no-owner bookshelf_development > #{@dir.realpath.join("config", "db", "structure.sql")}",
+          env: {
+            "PGHOST" => "localhost",
+            "PGPORT" => "5432"
+          }
+        )
+    end
+
+    it "dumps the structure for a slice db when given --slice" do
+      command.call(slice: "admin")
+
+      expect(system_call).to have_received(:call).exactly(1).time
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "pg_dump --schema-only --no-owner bookshelf_admin_development > #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")}",
+          env: {
+            "PGHOST" => "localhost",
+            "PGPORT" => "5432"
+          }
+        )
     end
   end
 end
