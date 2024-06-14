@@ -42,17 +42,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
   context "single db in app" do
     def before_prepare
-      write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            create_table :posts do
-              primary_key :id
-              column :title, :text, null: false
-            end
-          end
-        end
-      RUBY
-
       write "app/relations/.keep", ""
     end
 
