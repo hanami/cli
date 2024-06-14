@@ -31,6 +31,7 @@ module Hanami
               register "db" do |db|
                 db.register "migrate", DB::Migrate
                 db.register "structure dump", DB::Structure::Dump
+                db.register "structure load", DB::Structure::Load
                 db.register "version", DB::Version
               end
             end
