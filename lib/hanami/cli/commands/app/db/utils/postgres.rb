@@ -12,21 +12,17 @@ module Hanami
           module Utils
             # @api private
             class Postgres < Database
-              # @api private
-              def create_command
-                existing_stdout, status = Open3.capture2(cli_env_vars, "psql -t -c '\\l #{escaped_name}'")
+              def exec_create_command
+                created = system_call.call("psql -t -A -c '\\list #{escaped_name}'", env: cli_env_vars)
+                return true if created.successful? && created.out.include?("#{name}|")
 
-                return true if status.success? && existing_stdout.include?(escaped_name)
-
-                system(cli_env_vars, "createdb #{escaped_name}")
+                system_call.call("createdb #{escaped_name}", env: cli_env_vars)
               end
 
-              # @api private
               def drop_command
                 system(cli_env_vars, "dropdb #{escaped_name}")
               end
 
-              # @api private
               def exec_dump_command
                 system_call.call(
                   "pg_dump --schema-only --no-privileges --no-owner --file #{structure_file} #{escaped_name}",
@@ -34,7 +30,6 @@ module Hanami
                 )
               end
 
-              # @api private
               def exec_load_command
                 system_call.call(
                   "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output #{File::NULL} --file #{structure_file} #{escaped_name}",
@@ -42,12 +37,10 @@ module Hanami
                 )
               end
 
-              # @api private
               def escaped_name
                 Shellwords.escape(name)
               end
 
-              # @api private
               def cli_env_vars
                 @cli_env_vars ||= {}.tap do |vars|
                   vars["PGHOST"] = database_uri.hostname.to_s
@@ -57,7 +50,6 @@ module Hanami
                 end
               end
 
-              # @api private
               def structure_file
                 slice.root.join("config/db/structure.sql")
               end
