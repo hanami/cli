@@ -42,6 +42,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
   context "single db in app" do
     def before_prepare
+      write "config/db/.keep", ""
       write "app/relations/.keep", ""
     end
 
@@ -60,13 +61,18 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
     end
   end
 
   context "multiple dbs across app and slices" do
     def before_prepare
+      write "config/db/.keep", ""
       write "app/relations/.keep", ""
+      write "slices/admin/config/db/.keep", ""
       write "slices/admin/relations/.keep", ""
+      write "slices/main/config/db/.keep", ""
       write "slices/main/relations/.keep", ""
     end
 
@@ -108,6 +114,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
           }
         )
         .once
+
+      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
+      expect(output).to include "bookshelf_admin_development structure dumped to slices/admin/config/db/structure.sql"
+      expect(output).to include "bookshelf_main_development structure dumped to slices/main/config/db/structure.sql"
     end
 
     it "dumps the structure for the app db when given --app" do
@@ -123,6 +133,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
     end
 
     it "dumps the structure for a slice db when given --slice" do
@@ -138,6 +150,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
             "PGPORT" => "5432"
           }
         )
+
+      expect(output).to include "bookshelf_admin_development structure dumped to slices/admin/config/db/structure.sql"
     end
   end
 end

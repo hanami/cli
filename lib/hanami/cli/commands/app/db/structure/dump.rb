@@ -14,7 +14,10 @@ module Hanami
               # @api private
               def call(app: false, slice: nil, **)
                 databases(app: app, slice: slice).each do |database|
-                  measure("#{database.name} structure dumped to config/db/structure.sql") do
+                  slice_root = database.slice.root.relative_path_from(database.slice.app.root)
+                  structure_path = slice_root.join("config", "db", "structure.sql")
+
+                  measure("#{database.name} structure dumped to #{structure_path}") do
                     database.dump_command
                   end
                 end
