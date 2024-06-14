@@ -71,12 +71,12 @@ module Hanami
           #
           # @since 2.0.0
           # @api public
-          def run_command(klass, *args)
+          def run_command(klass, ...)
             klass.new(
               out: out,
               inflector: app.inflector,
               fs: Hanami::CLI::Files,
-            ).call(*args)
+            ).call(...)
           end
 
           # Executes a given block and prints string to the `out` stream with details of the time

@@ -15,6 +15,8 @@ module Hanami
               databases(app: app, slice: slice).each do |database|
                 migrate_database(database, target: target)
               end
+
+              run_command(Structure::Dump, app: app, slice: slice)
             end
 
             private
