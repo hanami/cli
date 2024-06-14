@@ -109,6 +109,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Hanami.app["relations.posts"].to_a).to eq []
     end
+
+    it "does not dump the database structure when given --dump=false" do
+      command.call(dump: false)
+
+      expect(dump_command).not_to have_received(:call)
+    end
   end
 
   context "single db with no migration files" do
