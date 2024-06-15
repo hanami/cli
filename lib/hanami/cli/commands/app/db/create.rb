@@ -1,23 +1,25 @@
 # frozen_string_literal: true
 
-require_relative "../../app/command"
-
 module Hanami
   module CLI
     module Commands
       module App
         module DB
           # @api private
-          class Create < App::Command
+          class Create < DB::Command
             desc "Create database"
 
-            # @api private
-            def call(**)
-              if database.create_command
-                out.puts "=> database #{database.name} created"
-              else
-                out.puts "=> failed to create database #{database.name}"
-                exit $?.exitstatus
+            def call(app: false, slice: nil, **)
+              databases(app: app, slice: slice).each do |database|
+                result = database.exec_create_command
+
+                if result == true || result.successful?
+                  out.puts "=> database #{database.name} created"
+                else
+                  out.puts "=> failed to create database #{database.name}"
+                  out.puts result.err
+                  exit result.exit_code
+                end
               end
             end
           end
