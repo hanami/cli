@@ -13,14 +13,20 @@ module Hanami
             # @api private
             class Postgres < Database
               def exec_create_command
-                created = system_call.call("psql -t -A -c '\\list #{escaped_name}'", env: cli_env_vars)
-                return true if created.successful? && created.out.include?("#{name}|")
+                return true if exists?
 
                 system_call.call("createdb #{escaped_name}", env: cli_env_vars)
               end
 
-              def drop_command
-                system(cli_env_vars, "dropdb #{escaped_name}")
+              def exec_drop_command
+                return true unless exists?
+
+                system_call.call("dropdb #{escaped_name}", env: cli_env_vars)
+              end
+
+              private def exists?
+                result = system_call.call("psql -t -A -c '\\list #{escaped_name}'", env: cli_env_vars)
+                result.successful? && result.out.include?("#{name}|") # start_with?
               end
 
               def exec_dump_command
