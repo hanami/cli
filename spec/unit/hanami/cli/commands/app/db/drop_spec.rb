@@ -108,7 +108,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
       expect(output).to include "database bookshelf_development dropped"
     end
 
-    it "prints the error and exits with non-zero status if the drop command fails" do
+    it "prints the errors if the drop command fails and exits with non-zero status" do
       # It would be nice for hanami-cli to offer a cleaner way of providing non-zero exit statuses,
       # but this will do for now.
       allow(command).to receive :exit
@@ -205,9 +205,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
       expect(output).to include "database bookshelf_main_development dropped"
     end
 
-    it "prints errors and exits with non-zero status for any drop commands that fail" do
-      # It would be nice for hanami-cli to offer a cleaner way of providing non-zero exit statuses,
-      # but this will do for now.
+    it "prints errors for any drop commands that fail and exits with non-zero status" do
       allow(command).to receive :exit
 
       allow(system_call).to receive(:call).with("dropdb bookshelf_development", anything)

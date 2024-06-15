@@ -103,7 +103,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       expect(output).to include "database bookshelf_development created"
     end
 
-    it "prints the error if the create command fails" do
+    it "prints the errors if the create command fails and exits with non-zero status" do
       # It would be nice for hanami-cli to offer a cleaner way of providing non-zero exit statuses,
       # but this will do for now.
       allow(command).to receive :exit
@@ -195,13 +195,40 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       expect(system_call).not_to have_received(:call)
         .with("createdb bookshelf_admin_development", anything)
 
-
       expect(output).to include "database bookshelf_development created"
       expect(output).to include "database bookshelf_admin_development created"
       expect(output).to include "database bookshelf_main_development created"
     end
-  end
 
-  context "creaste command fails" do
+    it "prints errors for any create commands that fail and exits with non-zero status" do
+      allow(command).to receive :exit
+
+      allow(system_call).to receive(:call).with("createdb bookshelf_development", anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "createdb-err-1")
+
+      allow(system_call).to receive(:call).with("createdb bookshelf_admin_development", anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "createdb-err-2")
+
+      command.call
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "createdb bookshelf_main_development",
+          env: {
+            "PGHOST" => "anotherhost",
+            "PGPORT" => "2345"
+          }
+        )
+        .once
+
+      expect(output).to include "failed to create database bookshelf_development"
+      expect(output).to include "createdb-err-1"
+      expect(output).to include "failed to create database bookshelf_admin_development"
+      expect(output).to include "createdb-err-2"
+
+      expect(output).to include "database bookshelf_main_development created"
+
+      expect(command).to have_received(:exit).with(1).exactly(1).time
+    end
   end
 end
