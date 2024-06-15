@@ -108,6 +108,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       expect(fs.read("slices/#{slice}/views/helpers.rb")).to eq(helpers)
       expect(output).to include("Created slices/#{slice}/views/helpers.rb")
 
+      operation = <<~RUBY
+        # auto_register: false
+        # frozen_string_literal: true
+
+        module Admin
+          class Operation < Bookshelf::Operation
+          end
+        end
+      RUBY
+      expect(fs.read("slices/#{slice}/operation.rb")).to eq(operation)
+      expect(output).to include("Created slices/#{slice}/operation.rb")
+
       layout = <<~ERB
         <!DOCTYPE html>
         <html lang="en">
