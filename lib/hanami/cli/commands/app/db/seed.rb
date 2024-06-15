@@ -1,38 +1,27 @@
 # frozen_string_literal: true
 
-require_relative "../../app/command"
-require_relative "structure/dump"
-
 module Hanami
   module CLI
     module Commands
       module App
         module DB
           # @api private
-          class Seed < App::Command
-            FILE_PATH = "db/seeds.rb"
+          class Seed < DB::Command
+            SEEDS_PATH = "config/db/seeds.rb"
+            private_constant :SEEDS_PATH
 
             desc "Load seed data"
 
-            # @api private
-            def call(**)
-              if has_file?
-                measure "seed data loaded from #{FILE_PATH}" do
-                  load full_file_path
+            def call(app: false, slice: nil, **)
+              databases(app: app, slice: slice).each do |database|
+                seeds_path = database.slice.root.join(SEEDS_PATH)
+                next unless seeds_path.file?
+
+                relative_seeds_path = seeds_path.relative_path_from(database.slice.app.root)
+                measure "seed data loaded from #{relative_seeds_path}" do
+                  load seeds_path.to_s
                 end
-              else
-                out.puts "=> #{FILE_PATH} not found"
               end
-            end
-
-            private
-
-            def full_file_path
-              File.join(app.root, FILE_PATH)
-            end
-
-            def has_file?
-              File.exist?(full_file_path)
             end
           end
         end
