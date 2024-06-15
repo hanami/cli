@@ -102,5 +102,106 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
 
       expect(output).to include "database bookshelf_development created"
     end
+
+    it "prints the error if the create command fails" do
+      # It would be nice for hanami-cli to offer a cleaner way of providing non-zero exit statuses,
+      # but this will do for now.
+      allow(command).to receive :exit
+
+      allow(system_call).to receive(:call).with("createdb bookshelf_development", anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "createdb-err")
+
+      command.call
+
+      expect(output).to include "createdb-err"
+      expect(output).to include "failed to create database bookshelf_development"
+
+      expect(command).to have_received(:exit).with 1
+    end
+  end
+
+  context "multiple dbs across app and slices" do
+    def before_prepare
+      write "config/db/.keep", ""
+      write "app/relations/.keep", ""
+      write "slices/admin/config/db/.keep", ""
+      write "slices/admin/relations/.keep", ""
+      write "slices/main/config/db/.keep", ""
+      write "slices/main/relations/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+      ENV["ADMIN__DATABASE_URL"] = "postgres://localhost:5432/bookshelf_admin_development"
+      ENV["MAIN__DATABASE_URL"] = "postgres://anotherhost:2345/bookshelf_main_development"
+    end
+
+    it "creates each database" do
+      command.call
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "createdb bookshelf_development",
+          env: {
+            "PGHOST" => "localhost",
+            "PGPORT" => "5432"
+          }
+        )
+        .once
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "createdb bookshelf_admin_development",
+          env: {
+            "PGHOST" => "localhost",
+            "PGPORT" => "5432"
+          }
+        )
+        .once
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "createdb bookshelf_main_development",
+          env: {
+            "PGHOST" => "anotherhost",
+            "PGPORT" => "2345"
+          }
+        )
+        .once
+
+      expect(output).to include "database bookshelf_development created"
+      expect(output).to include "database bookshelf_admin_development created"
+      expect(output).to include "database bookshelf_main_development created"
+    end
+
+    it "does not create databases that already exist" do
+      allow_database_to_exist("bookshelf_development")
+      allow_database_to_exist("bookshelf_admin_development")
+
+      command.call
+
+      expect(system_call).to have_received(:call)
+        .with(
+          "createdb bookshelf_main_development",
+          env: {
+            "PGHOST" => "anotherhost",
+            "PGPORT" => "2345"
+          }
+        )
+        .once
+
+      expect(system_call).not_to have_received(:call)
+        .with("createdb bookshelf_development", anything)
+      expect(system_call).not_to have_received(:call)
+        .with("createdb bookshelf_admin_development", anything)
+
+
+      expect(output).to include "database bookshelf_development created"
+      expect(output).to include "database bookshelf_admin_development created"
+      expect(output).to include "database bookshelf_main_development created"
+    end
+  end
+
+  context "creaste command fails" do
   end
 end
