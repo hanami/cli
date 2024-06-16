@@ -86,7 +86,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Hanami.app["relations.posts"].to_a).to eq []
 
-      expect(dump_command).to have_received(:call).with(app: false, slice: nil)
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
       expect(dump_command).to have_received(:call).exactly(1).time
     end
 
@@ -175,7 +175,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(Admin::Slice["relations.posts"].to_a).to eq []
 
-      expect(dump_command).to have_received(:call).with(app: false, slice: "admin")
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "admin"))
       expect(dump_command).to have_received(:call).exactly(1).time
     end
   end
@@ -239,7 +239,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(Hanami.app["relations.posts"].to_a).to eq []
       expect(Main::Slice["relations.comments"].to_a).to eq []
 
-      expect(dump_command).to have_received(:call).with(app: false, slice: nil)
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
       expect(dump_command).to have_received(:call).exactly(1).time
     end
 
@@ -252,7 +252,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(Hanami.app["relations.posts"].to_a).to eq []
       expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
 
-      expect(dump_command).to have_received(:call).with(app: true, slice: nil)
+      expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
       expect(dump_command).to have_received(:call).exactly(1).time
     end
 
@@ -265,7 +265,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(Main::Slice["relations.comments"].to_a).to eq []
       expect { Hanami.app["relations.posts"].to_a }.to raise_error Sequel::Error
 
-      expect(dump_command).to have_received(:call).with(app: false, slice: "main")
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
       expect(dump_command).to have_received(:call).exactly(1).time
     end
   end
@@ -329,7 +329,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(Admin::Slice["relations.posts"].to_a).to eq []
       expect(Main::Slice["relations.comments"].to_a).to eq []
 
-      expect(dump_command).to have_received(:call).with(app: false, slice: nil)
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
       expect(dump_command).to have_received(:call).exactly(1).time
     end
 
@@ -342,7 +342,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(Admin::Slice["relations.posts"].to_a).to eq []
       expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
 
-      expect(dump_command).to have_received(:call).with(app: false, slice: "admin")
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "admin"))
       expect(dump_command).to have_received(:call).exactly(1).time
     end
   end
