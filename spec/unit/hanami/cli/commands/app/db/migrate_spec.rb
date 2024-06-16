@@ -203,7 +203,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         end
       RUBY
 
-      write "slices/main/config/db/migrate/20240602201330_create_users.rb", <<~RUBY
+      write "slices/main/config/db/migrate/20240602201330_create_comments.rb", <<~RUBY
         ROM::SQL.migration do
           change do
             create_table :comments do
