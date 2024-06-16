@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration do
+RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration, :postgres do
   subject(:command) {
     described_class.new(
       system_call: system_call,
@@ -8,12 +8,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
     )
   }
 
-  let(:system_call) {
-    instance_spy(
-      Hanami::CLI::SystemCall,
-      call: Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "", err: "")
-    )
-  }
+  let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
   let(:output) {
@@ -28,6 +23,11 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
   after do
     ENV.replace(@env)
+  end
+
+  before do
+    # Prevent the command from exiting the spec run in the case of unexpected system call failures
+    allow(command).to receive(:exit)
   end
 
   before do
@@ -47,142 +47,142 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
   context "single db in app" do
     def before_prepare
-      write "config/db/.keep", ""
+      write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
+
       write "app/relations/.keep", ""
     end
 
     before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+      ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      command.run_command(Hanami::CLI::Commands::App::DB::Migrate, dump: false)
+      out.truncate(0)
     end
 
-    it "dumps the structure for the app db" do
+    it "dumps the structure for the app db, including schema_migrations" do
       command.call
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
+      dump = File.read(Hanami.app.root.join("config", "db", "structure.sql"))
+      expect(dump).to include("CREATE TABLE public.posts")
+      expect(dump).to include(<<~SQL)
+        SET search_path TO "$user", public;
 
-      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
+        INSERT INTO schema_migrations (filename) VALUES
+        ('20240602201330_create_posts.rb');
+      SQL
+
+      expect(output).to include "hanami_cli_test_app structure dumped to config/db/structure.sql"
     end
   end
 
   context "multiple dbs across app and slices" do
     def before_prepare
-      write "config/db/.keep", ""
+      write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
       write "app/relations/.keep", ""
-      write "slices/admin/config/db/.keep", ""
-      write "slices/admin/relations/.keep", ""
-      write "slices/main/config/db/.keep", ""
+
+      write "slices/main/config/db/migrate/20240602201330_create_comments.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :comments do
+              primary_key :id
+              column :body, :text, null: false
+            end
+          end
+        end
+      RUBY
       write "slices/main/relations/.keep", ""
     end
 
     before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-      ENV["ADMIN__DATABASE_URL"] = "postgres://localhost:5432/bookshelf_admin_development"
-      ENV["MAIN__DATABASE_URL"] = "postgres://anotherhost:2345/bookshelf_main_development"
+      ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+      ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
+
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      command.run_command(Hanami::CLI::Commands::App::DB::Migrate, dump: false)
+      out.truncate(0)
     end
 
-    it "dumps the structure for each db" do
+    it "dumps the structure for each db, including schema_migrations" do
       command.call
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
+      dump = File.read(Hanami.app.root.join("config", "db", "structure.sql"))
+      expect(dump).to include("CREATE TABLE public.posts")
+      expect(dump).to include(<<~SQL)
+        SET search_path TO "$user", public;
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
+        INSERT INTO schema_migrations (filename) VALUES
+        ('20240602201330_create_posts.rb');
+      SQL
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "main", "config", "db", "structure.sql")} bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
+      dump = File.read(Main::Slice.root.join("config", "db", "structure.sql"))
+      expect(dump).to include("CREATE TABLE public.comments")
+      expect(dump).to include(<<~SQL)
+        SET search_path TO "$user", public;
 
-      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
-      expect(output).to include "bookshelf_admin_development structure dumped to slices/admin/config/db/structure.sql"
-      expect(output).to include "bookshelf_main_development structure dumped to slices/main/config/db/structure.sql"
+        INSERT INTO schema_migrations (filename) VALUES
+        ('20240602201330_create_comments.rb');
+      SQL
+
+      expect(output).to include "hanami_cli_test_app structure dumped to config/db/structure.sql"
+      expect(output).to include "hanami_cli_test_main structure dumped to slices/main/config/db/structure.sql"
     end
 
     it "dumps the structure for the app db when given --app" do
       command.call(app: true)
 
-      expect(system_call).to have_received(:call).exactly(1).time
+      expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be true
+      expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be false
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-
-      expect(output).to include "bookshelf_development structure dumped to config/db/structure.sql"
+      expect(output).to include "hanami_cli_test_app structure dumped to config/db/structure.sql"
+      expect(output).not_to include "hanami_cli_test_main structure dumped to slices/main/config/db/structure.sql"
     end
 
     it "dumps the structure for a slice db when given --slice" do
-      command.call(slice: "admin")
+      command.call(slice: "main")
 
-      expect(system_call).to have_received(:call).exactly(1).time
+      expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be true
+      expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be false
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "pg_dump --schema-only --no-privileges --no-owner --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-
-      expect(output).to include "bookshelf_admin_development structure dumped to slices/admin/config/db/structure.sql"
-    end
-  end
-
-  context "dump command fails" do
-    def before_prepare
-      write "config/db/.keep", ""
-      write "app/relations/.keep", ""
+      expect(output).to include "hanami_cli_test_main structure dumped to slices/main/config/db/structure.sql"
+      expect(output).not_to include "hanami_cli_test_app structure dumped to config/db/structure.sql"
     end
 
-    before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-    end
+    it "prints errors for any dumps that fail and exits with non-zero status" do
+      # Fail to dump the app db
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_including("app"), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "dump-err")
 
-    before do
-      allow(system_call).to receive(:call).and_return Hanami::CLI::SystemCall::Result.new(
-        exit_code: 2,
-        out: "",
-        err: "some-pg_dump-error"
-      )
-    end
-
-    it "prints the error" do
       command.call
 
-      expect(output).to include "some-pg_dump-error"
-      expect(output).to include %(!!! => "bookshelf_development structure dumped to config/db/structure.sql" FAILED)
+      expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be true
+      expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be false
+
+      expect(output).to include %("hanami_cli_test_app structure dumped to config/db/structure.sql" FAILED)
+      expect(output).to include "hanami_cli_test_main structure dumped to slices/main/config/db/structure.sql"
+
+      expect(command).to have_received(:exit).with 2
     end
   end
 end

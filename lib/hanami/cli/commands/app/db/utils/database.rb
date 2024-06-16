@@ -132,6 +132,13 @@ module Hanami
               def migrations_dir?
                 migrations_path.directory?
               end
+
+              def schema_migrations_sql_dump
+                sql = +"INSERT INTO schema_migrations (filename) VALUES\n"
+                sql << applied_migrations.map { |v| "('#{v}')" }.join(",\n")
+                sql << ";"
+                sql
+              end
             end
           end
         end
