@@ -28,6 +28,15 @@ module Hanami
               @system_call = system_call
             end
 
+            def run_command(klass, ...)
+              klass.new(
+                out: out,
+                inflector: fs,
+                fs: fs,
+                system_call: system_call,
+              ).call(...)
+            end
+
             private
 
             def databases(app: false, slice: nil)
@@ -45,9 +54,12 @@ module Hanami
             end
 
             def database_for_slice(slice)
-              slice = inflector.underscore(Shellwords.shellescape(slice)).to_sym
+              unless slice.is_a?(Class) && slice < Hanami::Slice
+                slice_name = inflector.underscore(Shellwords.shellescape(slice)).to_sym
+                slice = app.slices[slice_name]
+              end
 
-              build_database(app.slices[slice])
+              build_database(slice)
             end
 
             def all_databases

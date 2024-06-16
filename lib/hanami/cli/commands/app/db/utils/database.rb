@@ -75,11 +75,15 @@ module Hanami
                 gateway.connection
               end
 
-              def create_command
+              def exec_create_command
                 raise Hanami::CLI::NotImplementedError
               end
 
-              def drop_command
+              def exec_drop_command
+                raise Hanami::CLI::NotImplementedError
+              end
+
+              def exists?
                 raise Hanami::CLI::NotImplementedError
               end
 

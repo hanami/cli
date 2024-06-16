@@ -12,7 +12,7 @@ module Hanami
               desc "Dumps database structure to config/db/structure.sql file"
 
               # @api private
-              def call(app: false, slice: nil, **)
+              def call(app: false, slice: nil, command_exit: method(:exit), **)
                 exit_codes = []
 
                 databases(app: app, slice: slice).each do |database|
@@ -39,7 +39,7 @@ module Hanami
                 end
 
                 exit_codes.each do |code|
-                  break exit code if code > 0
+                  break command_exit.(code) if code > 0
                 end
               end
             end

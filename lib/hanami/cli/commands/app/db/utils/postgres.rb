@@ -24,7 +24,7 @@ module Hanami
                 system_call.call("dropdb #{escaped_name}", env: cli_env_vars)
               end
 
-              private def exists?
+              def exists?
                 result = system_call.call("psql -t -A -c '\\list #{escaped_name}'", env: cli_env_vars)
                 result.successful? && result.out.include?("#{name}|") # start_with?
               end
