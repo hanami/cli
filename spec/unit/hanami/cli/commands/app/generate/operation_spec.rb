@@ -40,7 +40,30 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
       expect(output).to include("Created app/operations/add_book.rb")
     end
 
-    xit "add one for slashes? it does compact module syntax... but why?"
+    it "add one for slashes? it does compact module syntax... but why?" do
+      subject.call(name: "external/books/add")
+
+      # operation
+      operation_file = <<~EXPECTED
+        # frozen_string_literal: true
+
+        module Test
+          module Operations
+            module External
+              module Books
+                class Add < Test::Operation
+                  def call(input)
+                  end
+                end
+              end
+            end
+          end
+        end
+      EXPECTED
+
+      expect(fs.read("app/operations/external/books/add.rb")).to eq(operation_file)
+      expect(output).to include("Created app/operations/external/books/add.rb")
+    end
 
     it "generates a operation in a deep namespace" do
       subject.call(name: "external.books.add")

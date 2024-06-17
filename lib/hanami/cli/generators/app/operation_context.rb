@@ -13,7 +13,7 @@ module Hanami
         # @api private
         class OperationContext < SliceContext
           # TODO: move these constants somewhere that will let us reuse them
-          KEY_SEPARATOR = "."
+          KEY_SEPARATOR = %r{\.|/}
           private_constant :KEY_SEPARATOR
 
           NAMESPACE_SEPARATOR = "::"
