@@ -40,13 +40,23 @@ module Hanami
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
-            fs.mkdir(directory = fs.join(slice_directory, "operations", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.rb"), t("slice_operation.erb", context))
+            if context.namespaces.any?
+              fs.mkdir(directory = fs.join(slice_directory, "operations", context.namespaces))
+              fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_slice_operation.erb", context))
+            else
+              fs.mkdir(directory = fs.join(slice_directory, "operations"))
+              fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_slice_operation.erb", context))
+            end
           end
 
           def generate_for_app(context)
-            fs.mkdir(directory = fs.join("app", "operations", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.rb"), t("app_operation.erb", context))
+            if context.namespaces.any?
+              fs.mkdir(directory = fs.join("app", "operations", context.namespaces))
+              fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_app_operation.erb", context))
+            else
+              fs.mkdir(directory = fs.join("app", "operations"))
+              fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_app_operation.erb", context))
+            end
           end
 
           def template(path, context)

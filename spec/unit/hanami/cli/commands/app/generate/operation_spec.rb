@@ -25,12 +25,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
 
         module Test
           module Operations
-
             class AddBook < Test::Operation
               def call(input)
               end
             end
-
           end
         end
       EXPECTED
@@ -98,12 +96,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
 
         module Main
           module Operations
-
             class AddBook < Main::Operation
               def call(input)
               end
             end
-
           end
         end
       EXPECTED
