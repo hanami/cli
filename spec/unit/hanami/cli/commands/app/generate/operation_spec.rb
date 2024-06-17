@@ -40,14 +40,14 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
     end
 
     it "generates a operation in a deep namespace with default separator" do
-      subject.call(name: "external.books.add")
+      subject.call(name: "admin.books.add")
 
       operation_file = <<~EXPECTED
         # frozen_string_literal: true
 
         module Test
           module Operations
-            module External
+            module Admin
               module Books
                 class Add < Test::Operation
                   def call(input)
@@ -59,19 +59,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         end
       EXPECTED
 
-      expect(fs.read("app/operations/external/books/add.rb")).to eq(operation_file)
-      expect(output).to include("Created app/operations/external/books/add.rb")
+      expect(fs.read("app/operations/admin/books/add.rb")).to eq(operation_file)
+      expect(output).to include("Created app/operations/admin/books/add.rb")
     end
 
     it "generates an operation in a deep namespace with slash separators" do
-      subject.call(name: "external/books/add")
+      subject.call(name: "admin/books/add")
 
       operation_file = <<~EXPECTED
         # frozen_string_literal: true
 
         module Test
           module Operations
-            module External
+            module Admin
               module Books
                 class Add < Test::Operation
                   def call(input)
@@ -83,8 +83,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         end
       EXPECTED
 
-      expect(fs.read("app/operations/external/books/add.rb")).to eq(operation_file)
-      expect(output).to include("Created app/operations/external/books/add.rb")
+      expect(fs.read("app/operations/admin/books/add.rb")).to eq(operation_file)
+      expect(output).to include("Created app/operations/admin/books/add.rb")
     end
   end
 
