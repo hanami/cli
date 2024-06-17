@@ -111,20 +111,6 @@ module Hanami
               out.puts "!!! => #{desc.inspect} FAILED"
             end
           end
-
-          # This is NOT AVAILABLE as of the 2.0.0 release.
-          #
-          # @api private
-          def database
-            @database ||= Commands::App::DB::Utils::Database[app]
-          end
-
-          # This is NOT AVAILABLE as of the 2.0.0 release.
-          #
-          # @api private
-          def database_config
-            database.config
-          end
         end
       end
     end

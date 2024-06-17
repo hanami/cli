@@ -13,12 +13,12 @@ module Hanami
             option :dump, required: false, type: :boolean, default: true,
               desc: "Dump the database structure after migrating"
 
-            def call(target: nil, app: false, slice: nil, dump: true, **)
+            def call(target: nil, app: false, slice: nil, dump: true, command_exit: method(:exit), **)
               databases(app: app, slice: slice).each do |database|
                 migrate_database(database, target: target)
               end
 
-              run_command(Structure::Dump, app: app, slice: slice) if dump
+              run_command(Structure::Dump, app: app, slice: slice, command_exit: command_exit) if dump
             end
 
             private

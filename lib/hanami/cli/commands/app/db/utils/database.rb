@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "uri"
-require_relative "database_config"
 
 module Hanami
   module CLI
@@ -75,11 +74,15 @@ module Hanami
                 gateway.connection
               end
 
-              def create_command
+              def exec_create_command
                 raise Hanami::CLI::NotImplementedError
               end
 
-              def drop_command
+              def exec_drop_command
+                raise Hanami::CLI::NotImplementedError
+              end
+
+              def exists?
                 raise Hanami::CLI::NotImplementedError
               end
 
@@ -131,6 +134,13 @@ module Hanami
 
               def migrations_dir?
                 migrations_path.directory?
+              end
+
+              def schema_migrations_sql_dump
+                sql = +"INSERT INTO schema_migrations (filename) VALUES\n"
+                sql << applied_migrations.map { |v| "('#{v}')" }.join(",\n")
+                sql << ";"
+                sql
               end
             end
           end

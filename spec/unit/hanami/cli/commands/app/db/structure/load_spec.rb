@@ -47,6 +47,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
   context "single db in app" do
     def before_prepare
+      write "config/db/structure.sql", ""
       write "app/relations/.keep", ""
     end
 
@@ -72,8 +73,13 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
   context "multiple dbs across app and slices" do
     def before_prepare
+      write "config/db/structure.sql", ""
       write "app/relations/.keep", ""
+
+      write "slices/admin/config/db/structure.sql", ""
       write "slices/admin/relations/.keep", ""
+
+      write "slices/main/config/db/structure.sql", ""
       write "slices/main/relations/.keep", ""
     end
 
@@ -159,6 +165,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
   context "load command fails" do
     def before_prepare
       write "config/db/.keep", ""
+      write "config/db/structure.sql", ""
       write "app/relations/.keep", ""
     end
 

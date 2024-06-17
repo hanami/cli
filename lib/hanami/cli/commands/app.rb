@@ -29,9 +29,13 @@ module Hanami
 
             if Hanami.bundled?("hanami-db")
               register "db" do |db|
+                db.register "create", DB::Create
+                db.register "drop", DB::Drop
                 db.register "migrate", DB::Migrate
                 db.register "structure dump", DB::Structure::Dump
                 db.register "structure load", DB::Structure::Load
+                db.register "seed", DB::Seed
+                db.register "prepare", DB::Prepare
                 db.register "version", DB::Version
               end
             end
