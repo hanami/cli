@@ -20,7 +20,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
     it "generates an operation" do
       subject.call(name: "add_book")
 
-      # operation
       operation_file = <<~EXPECTED
         # frozen_string_literal: true
 
@@ -40,10 +39,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
       expect(output).to include("Created app/operations/add_book.rb")
     end
 
-    it "add one for slashes? it does compact module syntax... but why?" do
-      subject.call(name: "external/books/add")
+    it "generates a operation in a deep namespace with default separator" do
+      subject.call(name: "external.books.add")
 
-      # operation
       operation_file = <<~EXPECTED
         # frozen_string_literal: true
 
@@ -65,10 +63,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
       expect(output).to include("Created app/operations/external/books/add.rb")
     end
 
-    it "generates a operation in a deep namespace" do
-      subject.call(name: "external.books.add")
+    it "generates an operation in a deep namespace with slash separators" do
+      subject.call(name: "external/books/add")
 
-      # view
       operation_file = <<~EXPECTED
         # frozen_string_literal: true
 
@@ -96,7 +93,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
       fs.mkdir("slices/main")
       subject.call(name: "add_book", slice: "main")
 
-      # operation
       operation_file = <<~EXPECTED
         # frozen_string_literal: true
 
