@@ -11,11 +11,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:inflector) { Dry::Inflector.new }
   let(:system_call) { instance_double(Hanami::CLI::SystemCall, call: successful_system_call_result) }
   let(:app) { "bookshelf" }
-  let(:kwargs) { {head: hanami_head, skip_assets: skip_assets, skip_db: skip_db} }
+  let(:kwargs) { {head: hanami_head, skip_assets: skip_assets, skip_db: skip_db, database: database} }
 
   let(:hanami_head) { false }
   let(:skip_assets) { false }
   let(:skip_db) { false }
+  let(:database) { "sqlite" }
 
   let(:output) { out.rewind && out.read.chomp }
 
@@ -105,6 +106,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           gem "dry-types", "~> 1.0", ">= 1.6.1"
           gem "puma"
           gem "rake"
+          gem "sqlite3"
 
           group :development do
             gem "hanami-webconsole", github: "hanami/webconsole", branch: "main"
@@ -194,6 +196,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           gem "dry-types", "~> 1.0", ">= 1.6.1"
           gem "puma"
           gem "rake"
+          gem "sqlite3"
 
           group :development do
             gem "hanami-webconsole", "#{hanami_version}"
@@ -990,5 +993,60 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
     app_name = "no_gems_installed"
     subject.call(app: app_name)
+  end
+
+  describe "--database" do
+    before do
+      allow(bundler).to receive(:install!)
+        .at_least(1)
+        .and_return(true)
+
+      allow(bundler).to receive(:exec)
+        .with("hanami install")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
+      allow(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(
+          instance_double(Hanami::CLI::SystemCall::Result, successful?: false)
+        )
+
+      allow(bundler).to receive(:exec)
+        .with("install")
+        .once
+        .and_return(successful_system_call_result)
+    end
+
+    it "generates for sqlite database" do
+      subject.call(app: app, database: "sqlite")
+
+      fs.chdir(app) do
+        expect(fs.read("Gemfile")).to include("hanami-db")
+        expect(fs.read("Gemfile")).to include("sqlite3")
+      end
+    end
+
+    it "generates for postgres database" do
+      subject.call(app: app, database: "postgres")
+
+      fs.chdir(app) do
+        expect(fs.read("Gemfile")).to include("hanami-db")
+        expect(fs.read("Gemfile")).to include("pg")
+      end
+    end
+
+    it "doesn't generate for unsupported database" do
+      expect {
+        subject.call(app: app, database: "foodb")
+      }.to raise_error(
+        Hanami::CLI::DatabaseNotSupportedError
+      ).with_message(
+        "`foodb' is not a supported database. Supported databases are: sqlite, postgres"
+      )
+    end
+
+    xit "doesn't allow --skip-db && --database=..."
   end
 end

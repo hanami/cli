@@ -86,6 +86,18 @@ module Hanami
           !options.fetch(:skip_db, false)
         end
 
+        # @since x.x.x
+        # @api private
+        def generate_sqlite?
+          database_option == Commands::Gem::New::DATABASE_SQLITE
+        end
+
+        # @since x.x.x
+        # @api private
+        def generate_postgres?
+          database_option == Commands::Gem::New::DATABASE_POSTGRES
+        end
+
         # @since 2.1.0
         # @api private
         def bundled_views?
@@ -107,6 +119,10 @@ module Hanami
         end
 
         private
+
+        def database_option
+          options.fetch(:database, Commands::Gem::New::DATABASE_SQLITE)
+        end
 
         # @since 2.0.0
         # @api private

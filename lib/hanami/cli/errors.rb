@@ -91,5 +91,11 @@ module Hanami
         super("`#{scheme}' is not a supported db scheme")
       end
     end
+
+    class DatabaseNotSupportedError < Error
+      def initialize(invalid_database, supported_databases)
+        super("`#{invalid_database}' is not a supported database. Supported databases are: #{supported_databases.join(', ')}")
+      end
+    end
   end
 end

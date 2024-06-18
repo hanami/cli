@@ -17,6 +17,11 @@ source "https://rubygems.org"
 gem "dry-types", "~> 1.0", ">= 1.6.1"
 gem "puma"
 gem "rake"
+<%- if generate_sqlite? -%>
+gem "sqlite3"
+<%- elsif generate_postgres? -%>
+gem "pg"
+<%- end -%>
 
 group :development do
   <%= hanami_gem("webconsole") %>

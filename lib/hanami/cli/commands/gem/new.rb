@@ -30,6 +30,18 @@ module Hanami
           SKIP_DB_DEFAULT = false
           private_constant :SKIP_DB_DEFAULT
 
+          # @since x.x.x
+          # @api private
+          DATABASE_SQLITE = "sqlite"
+
+          # @since x.x.x
+          # @api private
+          DATABASE_POSTGRES = "postgres"
+
+          # @since x.x.x
+          # @api private
+          SUPPORTED_DATABASES = [DATABASE_SQLITE, DATABASE_POSTGRES]
+
           desc "Generate a new Hanami app"
 
           # @since 2.0.0
@@ -60,13 +72,20 @@ module Hanami
                            default: SKIP_DB_DEFAULT,
                            desc: "Skip database layer"
 
+          # @since x.x.x
+          # @api private
+          option :database, type: :string, required: false,
+                            default: DATABASE_SQLITE,
+                            desc: "Database adapter (supported: sqlite, mysql, postgres)"
+
           # rubocop:disable Layout/LineLength
           example [
-            "bookshelf                # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
-            "bookshelf --head         # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
-            "bookshelf --skip-install # Generate a new Hanami app, but it skips Hanami installation",
-            "bookshelf --skip-assets  # Generate a new Hanami app without assets",
-            "bookshelf --skip-db      # Generate a new Hanami app without database layer"
+            "bookshelf                   # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
+            "bookshelf --head            # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
+            "bookshelf --skip-install    # Generate a new Hanami app, but it skips Hanami installation",
+            "bookshelf --skip-assets     # Generate a new Hanami app without assets",
+            "bookshelf --skip-db         # Generate a new Hanami app without database layer",
+            "bookshelf --database=sqlite # Generate a new Hanami app with a SQLite database (default)"
           ]
           # rubocop:enable Layout/LineLength
 
@@ -93,14 +112,31 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app:, head: HEAD_DEFAULT, skip_install: SKIP_INSTALL_DEFAULT, skip_assets: SKIP_ASSETS_DEFAULT, skip_db: SKIP_DB_DEFAULT, **)
+          def call(
+            app:,
+            head: HEAD_DEFAULT,
+            skip_install: SKIP_INSTALL_DEFAULT,
+            skip_assets: SKIP_ASSETS_DEFAULT,
+            skip_db: SKIP_DB_DEFAULT,
+            database: DATABASE_SQLITE,
+            **
+          )
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
+            raise DatabaseNotSupportedError.new(database, SUPPORTED_DATABASES) unless SUPPORTED_DATABASES.include?(database)
 
             fs.mkdir(app)
             fs.chdir(app) do
-              context = Generators::Context.new(inflector, app, head: head, skip_assets: skip_assets, skip_db: skip_db, **)
+              context = Generators::Context.new(
+                inflector,
+                app,
+                head: head,
+                skip_assets: skip_assets,
+                skip_db: skip_db,
+                database: database,
+                **
+              )
               generator.call(app, context: context) do
                 if skip_install
                   out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"
