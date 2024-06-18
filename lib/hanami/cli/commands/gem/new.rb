@@ -122,13 +122,16 @@ module Hanami
             skip_install: SKIP_INSTALL_DEFAULT,
             skip_assets: SKIP_ASSETS_DEFAULT,
             skip_db: SKIP_DB_DEFAULT,
-            database: DATABASE_SQLITE,
+            database: nil,
             **
           )
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
-            raise DatabaseNotSupportedError.new(database, SUPPORTED_DATABASES) unless SUPPORTED_DATABASES.include?(database)
+            raise DatabaseNotSupportedError.new(database, SUPPORTED_DATABASES) if database && !SUPPORTED_DATABASES.include?(database)
+            raise ConflictingOptionsError.new("--skip-db", "--database") if skip_db && database
+
+            database ||= DATABASE_SQLITE
 
             fs.mkdir(app)
             fs.chdir(app) do

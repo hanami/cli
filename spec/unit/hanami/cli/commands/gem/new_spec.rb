@@ -16,7 +16,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:hanami_head) { false }
   let(:skip_assets) { false }
   let(:skip_db) { false }
-  let(:database) { "sqlite" }
+  let(:database) { nil }
 
   let(:output) { out.rewind && out.read.chomp }
 
@@ -1052,10 +1052,16 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       }.to raise_error(
         Hanami::CLI::DatabaseNotSupportedError
       ).with_message(
-        "`foodb' is not a supported database. Supported databases are: sqlite, postgres"
+        "`foodb' is not a supported database. Supported databases are: sqlite, postgres, mysql"
       )
     end
 
-    xit "doesn't allow --skip-db && --database=..."
+    it "doesn't allow --skip-db && --database=..." do
+      expect {
+        subject.call(app: app, database: "sqlite", skip_db: true)
+      }.to raise_error(
+        Hanami::CLI::ConflictingOptionsError
+      ).with_message("`--skip-db' and `--database' cannot be used together")
+    end
   end
 end

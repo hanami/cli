@@ -92,9 +92,19 @@ module Hanami
       end
     end
 
+    # @since x.x.x
+    # @api public
     class DatabaseNotSupportedError < Error
       def initialize(invalid_database, supported_databases)
         super("`#{invalid_database}' is not a supported database. Supported databases are: #{supported_databases.join(', ')}")
+      end
+    end
+
+    # @since x.x.x
+    # @api public
+    class ConflictingOptionsError < Error
+      def initialize(option1, option2)
+        super("`#{option1}' and `#{option2}' cannot be used together")
       end
     end
   end
