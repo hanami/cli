@@ -1019,7 +1019,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .and_return(successful_system_call_result)
     end
 
-    it "generates for sqlite database" do
+    it "generates app for sqlite database" do
       subject.call(app: app, database: "sqlite")
 
       fs.chdir(app) do
@@ -1028,12 +1028,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       end
     end
 
-    it "generates for postgres database" do
+    it "generates app for postgres database" do
       subject.call(app: app, database: "postgres")
 
       fs.chdir(app) do
         expect(fs.read("Gemfile")).to include("hanami-db")
         expect(fs.read("Gemfile")).to include("pg")
+      end
+    end
+
+    it "generates app for mysql database" do
+      subject.call(app: app, database: "mysql")
+
+      fs.chdir(app) do
+        expect(fs.read("Gemfile")).to include("hanami-db")
+        expect(fs.read("Gemfile")).to include("mysql2")
       end
     end
 

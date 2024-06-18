@@ -40,7 +40,11 @@ module Hanami
 
           # @since x.x.x
           # @api private
-          SUPPORTED_DATABASES = [DATABASE_SQLITE, DATABASE_POSTGRES]
+          DATABASE_MYSQL = "mysql"
+
+          # @since x.x.x
+          # @api private
+          SUPPORTED_DATABASES = [DATABASE_SQLITE, DATABASE_POSTGRES, DATABASE_MYSQL].freeze
 
           desc "Generate a new Hanami app"
 

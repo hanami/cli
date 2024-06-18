@@ -98,6 +98,12 @@ module Hanami
           database_option == Commands::Gem::New::DATABASE_POSTGRES
         end
 
+        # @since x.x.x
+        # @api private
+        def generate_mysql?
+          database_option == Commands::Gem::New::DATABASE_MYSQL
+        end
+
         # @since 2.1.0
         # @api private
         def bundled_views?
