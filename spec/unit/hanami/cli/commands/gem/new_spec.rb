@@ -530,6 +530,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.read("app/db/struct.rb")).to eq(struct)
         expect(output).to include("Created app/db/struct.rb")
 
+        expect(fs.read("app/structs/.keep")).to eq("")
+        expect(fs.read("app/repos/.keep")).to eq("")
+
         # lib/bookshelf/types.rb
         types = <<~EXPECTED
           # frozen_string_literal: true
@@ -768,6 +771,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.exist?("app/repo.rb")).to be(false)
         expect(fs.exist?("app/db/relation.rb")).to be(false)
         expect(fs.exist?("app/db/struct.rb")).to be(false)
+        expect(fs.directory?("app/structs")).to be(false)
+        expect(fs.directory?("app/repos")).to be(false)
 
         # app/views/helpers.rb
         helpers = <<~RUBY
