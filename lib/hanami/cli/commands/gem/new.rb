@@ -122,8 +122,7 @@ module Hanami
             skip_install: SKIP_INSTALL_DEFAULT,
             skip_assets: SKIP_ASSETS_DEFAULT,
             skip_db: SKIP_DB_DEFAULT,
-            database: nil,
-            **
+            database: nil
           )
             # rubocop:enable Metrics/ParameterLists
             app = inflector.underscore(app)
@@ -141,8 +140,7 @@ module Hanami
                 head: head,
                 skip_assets: skip_assets,
                 skip_db: skip_db,
-                database: normalized_database,
-                **
+                database: normalized_database
               )
               generator.call(app, context: context) do
                 if skip_install
