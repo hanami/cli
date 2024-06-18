@@ -84,12 +84,14 @@ module Hanami
 
           # rubocop:disable Layout/LineLength
           example [
-            "bookshelf                   # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
-            "bookshelf --head            # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
-            "bookshelf --skip-install    # Generate a new Hanami app, but it skips Hanami installation",
-            "bookshelf --skip-assets     # Generate a new Hanami app without assets",
-            "bookshelf --skip-db         # Generate a new Hanami app without database layer",
-            "bookshelf --database=sqlite # Generate a new Hanami app with a SQLite database (default)"
+            "bookshelf                     # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
+            "bookshelf --head              # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
+            "bookshelf --skip-install      # Generate a new Hanami app, but it skips Hanami installation",
+            "bookshelf --skip-assets       # Generate a new Hanami app without assets",
+            "bookshelf --skip-db           # Generate a new Hanami app without database layer",
+            "bookshelf --database=sqlite   # Generate a new Hanami app with a SQLite database (default)",
+            "bookshelf --database=postgres # Generate a new Hanami app with a Postgres database",
+            "bookshelf --database=mysql    # Generate a new Hanami app with a MySQL database"
           ]
           # rubocop:enable Layout/LineLength
 
@@ -110,9 +112,7 @@ module Hanami
             @system_call = system_call
           end
 
-          # rubocop:enable Metrics/ParameterLists
-
-          # rubocop:disable Metrics/AbcSize
+          # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
 
           # @since 2.0.0
           # @api private
@@ -125,6 +125,7 @@ module Hanami
             database: nil,
             **
           )
+            # rubocop:enable Metrics/ParameterLists
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
@@ -166,7 +167,7 @@ module Hanami
               end
             end
           end
-          # rubocop:enable Metrics/AbcSize
+          # rubocop:enable Metrics/PerceivedComplexity
 
           private
 
@@ -176,11 +177,11 @@ module Hanami
 
           def normalize_database(database)
             case database
-            when *[nil, "sqlite", "sqlite3"]
+            when nil, "sqlite", "sqlite3"
               DATABASE_SQLITE
-            when *["mysql", "mysql2"]
+            when "mysql", "mysql2"
               DATABASE_MYSQL
-            when *["postgres", "postgresql", "pg"]
+            when "postgres", "postgresql", "pg"
               DATABASE_POSTGRES
             else
               raise DatabaseNotSupportedError.new(database, SUPPORTED_DATABASES)
