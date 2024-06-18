@@ -68,6 +68,10 @@ module Hanami
               fs.write("app/assets/images/favicon.ico", file("favicon.ico"))
             end
 
+            if context.generate_db?
+              fs.write("app/repo.rb", t("repo.erb", context))
+            end
+
             fs.write("public/404.html", file("404.html"))
             fs.write("public/500.html", file("500.html"))
           end

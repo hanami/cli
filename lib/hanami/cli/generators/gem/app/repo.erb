@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+require "hanami/db/repo"
+
+module <%= camelized_app_name %>
+  # FIXME: Change to Hanami::Repo once that exists
+  class Repo < Hanami::DB::Repo
+    include Deps[container: "db.rom"]
+  end
+end

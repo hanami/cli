@@ -410,6 +410,22 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.read("app/action.rb")).to eq(action)
         expect(output).to include("Created app/action.rb")
 
+        # app/repo.rb
+        repo = <<~EXPECTED
+          # frozen_string_literal: true
+
+          require "hanami/db/repo"
+
+          module #{inflector.camelize(app)}
+            # FIXME: Change to Hanami::Repo once that exists
+            class Repo < Hanami::DB::Repo
+              include Deps[container: "db.rom"]
+            end
+          end
+        EXPECTED
+        expect(fs.read("app/repo.rb")).to eq(repo)
+        expect(output).to include("Created app/repo.rb")
+
         # app/view.rb
         view = <<~RUBY
           # auto_register: false
