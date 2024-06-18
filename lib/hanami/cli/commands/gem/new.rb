@@ -128,10 +128,9 @@ module Hanami
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
-            raise DatabaseNotSupportedError.new(database, SUPPORTED_DATABASES) if database && !SUPPORTED_DATABASES.include?(database)
             raise ConflictingOptionsError.new("--skip-db", "--database") if skip_db && database
 
-            database ||= DATABASE_SQLITE
+            normalized_database ||= normalize_database(database)
 
             fs.mkdir(app)
             fs.chdir(app) do
@@ -141,7 +140,7 @@ module Hanami
                 head: head,
                 skip_assets: skip_assets,
                 skip_db: skip_db,
-                database: database,
+                database: normalized_database,
                 **
               )
               generator.call(app, context: context) do
@@ -174,6 +173,19 @@ module Hanami
           attr_reader :bundler
           attr_reader :generator
           attr_reader :system_call
+
+          def normalize_database(database)
+            case database
+            when *[nil, "sqlite", "sqlite3"]
+              DATABASE_SQLITE
+            when *["mysql", "mysql2"]
+              DATABASE_MYSQL
+            when *["postgres", "postgresql", "pg"]
+              DATABASE_POSTGRES
+            else
+              raise DatabaseNotSupportedError.new(database, SUPPORTED_DATABASES)
+            end
+          end
 
           def run_install_command!(head:)
             head_flag = head ? " --head" : ""

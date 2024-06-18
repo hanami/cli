@@ -1019,30 +1019,72 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         .and_return(successful_system_call_result)
     end
 
-    it "generates app for sqlite database" do
-      subject.call(app: app, database: "sqlite")
+    describe "sqlite database" do
+      it "generates app for --database=sqlite" do
+        subject.call(app: app, database: "sqlite")
 
-      fs.chdir(app) do
-        expect(fs.read("Gemfile")).to include("hanami-db")
-        expect(fs.read("Gemfile")).to include("sqlite3")
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("sqlite3")
+        end
+      end
+
+      it "generates app for --database=sqlite3" do
+        subject.call(app: app, database: "sqlite3")
+
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("sqlite3")
+        end
       end
     end
 
-    it "generates app for postgres database" do
-      subject.call(app: app, database: "postgres")
+    describe "postgres database" do
+      it "generates app for --database=postgres" do
+        subject.call(app: app, database: "postgres")
 
-      fs.chdir(app) do
-        expect(fs.read("Gemfile")).to include("hanami-db")
-        expect(fs.read("Gemfile")).to include("pg")
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("pg")
+        end
+      end
+
+      it "generates app for --database=postgresql" do
+        subject.call(app: app, database: "postgresql")
+
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("pg")
+        end
       end
     end
 
-    it "generates app for mysql database" do
-      subject.call(app: app, database: "mysql")
+    describe "mysql database" do
+      it "generates app for --database=mysql" do
+        subject.call(app: app, database: "mysql")
 
-      fs.chdir(app) do
-        expect(fs.read("Gemfile")).to include("hanami-db")
-        expect(fs.read("Gemfile")).to include("mysql2")
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("mysql2")
+        end
+      end
+
+      it "generates app for --database=mysql2" do
+        subject.call(app: app, database: "mysql2")
+
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("mysql2")
+        end
+      end
+
+      it "generates app for --database=pg" do
+        subject.call(app: app, database: "pg")
+
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("pg")
+        end
       end
     end
 
@@ -1056,7 +1098,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       )
     end
 
-    it "doesn't allow --skip-db && --database=..." do
+    it "doesn't allow --skip-db && --database" do
       expect {
         subject.call(app: app, database: "sqlite", skip_db: true)
       }.to raise_error(
