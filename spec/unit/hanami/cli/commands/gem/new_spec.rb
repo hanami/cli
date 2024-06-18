@@ -532,6 +532,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         expect(fs.read("app/structs/.keep")).to eq("")
         expect(fs.read("app/repos/.keep")).to eq("")
+        expect(fs.read("config/db/migrate/.keep")).to eq("")
 
         # lib/bookshelf/types.rb
         types = <<~EXPECTED
@@ -773,6 +774,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.exist?("app/db/struct.rb")).to be(false)
         expect(fs.directory?("app/structs")).to be(false)
         expect(fs.directory?("app/repos")).to be(false)
+        expect(fs.directory?("config/db/migrate")).to be(false)
+        expect(fs.directory?("config/db")).to be(false)
 
         # app/views/helpers.rb
         helpers = <<~RUBY

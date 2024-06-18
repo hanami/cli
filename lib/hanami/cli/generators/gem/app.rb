@@ -74,6 +74,7 @@ module Hanami
               fs.write("app/db/struct.rb", t("struct.erb", context))
               fs.touch("app/structs/.keep")
               fs.touch("app/repos/.keep")
+              fs.touch("config/db/migrate/.keep")
             end
 
             fs.write("public/404.html", file("404.html"))
