@@ -7,6 +7,9 @@ source "https://rubygems.org"
 <%= hanami_gem("assets") %>
 <%- end -%>
 <%= hanami_gem("controller") %>
+<%- if generate_db? -%>
+<%= hanami_gem("db") %>
+<%- end -%>
 <%= hanami_gem("router") %>
 <%= hanami_gem("validations") %>
 <%= hanami_gem("view") %>

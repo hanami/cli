@@ -25,6 +25,11 @@ module Hanami
           SKIP_ASSETS_DEFAULT = false
           private_constant :SKIP_ASSETS_DEFAULT
 
+          # @since x.x.x
+          # @api private
+          SKIP_DB_DEFAULT = false
+          private_constant :SKIP_DB_DEFAULT
+
           desc "Generate a new Hanami app"
 
           # @since 2.0.0
@@ -49,12 +54,19 @@ module Hanami
                                default: SKIP_ASSETS_DEFAULT,
                                desc: "Skip assets"
 
+          # @since x.x.x
+          # @api private
+          option :skip_db, type: :boolean, required: false,
+                           default: SKIP_DB_DEFAULT,
+                           desc: "Skip database layer"
+
           # rubocop:disable Layout/LineLength
           example [
             "bookshelf                # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
             "bookshelf --head         # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
             "bookshelf --skip-install # Generate a new Hanami app, but it skips Hanami installation",
-            "bookshelf --skip-assets  # Generate a new Hanami app without assets"
+            "bookshelf --skip-assets  # Generate a new Hanami app without assets",
+            "bookshelf --skip-db      # Generate a new Hanami app without database layer"
           ]
           # rubocop:enable Layout/LineLength
 
@@ -81,14 +93,14 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app:, head: HEAD_DEFAULT, skip_install: SKIP_INSTALL_DEFAULT, skip_assets: SKIP_ASSETS_DEFAULT, **)
+          def call(app:, head: HEAD_DEFAULT, skip_install: SKIP_INSTALL_DEFAULT, skip_assets: SKIP_ASSETS_DEFAULT, skip_db: SKIP_DB_DEFAULT, **)
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
 
             fs.mkdir(app)
             fs.chdir(app) do
-              context = Generators::Context.new(inflector, app, head: head, skip_assets: skip_assets)
+              context = Generators::Context.new(inflector, app, head: head, skip_assets: skip_assets, skip_db: skip_db, **)
               generator.call(app, context: context) do
                 if skip_install
                   out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"

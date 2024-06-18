@@ -80,6 +80,12 @@ module Hanami
           !options.fetch(:skip_assets, false)
         end
 
+        # @since x.x.x
+        # @api private
+        def generate_db?
+          !options.fetch(:skip_db, false)
+        end
+
         # @since 2.1.0
         # @api private
         def bundled_views?
