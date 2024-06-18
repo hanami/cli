@@ -70,6 +70,7 @@ module Hanami
 
             if context.generate_db?
               fs.write("app/repo.rb", t("repo.erb", context))
+              fs.write("app/db/relation.rb", t("relation.erb", context))
             end
 
             fs.write("public/404.html", file("404.html"))
