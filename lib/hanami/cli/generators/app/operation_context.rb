@@ -22,7 +22,7 @@ module Hanami
           INDENTATION = "  "
           private_constant :INDENTATION
 
-          OFFSET = INDENTATION * 2
+          OFFSET = INDENTATION
           private_constant :OFFSET
 
           # @since x.x.x

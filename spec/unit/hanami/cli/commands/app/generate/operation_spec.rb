@@ -24,17 +24,15 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         # frozen_string_literal: true
 
         module Test
-          module Operations
-            class AddBook < Test::Operation
-              def call
-              end
+          class AddBook < Test::Operation
+            def call
             end
           end
         end
       EXPECTED
 
-      expect(fs.read("app/operations/add_book.rb")).to eq(operation_file)
-      expect(output).to include("Created app/operations/add_book.rb")
+      expect(fs.read("app/add_book.rb")).to eq(operation_file)
+      expect(output).to include("Created app/add_book.rb")
     end
 
     it "generates a operation in a deep namespace with default separator" do
@@ -44,12 +42,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         # frozen_string_literal: true
 
         module Test
-          module Operations
-            module Admin
-              module Books
-                class Add < Test::Operation
-                  def call
-                  end
+          module Admin
+            module Books
+              class Add < Test::Operation
+                def call
                 end
               end
             end
@@ -57,8 +53,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         end
       EXPECTED
 
-      expect(fs.read("app/operations/admin/books/add.rb")).to eq(operation_file)
-      expect(output).to include("Created app/operations/admin/books/add.rb")
+      expect(fs.read("app/admin/books/add.rb")).to eq(operation_file)
+      expect(output).to include("Created app/admin/books/add.rb")
     end
 
     it "generates an operation in a deep namespace with slash separators" do
@@ -68,12 +64,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         # frozen_string_literal: true
 
         module Test
-          module Operations
-            module Admin
-              module Books
-                class Add < Test::Operation
-                  def call
-                  end
+          module Admin
+            module Books
+              class Add < Test::Operation
+                def call
                 end
               end
             end
@@ -81,8 +75,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         end
       EXPECTED
 
-      expect(fs.read("app/operations/admin/books/add.rb")).to eq(operation_file)
-      expect(output).to include("Created app/operations/admin/books/add.rb")
+      expect(fs.read("app/admin/books/add.rb")).to eq(operation_file)
+      expect(output).to include("Created app/admin/books/add.rb")
     end
   end
 
@@ -95,17 +89,15 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         # frozen_string_literal: true
 
         module Main
-          module Operations
-            class AddBook < Main::Operation
-              def call
-              end
+          class AddBook < Main::Operation
+            def call
             end
           end
         end
       EXPECTED
 
-      expect(fs.read("slices/main/operations/add_book.rb")).to eq(operation_file)
-      expect(output).to include("Created slices/main/operations/add_book.rb")
+      expect(fs.read("slices/main/add_book.rb")).to eq(operation_file)
+      expect(output).to include("Created slices/main/add_book.rb")
     end
   end
 end

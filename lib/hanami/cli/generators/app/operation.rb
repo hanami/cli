@@ -41,20 +41,20 @@ module Hanami
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
             if context.namespaces.any?
-              fs.mkdir(directory = fs.join(slice_directory, "operations", context.namespaces))
+              fs.mkdir(directory = fs.join(slice_directory, context.namespaces))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_slice_operation.erb", context))
             else
-              fs.mkdir(directory = fs.join(slice_directory, "operations"))
+              fs.mkdir(directory = fs.join(slice_directory))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_slice_operation.erb", context))
             end
           end
 
           def generate_for_app(context)
             if context.namespaces.any?
-              fs.mkdir(directory = fs.join("app", "operations", context.namespaces))
+              fs.mkdir(directory = fs.join("app", context.namespaces))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_app_operation.erb", context))
             else
-              fs.mkdir(directory = fs.join("app", "operations"))
+              fs.mkdir(directory = fs.join("app"))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_app_operation.erb", context))
             end
           end
