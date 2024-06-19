@@ -26,7 +26,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         module Test
           module Operations
             class AddBook < Test::Operation
-              def call(input)
+              def call
               end
             end
           end
@@ -48,7 +48,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
             module Admin
               module Books
                 class Add < Test::Operation
-                  def call(input)
+                  def call
                   end
                 end
               end
@@ -72,7 +72,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
             module Admin
               module Books
                 class Add < Test::Operation
-                  def call(input)
+                  def call
                   end
                 end
               end
@@ -97,7 +97,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
         module Main
           module Operations
             class AddBook < Main::Operation
-              def call(input)
+              def call
               end
             end
           end
