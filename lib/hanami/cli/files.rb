@@ -42,6 +42,12 @@ module Hanami
         super
       end
 
+      # @since x.x.x
+      # @api private
+      def recommend(message)
+        out.puts("  Recommendation: #{message}")
+      end
+
       private
 
       attr_reader :out

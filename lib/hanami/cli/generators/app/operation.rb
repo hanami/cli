@@ -46,6 +46,7 @@ module Hanami
             else
               fs.mkdir(directory = fs.join(slice_directory))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_slice_operation.erb", context))
+              fs.recommend("Add a namespace to operation names, so they go into a folder within #{directory}/.")
             end
           end
 
@@ -56,6 +57,7 @@ module Hanami
             else
               fs.mkdir(directory = fs.join("app"))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_app_operation.erb", context))
+              fs.recommend("Add a namespace to operation names, so they go into a folder within #{directory}/.")
             end
           end
 

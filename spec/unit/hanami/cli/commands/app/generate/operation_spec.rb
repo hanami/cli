@@ -17,7 +17,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
   end
 
   context "generating for app" do
-    it "generates an operation" do
+    it "generates an operation without a namespace, with a recommendation" do
       subject.call(name: "add_book")
 
       operation_file = <<~EXPECTED
@@ -33,6 +33,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
 
       expect(fs.read("app/add_book.rb")).to eq(operation_file)
       expect(output).to include("Created app/add_book.rb")
+      expect(output).to include("  Recommendation: Add a namespace to operation names, so they go into a folder within app/")
     end
 
     it "generates a operation in a deep namespace with default separator" do
@@ -81,7 +82,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
   end
 
   context "generating for a slice" do
-    it "generates a operation in a top-level namespace" do
+    it "generates a operation in a top-level namespace, with recommendation" do
       fs.mkdir("slices/main")
       subject.call(name: "add_book", slice: "main")
 
@@ -98,6 +99,30 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
 
       expect(fs.read("slices/main/add_book.rb")).to eq(operation_file)
       expect(output).to include("Created slices/main/add_book.rb")
+      expect(output).to include("  Recommendation: Add a namespace to operation names, so they go into a folder within slices/main/")
+    end
+
+    it "generates a operation in a nested namespace" do
+      fs.mkdir("slices/main")
+      subject.call(name: "admin.books.add", slice: "main")
+
+      operation_file = <<~EXPECTED
+        # frozen_string_literal: true
+
+        module Main
+          module Admin
+            module Books
+              class Add < Main::Operation
+                def call
+                end
+              end
+            end
+          end
+        end
+      EXPECTED
+
+      expect(fs.read("slices/main/admin/books/add.rb")).to eq(operation_file)
+      expect(output).to include("Created slices/main/admin/books/add.rb")
     end
   end
 end
