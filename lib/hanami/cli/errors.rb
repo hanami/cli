@@ -91,9 +91,5 @@ module Hanami
         super("`#{scheme}' is not a supported db scheme")
       end
     end
-
-    # @since x.x.x
-    # @api public
-    class NameNeedsNamespaceError < Error; end
   end
 end
