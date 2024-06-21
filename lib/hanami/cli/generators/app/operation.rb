@@ -13,9 +13,10 @@ module Hanami
         class Operation
           # @since x.x.x
           # @api private
-          def initialize(fs:, inflector:)
+          def initialize(fs:, inflector:, out: $stdout)
             @fs = fs
             @inflector = inflector
+            @out = out
           end
 
           # @since x.x.x
@@ -32,9 +33,7 @@ module Hanami
 
           private
 
-          attr_reader :fs
-
-          attr_reader :inflector
+          attr_reader :fs, :inflector, :out
 
           def generate_for_slice(context, slice)
             slice_directory = fs.join("slices", slice)
@@ -46,7 +45,7 @@ module Hanami
             else
               fs.mkdir(directory = fs.join(slice_directory))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_slice_operation.erb", context))
-              fs.recommend("Add a namespace to operation names, so they go into a folder within #{directory}/.")
+              out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
             end
           end
 
@@ -56,8 +55,8 @@ module Hanami
               fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_app_operation.erb", context))
             else
               fs.mkdir(directory = fs.join("app"))
+              out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_app_operation.erb", context))
-              fs.recommend("Add a namespace to operation names, so they go into a folder within #{directory}/.")
             end
           end
 

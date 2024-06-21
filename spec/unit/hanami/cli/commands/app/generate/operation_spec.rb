@@ -8,7 +8,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
-  let(:generator) { Hanami::CLI::Generators::App::Operation.new(fs: fs, inflector: inflector) }
+  let(:generator) { Hanami::CLI::Generators::App::Operation.new(fs: fs, inflector: inflector, out: out) }
   let(:app) { Hanami.app.namespace }
   let(:dir) { inflector.underscore(app) }
 
@@ -33,7 +33,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
 
       expect(fs.read("app/add_book.rb")).to eq(operation_file)
       expect(output).to include("Created app/add_book.rb")
-      expect(output).to include("  Recommendation: Add a namespace to operation names, so they go into a folder within app/")
+      expect(output).to include(
+        "  Generating a top-level operation. " \
+        "To generate into a directory, add a namespace: `my_namespace.add_book`"
+      )
     end
 
     it "generates a operation in a deep namespace with default separator" do
@@ -99,7 +102,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
 
       expect(fs.read("slices/main/add_book.rb")).to eq(operation_file)
       expect(output).to include("Created slices/main/add_book.rb")
-      expect(output).to include("  Recommendation: Add a namespace to operation names, so they go into a folder within slices/main/")
+      expect(output).to include(
+        "  Generating a top-level operation. " \
+        "To generate into a directory, add a namespace: `my_namespace.add_book`"
+      )
     end
 
     it "generates a operation in a nested namespace" do
