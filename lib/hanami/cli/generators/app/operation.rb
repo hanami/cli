@@ -8,10 +8,10 @@ module Hanami
   module CLI
     module Generators
       module App
-        # @since x.x.x
+        # @since 2.2.0
         # @api private
         class Operation
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           def initialize(fs:, inflector:, out: $stdout)
             @fs = fs
@@ -19,7 +19,7 @@ module Hanami
             @out = out
           end
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           def call(app, key, slice)
             context = OperationContext.new(inflector, app, slice, key)
