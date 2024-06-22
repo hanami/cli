@@ -11,7 +11,7 @@ module Hanami
     module Commands
       module App
         module Generate
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           class Operation < App::Command
             argument :name, required: true, desc: "Operation name"
@@ -24,7 +24,7 @@ module Hanami
             attr_reader :generator
             private :generator
 
-            # @since x.x.x
+            # @since 2.2.0
             # @api private
             def initialize(
               fs:, inflector:,
@@ -35,7 +35,7 @@ module Hanami
               @generator = generator
             end
 
-            # @since x.x.x
+            # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **)
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
