@@ -63,7 +63,7 @@ module Hanami
           def class_definition(operation_name:, container_namespace:, local_namespaces:)
             container_module = camelize(container_namespace)
 
-            camelized_modules = local_namespaces
+            modules = local_namespaces
               .map { camelize(_1) }
               .compact
               .prepend(container_module)
@@ -73,7 +73,7 @@ module Hanami
             RubyFileGenerator.class(
               camelize(operation_name),
               parent_class: parent_class,
-              modules: camelized_modules,
+              modules: modules,
               methods: {call: nil}
             )
           end
