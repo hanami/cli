@@ -24,20 +24,20 @@ module Hanami
           # @api private
           def call(app_namespace, key, slice)
             operation_name = key.split(KEY_SEPARATOR)[-1]
-            namespaces = key.split(KEY_SEPARATOR)[..-2]
+            local_namespaces = key.split(KEY_SEPARATOR)[..-2]
             container_namespace = slice || app_namespace
 
             raise_missing_slice_error_if_missing(slice) if slice
-            print_namespace_recommendation(operation_name) if namespaces.none?
+            print_namespace_recommendation(operation_name) if local_namespaces.none?
 
-            directory = directory(slice, namespaces: namespaces)
+            directory = directory(slice, local_namespaces: local_namespaces)
             path = fs.join(directory, "#{operation_name}.rb")
             fs.mkdir(directory)
 
             file_contents = class_definition(
-              container_namespace: container_namespace,
               operation_name: operation_name,
-              namespaces: namespaces,
+              container_namespace: container_namespace,
+              local_namespaces: local_namespaces,
             )
             fs.write(path, file_contents)
           end
@@ -46,27 +46,29 @@ module Hanami
 
           attr_reader :fs, :inflector, :out
 
-          def directory(slice = nil, namespaces:)
+          def directory(slice = nil, local_namespaces:)
             base = if slice
                      fs.join("slices", slice)
                    else
                      fs.join("app")
                    end
 
-            if namespaces.any?
-              fs.join(base, namespaces)
+            if local_namespaces.any?
+              fs.join(base, local_namespaces)
             else
               fs.join(base)
             end
           end
 
-          def class_definition(container_namespace:, operation_name:, namespaces:)
-            camelized_modules = namespaces
+          def class_definition(operation_name:, container_namespace:, local_namespaces:)
+            container_module = camelize(container_namespace)
+
+            camelized_modules = local_namespaces
               .map { camelize(_1) }
               .compact
-              .prepend(camelize(container_namespace))
+              .prepend(container_module)
 
-            parent_class = [camelize(container_namespace), "Operation"].join("::")
+            parent_class = [container_module, "Operation"].join("::")
 
             RubyFileGenerator.class(
               camelize(operation_name),
