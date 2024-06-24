@@ -11,6 +11,7 @@ module Hanami
         # @since 2.2.0
         # @api private
         class Operation
+          KEY_SEPARATOR = %r{\.|/}
           # @since 2.2.0
           # @api private
           def initialize(fs:, inflector:, out: $stdout)
@@ -43,7 +44,7 @@ module Hanami
           end
 
           def camelized_operation_name
-            key = @key.split(".")[-1]
+            key = @key.split(KEY_SEPARATOR)[-1]
             inflector.camelize(key).gsub(/[^\p{Alnum}]/, "")
           end
 
