@@ -23,7 +23,6 @@ module Hanami
 
       INDENT = "  "
 
-      # rubocop:disable Metrics/ParameterLists
       def initialize(
         class_name: nil,
         parent_class: nil,
@@ -34,23 +33,22 @@ module Hanami
         @class_name = class_name
         @parent_class = parent_class
         @modules = modules
-        @header = header.any? && (header + [""]) || header
+        @header = (header.any? && (header + [""])) || header
         @body = body
       end
-      # rubocop:enable Metrics/ParameterLists
 
-      def self.class(class_name, **)
-        new(class_name: class_name, **).to_s
+      def self.class(class_name, **args)
+        new(class_name: class_name, **args).to_s
       end
 
-      def self.module(*names, **)
+      def self.module(*names, **args)
         module_names = if names.first.is_a?(Array)
-                        names.first
-                      else
-                        names
-                      end
+                         names.first
+                       else
+                         names
+                       end
 
-        new(modules: module_names, class_name: nil, parent_class: nil, **).to_s
+        new(modules: module_names, class_name: nil, parent_class: nil, **args).to_s
       end
 
       def to_s
@@ -60,7 +58,6 @@ module Hanami
 
         ensure_parseable!(source_code)
       end
-
 
       private
 
