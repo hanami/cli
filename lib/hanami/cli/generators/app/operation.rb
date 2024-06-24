@@ -23,12 +23,11 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(app, key, slice)
-            context = OperationContext.new(inflector, app, slice, key)
             @app = app
             @key = key
-            @namespaces = context.namespaces
+            @namespaces = key.split(KEY_SEPARATOR)[..-2]
 
-            generate_file(context, slice)
+            generate_file(slice)
           end
 
           private
@@ -39,9 +38,12 @@ module Hanami
             inflector.camelize(@app).gsub(/[^\p{Alnum}]/, "")
           end
 
+          def operation_name
+            @key.split(KEY_SEPARATOR)[-1]
+          end
+
           def camelized_operation_name
-            key = @key.split(KEY_SEPARATOR)[-1]
-            inflector.camelize(key).gsub(/[^\p{Alnum}]/, "")
+            inflector.camelize(operation_name).gsub(/[^\p{Alnum}]/, "")
           end
 
           def camelized_parent_operation_name(slice = nil)
@@ -78,26 +80,33 @@ module Hanami
             end
           end
 
-          def generate_file(context, slice = nil)
+          def generate_file(slice = nil)
             if slice
               slice_directory = fs.join("slices", slice)
               raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
             end
 
-            class_definition = RubyFileGenerator.class(
+            fs.mkdir(directory(slice))
+
+            if @namespaces.none?
+              out.puts(
+                "  Generating a top-level operation. " \
+                "To generate into a directory, add a namespace: `my_namespace.#{operation_name}`"
+              )
+            end
+
+            path = fs.join(directory(slice), "#{operation_name}.rb")
+
+            fs.write(path, class_definition(slice))
+          end
+
+          def class_definition(slice)
+            RubyFileGenerator.class(
               camelized_operation_name,
               parent_class: camelized_parent_operation_name(slice),
               modules: camelized_modules(slice),
               methods: {call: nil}
             )
-
-            fs.mkdir(directory(slice))
-
-            if context.namespaces.none?
-              out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
-            end
-
-            fs.write(fs.join(directory(slice), "#{context.name}.rb"), class_definition)
           end
         end
       end
