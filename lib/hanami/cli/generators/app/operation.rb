@@ -11,7 +11,10 @@ module Hanami
         # @since 2.2.0
         # @api private
         class Operation
+          # @since 2.2.0
+          # @api private
           KEY_SEPARATOR = %r{\.|/}
+
           # @since 2.2.0
           # @api private
           def initialize(fs:, inflector:, out: $stdout)

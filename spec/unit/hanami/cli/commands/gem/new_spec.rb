@@ -341,6 +341,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         module #{inflector.camelize(app)}
           class Action < Hanami::Action
+            include Dry::Monads[:result]
           end
         end
       EXPECTED
