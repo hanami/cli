@@ -25,6 +25,7 @@ module Hanami
             context = OperationContext.new(inflector, app, slice, key)
             @app = app
             @key = key
+            @namespaces = context.namespaces
 
             if slice
               generate_for_slice(context, slice)
@@ -42,11 +43,28 @@ module Hanami
           end
 
           def camelized_operation_name
-            inflector.camelize(@key).gsub(/[^\p{Alnum}]/, "")
+            key = @key.split(".")[-1]
+            inflector.camelize(key).gsub(/[^\p{Alnum}]/, "")
           end
 
           def camelized_parent_operation_name
             [camelized_app_name, "Operation"].join("::")
+          end
+
+          def camelized_modules
+            if @namespaces.any?
+              [camelized_app_name].push(@namespaces.map { inflector.camelize(_1) }).flatten
+            else
+              [camelized_app_name]
+            end
+          end
+
+          def directory
+            if @namespaces.any?
+              fs.join("app", @namespaces)
+            else
+              fs.join("app")
+            end
           end
 
           def generate_for_slice(context, slice)
@@ -64,20 +82,18 @@ module Hanami
           end
 
           def generate_for_app(context)
-            if context.namespaces.any?
-              fs.mkdir(directory = fs.join("app", context.namespaces))
-              fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_app_operation.erb", context))
-            else
-              class_definition = RubyFileGenerator.class(
-                camelized_operation_name,
-                parent_class: camelized_parent_operation_name,
-                modules: [camelized_app_name],
-                methods: {call: nil}
-              )
-              fs.mkdir(directory = fs.join("app"))
+            class_definition = RubyFileGenerator.class(
+              camelized_operation_name,
+              parent_class: camelized_parent_operation_name,
+              modules: camelized_modules,
+              methods: {call: nil}
+            )
+
+            fs.mkdir(directory)
+            if context.namespaces.none?
               out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
-              fs.write(fs.join(directory, "#{context.name}.rb"), class_definition)
             end
+            fs.write(fs.join(directory, "#{context.name}.rb"), class_definition)
           end
 
           def template(path, context)
