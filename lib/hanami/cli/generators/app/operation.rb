@@ -28,11 +28,7 @@ module Hanami
             @key = key
             @namespaces = context.namespaces
 
-            if slice
-              generate_for_slice(context, slice)
-            else
-              generate_for_app(context)
-            end
+            generate_file(context, slice)
           end
 
           private
@@ -48,64 +44,61 @@ module Hanami
             inflector.camelize(key).gsub(/[^\p{Alnum}]/, "")
           end
 
-          def camelized_parent_operation_name
-            [camelized_app_name, "Operation"].join("::")
+          def camelized_parent_operation_name(slice = nil)
+            [highest_level_module(slice), "Operation"].join("::")
           end
 
-          def camelized_modules
+          def highest_level_module(slice)
+            if slice
+              inflector.camelize(slice).gsub(/[^\p{Alnum}]/, "")
+            else
+              camelized_app_name
+            end
+          end
+
+          def camelized_modules(slice = nil)
             if @namespaces.any?
-              [camelized_app_name].push(@namespaces.map { inflector.camelize(_1) }).flatten
+              [highest_level_module(slice)].push(@namespaces.map { inflector.camelize(_1) }).flatten
             else
-              [camelized_app_name]
+              [highest_level_module(slice)]
             end
           end
 
-          def directory
+          def directory(slice = nil)
+            base = if slice
+                     fs.join("slices", slice)
+                   else
+                     fs.join("app")
+                   end
+
             if @namespaces.any?
-              fs.join("app", @namespaces)
+              fs.join(base, @namespaces)
             else
-              fs.join("app")
+              fs.join(base)
             end
           end
 
-          def generate_for_slice(context, slice)
-            slice_directory = fs.join("slices", slice)
-            raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
-
-            if context.namespaces.any?
-              fs.mkdir(directory = fs.join(slice_directory, context.namespaces))
-              fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_slice_operation.erb", context))
-            else
-              fs.mkdir(directory = fs.join(slice_directory))
-              fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_slice_operation.erb", context))
-              out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
+          def generate_file(context, slice = nil)
+            if slice
+              slice_directory = fs.join("slices", slice)
+              raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
             end
-          end
 
-          def generate_for_app(context)
             class_definition = RubyFileGenerator.class(
               camelized_operation_name,
-              parent_class: camelized_parent_operation_name,
-              modules: camelized_modules,
+              parent_class: camelized_parent_operation_name(slice),
+              modules: camelized_modules(slice),
               methods: {call: nil}
             )
 
-            fs.mkdir(directory)
+            fs.mkdir(directory(slice))
+
             if context.namespaces.none?
               out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
             end
-            fs.write(fs.join(directory, "#{context.name}.rb"), class_definition)
+
+            fs.write(fs.join(directory(slice), "#{context.name}.rb"), class_definition)
           end
-
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/operation/#{path}")
-            ).result(context.ctx)
-          end
-
-          alias_method :t, :template
         end
       end
     end
