@@ -23,37 +23,22 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(app_namespace, key, slice)
-            camelized_app_name = inflector.camelize(app_namespace).gsub(/[^\p{Alnum}]/, "")
             operation_name = key.split(KEY_SEPARATOR)[-1]
             namespaces = key.split(KEY_SEPARATOR)[..-2]
+            container_namespace = slice || app_namespace
 
-            if slice
-              slice_directory = fs.join("slices", slice)
-              raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
-            end
+            raise_missing_slice_error_if_missing(slice) if slice
+            print_namespace_recommendation(operation_name) if namespaces.none?
 
             directory = directory(slice, namespaces: namespaces)
+            path = fs.join(directory, "#{operation_name}.rb")
             fs.mkdir(directory)
 
-            if namespaces.none?
-              out.puts(
-                "  Generating a top-level operation. " \
-                "To generate into a directory, add a namespace: `my_namespace.#{operation_name}`"
-              )
-            end
-
-            highest_level_module =
-              if slice
-                inflector.camelize(slice).gsub(/[^\p{Alnum}]/, "")
-              else
-                camelized_app_name
-              end
-
-            path = fs.join(directory, "#{operation_name}.rb")
-
-            file_contents = class_definition(highest_level_module: highest_level_module,
-                                             operation_name: operation_name, namespaces: namespaces)
-
+            file_contents = class_definition(
+              container_namespace: container_namespace,
+              operation_name: operation_name,
+              namespaces: namespaces,
+            )
             fs.write(path, file_contents)
           end
 
@@ -75,23 +60,38 @@ module Hanami
             end
           end
 
-          def class_definition(highest_level_module:, operation_name:, namespaces:)
-            camelized_operation_name = inflector.camelize(operation_name).gsub(/[^\p{Alnum}]/, "")
+          def class_definition(container_namespace:, operation_name:, namespaces:)
+            camelized_modules = namespaces
+              .map { camelize(_1) }
+              .compact
+              .prepend(camelize(container_namespace))
 
-            camelized_modules = if namespaces.any?
-                                  [highest_level_module].push(namespaces.map { inflector.camelize(_1) }).flatten
-                                else
-                                  [highest_level_module]
-                                end
-
-            parent_class = [highest_level_module, "Operation"].join("::")
+            parent_class = [camelize(container_namespace), "Operation"].join("::")
 
             RubyFileGenerator.class(
-              camelized_operation_name,
+              camelize(operation_name),
               parent_class: parent_class,
               modules: camelized_modules,
               methods: {call: nil}
             )
+          end
+
+          def camelize(input)
+            inflector.camelize(input).gsub(/[^\p{Alnum}]/, "")
+          end
+
+          def print_namespace_recommendation(operation_name)
+            out.puts(
+              "  Generating a top-level operation. " \
+              "To generate into a directory, add a namespace: `my_namespace.#{operation_name}`"
+            )
+          end
+
+          def raise_missing_slice_error_if_missing(slice)
+            if slice
+              slice_directory = fs.join("slices", slice)
+              raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
+            end
           end
         end
       end
