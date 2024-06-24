@@ -74,7 +74,8 @@ module Hanami
               normalize(operation_name),
               parent_class: parent_class,
               modules: modules,
-              methods: {call: nil}
+              body: ["def call", "end"],
+              header: ["# frozen_string_literal: true"],
             )
           end
 
