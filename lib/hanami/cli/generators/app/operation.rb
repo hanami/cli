@@ -58,23 +58,11 @@ module Hanami
             inflector.camelize(operation_name).gsub(/[^\p{Alnum}]/, "")
           end
 
-          def camelized_parent_operation_name(slice = nil)
-            [highest_level_module(slice), "Operation"].join("::")
-          end
-
           def highest_level_module(slice)
             if slice
               inflector.camelize(slice).gsub(/[^\p{Alnum}]/, "")
             else
               @camelized_app_name
-            end
-          end
-
-          def camelized_modules(slice = nil, namespaces:)
-            if namespaces.any?
-              [highest_level_module(slice)].push(namespaces.map { inflector.camelize(_1) }).flatten
-            else
-              [highest_level_module(slice)]
             end
           end
 
@@ -93,10 +81,18 @@ module Hanami
           end
 
           def class_definition(slice, namespaces:)
+            camelized_modules = if namespaces.any?
+                                  [highest_level_module(slice)].push(namespaces.map { inflector.camelize(_1) }).flatten
+                                else
+                                  [highest_level_module(slice)]
+                                end
+
+            parent_class = [highest_level_module(slice), "Operation"].join("::")
+
             RubyFileGenerator.class(
               camelized_operation_name,
-              parent_class: camelized_parent_operation_name(slice),
-              modules: camelized_modules(slice, namespaces: namespaces),
+              parent_class: parent_class,
+              modules: camelized_modules,
               methods: {call: nil}
             )
           end
