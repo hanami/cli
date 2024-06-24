@@ -66,7 +66,7 @@ module Hanami
         new(class_name: class_name, **).to_s
       end
 
-      def self.module(*name, **)
+      def self.module(*names, **)
         module_names = if names.first.is_a?(Array)
                         names.first
                       else
@@ -75,6 +75,7 @@ module Hanami
 
         new(modules: module_names, class_name: nil, parent_class: nil, **).to_s
       end
+
       def to_s
         definition = lines(modules).map { |line| "#{line}\n" }.join
 
