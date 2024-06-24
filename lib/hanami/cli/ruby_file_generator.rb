@@ -5,18 +5,6 @@ require "ripper"
 module Hanami
   module CLI
     class RubyFileGenerator
-
-      class InvalidInstanceVariablesError < Error
-        def initialize
-        end
-      end
-
-      class DuplicateInitializeMethodError < Error
-        def initialize
-          super("Initialize method cannot be defined if instance variables are present")
-        end
-      end
-
       class GeneratedUnparseableCodeError < Error
         def initialize(source_code)
           super(
@@ -32,6 +20,7 @@ module Hanami
           )
         end
       end
+
       INDENT = "  "
 
       # rubocop:disable Metrics/ParameterLists
