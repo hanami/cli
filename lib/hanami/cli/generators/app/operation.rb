@@ -82,8 +82,8 @@ module Hanami
             )
           end
 
-          def normalize(input)
-            inflector.camelize(input).gsub(/[^\p{Alnum}]/, "")
+          def normalize(name)
+            inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
           end
 
           def print_namespace_recommendation(operation_name)
