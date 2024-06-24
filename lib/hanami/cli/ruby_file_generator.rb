@@ -91,17 +91,12 @@ module Hanami
         ]
       end
 
-
       def class_lines
-        if class_name
-          [
-            class_definition,
-            *body.map { |line| indent(line) },
-            "end"
-          ].compact
-        else
-          []
-        end
+        [
+          class_definition,
+          *body.map { |line| indent(line) },
+          "end"
+        ].compact
       end
 
       def class_definition
