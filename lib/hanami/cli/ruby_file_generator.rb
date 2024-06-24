@@ -53,10 +53,9 @@ module Hanami
 
       def to_s
         definition = lines(modules).map { |line| "#{line}\n" }.join
-
         source_code = [header, definition].flatten.join("\n")
-
         ensure_parseable!(source_code)
+        source_code
       end
 
       private
@@ -113,11 +112,7 @@ module Hanami
       end
 
       def ensure_parseable!(source_code)
-        parse_result = Ripper.sexp(source_code)
-
-        if parse_result
-          source_code
-        else
+        unless Ripper.sexp(source_code)
           raise GeneratedUnparseableCodeError.new(source_code)
         end
       end
