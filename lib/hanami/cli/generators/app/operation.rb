@@ -61,24 +61,24 @@ module Hanami
           end
 
           def class_definition(operation_name:, container_namespace:, local_namespaces:)
-            container_module = camelize(container_namespace)
+            container_module = normalize(container_namespace)
 
             modules = local_namespaces
-              .map { camelize(_1) }
+              .map { normalize(_1) }
               .compact
               .prepend(container_module)
 
             parent_class = [container_module, "Operation"].join("::")
 
             RubyFileGenerator.class(
-              camelize(operation_name),
+              normalize(operation_name),
               parent_class: parent_class,
               modules: modules,
               methods: {call: nil}
             )
           end
 
-          def camelize(input)
+          def normalize(input)
             inflector.camelize(input).gsub(/[^\p{Alnum}]/, "")
           end
 
