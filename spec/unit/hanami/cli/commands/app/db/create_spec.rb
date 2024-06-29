@@ -53,6 +53,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
 
         expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be true
 
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
+
         expect(output).to include "database db/bookshelf_development.sqlite3 created"
       end
 
