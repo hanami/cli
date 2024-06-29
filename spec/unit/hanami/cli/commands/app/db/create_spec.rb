@@ -113,29 +113,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       end
 
       it "creates each database" do
-        pp Dir["#{@dir}/**/*"]
-
-        command.call
-
-        pp Dir["#{@dir}/**/*"]
-        puts
-        puts `ls -la #{@dir}`
-        puts `ls -la #{@dir}/db`
-        puts
-        puts
-        puts `sqlite3 #{Hanami.app.root.join("db", "bookshelf_development.sqlite3")} ".databases"`
-        puts
-        p ENV.select { |k, _| k.include?("DATABASE") }
-
-        # how about a brand new file?
-        url = "sqlite:///db/bookshelf_development_brand_new.sqlite3"
-        db = Sequel.connect(url)
-        p db
-
-        # try directly?
-        db = Sequel.connect(ENV["DATABASE_URL"])
-        p db
-
         expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be true
         expect(Hanami.app.root.join("db", "bookshelf_main_development.sqlite3").exist?).to be true
 
