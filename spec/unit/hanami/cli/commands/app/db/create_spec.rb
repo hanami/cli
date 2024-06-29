@@ -121,6 +121,11 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         puts
         p ENV.select { |k, _| k.include?("DATABASE") }
 
+        # how about a brand new file?
+        url = "sqlite://db/bookshelf_development_brand_new.sqlite3"
+        db = Sequel.connect(url)
+        p db
+
         # try directly?
         db = Sequel.connect(ENV["DATABASE_URL"])
         p db
