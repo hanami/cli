@@ -35,10 +35,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       before_prepare if respond_to?(:before_prepare)
       require "hanami/prepare"
     end
-  end
 
-  around do |example|
-    Dir.chdir(@dir) { example.run }
+    # Execute the test inside the context of the created app. This is a requirement for SQLite
+    # databases to work properly in CI.
+    Dir.chdir(@dir)
   end
 
   context "single db in app" do
