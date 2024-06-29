@@ -9,41 +9,63 @@ module Hanami
         module DB
           module Utils
             # @api private
+            # @since 2.2.0
             class Sqlite < Database
-              def name
-                @name ||= begin
-                  db_path = Pathname(database_uri.path).expand_path
-                  app_path = slice.app.root.realpath
+              # @api private
+              # @since 2.2.0
+              def exec_create_command
+                return true if exists?
 
-                  if db_path.to_s.start_with?("#{app_path.to_s}#{File::SEPARATOR}")
-                    db_path.relative_path_from(app_path).to_s
-                  else
-                    db_path.to_s
-                  end
-                end
+                FileUtils.mkdir_p(File.dirname(file_path))
+
+                system_call.call(%(sqlite3 #{file_path} "VACUUM;"))
               end
 
-              def create_command
+              # @api private
+              # @since 2.2.0
+              def exec_drop_command
+                File.unlink(file_path) if exists?
+
                 true
               end
 
-              def drop_command
-                file_path.unlink
-                true
+              # @api private
+              # @since 2.2.0
+              def exists?
+                File.exist?(file_path)
               end
 
+              # @api private
+              # @since 2.2.0
               def exec_dump_command
                 raise Hanami::CLI::NotImplementedError
               end
 
+              # @api private
+              # @since 2.2.0
               def exec_load_command
                 raise Hanami::CLI::NotImplementedError
+              end
+
+              # @api private
+              # @since 2.2.0
+              def name
+                # Sequel expects sqlite:// URIs to operate the same as file:// URIs: 2 slashes for
+                # a relative path, 3 for an absolute path. In the case of 2 slashes, the first part
+                # of the path is considered by Ruby's `URI` as the `#host`.
+                @name ||= "#{database_uri.host}#{database_uri.path}"
               end
 
               private
 
               def file_path
-                @file_path ||= Pathname(slice.root.join(config.uri.path)).realpath
+                @file_path ||= begin
+                  if File.absolute_path?(name)
+                    name
+                  else
+                    slice.app.root.join(name).to_s
+                  end
+                end
               end
             end
           end
