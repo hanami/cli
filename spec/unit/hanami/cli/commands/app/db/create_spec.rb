@@ -52,7 +52,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         ENV["DATABASE_URL"] = "sqlite://db/bookshelf_development.sqlite3"
       end
 
-      fit "creates the database" do
+      it "creates the database" do
         command.call
 
         expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be true
