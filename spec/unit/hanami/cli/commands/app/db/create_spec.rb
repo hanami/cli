@@ -115,6 +115,9 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         puts
         puts `ls -la #{@dir}`
         puts `ls -la #{@dir}/db`
+        puts
+        puts
+        puts `sqlite3 #{Hanami.app.root.join("db", "bookshelf_development.sqlite3")} ".databases"`
 
         expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be true
         expect(Hanami.app.root.join("db", "bookshelf_main_development.sqlite3").exist?).to be true
