@@ -34,7 +34,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
       expect(fs.read("app/add_book.rb")).to eq(operation_file)
       expect(output).to include("Created app/add_book.rb")
       expect(output).to include(
-        "  Generating a top-level operation. " \
+        "  Note: We generated a top-level operation. " \
         "To generate into a directory, add a namespace: `my_namespace.add_book`"
       )
     end
@@ -103,7 +103,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
       expect(fs.read("slices/main/add_book.rb")).to eq(operation_file)
       expect(output).to include("Created slices/main/add_book.rb")
       expect(output).to include(
-        "  Generating a top-level operation. " \
+        "  Note: We generated a top-level operation. " \
         "To generate into a directory, add a namespace: `my_namespace.add_book`"
       )
     end

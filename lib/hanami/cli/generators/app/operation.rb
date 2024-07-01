@@ -45,7 +45,7 @@ module Hanami
             else
               fs.mkdir(directory = fs.join(slice_directory))
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_slice_operation.erb", context))
-              out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
+              out.puts("  Note: We generated a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
             end
           end
 
@@ -55,7 +55,7 @@ module Hanami
               fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_app_operation.erb", context))
             else
               fs.mkdir(directory = fs.join("app"))
-              out.puts("  Generating a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
+              out.puts("  Note: We generated a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
               fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_app_operation.erb", context))
             end
           end
