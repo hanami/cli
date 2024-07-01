@@ -1,6 +1,10 @@
 # auto_register: false
 # frozen_string_literal: true
 
+<%- if bundled_dry_monads? -%>
+require "dry/monads"
+
+<%- end -%>
 module <%= camelized_slice_name %>
   class Action < <%= camelized_app_name %>::Action
     <%- if bundled_dry_monads? -%>
