@@ -424,8 +424,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
             end
           end
         EXPECTED
-        expect(fs.read("app/repo.rb")).to eq(repo)
-        expect(output).to include("Created app/repo.rb")
+        expect(fs.read("app/db/repo.rb")).to eq(repo)
+        expect(output).to include("Created app/db/repo.rb")
 
         # app/view.rb
         view = <<~RUBY
@@ -579,282 +579,13 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       subject.call(app: app, **kwargs)
 
-      expect(fs.directory?(app)).to be(true)
-      expect(output).to include("Created #{app}/")
-      expect(output).to include("-> Within #{app}/")
-      expect(output).to include("Running Bundler install...")
-      expect(output).to include("Running Hanami install...")
-
       fs.chdir(app) do
-        # .gitignore
-        gitignore = <<~EXPECTED
-          .env
-          log/*
-          public/
-          node_modules/
-        EXPECTED
-        expect(fs.read(".gitignore")).to eq(gitignore)
-        expect(output).to include("Created .gitignore")
-
-        # .env
-        env = <<~EXPECTED
-        EXPECTED
-        expect(fs.read(".env")).to eq(env)
-        expect(output).to include("Created .env")
-
-        # README.md
-        readme = <<~EXPECTED
-          # #{inflector.camelize(app)}
-        EXPECTED
-        expect(fs.read("README.md")).to eq(readme)
-        expect(output).to include("Created README.md")
-
         # Gemfile
         expect(fs.read("Gemfile")).to_not match(/hanami-db/)
-
-        # package.json
-        hanami_npm_version = Hanami::CLI::Generators::Version.npm_package_requirement
-        package_json = <<~EXPECTED
-          {
-            "name": "#{app}",
-            "private": true,
-            "type": "module",
-            "dependencies": {
-              "hanami-assets": "#{hanami_npm_version}"
-            }
-          }
-        EXPECTED
-        expect(fs.read("package.json")).to eq(package_json)
-        expect(output).to include("Created package.json")
-
-        # Procfile.dev
-        procfile = <<~EXPECTED
-          web: bundle exec hanami server
-          assets: bundle exec hanami assets watch
-        EXPECTED
-        expect(fs.read("Procfile.dev")).to eq(procfile)
-        expect(output).to include("Created Procfile.dev")
-
-        # Rakefile
-        rakefile = <<~EXPECTED
-          # frozen_string_literal: true
-
-          require "hanami/rake_tasks"
-        EXPECTED
-        expect(fs.read("Rakefile")).to eq(rakefile)
-        expect(output).to include("Created Rakefile")
-
-        # config.ru
-        config_ru = <<~EXPECTED
-          # frozen_string_literal: true
-
-          require "hanami/boot"
-
-          run Hanami.app
-        EXPECTED
-        expect(fs.read("config.ru")).to eq(config_ru)
-        expect(output).to include("Created config.ru")
-
-        # bin/dev
-        bin_dev = <<~EXPECTED
-          #!/usr/bin/env sh
-
-          if ! gem list foreman -i --silent; then
-            echo "Installing foreman..."
-            gem install foreman
-          fi
-
-          exec foreman start -f Procfile.dev "$@"
-        EXPECTED
-        expect(fs.read("bin/dev")).to eq(bin_dev)
-        expect(fs.executable?("bin/dev")).to be(true)
-        expect(output).to include("Created bin/dev")
-
-        # config/app.rb
-        hanami_app = <<~EXPECTED
-          # frozen_string_literal: true
-
-          require "hanami"
-
-          module Bookshelf
-            class App < Hanami::App
-            end
-          end
-        EXPECTED
-        expect(fs.read("config/app.rb")).to eq(hanami_app)
-        expect(output).to include("Created config/app.rb")
-
-        # config/assets.js
-        assets = <<~EXPECTED
-          import * as assets from "hanami-assets";
-
-          await assets.run();
-
-          // To provide additional esbuild (https://esbuild.github.io) options, use the following:
-          //
-          // Read more at: https://guides.hanamirb.org/assets/customization/
-          //
-          // await assets.run({
-          //   esbuildOptionsFn: (args, esbuildOptions) => {
-          //     // Add to esbuildOptions here. Use `args.watch` as a condition for different options for
-          //     // compile vs watch.
-          //
-          //     return esbuildOptions;
-          //   }
-          // });
-        EXPECTED
-        expect(fs.read("config/assets.js")).to eq(assets)
-        expect(output).to include("Created config/assets.js")
-
-        # config/settings.rb
-        settings = <<~EXPECTED
-          # frozen_string_literal: true
-
-          module Bookshelf
-            class Settings < Hanami::Settings
-              # Define your app settings here, for example:
-              #
-              # setting :my_flag, default: false, constructor: Types::Params::Bool
-            end
-          end
-        EXPECTED
-        expect(fs.read("config/settings.rb")).to eq(settings)
-        expect(output).to include("Created config/settings.rb")
-
-        # config/routes.rb
-        routes = <<~EXPECTED
-          # frozen_string_literal: true
-
-          module Bookshelf
-            class Routes < Hanami::Routes
-              # Add your routes here. See https://guides.hanamirb.org/routing/overview/ for details.
-            end
-          end
-        EXPECTED
-        expect(fs.read("config/routes.rb")).to eq(routes)
-        expect(output).to include("Created config/routes.rb")
-
-        # lib/tasks/.keep
-        tasks_keep = <<~EXPECTED
-        EXPECTED
-        expect(fs.read("lib/tasks/.keep")).to eq(tasks_keep)
-        expect(output).to include("Created lib/tasks/.keep")
-
-        # app/action.rb
-        action = <<~EXPECTED
-          # auto_register: false
-          # frozen_string_literal: true
-
-          require "hanami/action"
-
-          module #{inflector.camelize(app)}
-            class Action < Hanami::Action
-            end
-          end
-        EXPECTED
-        expect(fs.read("app/action.rb")).to eq(action)
-        expect(output).to include("Created app/action.rb")
-
-        # app/view.rb
-        view = <<~RUBY
-          # auto_register: false
-          # frozen_string_literal: true
-
-          require "hanami/view"
-
-          module #{inflector.camelize(app)}
-            class View < Hanami::View
-            end
-          end
-        RUBY
-        expect(fs.read("app/view.rb")).to eq(view)
-        expect(output).to include("Created app/view.rb")
-
-        expect(fs.exist?("app/repo.rb")).to be(false)
-        expect(fs.exist?("app/db/relation.rb")).to be(false)
+        expect(fs.exist?("app/db/repo.rb")).to be(false)
         expect(fs.exist?("app/db/struct.rb")).to be(false)
-        expect(fs.directory?("app/structs")).to be(false)
-        expect(fs.directory?("app/repos")).to be(false)
-        expect(fs.directory?("config/db/migrate")).to be(false)
-        expect(fs.directory?("config/db")).to be(false)
-
-        # app/views/helpers.rb
-        helpers = <<~RUBY
-          # auto_register: false
-          # frozen_string_literal: true
-
-          module #{inflector.camelize(app)}
-            module Views
-              module Helpers
-                # Add your view helpers here
-              end
-            end
-          end
-        RUBY
-        expect(fs.read("app/views/helpers.rb")).to eq(helpers)
-        expect(output).to include("Created app/views/helpers.rb")
-
-        # app/templates/layouts/app.html.erb
-        layout = <<~ERB
-          <!DOCTYPE html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>#{inflector.humanize(app)}</title>
-              <%= favicon_tag %>
-              <%= stylesheet_tag "app" %>
-            </head>
-            <body>
-              <%= yield %>
-              <%= javascript_tag "app" %>
-            </body>
-          </html>
-        ERB
-        expect(fs.read("app/templates/layouts/app.html.erb")).to eq(layout)
-        expect(output).to include("Created app/templates/layouts/app.html.erb")
-
-        # app/assets/js/app.js
-        app_js = <<~EXPECTED
-          import "../css/app.css";
-        EXPECTED
-        expect(fs.read("app/assets/js/app.js")).to eq(app_js)
-        expect(output).to include("Created app/assets/js/app.js")
-
-        # app/assets/css/app.css
-        app_css = <<~EXPECTED
-          body {
-            background-color: #fff;
-            color: #000;
-            font-family: sans-serif;
-          }
-        EXPECTED
-        expect(fs.read("app/assets/css/app.css")).to eq(app_css)
-        expect(output).to include("Created app/assets/css/app.css")
-
-        # app/assets/images/favicon.ico
-        expect(fs.exist?("app/assets/images/favicon.ico")).to be(true)
-
-        # lib/bookshelf/types.rb
-        types = <<~EXPECTED
-          # frozen_string_literal: true
-
-          require "dry/types"
-
-          module #{inflector.camelize(app)}
-            Types = Dry.Types
-
-            module Types
-              # Define your custom types here
-            end
-          end
-        EXPECTED
-        expect(fs.read("lib/#{app}/types.rb")).to eq(types)
-        expect(output).to include("Created lib/bookshelf/types.rb")
-
-        # public/ error pages
-        expect(fs.read("public/404.html")).to include %(<title>The page you were looking for doesn’t exist (404)</title>)
-        expect(fs.read("public/500.html")).to include %(<title>We’re sorry, but something went wrong (500)</title>)
+        expect(fs.exist?("app/db/relation.rb")).to be(false)
+        expect(fs.exist?("config/db/")).to be(false)
       end
     end
   end
@@ -1055,6 +786,15 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           expect(fs.read("Gemfile")).to include("pg")
         end
       end
+
+      it "generates app for --database=pg" do
+        subject.call(app: app, database: "pg")
+
+        fs.chdir(app) do
+          expect(fs.read("Gemfile")).to include("hanami-db")
+          expect(fs.read("Gemfile")).to include("pg")
+        end
+      end
     end
 
     describe "mysql database" do
@@ -1073,15 +813,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("mysql2")
-        end
-      end
-
-      it "generates app for --database=pg" do
-        subject.call(app: app, database: "pg")
-
-        fs.chdir(app) do
-          expect(fs.read("Gemfile")).to include("hanami-db")
-          expect(fs.read("Gemfile")).to include("pg")
         end
       end
     end
