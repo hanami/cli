@@ -4,6 +4,5 @@ require "hanami/db/repo"
 
 module <%= camelized_app_name %>
   class Repo < Hanami::DB::Repo
-    include Deps[container: "db.rom"]
   end
 end

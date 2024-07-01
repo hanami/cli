@@ -420,9 +420,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           require "hanami/db/repo"
 
           module #{inflector.camelize(app)}
-            # FIXME: Change to Hanami::Repo once that exists
             class Repo < Hanami::DB::Repo
-              include Deps[container: "db.rom"]
             end
           end
         EXPECTED
