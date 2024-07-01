@@ -338,6 +338,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # frozen_string_literal: true
 
         require "hanami/action"
+        require "dry/monads"
 
         module #{inflector.camelize(app)}
           class Action < Hanami::Action
