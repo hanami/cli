@@ -242,6 +242,33 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     end
   end
 
+  context "with dry-monads bundled" do
+    before do
+      allow(Hanami).to receive(:bundled?).with("dry-monads").and_return(bundled_assets)
+    end
+
+    it "generates a slice with an operation that includes dry-monads result" do
+      within_application_directory do
+        subject.call(name: slice)
+
+        action = <<~CODE
+          # auto_register: false
+          # frozen_string_literal: true
+
+          module Admin
+            class Action < #{app}::Action
+              # Provide `Success` and `Failure` for pattern matching on operation results
+              include Dry::Monads[:result]
+            end
+          end
+        CODE
+
+        expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
+        expect(output).to include("Created slices/#{slice}/action.rb")
+      end
+    end
+  end
+
   private
 
   def within_application_directory
