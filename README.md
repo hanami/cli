@@ -20,7 +20,7 @@ CLI commands for [full-stack Hanami applications](`https://github.com/hanami/han
 
 ## Rubies
 
-**Hanami::RSpec** supports Ruby (MRI) 3.0+
+**Hanami::CLI** supports Ruby (MRI) 3.0+
 
 ## Usage
 
