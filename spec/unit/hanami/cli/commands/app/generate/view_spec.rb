@@ -53,7 +53,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
         EXPECTED
 
         expect(fs.read("app/templates/users/index.html.erb")).to eq(template_file)
-        expect(output).to include("Created app/views/users/index.rb")
+        expect(output).to include("Created app/templates/users/index.html.erb")
       end
     end
 
@@ -88,7 +88,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
         EXPECTED
 
         expect(fs.read("app/templates/special/users/index.html.erb")).to eq(template_file)
-        expect(output).to include("Created app/views/special/users/index.rb")
+        expect(output).to include("Created app/templates/special/users/index.html.erb")
       end
     end
   end
@@ -124,7 +124,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
         EXPECTED
 
         expect(fs.read("slices/main/templates/users/index.html.erb")).to eq(template_file)
-        expect(output).to include("Created slices/main/views/users/index.rb")
+        expect(output).to include("Created slices/main/templates/users/index.html.erb")
       end
     end
   end
