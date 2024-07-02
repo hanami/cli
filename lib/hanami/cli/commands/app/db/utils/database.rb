@@ -54,7 +54,6 @@ module Hanami
               end
 
               def name
-                # Strip leading / - should this be skipped for sqlite?
                 database_uri.path.sub(%r{^/}, "")
               end
 
