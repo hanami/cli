@@ -17,7 +17,7 @@ Please update your Gemfiles accordingly.
 - Home page: http://hanamirb.org
 - Mailing List: http://hanamirb.org/mailing-list
 - Bugs/Issues: https://github.com/hanami/cli/issues
-* API Doc: http://rubydoc.info/gems/hanami-cli
+- API Doc: http://rubydoc.info/gems/hanami-cli
 - Chat: http://chat.hanamirb.org
 
 ## Installation
