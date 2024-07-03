@@ -85,7 +85,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         expect(output).to include "database hanami_cli_test_app created"
       end
 
-      it "does not create the database if it alrejy exists" do
+      it "does not create the database if it alredy exists" do
         command.run_command(Hanami::CLI::Commands::App::DB::Create)
         out.truncate(0)
 
