@@ -1,8 +1,10 @@
 # Hanami::CLI
 
-CLI commands for [full-stack Hanami applications](`https://github.com/hanami/hanami`).
+This library contains all of the CLI commands for [full-stack Hanami applications](`https://github.com/hanami/hanami`).
 
-**NOTE**: For versions 0.4 and below, there was a general purpose CLI utility library with this same name. That library has since been renamed to [dry-rb/dry-cli](https://github.com/dry-rb/dry-cli). Please update your Gemfiles accordingly.
+**NOTE**: For versions 0.4 and below, there was a general purpose CLI utility library with this name.
+That library has since been renamed to [dry-rb/dry-cli](https://github.com/dry-rb/dry-cli).
+Please update your Gemfiles accordingly.
 
 ## Status
 
@@ -15,12 +17,14 @@ CLI commands for [full-stack Hanami applications](`https://github.com/hanami/han
 - Home page: http://hanamirb.org
 - Mailing List: http://hanamirb.org/mailing-list
 - Bugs/Issues: https://github.com/hanami/cli/issues
-- Support: http://stackoverflow.com/questions/tagged/hanami
+* API Doc: http://rubydoc.info/gems/hanami-cli
 - Chat: http://chat.hanamirb.org
 
-## Rubies
+## Installation
 
-**Hanami::CLI** supports Ruby (MRI) 3.0+
+**Hanami::CLI** supports Ruby (MRI) 3.1+
+
+This library is a dependency of the main `hanami` gem, so installing that is the best way to get and use this gem.
 
 ## Usage
 
@@ -44,4 +48,4 @@ Everyone interacting in the `Hanami::CLI` project's codebases, issue trackers, c
 
 ## Copyright
 
-Copyright © 2014 Hanami Team – Released under MIT License
+Copyright © 2014–2024 Hanami Team – Released under MIT License
