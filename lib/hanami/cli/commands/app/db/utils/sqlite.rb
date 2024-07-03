@@ -13,6 +13,18 @@ module Hanami
             class Sqlite < Database
               # @api private
               # @since 2.2.0
+              Failure = Struct.new(:err) do
+                def successful?
+                  false
+                end
+
+                def exit_code
+                  1
+                end
+              end
+
+              # @api private
+              # @since 2.2.0
               def exec_create_command
                 return true if exists?
 
@@ -24,7 +36,12 @@ module Hanami
               # @api private
               # @since 2.2.0
               def exec_drop_command
-                File.unlink(file_path) if exists?
+                begin
+                  File.unlink(file_path) if exists?
+                rescue => e
+                  # Mimic a system_call result
+                  return Failure.new(e.message)
+                end
 
                 true
               end
