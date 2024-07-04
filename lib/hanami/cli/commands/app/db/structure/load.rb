@@ -16,21 +16,31 @@ module Hanami
 
               # @api private
               def call(app: false, slice: nil, command_exit: method(:exit), **)
-                # TODO: handle exit_codes here
+                exit_codes = []
 
                 databases(app: app, slice: slice).each do |database|
                   structure_path = database.slice.root.join(STRUCTURE_PATH)
                   next unless structure_path.exist?
 
                   relative_structure_path = structure_path.relative_path_from(database.slice.app.root)
+
                   measure("#{database.name} structure loaded from #{relative_structure_path}") do
-                    database.exec_load_command.tap do |result|
+                    catch :load_failed do
+                      result = database.exec_load_command
+                      exit_codes << result.exit_code if result.respond_to?(:exit_code)
+
                       unless result.successful?
                         out.puts result.err
-                        break false
+                        throw :load_failed, false
                       end
+
+                      true
                     end
                   end
+                end
+
+                exit_codes.each do |code|
+                  break command_exit.(code) if code > 0
                 end
               end
             end
