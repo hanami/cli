@@ -1,25 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
-  subject(:command) {
-    described_class.new(
-      system_call: system_call,
-      out: out
-    )
-  }
+  subject(:command) { described_class.new(system_call: system_call, out: out) }
 
-  let(:system_call) {
-    instance_spy(
-      Hanami::CLI::SystemCall,
-      call: Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "", err: "")
-    )
-  }
+  let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  let(:output) {
-    out.rewind
-    out.read
-  }
+  def output; out.string; end
+
+  before do
+    # Prevent the command from exiting the spec run in the case of unexpected system call failures
+    allow(command).to receive(:exit)
+  end
 
   before do
     @env = ENV.to_h
@@ -43,197 +35,221 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
       before_prepare if respond_to?(:before_prepare)
       require "hanami/prepare"
     end
+
+    # Execute the test inside the context of the created app. This is a requirement for SQLite
+    # databases to work properly in CI.
+    Dir.chdir(@dir)
   end
 
-  def allow_any_database_to_exist
-    list_command_re = %r{psql -t -A -c '\\list (?<db_name>.+)'}
-
-    allow(system_call)
-      .to receive(:call)
-      .with(a_string_matching(list_command_re), anything) { |*args|
-        db_name = list_command_re.match(args.first)[:db_name]
-
-        Hanami::CLI::SystemCall::Result.new(
-          exit_code: 0,
-          out: "#{db_name}|postgres|UTF8|libc|en_US.UTF-8|en_US.UTF-8|||",
-          err: ""
-        )
-      }
+  def before_prepare
+    write "config/db/.keep", ""
+    write "app/relations/.keep", ""
+    write "slices/main/config/db/.keep", ""
+    write "slices/main/relations/.keep", ""
   end
 
-  def allow_database_not_to_exist(name)
-    allow(system_call)
-      .to receive(:call)
-      .with("psql -t -A -c '\\list #{name}'", anything)
-      .and_return(Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "\n", err: ""))
-  end
-
-  before do
-    allow_any_database_to_exist
-  end
-
-  context "single db in app" do
-    def before_prepare
-      write "config/db/.keep", ""
-      write "app/relations/.keep", ""
-    end
-
+  describe "sqlite" do
     before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-    end
-
-    it "drops the database" do
-      command.call
-
-      expect(system_call).to have_received(:call)
-        .with(
-          "dropdb bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-
-      expect(output).to include "database bookshelf_development dropped"
-    end
-
-    it "does not drop the database if it doesn't exist" do
-      allow_database_not_to_exist("bookshelf_development")
-
-      command.call
-
-      expect(system_call).not_to have_received(:call)
-        .with("dropdb bookshelf_development", anything)
-
-      expect(output).to include "database bookshelf_development dropped"
-    end
-
-    it "prints the errors if the drop command fails and exits with non-zero status" do
-      # It would be nice for hanami-cli to offer a cleaner way of providing non-zero exit statuses,
-      # but this will do for now.
-      allow(command).to receive :exit
-
-      allow(system_call).to receive(:call).with("dropdb bookshelf_development", anything)
-        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "dropdb-err")
-
-      command.call
-
-      expect(output).to include "dropdb-err"
-      expect(output).to include "failed to drop database bookshelf_development"
-
-      expect(command).to have_received(:exit).with 1
-    end
-  end
-
-  context "multiple dbs across app and slices" do
-    def before_prepare
-      write "config/db/.keep", ""
-      write "app/relations/.keep", ""
-      write "slices/admin/config/db/.keep", ""
-      write "slices/admin/relations/.keep", ""
-      write "slices/main/config/db/.keep", ""
-      write "slices/main/relations/.keep", ""
-    end
-
-    before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-      ENV["ADMIN__DATABASE_URL"] = "postgres://localhost:5432/bookshelf_admin_development"
-      ENV["MAIN__DATABASE_URL"] = "postgres://anotherhost:2345/bookshelf_main_development"
+      ENV["DATABASE_URL"] = "sqlite://db/bookshelf_development.sqlite3"
+      ENV["MAIN__DATABASE_URL"] = "sqlite://db/bookshelf_main_development.sqlite3"
     end
 
     it "drops each database" do
-      command.call
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "dropdb bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
+      expect { command.call }
+        .to change { File.exist?(@dir.join("db", "bookshelf_development.sqlite3")) }
+        .and change { File.exist?(@dir.join("db", "bookshelf_main_development.sqlite3")) }
+        .to false
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "dropdb bookshelf_admin_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
+      expect(output).to include "database db/bookshelf_development.sqlite3 dropped"
+      expect(output).to include "database db/bookshelf_main_development.sqlite3 dropped"
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "dropdb bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
+      expect(command).not_to have_received(:exit)
+    end
 
-      expect(output).to include "database bookshelf_development dropped"
-      expect(output).to include "database bookshelf_admin_development dropped"
-      expect(output).to include "database bookshelf_main_development dropped"
+    it "drops the app database when given --app" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      expect { command.call(app: true) }
+        .to change {
+          File.exist?(@dir.join("db", "bookshelf_development.sqlite3"))
+        }
+        .to false
+
+      expect(File.exist?(@dir.join("db", "bookshelf_main_development.sqlite3"))).to be true
+
+      expect(output).to include "database db/bookshelf_development.sqlite3 dropped"
+      expect(output).not_to include "db/bookshelf_main_development.sqlite3"
+
+      expect(command).not_to have_received(:exit)
+    end
+
+    it "drops a slice database when given --slice" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      expect { command.call(slice: "main") }
+        .to change {
+          File.exist?(@dir.join("db", "bookshelf_main_development.sqlite3"))
+        }
+        .to false
+
+      expect(File.exist?(@dir.join("db", "bookshelf_development.sqlite3"))).to be true
+
+      expect(output).to include "database db/bookshelf_main_development.sqlite3 dropped"
+      expect(output).not_to include "db/bookshelf_development.sqlite3"
+
+      expect(command).not_to have_received(:exit)
     end
 
     it "does not drop databases that do not exist" do
-      allow_database_not_to_exist("bookshelf_development")
-      allow_database_not_to_exist("bookshelf_admin_development")
+      command.call
+
+      expect(File.exist?(@dir.join("db", "bookshelf_development.sqlite3"))).to be false
+      expect(File.exist?(@dir.join("db", "bookshelf_main_development.sqlite3"))).to be false
+
+      expect(output).to include "database db/bookshelf_development.sqlite3 dropped"
+      expect(output).to include "database db/bookshelf_main_development.sqlite3 dropped"
+
+      expect(command).not_to have_received(:exit)
+    end
+
+    it "prints errors for any drops that fail and exits with non-zero status" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      allow(File).to receive(:unlink).and_call_original
+      allow(File).to receive(:unlink)
+        .with(a_string_including("db/bookshelf_development.sqlite3"))
+        .and_raise Errno::EACCES
 
       command.call
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "dropdb bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
+      expect(File.exist?(@dir.join("db", "bookshelf_development.sqlite3"))).to be true
+      expect(File.exist?(@dir.join("db", "bookshelf_main_development.sqlite3"))).to be false
 
-      expect(system_call).not_to have_received(:call)
-        .with("dropdb bookshelf_development", anything)
-      expect(system_call).not_to have_received(:call)
-        .with("dropdb bookshelf_admin_development", anything)
+      expect(output).to include "failed to drop database db/bookshelf_development.sqlite3"
+      expect(output).to include "Permission denied" # from Errno::EACCESS
 
-      expect(output).to include "database bookshelf_development dropped"
-      expect(output).to include "database bookshelf_admin_development dropped"
-      expect(output).to include "database bookshelf_main_development dropped"
+      expect(output).to include "database db/bookshelf_main_development.sqlite3 dropped"
+
+      expect(command).to have_received(:exit).with(1).once
+    end
+  end
+
+  describe "postgres", :postgres do
+    before do
+      ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+      ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
+    end
+
+    it "drops each database" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      expect { Hanami.app["db.gateway"].connection.test_connection }.not_to raise_error
+      expect { Main::Slice["db.gateway"].connection.test_connection }.not_to raise_error
+      Hanami.app.stop :db
+      Main::Slice.stop :db
+
+      command.call
+
+      expect {
+        Hanami.app["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+      expect {
+        Main::Slice["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
+
+      expect(command).not_to have_received(:exit)
+    end
+
+    it "drops the app database when given --app" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      command.call(app: true)
+
+      expect {
+        Hanami.app["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+      expect {
+        Main::Slice["db.gateway"].connection.test_connection
+      }.not_to raise_error
+
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
+
+      expect(command).not_to have_received(:exit)
+    end
+
+    it "drops a slice database when given --slice" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      command.call(slice: "main")
+
+      expect {
+        Hanami.app["db.gateway"].connection.test_connection
+      }.not_to raise_error
+      expect {
+        Main::Slice["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
+
+      expect(command).not_to have_received(:exit)
+    end
+
+    it "does not drop databases that do not exist" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create, app: true)
+      out.truncate(0)
+
+      expect { Hanami.app["db.gateway"].connection.test_connection }.not_to raise_error
+      Hanami.app.stop :db
+
+      command.call
+
+      expect {
+        Hanami.app["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+      expect {
+        Main::Slice["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
+
+      expect(command).not_to have_received(:exit)
     end
 
     it "prints errors for any drop commands that fail and exits with non-zero status" do
-      allow(command).to receive :exit
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
 
-      allow(system_call).to receive(:call).with("dropdb bookshelf_development", anything)
-        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "dropdb-err-1")
-
-      allow(system_call).to receive(:call).with("dropdb bookshelf_admin_development", anything)
-        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "dropdb-err-2")
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_matching(/dropdb.+_app/), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-db-err")
 
       command.call
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "dropdb bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
+      expect { Hanami.app["db.gateway"].connection.test_connection }.not_to raise_error
 
-      expect(output).to include "failed to drop database bookshelf_development"
-      expect(output).to include "dropdb-err-1"
-      expect(output).to include "failed to drop database bookshelf_admin_development"
-      expect(output).to include "dropdb-err-2"
+      expect(output).to include "failed to drop database #{POSTGRES_BASE_DB_NAME}_app"
+      expect(output).to include "app-db-err"
 
-      expect(output).to include "database bookshelf_main_development dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
 
-      expect(command).to have_received(:exit).with(1).exactly(1).time
+      expect(command).to have_received(:exit).with(2).once
     end
   end
 end

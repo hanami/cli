@@ -1,17 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
-  subject(:command) {
-    described_class.new(
-      out: out
-    )
-  }
+  subject(:command) { described_class.new(out: out) }
 
   let(:out) { StringIO.new }
-  let(:output) {
-    out.rewind
-    out.read
-  }
+  def output; out.string; end
 
   before do
     @env = ENV.to_h
@@ -24,6 +17,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
 
   before do
     with_directory(@dir = make_tmp_directory) do
+      write "db/.keep", ""
+
       write "config/app.rb", <<~RUBY
         module TestApp
           class App < Hanami::App
@@ -31,60 +26,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
         end
       RUBY
 
-      require "hanami/setup"
-      before_prepare if respond_to?(:before_prepare)
-      require "hanami/prepare"
-    end
-  end
-
-  def migrate
-    command.run_command(Hanami::CLI::Commands::App::DB::Migrate, dump: false)
-    out.truncate(0)
-  end
-
-  context "db in app" do
-    def before_prepare
-      write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            create_table :posts do
-              primary_key :id
-              column :title, :text, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "config/db/migrate/20240602211330_add_body_to_posts.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            alter_table :posts do
-              add_column :body, :text, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "app/relations/.keep", ""
-    end
-
-    before do
-      ENV["DATABASE_URL"] = "sqlite://#{File.join(@dir, "app.db")}"
-    end
-
-    it "prints the version" do
-      migrate
-
-      command.call
-
-      expect(output).to include "app.db current schema version is 20240602211330_add_body_to_posts"
-    end
-  end
-
-  context "multiple dbs" do
-    let(:app_modules) { super() << :Search }
-
-    def before_prepare
       write "config/db/migrate/20240602191330_create_categories.rb", <<~RUBY
         ROM::SQL.migration do
           change do
@@ -95,21 +36,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
           end
         end
       RUBY
-
-      write "app/relations/.keep", ""
-
-      write "slices/admin/config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            create_table :posts do
-              primary_key :id
-              column :title, :text, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "slices/admin/relations/.keep", ""
 
       write "slices/main/config/db/migrate/20240602211330_create_comments.rb", <<~RUBY
         ROM::SQL.migration do
@@ -122,60 +48,55 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
         end
       RUBY
 
-      write "slices/main/relations/.keep", ""
+      write "slices/admin/relations/.keep", ""
 
-      write "slices/search/relations/.keep", ""
+      require "hanami/setup"
+      before_prepare if respond_to?(:before_prepare)
+      require "hanami/prepare"
     end
 
-    before do
-      ENV["DATABASE_URL"] = "sqlite://#{File.join(@dir, "app.db")}"
-      ENV["ADMIN__DATABASE_URL"] = "sqlite://#{File.join(@dir, "admin.db")}"
-      ENV["MAIN__DATABASE_URL"] = "sqlite://#{File.join(@dir, "main.db")}"
-    end
+    Dir.chdir(@dir)
+  end
 
-    it "prints the versions for all databases" do
-      migrate
+  def db_migrate
+    command.run_command(Hanami::CLI::Commands::App::DB::Migrate, dump: false)
+    out.truncate(0)
+  end
 
-      command.call
+  before do
+    ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+    ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
 
-      expect(output).to include "app.db current schema version is 20240602191330_create_categories"
-      expect(output).to include "admin.db current schema version is 20240602201330_create_posts"
-      expect(output).to include "main.db current schema version is 20240602211330_create_comments"
+    db_migrate
+  end
 
-      # Ordering of lines
-      expect(output).to match /app.db.+admin.db.+main.db/m
+  it "prints the versions for all databases" do
+    command.call
 
-      # Doesn't repeat app.db, despite it being available in the "search" slice
-      expect(output).not_to match /app.db.+app.db/m
-    end
+    expect(output).to include_in_order(
+      "db/app.sqlite3 current schema version is 20240602191330_create_categories",
+      "db/main.sqlite3 current schema version is 20240602211330_create_comments"
+    )
+  end
 
-    it "prints the version of the app db only when given --app" do
-      migrate
+  it "prints the version of the app db only when given --app" do
+    command.call(app: true)
 
-      command.call(app: true)
+    expect(output).to include "db/app.sqlite3 current schema version is 20240602191330_create_categories"
+    expect(output).not_to include "db/main.sqlite3"
+  end
 
-      expect(output).to include "app.db current schema version is 20240602191330_create_categories"
-      expect(output).not_to include "admin.db"
-      expect(output).not_to include "main.db"
-    end
+  it "prints the version of a slice when given --slice" do
+    command.call(slice: "main")
 
-    it "prints the version of a slice when given --slice" do
-      migrate
+    expect(output).to include "db/main.sqlite3 current schema version is 20240602211330_create_comments"
+    expect(output).not_to include "db/app.db"
+  end
 
-      command.call(slice: "admin")
+  it "prints an error when given a slice without migrations" do
+    command.call(slice: "admin")
 
-      expect(output).to include "admin.db current schema version is 20240602201330_create_posts"
-      expect(output).not_to include "app.db"
-      expect(output).not_to include "main.db"
-    end
-
-    it "prints an error when given a slice without migrations" do
-      migrate
-
-      command.call(slice: "search")
-
-      expect(output).to include %(Cannot find version for slice "search")
-      expect(output).not_to include "current schema version"
-    end
+    expect(output).to include %(Cannot find version for slice "admin")
+    expect(output).not_to include "current schema version"
   end
 end

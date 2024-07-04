@@ -54,7 +54,6 @@ module Hanami
               end
 
               def name
-                # Strip leading / - should this be skipped for sqlite?
                 database_uri.path.sub(%r{^/}, "")
               end
 
@@ -134,6 +133,10 @@ module Hanami
 
               def migrations_dir?
                 migrations_path.directory?
+              end
+
+              def structure_file
+                slice.root.join("config/db/structure.sql")
               end
 
               def schema_migrations_sql_dump
