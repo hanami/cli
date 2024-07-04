@@ -170,8 +170,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
       SQL
 
       expect(output).to include_in_order(
-        "hanami_cli_test_app structure dumped to config/db/structure.sql",
-        "hanami_cli_test_main structure dumped to slices/main/config/db/structure.sql"
+        "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
+        "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql"
       )
     end
 
@@ -181,8 +181,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
       expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be true
       expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be false
 
-      expect(output).to include "hanami_cli_test_app structure dumped to config/db/structure.sql"
-      expect(output).not_to include "hanami_cli_test_main"
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
     end
 
     it "dumps the structure for a slice db when given --slice" do
@@ -191,8 +191,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
       expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be true
       expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be false
 
-      expect(output).to include "hanami_cli_test_main structure dumped to slices/main/config/db/structure.sql"
-      expect(output).not_to include "hanami_cli_test_app"
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
     end
 
     it "prints errors for any dumps that fail and exits with non-zero status" do
@@ -208,8 +208,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
       expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be true
       expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be false
 
-      expect(output).to include %("hanami_cli_test_app structure dumped to config/db/structure.sql" FAILED)
-      expect(output).to include "hanami_cli_test_main structure dumped to slices/main/config/db/structure.sql"
+      expect(output).to include %("#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql" FAILED)
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql"
 
       expect(command).to have_received(:exit).with 2
     end

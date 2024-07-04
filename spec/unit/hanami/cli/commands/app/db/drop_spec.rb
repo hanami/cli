@@ -164,8 +164,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
         Main::Slice["db.gateway"].connection.test_connection
       }.to raise_error Sequel::DatabaseConnectionError
 
-      expect(output).to include "database hanami_cli_test_app dropped"
-      expect(output).to include "database hanami_cli_test_main dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
 
       expect(command).not_to have_received(:exit)
     end
@@ -183,8 +183,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
         Main::Slice["db.gateway"].connection.test_connection
       }.not_to raise_error
 
-      expect(output).to include "database hanami_cli_test_app dropped"
-      expect(output).not_to include "hanami_cli_test_main"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
 
       expect(command).not_to have_received(:exit)
     end
@@ -202,8 +202,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
         Main::Slice["db.gateway"].connection.test_connection
       }.to raise_error Sequel::DatabaseConnectionError
 
-      expect(output).to include "database hanami_cli_test_main dropped"
-      expect(output).not_to include "hanami_cli_test_app"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
 
       expect(command).not_to have_received(:exit)
     end
@@ -224,8 +224,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
         Main::Slice["db.gateway"].connection.test_connection
       }.to raise_error Sequel::DatabaseConnectionError
 
-      expect(output).to include "database hanami_cli_test_app dropped"
-      expect(output).to include "database hanami_cli_test_main dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
 
       expect(command).not_to have_received(:exit)
     end
@@ -244,10 +244,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
 
       expect { Hanami.app["db.gateway"].connection.test_connection }.not_to raise_error
 
-      expect(output).to include "failed to drop database hanami_cli_test_app"
+      expect(output).to include "failed to drop database #{POSTGRES_BASE_DB_NAME}_app"
       expect(output).to include "app-db-err"
 
-      expect(output).to include "database hanami_cli_test_main dropped"
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
 
       expect(command).to have_received(:exit).with(2).once
     end

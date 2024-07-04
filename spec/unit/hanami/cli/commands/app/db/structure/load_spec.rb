@@ -127,8 +127,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
         .to true
 
       expect(output).to include_in_order(
-        "hanami_cli_test_app structure loaded from config/db/structure.sql",
-        "hanami_cli_test_main structure loaded from slices/main/config/db/structure.sql"
+        "#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql",
+        "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
       )
     end
 
@@ -139,8 +139,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
       expect(table_exists?(Main::Slice, "comments")).to be false
 
-      expect(output).to include "hanami_cli_test_app structure loaded from config/db/structure.sql"
-      expect(output).not_to include "hanami_cli_test_main"
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
     end
 
     it "loads the structure for a slice db when given --slice" do
@@ -150,8 +150,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
       expect(table_exists?(Hanami.app, "posts")).to be false
 
-      expect(output).to include "hanami_cli_test_main structure loaded from slices/main/config/db/structure.sql"
-      expect(output).not_to include "hanami_cli_test_app"
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
     end
 
     it "prints errors for any dumps that fail and exits with non-zero status" do

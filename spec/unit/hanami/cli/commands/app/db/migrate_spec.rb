@@ -186,15 +186,15 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
         expect(dump_command).to have_received(:call).once
 
-        expect(output).to include "database hanami_cli_test_app migrated"
-        expect(output).to include "database hanami_cli_test_main migrated"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app migrated"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main migrated"
       end
 
       it "runs the migration and dumps the structure for the app db when given --app" do
         command.call(app: true)
 
-        expect(output).to include "database hanami_cli_test_app migrated"
-        expect(output).not_to include "hanami_cli_test_main"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app migrated"
+        expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
 
         expect(Hanami.app["relations.posts"].to_a).to eq []
         expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
@@ -212,8 +212,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
         expect(dump_command).to have_received(:call).exactly(1).time
 
-        expect(output).to include "database hanami_cli_test_main migrated"
-        expect(output).not_to include "hanami_cli_test_app"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main migrated"
+        expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
       end
 
       it "runs migrations to a specific target" do

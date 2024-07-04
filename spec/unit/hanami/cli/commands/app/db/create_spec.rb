@@ -82,7 +82,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
 
         expect { Hanami.app["db.gateway"] }.not_to raise_error
 
-        expect(output).to include "database hanami_cli_test_app created"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
       end
 
       it "does not create the database if it alredy exists" do
@@ -93,7 +93,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
 
         expect { Hanami.app["db.gateway"] }.not_to raise_error
 
-        expect(output).to include "database hanami_cli_test_app created"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
       end
     end
   end
@@ -184,8 +184,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         expect { Hanami.app["db.gateway"] }.not_to raise_error
         expect { Main::Slice["db.gateway"] }.not_to raise_error
 
-        expect(output).to include "database hanami_cli_test_app created"
-        expect(output).to include "database hanami_cli_test_main created"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main created"
       end
 
       it "prints errors for any create commands that fail and exits with non-zero status" do
@@ -200,10 +200,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         expect { Hanami.app["db.gateway"] }.to raise_error Sequel::DatabaseConnectionError
         expect { Main::Slice["db.gateway"] }.not_to raise_error
 
-        expect(output).to include "failed to create database hanami_cli_test_app"
+        expect(output).to include "failed to create database #{POSTGRES_BASE_DB_NAME}_app"
         expect(output).to include "app-db-err"
 
-        expect(output).to include "database hanami_cli_test_main created"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main created"
 
         expect(command).to have_received(:exit).with(2).once
       end
