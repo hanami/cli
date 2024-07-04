@@ -61,6 +61,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
       before_prepare if respond_to?(:before_prepare)
       require "hanami/prepare"
     end
+
+    Dir.chdir(@dir)
   end
 
   def db_structure_dump
@@ -79,10 +81,30 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
     out.truncate(0)
   end
 
-  def table_exists?(slice, table_name)
-    slice["db.gateway"].connection
-      .fetch("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '#{table_name}'")
-      .to_a.first.fetch(:count) == 1
+  describe "sqlite" do
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+      ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
+      db_structure_dump
+    end
+
+    def table_exists?(slice, table_name)
+      slice["db.gateway"].connection
+        .fetch("PRAGMA table_info(#{table_name})")
+        .to_a.any?
+    end
+
+    it "loads the structure for each db" do
+      expect { command.call }
+        .to change { table_exists?(Hanami.app, "posts") }
+        .and change { table_exists?(Main::Slice, "comments") }
+        .to true
+
+      expect(output).to include_in_order(
+        "db/app.sqlite3 structure loaded from config/db/structure.sql",
+        "db/main.sqlite3 structure loaded from slices/main/config/db/structure.sql"
+      )
+    end
   end
 
   describe "postgres", :postgres do
@@ -90,6 +112,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
       ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
       ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
       db_structure_dump
+    end
+
+    def table_exists?(slice, table_name)
+      slice["db.gateway"].connection
+        .fetch("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '#{table_name}'")
+        .to_a.first.fetch(:count) == 1
     end
 
     it "loads the structure for each db" do
