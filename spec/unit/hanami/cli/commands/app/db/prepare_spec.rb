@@ -34,18 +34,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
         end
       RUBY
 
-      require "hanami/setup"
-      before_prepare if respond_to?(:before_prepare)
-      require "hanami/prepare"
-    end
-
-    # Execute the test inside the context of the created app. This is a necessary to locate SQLite
-    # databases specified with relative paths.
-    Dir.chdir(@dir)
-  end
-
-  describe "postgres", :postgres do
-    def before_prepare
       write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
         ROM::SQL.migration do
           change do
@@ -99,8 +87,102 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
           end
         end
       RUBY
+
+      require "hanami/setup"
+      before_prepare if respond_to?(:before_prepare)
+      require "hanami/prepare"
     end
 
+    # Execute the test inside the context of the created app. This is a necessary to locate SQLite
+    # databases specified with relative paths.
+    Dir.chdir(@dir)
+  end
+
+  describe "sqlite" do
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+      ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
+    end
+
+    context "from scratch, with structure dump and seeds" do
+      before do
+        command.run_command(Hanami::CLI::Commands::App::DB::Create)
+        command.run_command(Hanami::CLI::Commands::App::DB::Migrate) # Dumps the structure
+
+        # `db migrate` establishes a connection to the database, which will prevent it from being
+        # dropped. To allow the drop, disconnect from the database by stopping the :db provider
+        # (which requires starting it first, a prerequesite for it to be stopped).
+        Hanami.app.start :db and Hanami.app.stop :db
+        Main::Slice.start :db and Main::Slice.stop :db
+        command.run_command(Hanami::CLI::Commands::App::DB::Drop)
+
+        out.truncate(0)
+      end
+
+      it "creates the database, loads the structure, migrates the database, and loads the seeds" do
+        expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be true
+        expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be true
+
+        # Add migrations not included in structure dump
+        write "config/db/migrate/20240603201330_create_app_extras.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :app_extras do
+                primary_key :id
+              end
+            end
+          end
+        RUBY
+        write "slices/main/config/db/migrate/20240604201330_create_main_extras.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :main_extras do
+                primary_key :id
+              end
+            end
+          end
+        RUBY
+
+        command.call
+
+        expect(Hanami.app["relations.posts"].to_a).to eq [{id: 1, title: "First post"}]
+        expect(Main::Slice["relations.comments"].to_a).to eq [{id: 1, body: "First comment"}]
+
+        # App dump
+        dump = File.read(Hanami.app.root.join("config", "db", "structure.sql"))
+        expect(dump).to include("CREATE TABLE `posts`")
+        expect(dump).to include("CREATE TABLE `app_extras`")
+        expect(dump).to include(<<~SQL)
+          INSERT INTO schema_migrations (filename) VALUES
+          ('20240602201330_create_posts.rb'),
+          ('20240603201330_create_app_extras.rb');
+        SQL
+
+        # Slice dump
+        dump = File.read(Main::Slice.root.join("config", "db", "structure.sql"))
+        expect(dump).to include("CREATE TABLE `comments`")
+        expect(dump).to include("CREATE TABLE `main_extras`")
+        expect(dump).to include(<<~SQL)
+          INSERT INTO schema_migrations (filename) VALUES
+          ('20240602201330_create_comments.rb'),
+          ('20240604201330_create_main_extras.rb');
+        SQL
+
+        expect(output).to include_in_order(
+          "database db/app.sqlite3 created",
+          "database db/app.sqlite3 migrated",
+          "db/app.sqlite3 structure dumped to config/db/structure.sql",
+          "seed data loaded from config/db/seeds.rb",
+          "database db/main.sqlite3 created",
+          "database db/main.sqlite3 migrated",
+          "db/main.sqlite3 structure dumped to slices/main/config/db/structure.sql",
+          "seed data loaded from slices/main/config/db/seeds.rb"
+        )
+      end
+    end
+  end
+
+  describe "postgres", :postgres do
     before do
       ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
       ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
@@ -293,8 +375,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
     end
 
     context "no seeds" do
-      def before_prepare
-        super()
+      before do
         FileUtils.rm_f("config/db/seeds.rb")
       end
 

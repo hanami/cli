@@ -55,13 +55,13 @@ module Hanami
               # @api private
               # @since 2.2.0
               def exec_dump_command
-                raise Hanami::CLI::NotImplementedError
+                system_call.call(%(sqlite3 #{file_path} ".schema --indent --nosys" > #{structure_file}))
               end
 
               # @api private
               # @since 2.2.0
               def exec_load_command
-                raise Hanami::CLI::NotImplementedError
+                system_call.call("sqlite3 #{file_path} < #{structure_file}")
               end
 
               # @api private

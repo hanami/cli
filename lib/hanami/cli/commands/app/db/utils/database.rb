@@ -135,6 +135,10 @@ module Hanami
                 migrations_path.directory?
               end
 
+              def structure_file
+                slice.root.join("config/db/structure.sql")
+              end
+
               def schema_migrations_sql_dump
                 sql = +"INSERT INTO schema_migrations (filename) VALUES\n"
                 sql << applied_migrations.map { |v| "('#{v}')" }.join(",\n")

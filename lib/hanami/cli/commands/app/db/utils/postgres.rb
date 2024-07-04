@@ -67,10 +67,6 @@ module Hanami
                 end
               end
 
-              def structure_file
-                slice.root.join("config/db/structure.sql")
-              end
-
               def schema_migrations_sql_dump
                 search_path = slice["db.gateway"].connection
                   .fetch("SHOW search_path").to_a.first
