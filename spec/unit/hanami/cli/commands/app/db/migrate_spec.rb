@@ -216,15 +216,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         expect(output).not_to include "hanami_cli_test_app"
       end
 
-      # SQLite
-      # column_names = Hanami.app["db.gateway"].connection
-      #   .execute("PRAGMA table_info(posts)").to_a
-      #   .map { _1[1] }
-      # expect(column_names).to eq %w[id title body]
-      # column_names = Hanami.app["db.gateway"].connection
-      #   .execute("PRAGMA table_info(posts)").to_a
-      #   .map { _1[1] }
-      # expect(column_names).to eq %w[id title] # no more body
       it "runs migrations to a specific target" do
         column_names = -> {
           Hanami.app["db.gateway"].connection
