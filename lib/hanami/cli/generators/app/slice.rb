@@ -31,6 +31,7 @@ module Hanami
             fs.write(fs.join(directory, "view.rb"), t("view.erb", context))
             fs.write(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
             fs.write(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
+            fs.write(fs.join(directory, "operation.rb"), t("operation.erb", context))
 
             if context.bundled_assets?
               fs.write(fs.join(directory, "assets", "js", "app.js"), t("app_js.erb", context))

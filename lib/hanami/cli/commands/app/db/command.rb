@@ -94,7 +94,7 @@ module Hanami
             def warn_on_misconfigured_database(database, slices)
               if slices.length > 1
                 out.puts <<~STR
-                  WARNING: Database #{database.name} has config/db/ directories in multiple slices:
+                  WARNING: Database #{database.name} is configured for multiple config/db/ directories:
 
                   #{slices.map { "- " + _1.root.relative_path_from(_1.app.root).join("config", "db").to_s }.join("\n")}
 
