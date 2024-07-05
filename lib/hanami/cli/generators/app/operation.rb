@@ -43,7 +43,6 @@ module Hanami
               local_namespaces: local_namespaces,
             )
             fs.write(path, file_contents)
-          end
 
           private
 

@@ -247,7 +247,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       allow(Hanami).to receive(:bundled?).with("dry-monads").and_return(bundled_assets)
     end
 
-    it "generates a slice with an operation that includes dry-monads result" do
+    it "generates a slice with an action that includes dry-monads result" do
       within_application_directory do
         subject.call(name: slice)
 
