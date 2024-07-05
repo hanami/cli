@@ -255,12 +255,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
           # auto_register: false
           # frozen_string_literal: true
 
-          require "dry/monads"
-
           module Admin
             class Action < #{app}::Action
-              # Provide `Success` and `Failure` for pattern matching on operation results
-              include Dry::Monads[:result]
             end
           end
         CODE

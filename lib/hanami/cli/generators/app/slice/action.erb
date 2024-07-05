@@ -1,15 +1,7 @@
 # auto_register: false
 # frozen_string_literal: true
 
-<%- if bundled_dry_monads? -%>
-require "dry/monads"
-
-<%- end -%>
 module <%= camelized_slice_name %>
   class Action < <%= camelized_app_name %>::Action
-    <%- if bundled_dry_monads? -%>
-    # Provide `Success` and `Failure` for pattern matching on operation results
-    include Dry::Monads[:result]
-    <%- end -%>
   end
 end
