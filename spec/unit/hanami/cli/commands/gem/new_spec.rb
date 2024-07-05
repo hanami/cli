@@ -104,6 +104,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       # .env
       env = <<~EXPECTED
+        # This is checked into source control, so put sensitive values into `.env.local`
         DATABASE_URL=sqlite://db/#{app}.sqlite
       EXPECTED
       expect(fs.read(".env")).to eq(env)
@@ -567,6 +568,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         # .env
         env = <<~EXPECTED
+          # This is checked into source control, so put sensitive values into `.env.local`
           DATABASE_URL=sqlite://db/#{app}.sqlite
         EXPECTED
         expect(fs.read(".env")).to eq(env)
@@ -986,7 +988,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
       fs.chdir(app) do
         expect(fs.read("Gemfile")).to_not match(/hanami-db/)
-        expect(fs.read(".env")).to be_empty
+        expect(fs.read(".env")).to_not include("DATABASE_URL")
         expect(fs.exist?("app/db/repo.rb")).to be(false)
         expect(fs.exist?("app/db/struct.rb")).to be(false)
         expect(fs.exist?("app/db/relation.rb")).to be(false)
@@ -1161,7 +1163,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("sqlite3")
-          expect(fs.read(".env")).to eq("DATABASE_URL=sqlite://db/#{app}.sqlite\n")
+          expect(fs.read(".env")).to include("DATABASE_URL=sqlite://db/#{app}.sqlite")
         end
       end
 
@@ -1171,7 +1173,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("sqlite3")
-          expect(fs.read(".env")).to eq("DATABASE_URL=sqlite://db/#{app}.sqlite\n")
+          expect(fs.read(".env")).to include("DATABASE_URL=sqlite://db/#{app}.sqlite")
         end
       end
     end
@@ -1183,7 +1185,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("pg")
-          expect(fs.read(".env")).to eq("DATABASE_URL=postgres://localhost/#{app}\n")
+          expect(fs.read(".env")).to include("DATABASE_URL=postgres://localhost/#{app}")
         end
       end
 
@@ -1193,7 +1195,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("pg")
-          expect(fs.read(".env")).to eq("DATABASE_URL=postgres://localhost/#{app}\n")
+          expect(fs.read(".env")).to include("DATABASE_URL=postgres://localhost/#{app}")
         end
       end
 
@@ -1203,7 +1205,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("pg")
-          expect(fs.read(".env")).to eq("DATABASE_URL=postgres://localhost/#{app}\n")
+          expect(fs.read(".env")).to include("DATABASE_URL=postgres://localhost/#{app}")
         end
       end
     end
@@ -1215,7 +1217,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("mysql2")
-          expect(fs.read(".env")).to eq("DATABASE_URL=mysql://localhost/#{app}\n")
+          expect(fs.read(".env")).to include("DATABASE_URL=mysql://localhost/#{app}")
         end
       end
 
@@ -1225,7 +1227,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("mysql2")
-          expect(fs.read(".env")).to eq("DATABASE_URL=mysql://localhost/#{app}\n")
+          expect(fs.read(".env")).to include("DATABASE_URL=mysql://localhost/#{app}")
         end
       end
     end
