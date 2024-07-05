@@ -33,7 +33,7 @@ module Hanami
         @class_name = class_name
         @parent_class = parent_class
         @modules = modules
-        @header = (header.any? && (header + [""])) || header
+        @header = header.any? ? (header + [""]) : []
         @body = body
       end
 
