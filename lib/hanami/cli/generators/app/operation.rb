@@ -88,7 +88,7 @@ module Hanami
 
           def print_namespace_recommendation(operation_name)
             out.puts(
-              "  Generating a top-level operation. " \
+              "  Note: We generated a top-level operation. " \
               "To generate into a directory, add a namespace: `my_namespace.#{operation_name}`"
             )
           end
