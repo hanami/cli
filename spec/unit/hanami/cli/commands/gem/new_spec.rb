@@ -125,6 +125,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gem "hanami", "#{hanami_version}"
         gem "hanami-assets", "#{hanami_version}"
         gem "hanami-controller", "#{hanami_version}"
+        gem "hanami-db", "#{hanami_version}"
         gem "hanami-router", "#{hanami_version}"
         gem "hanami-validations", "#{hanami_version}"
         gem "hanami-view", "#{hanami_version}"
@@ -133,6 +134,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gem "dry-operation", github: "dry-rb/dry-operation"
         gem "puma"
         gem "rake"
+        gem "sqlite3"
 
         group :development do
           gem "hanami-webconsole", "#{hanami_version}"
@@ -589,6 +591,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           gem "hanami-view", "#{hanami_version}"
 
           gem "dry-types", "~> 1.0", ">= 1.6.1"
+          gem "dry-operation", github: "dry-rb/dry-operation"
           gem "puma"
           gem "rake"
           gem "sqlite3"
@@ -799,9 +802,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           # frozen_string_literal: true
 
           require "hanami/action"
+          require "dry/monads"
 
           module #{inflector.camelize(app)}
             class Action < Hanami::Action
+              # Provide `Success` and `Failure` for pattern matching on operation results
+              include Dry::Monads[:result]
             end
           end
         EXPECTED
