@@ -84,14 +84,12 @@ module Hanami
 
           # rubocop:disable Layout/LineLength
           example [
-            "bookshelf                     # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
-            "bookshelf --head              # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
-            "bookshelf --skip-install      # Generate a new Hanami app, but it skips Hanami installation",
-            "bookshelf --skip-assets       # Generate a new Hanami app without assets",
-            "bookshelf --skip-db           # Generate a new Hanami app without database layer",
-            "bookshelf --database=sqlite   # Generate a new Hanami app with a SQLite database (default)",
-            "bookshelf --database=postgres # Generate a new Hanami app with a Postgres database",
-            "bookshelf --database=mysql    # Generate a new Hanami app with a MySQL database"
+            "bookshelf                                    # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
+            "bookshelf --head                             # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
+            "bookshelf --skip-install                     # Generate a new Hanami app, but it skips Hanami installation",
+            "bookshelf --skip-assets                      # Generate a new Hanami app without assets library",
+            "bookshelf --skip-db                          # Generate a new Hanami app without database library",
+            "bookshelf --database={sqlite|postgres|mysql} # Generate a new Hanami app with a specified database (default: sqlite)",
           ]
           # rubocop:enable Layout/LineLength
 

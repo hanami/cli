@@ -104,6 +104,20 @@ module Hanami
           database_option == Commands::Gem::New::DATABASE_MYSQL
         end
 
+        # @since 2.2.0
+        # @api private
+        def database_url
+          if generate_sqlite?
+            "sqlite://db/#{app}.sqlite"
+          elsif generate_postgres?
+            "postgres://localhost/#{app}"
+          elsif generate_mysql?
+            "mysql://localhost/#{app}"
+          else
+            raise "Unknown database option: #{database_option}"
+          end
+        end
+
         # @since 2.1.0
         # @api private
         def bundled_views?
