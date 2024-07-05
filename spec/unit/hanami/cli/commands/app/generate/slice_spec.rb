@@ -108,6 +108,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       expect(fs.read("slices/#{slice}/views/helpers.rb")).to eq(helpers)
       expect(output).to include("Created slices/#{slice}/views/helpers.rb")
 
+      operation = <<~RUBY
+        # auto_register: false
+        # frozen_string_literal: true
+
+        module Admin
+          class Operation < Bookshelf::Operation
+          end
+        end
+      RUBY
+      expect(fs.read("slices/#{slice}/operation.rb")).to eq(operation)
+      expect(output).to include("Created slices/#{slice}/operation.rb")
+
       layout = <<~ERB
         <!DOCTYPE html>
         <html lang="en">
@@ -226,6 +238,31 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
         # slices/admin/app/assets/css/app.css
         expect(fs.exist?("slices/admin/assets/css/app.css")).to be(false)
+      end
+    end
+  end
+
+  context "with dry-monads bundled" do
+    before do
+      allow(Hanami).to receive(:bundled?).with("dry-monads").and_return(bundled_assets)
+    end
+
+    it "generates a slice with an operation that includes dry-monads result" do
+      within_application_directory do
+        subject.call(name: slice)
+
+        action = <<~CODE
+          # auto_register: false
+          # frozen_string_literal: true
+
+          module Admin
+            class Action < #{app}::Action
+            end
+          end
+        CODE
+
+        expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
+        expect(output).to include("Created slices/#{slice}/action.rb")
       end
     end
   end

@@ -92,6 +92,12 @@ module Hanami
           Hanami.bundled?("hanami-assets")
         end
 
+        # @since 2.2.0
+        # @api private
+        def bundled_dry_monads?
+          Hanami.bundled?("dry-monads")
+        end
+
         # @since 2.1.0
         # @api private
         #
