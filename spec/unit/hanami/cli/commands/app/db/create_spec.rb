@@ -1,25 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
-  subject(:command) {
-    described_class.new(
-      system_call: system_call,
-      out: out
-    )
-  }
+  subject(:command) { described_class.new(system_call: system_call, out: out) }
 
-  let(:system_call) {
-    instance_spy(
-      Hanami::CLI::SystemCall,
-      call: Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "", err: "")
-    )
-  }
+  let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  let(:output) {
-    out.rewind
-    out.read
-  }
+  def output; out.string; end
+
+  before do
+    # Prevent the command from exiting the spec run in the case of unexpected system call failures
+    allow(command).to receive(:exit)
+  end
 
   before do
     @env = ENV.to_h
@@ -43,28 +35,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       before_prepare if respond_to?(:before_prepare)
       require "hanami/prepare"
     end
-  end
 
-  def allow_database_not_to_exist
-    allow(system_call)
-      .to receive(:call)
-      .with(a_string_starting_with("psql -t -A -c '\\list"))
-      .and_return(Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "\n", err: ""))
-  end
-
-  def allow_database_to_exist(name)
-    allow(system_call)
-      .to receive(:call)
-      .with("psql -t -A -c '\\list #{name}'", anything)
-      .and_return(Hanami::CLI::SystemCall::Result.new(
-        exit_code: 0,
-        out: "#{name}|postgres|UTF8|libc|en_US.UTF-8|en_US.UTF-8|||",
-        err: ""
-      ))
-  end
-
-  before do
-    allow_database_not_to_exist
+    # Execute the test inside the context of the created app. This is a requirement for SQLite
+    # databases to work properly in CI.
+    Dir.chdir(@dir)
   end
 
   context "single db in app" do
@@ -73,50 +47,54 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       write "app/relations/.keep", ""
     end
 
-    before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+    describe "sqlite" do
+      before do
+        ENV["DATABASE_URL"] = "sqlite://db/bookshelf_development.sqlite3"
+      end
+
+      it "creates the database" do
+        command.call
+
+        expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be true
+
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
+
+        expect(output).to include "database db/bookshelf_development.sqlite3 created"
+      end
+
+      it "does not create the database if it already exists" do
+        FileUtils.mkdir(@dir.join("db"))
+        FileUtils.touch(@dir.join("db", "bookshelf_development.sqlite3"))
+
+        command.call
+
+        expect(output).to include "database db/bookshelf_development.sqlite3 created"
+      end
     end
 
-    it "creates the database" do
-      command.call
+    describe "postgres", :postgres do
+      before do
+        ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+      end
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "createdb bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
+      it "creates the database" do
+        command.call
 
-      expect(output).to include "database bookshelf_development created"
-    end
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
 
-    it "does not create the database if it already exists" do
-      allow_database_to_exist("bookshelf_development")
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
+      end
 
-      command.call
+      it "does not create the database if it alredy exists" do
+        command.run_command(Hanami::CLI::Commands::App::DB::Create)
+        out.truncate(0)
 
-      expect(system_call).not_to have_received(:call)
-        .with("createdb bookshelf_development", anything)
+        command.call
 
-      expect(output).to include "database bookshelf_development created"
-    end
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
 
-    it "prints the errors if the create command fails and exits with non-zero status" do
-      # It would be nice for hanami-cli to offer a cleaner way of providing non-zero exit statuses,
-      # but this will do for now.
-      allow(command).to receive :exit
-
-      allow(system_call).to receive(:call).with("createdb bookshelf_development", anything)
-        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "createdb-err")
-
-      command.call
-
-      expect(output).to include "createdb-err"
-      expect(output).to include "failed to create database bookshelf_development"
-
-      expect(command).to have_received(:exit).with 1
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
+      end
     end
   end
 
@@ -124,111 +102,111 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
     def before_prepare
       write "config/db/.keep", ""
       write "app/relations/.keep", ""
-      write "slices/admin/config/db/.keep", ""
-      write "slices/admin/relations/.keep", ""
       write "slices/main/config/db/.keep", ""
       write "slices/main/relations/.keep", ""
     end
 
-    before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-      ENV["ADMIN__DATABASE_URL"] = "postgres://localhost:5432/bookshelf_admin_development"
-      ENV["MAIN__DATABASE_URL"] = "postgres://anotherhost:2345/bookshelf_main_development"
+    describe "sqlite" do
+      before do
+        ENV["DATABASE_URL"] = "sqlite://db/bookshelf_development.sqlite3"
+        ENV["MAIN__DATABASE_URL"] = "sqlite://db/bookshelf_main_development.sqlite3"
+      end
+
+      it "creates each database" do
+        command.call
+
+        expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be true
+        expect(Hanami.app.root.join("db", "bookshelf_main_development.sqlite3").exist?).to be true
+
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
+        expect { Main::Slice["db.gateway"] }.not_to raise_error
+
+        expect(output).to include "database db/bookshelf_development.sqlite3 created"
+        expect(output).to include "database db/bookshelf_main_development.sqlite3 created"
+      end
+
+      it "creates the app database when given --app" do
+        command.call(app: true)
+
+        expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be true
+        expect(Hanami.app.root.join("db", "bookshelf_main_development.sqlite3").exist?).to be false
+
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
+
+        expect(output).to include "database db/bookshelf_development.sqlite3 created"
+        expect(output).not_to include "db/bookshelf_main_development.sqlite3"
+      end
+
+      it "creates a slice database when given --slice" do
+        command.call(slice: "main")
+
+        expect(Hanami.app.root.join("db", "bookshelf_main_development.sqlite3").exist?).to be true
+        expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be false
+
+        expect { Main::Slice["db.gateway"] }.not_to raise_error
+
+        expect(output).to include "database db/bookshelf_main_development.sqlite3 created"
+        expect(output).not_to include "db/bookshelf_development.sqlite3"
+      end
+
+      it "prints errors for any create commands that fail and exits with non-zero status" do
+        allow(system_call).to receive(:call).and_call_original
+        allow(system_call)
+          .to receive(:call)
+          .with(a_string_matching(/sqlite3.+bookshelf_development.sqlite3/))
+          .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-db-err")
+
+        command.call
+
+        expect { Main::Slice["db.gateway"] }.not_to raise_error
+
+        expect(Hanami.app.root.join("db", "bookshelf_development.sqlite3").exist?).to be false
+        expect(Hanami.app.root.join("db", "bookshelf_main_development.sqlite3").exist?).to be true
+
+        expect(output).to include "failed to create database db/bookshelf_development.sqlite3"
+        expect(output).to include "app-db-err"
+
+        expect(output).to include "database db/bookshelf_main_development.sqlite3 created"
+
+        expect(command).to have_received(:exit).with(2).once
+      end
     end
 
-    it "creates each database" do
-      command.call
+    describe "postgres", :postgres do
+      before do
+        ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+        ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
+      end
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "createdb bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
+      it "creates each database" do
+        command.call
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "createdb bookshelf_admin_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
+        expect { Main::Slice["db.gateway"] }.not_to raise_error
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "createdb bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main created"
+      end
 
-      expect(output).to include "database bookshelf_development created"
-      expect(output).to include "database bookshelf_admin_development created"
-      expect(output).to include "database bookshelf_main_development created"
-    end
+      it "prints errors for any create commands that fail and exits with non-zero status" do
+        allow(system_call).to receive(:call).and_call_original
+        allow(system_call)
+          .to receive(:call)
+          .with(a_string_matching(/createdb.+_app/), anything)
+          .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-db-err")
 
-    it "does not create databases that already exist" do
-      allow_database_to_exist("bookshelf_development")
-      allow_database_to_exist("bookshelf_admin_development")
+        command.call
 
-      command.call
+        expect { Hanami.app["db.gateway"] }.to raise_error Sequel::DatabaseConnectionError
+        expect { Main::Slice["db.gateway"] }.not_to raise_error
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "createdb bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
+        expect(output).to include "failed to create database #{POSTGRES_BASE_DB_NAME}_app"
+        expect(output).to include "app-db-err"
 
-      expect(system_call).not_to have_received(:call)
-        .with("createdb bookshelf_development", anything)
-      expect(system_call).not_to have_received(:call)
-        .with("createdb bookshelf_admin_development", anything)
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main created"
 
-      expect(output).to include "database bookshelf_development created"
-      expect(output).to include "database bookshelf_admin_development created"
-      expect(output).to include "database bookshelf_main_development created"
-    end
-
-    it "prints errors for any create commands that fail and exits with non-zero status" do
-      allow(command).to receive :exit
-
-      allow(system_call).to receive(:call).with("createdb bookshelf_development", anything)
-        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "createdb-err-1")
-
-      allow(system_call).to receive(:call).with("createdb bookshelf_admin_development", anything)
-        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 1, out: "", err: "createdb-err-2")
-
-      command.call
-
-      expect(system_call).to have_received(:call)
-        .with(
-          "createdb bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
-
-      expect(output).to include "failed to create database bookshelf_development"
-      expect(output).to include "createdb-err-1"
-      expect(output).to include "failed to create database bookshelf_admin_development"
-      expect(output).to include "createdb-err-2"
-
-      expect(output).to include "database bookshelf_main_development created"
-
-      expect(command).to have_received(:exit).with(1).exactly(1).time
+        expect(command).to have_received(:exit).with(2).once
+      end
     end
   end
 end

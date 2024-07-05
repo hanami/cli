@@ -11,24 +11,33 @@ module Hanami
         module DB
           module Utils
             # @api private
+            # @since 2.2.0
             class Postgres < Database
+              # @api private
+              # @since 2.2.0
               def exec_create_command
                 return true if exists?
 
                 system_call.call("createdb #{escaped_name}", env: cli_env_vars)
               end
 
+              # @api private
+              # @since 2.2.0
               def exec_drop_command
                 return true unless exists?
 
                 system_call.call("dropdb #{escaped_name}", env: cli_env_vars)
               end
 
+              # @api private
+              # @since 2.2.0
               def exists?
                 result = system_call.call("psql -t -A -c '\\list #{escaped_name}'", env: cli_env_vars)
                 result.successful? && result.out.include?("#{name}|") # start_with?
               end
 
+              # @api private
+              # @since 2.2.0
               def exec_dump_command
                 system_call.call(
                   "pg_dump --schema-only --no-privileges --no-owner --file #{structure_file} #{escaped_name}",
@@ -36,6 +45,8 @@ module Hanami
                 )
               end
 
+              # @api private
+              # @since 2.2.0
               def exec_load_command
                 system_call.call(
                   "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output #{File::NULL} --file #{structure_file} #{escaped_name}",
@@ -54,10 +65,6 @@ module Hanami
                   vars["PGUSER"] = database_uri.user.to_s if database_uri.user
                   vars["PGPASSWORD"] = database_uri.password.to_s if database_uri.password
                 end
-              end
-
-              def structure_file
-                slice.root.join("config/db/structure.sql")
               end
 
               def schema_migrations_sql_dump

@@ -2,24 +2,18 @@
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration do
   subject(:command) {
-    described_class.new(
-      system_call: system_call,
-      out: out
-    )
+    described_class.new(system_call: system_call, out: out)
   }
 
-  let(:system_call) {
-    instance_spy(
-      Hanami::CLI::SystemCall,
-      call: Hanami::CLI::SystemCall::Result.new(exit_code: 0, out: "", err: "")
-    )
-  }
+  let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  let(:output) {
-    out.rewind
-    out.read
-  }
+  def output; out.string; end
+
+  before do
+    # Prevent the command from exiting the spec run in the case of unexpected system call failures
+    allow(command).to receive(:exit)
+  end
 
   before do
     @env = ENV.to_h
@@ -32,9 +26,33 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
   before do
     with_directory(@dir = make_tmp_directory) do
+      write "db/.keep", ""
+
       write "config/app.rb", <<~RUBY
         module TestApp
           class App < Hanami::App
+          end
+        end
+      RUBY
+
+      write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/main/config/db/migrate/20240602201330_create_comments.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :comments do
+              primary_key :id
+              column :body, :text, null: false
+            end
           end
         end
       RUBY
@@ -43,149 +61,116 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
       before_prepare if respond_to?(:before_prepare)
       require "hanami/prepare"
     end
+
+    Dir.chdir(@dir)
   end
 
-  context "single db in app" do
-    def before_prepare
-      write "config/db/structure.sql", ""
-      write "app/relations/.keep", ""
-    end
+  def db_structure_dump
+    command.run_command(Hanami::CLI::Commands::App::DB::Create)
+    command.run_command(Hanami::CLI::Commands::App::DB::Migrate)
 
-    before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-    end
+    # `db migrate` establishes a connection to the database, which will prevent it from being
+    # dropped. To allow the drop, disconnect from the database by stopping the :db provider
+    # (which requires starting it first, a prerequesite for it to be stopped).
+    Hanami.app.start :db and Hanami.app.stop :db
+    Main::Slice.start :db and Main::Slice.stop :db
 
-    it "dumps the structure for the app db" do
-      command.call
+    command.run_command(Hanami::CLI::Commands::App::DB::Drop)
+    command.run_command(Hanami::CLI::Commands::App::DB::Create)
 
-      expect(system_call).to have_received(:call)
-        .with(
-          "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output /dev/null --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-
-      expect(output).to include "bookshelf_development structure loaded from config/db/structure.sql"
-    end
+    out.truncate(0)
   end
 
-  context "multiple dbs across app and slices" do
-    def before_prepare
-      write "config/db/structure.sql", ""
-      write "app/relations/.keep", ""
-
-      write "slices/admin/config/db/structure.sql", ""
-      write "slices/admin/relations/.keep", ""
-
-      write "slices/main/config/db/structure.sql", ""
-      write "slices/main/relations/.keep", ""
-    end
-
+  describe "sqlite" do
     before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
-      ENV["ADMIN__DATABASE_URL"] = "postgres://localhost:5432/bookshelf_admin_development"
-      ENV["MAIN__DATABASE_URL"] = "postgres://anotherhost:2345/bookshelf_main_development"
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+      ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
+      db_structure_dump
     end
 
-    it "dumps the structure for each db" do
-      command.call
-
-      expect(system_call).to have_received(:call)
-        .with(
-          "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output /dev/null --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
-
-      expect(system_call).to have_received(:call)
-        .with(
-          "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output /dev/null --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-        .once
-
-      expect(system_call).to have_received(:call)
-        .with(
-          "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output /dev/null --file #{@dir.realpath.join("slices", "main", "config", "db", "structure.sql")} bookshelf_main_development",
-          env: {
-            "PGHOST" => "anotherhost",
-            "PGPORT" => "2345"
-          }
-        )
-        .once
-
-      expect(output).to include "bookshelf_development structure loaded from config/db/structure.sql"
-      expect(output).to include "bookshelf_admin_development structure loaded from slices/admin/config/db/structure.sql"
-      expect(output).to include "bookshelf_main_development structure loaded from slices/main/config/db/structure.sql"
+    def table_exists?(slice, table_name)
+      slice["db.gateway"].connection
+        .fetch("PRAGMA table_info(#{table_name})")
+        .to_a.any?
     end
 
-    it "dumps the structure for the app db when given --app" do
-      command.call(app: true)
+    it "loads the structure for each db" do
+      expect { command.call }
+        .to change { table_exists?(Hanami.app, "posts") }
+        .and change { table_exists?(Main::Slice, "comments") }
+        .to true
 
-      expect(system_call).to have_received(:call).exactly(1).time
-
-      expect(system_call).to have_received(:call)
-        .with(
-          "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output /dev/null --file #{@dir.realpath.join("config", "db", "structure.sql")} bookshelf_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-
-      expect(output).to include "bookshelf_development structure loaded from config/db/structure.sql"
-    end
-
-    it "dumps the structure for a slice db when given --slice" do
-      command.call(slice: "admin")
-
-      expect(system_call).to have_received(:call).exactly(1).time
-
-      expect(system_call).to have_received(:call)
-        .with(
-          "psql --set ON_ERROR_STOP=1 --quiet --no-psqlrc --output /dev/null --file #{@dir.realpath.join("slices", "admin", "config", "db", "structure.sql")} bookshelf_admin_development",
-          env: {
-            "PGHOST" => "localhost",
-            "PGPORT" => "5432"
-          }
-        )
-
-      expect(output).to include "bookshelf_admin_development structure loaded from slices/admin/config/db/structure.sql"
+      expect(output).to include_in_order(
+        "db/app.sqlite3 structure loaded from config/db/structure.sql",
+        "db/main.sqlite3 structure loaded from slices/main/config/db/structure.sql"
+      )
     end
   end
 
-  context "load command fails" do
-    def before_prepare
-      write "config/db/.keep", ""
-      write "config/db/structure.sql", ""
-      write "app/relations/.keep", ""
+  describe "postgres", :postgres do
+    before do
+      ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+      ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
+      db_structure_dump
     end
 
-    before do
-      ENV["DATABASE_URL"] = "postgres://localhost:5432/bookshelf_development"
+    def table_exists?(slice, table_name)
+      slice["db.gateway"].connection
+        .fetch("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '#{table_name}'")
+        .to_a.first.fetch(:count) == 1
     end
 
-    before do
-      allow(system_call).to receive(:call).and_return Hanami::CLI::SystemCall::Result.new(
-        exit_code: 2,
-        out: "",
-        err: "some-psql-error"
+    it "loads the structure for each db" do
+      expect { command.call }
+        .to change { table_exists?(Hanami.app, "posts") }
+        .and change { table_exists?(Main::Slice, "comments") }
+        .to true
+
+      expect(output).to include_in_order(
+        "#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql",
+        "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
       )
     end
 
-    it "prints the error" do
+    it "loads the structure for the app db when given --app" do
+      expect { command.call(app: true) }
+        .to change { table_exists?(Hanami.app, "posts") }
+        .to true
+
+      expect(table_exists?(Main::Slice, "comments")).to be false
+
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
+    end
+
+    it "loads the structure for a slice db when given --slice" do
+      expect { command.call(slice: "main") }
+        .to change { table_exists?(Main::Slice, "comments") }
+        .to true
+
+      expect(table_exists?(Hanami.app, "posts")).to be false
+
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
+      expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
+    end
+
+    it "prints errors for any dumps that fail and exits with non-zero status" do
+      # Fail to load the app db
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_including("#{POSTGRES_BASE_DB_NAME}_app"), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-load-err")
+
       command.call
 
-      expect(output).to include "some-psql-error"
-      expect(output).to include %(!!! => "bookshelf_development structure loaded from config/db/structure.sql" FAILED)
+      expect(table_exists?(Hanami.app, "posts")).to be false
+      expect(table_exists?(Main::Slice, "comments")).to be true
+
+      expect(output).to include %("#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql" FAILED)
+      expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
+
+      expect(command).to have_received(:exit).with 2
     end
   end
 end
