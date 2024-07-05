@@ -68,13 +68,13 @@ module Hanami
           # @api private
           option :skip_assets, type: :boolean, required: false,
                                default: SKIP_ASSETS_DEFAULT,
-                               desc: "Skip assets"
+                               desc: "Skip including hanami-assets"
 
           # @since 2.2.0
           # @api private
           option :skip_db, type: :boolean, required: false,
                            default: SKIP_DB_DEFAULT,
-                           desc: "Skip database layer"
+                           desc: "Skip including hanami-db"
 
           # @since 2.2.0
           # @api private
@@ -87,8 +87,8 @@ module Hanami
             "bookshelf                                    # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
             "bookshelf --head                             # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
             "bookshelf --skip-install                     # Generate a new Hanami app, but it skips Hanami installation",
-            "bookshelf --skip-assets                      # Generate a new Hanami app without assets library",
-            "bookshelf --skip-db                          # Generate a new Hanami app without database library",
+            "bookshelf --skip-assets                      # Generate a new Hanami app without hanmai-assets",
+            "bookshelf --skip-db                          # Generate a new Hanami app without hanami-db",
             "bookshelf --database={sqlite|postgres|mysql} # Generate a new Hanami app with a specified database (default: sqlite)",
           ]
           # rubocop:enable Layout/LineLength

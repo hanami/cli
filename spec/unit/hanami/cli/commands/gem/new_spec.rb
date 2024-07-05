@@ -453,6 +453,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         module #{inflector.camelize(app)}
           class Operation < Dry::Operation
+            # Provide `transaction do ... end` method for database transactions
+            include Dry::Operation::Extensions::ROM
           end
         end
       EXPECTED
@@ -989,7 +991,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.exist?("app/db/struct.rb")).to be(false)
         expect(fs.exist?("app/db/relation.rb")).to be(false)
         expect(fs.exist?("config/db/")).to be(false)
-
+        expect(fs.read("app/operation.rb")).to_not match("ROM")
       end
     end
   end
