@@ -94,7 +94,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     fs.chdir(app) do
       # .gitignore
       gitignore = <<~EXPECTED
-        .env
+        .env*.local
         log/*
         public/
         node_modules/
@@ -555,7 +555,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       fs.chdir(app) do
         # .gitignore
         gitignore = <<~EXPECTED
-          .env
+          .env*.local
           log/*
           public/
           node_modules/
