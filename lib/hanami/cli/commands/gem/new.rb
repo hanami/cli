@@ -25,24 +25,24 @@ module Hanami
           SKIP_ASSETS_DEFAULT = false
           private_constant :SKIP_ASSETS_DEFAULT
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           SKIP_DB_DEFAULT = false
           private_constant :SKIP_DB_DEFAULT
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           DATABASE_SQLITE = "sqlite"
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           DATABASE_POSTGRES = "postgres"
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           DATABASE_MYSQL = "mysql"
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           SUPPORTED_DATABASES = [DATABASE_SQLITE, DATABASE_POSTGRES, DATABASE_MYSQL].freeze
 
@@ -70,13 +70,13 @@ module Hanami
                                default: SKIP_ASSETS_DEFAULT,
                                desc: "Skip assets"
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           option :skip_db, type: :boolean, required: false,
                            default: SKIP_DB_DEFAULT,
                            desc: "Skip database layer"
 
-          # @since x.x.x
+          # @since 2.2.0
           # @api private
           option :database, type: :string, required: false,
                             default: DATABASE_SQLITE,

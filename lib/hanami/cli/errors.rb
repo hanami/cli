@@ -92,7 +92,7 @@ module Hanami
       end
     end
 
-    # @since x.x.x
+    # @since 2.2.0
     # @api public
     class DatabaseNotSupportedError < Error
       def initialize(invalid_database, supported_databases)
@@ -100,7 +100,7 @@ module Hanami
       end
     end
 
-    # @since x.x.x
+    # @since 2.2.0
     # @api public
     class ConflictingOptionsError < Error
       def initialize(option1, option2)

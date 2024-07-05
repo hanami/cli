@@ -80,25 +80,25 @@ module Hanami
           !options.fetch(:skip_assets, false)
         end
 
-        # @since x.x.x
+        # @since 2.2.0
         # @api private
         def generate_db?
           !options.fetch(:skip_db, false)
         end
 
-        # @since x.x.x
+        # @since 2.2.0
         # @api private
         def generate_sqlite?
           database_option == Commands::Gem::New::DATABASE_SQLITE
         end
 
-        # @since x.x.x
+        # @since 2.2.0
         # @api private
         def generate_postgres?
           database_option == Commands::Gem::New::DATABASE_POSTGRES
         end
 
-        # @since x.x.x
+        # @since 2.2.0
         # @api private
         def generate_mysql?
           database_option == Commands::Gem::New::DATABASE_MYSQL
