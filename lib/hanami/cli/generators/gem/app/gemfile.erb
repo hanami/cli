@@ -7,6 +7,9 @@ source "https://rubygems.org"
 <%= hanami_gem("assets") %>
 <%- end -%>
 <%= hanami_gem("controller") %>
+<%- if generate_db? -%>
+<%= hanami_gem("db") %>
+<%- end -%>
 <%= hanami_gem("router") %>
 <%= hanami_gem("validations") %>
 <%= hanami_gem("view") %>
@@ -15,6 +18,13 @@ gem "dry-types", "~> 1.0", ">= 1.6.1"
 gem "dry-operation", github: "dry-rb/dry-operation"
 gem "puma"
 gem "rake"
+<%- if generate_sqlite? -%>
+gem "sqlite3"
+<%- elsif generate_postgres? -%>
+gem "pg"
+<%- elsif generate_mysql? -%>
+gem "mysql2"
+<%- end -%>
 
 group :development do
   <%= hanami_gem("webconsole") %>

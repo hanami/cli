@@ -5,5 +5,9 @@ require "dry/operation"
 
 module <%= camelized_app_name %>
   class Operation < Dry::Operation
+    <%- if generate_db? -%>
+    # Provide `transaction do ... end` method for database transactions
+    include Dry::Operation::Extensions::ROM
+    <%- end -%>
   end
 end
