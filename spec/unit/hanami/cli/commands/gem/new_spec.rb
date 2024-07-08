@@ -822,7 +822,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.read("app/actions/.keep")).to eq("")
         expect(output).to include("Created app/actions/.keep")
 
-        # app/repo.rb
+        # app/db/repo.rb
         repo = <<~EXPECTED
           # frozen_string_literal: true
 
