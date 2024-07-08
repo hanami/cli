@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+require "<%= underscored_app_name %>/db/struct"
+
+module <%= camelized_slice_name %>
+  module DB
+    class Struct < <%= camelized_app_name %>::DB::Struct
+    end
+  end
+end

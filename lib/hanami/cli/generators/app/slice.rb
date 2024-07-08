@@ -45,6 +45,9 @@ module Hanami
 
               fs.write(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
               fs.write(fs.join(directory, "repos", ".keep"), t("keep.erb", context))
+
+              fs.write(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
+              fs.write(fs.join(directory, "structs", ".keep"), t("keep.erb", context))
             end
 
             fs.write(fs.join(directory, "actions/.keep"), t("keep.erb", context))
