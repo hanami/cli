@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+require "<%= underscored_app_name %>/db/repo"
+
+module <%= camelized_slice_name %>
+  module DB
+    class Repo < <%= camelized_app_name %>::DB::Repo
+    end
+  end
+end

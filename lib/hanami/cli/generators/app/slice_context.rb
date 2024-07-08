@@ -11,9 +11,10 @@ module Hanami
         class SliceContext < Generators::Context
           # @since 2.0.0
           # @api private
-          def initialize(inflector, app, slice, url)
+          def initialize(inflector, app, slice, url, **options)
             @slice = slice
             @url = url
+            @options = options
             super(inflector, app)
           end
 
@@ -45,6 +46,11 @@ module Hanami
           # @api private
           def javascript_erb_tag
             %(<%= javascript_tag "app" %>)
+          end
+
+          def generate_db?
+            # FIXME: separate this since DB can be shared from app/ and should generate no files?
+            !options.fetch(:skip_db, false)
           end
 
           private

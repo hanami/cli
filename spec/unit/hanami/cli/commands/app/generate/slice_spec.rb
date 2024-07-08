@@ -77,9 +77,26 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
       expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
       expect(output).to include("Created slices/#{slice}/action.rb")
-
       expect(fs.read("slices/#{slice}/actions/.keep")).to eq("")
       expect(output).to include("Created slices/#{slice}/actions/.keep")
+
+      # Repo
+      repo = <<~EXPECTED
+        # frozen_string_literal: true
+
+        require "bookshelf/db/repo"
+
+        module Admin
+          module DB
+            class Repo < #{app}::DB::Repo
+            end
+          end
+        end
+      EXPECTED
+      expect(fs.read("slices/admin/db/repo.rb")).to eq(repo)
+      expect(output).to include("Created slices/admin/db/repo.rb")
+      expect(fs.read("slices/admin/repos/.keep")).to eq("")
+      expect(output).to include("Created slices/admin/repos/.keep")
 
       view = <<~RUBY
         # auto_register: false

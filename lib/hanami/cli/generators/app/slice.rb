@@ -39,8 +39,11 @@ module Hanami
               fs.write(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
             end
 
+            if context.generate_db?
             # fs.write(fs.join(directory, "/entities.rb"), t("entities.erb", context))
-            # fs.write(fs.join(directory, "/repository.rb"), t("repository.erb", context))
+              fs.write(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
+              fs.write(fs.join(directory, "repos", ".keep"), t("keep.erb", context))
+            end
 
             fs.write(fs.join(directory, "actions/.keep"), t("keep.erb", context))
             fs.write(fs.join(directory, "views/.keep"), t("keep.erb", context))
