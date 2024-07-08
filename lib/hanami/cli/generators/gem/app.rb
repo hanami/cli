@@ -69,11 +69,11 @@ module Hanami
             end
 
             if context.generate_db?
-              fs.write("app/db/repo.rb", t("repo.erb", context))
-              fs.write("app/repos/.keep", t("keep.erb", context))
-
               fs.write("app/db/relation.rb", t("relation.erb", context))
               fs.write("app/relations/.keep", t("keep.erb", context))
+
+              fs.write("app/db/repo.rb", t("repo.erb", context))
+              fs.write("app/repos/.keep", t("keep.erb", context))
 
               fs.write("app/db/struct.rb", t("struct.erb", context))
               fs.write("app/structs/.keep", t("keep.erb", context))

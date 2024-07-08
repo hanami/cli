@@ -822,24 +822,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.read("app/actions/.keep")).to eq("")
         expect(output).to include("Created app/actions/.keep")
 
-        # app/db/repo.rb
-        repo = <<~EXPECTED
-          # frozen_string_literal: true
-
-          require "hanami/db/repo"
-
-          module #{inflector.camelize(app)}
-            module DB
-              class Repo < Hanami::DB::Repo
-              end
-            end
-          end
-        EXPECTED
-        expect(fs.read("app/db/repo.rb")).to eq(repo)
-        expect(output).to include("Created app/db/repo.rb")
-        expect(fs.read("app/repos/.keep")).to eq("")
-        expect(output).to include("Created app/repos/.keep")
-
         # app/view.rb
         view = <<~RUBY
           # auto_register: false
@@ -929,6 +911,24 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(output).to include("Created app/db/relation.rb")
         expect(fs.read("app/relations/.keep")).to eq("")
         expect(output).to include("Created app/relations/.keep")
+
+        # app/db/repo.rb
+        repo = <<~EXPECTED
+          # frozen_string_literal: true
+
+          require "hanami/db/repo"
+
+          module #{inflector.camelize(app)}
+            module DB
+              class Repo < Hanami::DB::Repo
+              end
+            end
+          end
+        EXPECTED
+        expect(fs.read("app/db/repo.rb")).to eq(repo)
+        expect(output).to include("Created app/db/repo.rb")
+        expect(fs.read("app/repos/.keep")).to eq("")
+        expect(output).to include("Created app/repos/.keep")
 
         # app/db/struct.rb
         struct = <<~EXPECTED
