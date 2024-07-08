@@ -945,9 +945,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("app/db/struct.rb")).to eq(struct)
         expect(output).to include("Created app/db/struct.rb")
-
         expect(fs.read("app/structs/.keep")).to eq("")
+        expect(output).to include("Created app/structs/.keep")
+
+        expect(fs.read("db/.keep")).to eq("")
+        expect(output).to include("Created db/.keep")
+
         expect(fs.read("config/db/migrate/.keep")).to eq("")
+        expect(output).to include("Created config/db/migrate/.keep")
 
         # lib/bookshelf/types.rb
         types = <<~EXPECTED
