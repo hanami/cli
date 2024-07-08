@@ -40,7 +40,9 @@ module Hanami
             end
 
             if context.generate_db?
-            # fs.write(fs.join(directory, "/entities.rb"), t("entities.erb", context))
+              fs.write(fs.join(directory, "db", "relation.rb"), t("relation.erb", context))
+              fs.write(fs.join(directory, "relations", ".keep"), t("keep.erb", context))
+
               fs.write(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
               fs.write(fs.join(directory, "repos", ".keep"), t("keep.erb", context))
             end

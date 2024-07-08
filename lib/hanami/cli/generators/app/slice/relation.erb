@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+require "<%= underscored_app_name %>/db/relation"
+
+module <%= camelized_slice_name %>
+  module DB
+    class Relation < <%= camelized_app_name %>::DB::Relation
+    end
+  end
+end
