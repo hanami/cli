@@ -827,7 +827,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           require "hanami/db/repo"
 
           module #{inflector.camelize(app)}
-            class Repo < Hanami::DB::Repo
+            module DB
+              class Repo < Hanami::DB::Repo
+              end
             end
           end
         EXPECTED
