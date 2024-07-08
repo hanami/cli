@@ -819,6 +819,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("app/action.rb")).to eq(action)
         expect(output).to include("Created app/action.rb")
+        expect(fs.read("app/actions/.keep")).to eq("")
+        expect(output).to include("Created app/actions/.keep")
 
         # app/repo.rb
         repo = <<~EXPECTED
@@ -835,6 +837,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("app/db/repo.rb")).to eq(repo)
         expect(output).to include("Created app/db/repo.rb")
+        expect(fs.read("app/repos/.keep")).to eq("")
+        expect(output).to include("Created app/repos/.keep")
 
         # app/view.rb
         view = <<~RUBY
@@ -923,6 +927,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("app/db/relation.rb")).to eq(relation)
         expect(output).to include("Created app/db/relation.rb")
+        expect(fs.read("app/relations/.keep")).to eq("")
+        expect(output).to include("Created app/relations/.keep")
 
         # app/db/struct.rb
         struct = <<~EXPECTED
@@ -941,7 +947,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(output).to include("Created app/db/struct.rb")
 
         expect(fs.read("app/structs/.keep")).to eq("")
-        expect(fs.read("app/repos/.keep")).to eq("")
         expect(fs.read("config/db/migrate/.keep")).to eq("")
 
         # lib/bookshelf/types.rb
