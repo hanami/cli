@@ -69,12 +69,20 @@ module Hanami
             end
 
             if context.generate_db?
-              fs.write("app/db/repo.rb", t("repo.erb", context))
               fs.write("app/db/relation.rb", t("relation.erb", context))
+              fs.write("app/relations/.keep", t("keep.erb", context))
+
+              fs.write("app/db/repo.rb", t("repo.erb", context))
+              fs.write("app/repos/.keep", t("keep.erb", context))
+
               fs.write("app/db/struct.rb", t("struct.erb", context))
-              fs.touch("app/structs/.keep")
-              fs.touch("app/repos/.keep")
-              fs.touch("config/db/migrate/.keep")
+              fs.write("app/structs/.keep", t("keep.erb", context))
+
+              fs.write("config/db/migrate/.keep" , t("keep.erb", context))
+
+              if context.generate_sqlite?
+                fs.write("db/.keep" , t("keep.erb", context))
+              end
             end
 
             fs.write("app/operation.rb", t("operation.erb", context))

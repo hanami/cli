@@ -819,22 +819,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("app/action.rb")).to eq(action)
         expect(output).to include("Created app/action.rb")
-
-        # app/repo.rb
-        repo = <<~EXPECTED
-          # frozen_string_literal: true
-
-          require "hanami/db/repo"
-
-          module #{inflector.camelize(app)}
-            module DB
-              class Repo < Hanami::DB::Repo
-              end
-            end
-          end
-        EXPECTED
-        expect(fs.read("app/db/repo.rb")).to eq(repo)
-        expect(output).to include("Created app/db/repo.rb")
+        expect(fs.read("app/actions/.keep")).to eq("")
+        expect(output).to include("Created app/actions/.keep")
 
         # app/view.rb
         view = <<~RUBY
@@ -923,6 +909,26 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("app/db/relation.rb")).to eq(relation)
         expect(output).to include("Created app/db/relation.rb")
+        expect(fs.read("app/relations/.keep")).to eq("")
+        expect(output).to include("Created app/relations/.keep")
+
+        # app/db/repo.rb
+        repo = <<~EXPECTED
+          # frozen_string_literal: true
+
+          require "hanami/db/repo"
+
+          module #{inflector.camelize(app)}
+            module DB
+              class Repo < Hanami::DB::Repo
+              end
+            end
+          end
+        EXPECTED
+        expect(fs.read("app/db/repo.rb")).to eq(repo)
+        expect(output).to include("Created app/db/repo.rb")
+        expect(fs.read("app/repos/.keep")).to eq("")
+        expect(output).to include("Created app/repos/.keep")
 
         # app/db/struct.rb
         struct = <<~EXPECTED
@@ -939,10 +945,14 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         EXPECTED
         expect(fs.read("app/db/struct.rb")).to eq(struct)
         expect(output).to include("Created app/db/struct.rb")
-
         expect(fs.read("app/structs/.keep")).to eq("")
-        expect(fs.read("app/repos/.keep")).to eq("")
+        expect(output).to include("Created app/structs/.keep")
+
+        expect(fs.read("db/.keep")).to eq("")
+        expect(output).to include("Created db/.keep")
+
         expect(fs.read("config/db/migrate/.keep")).to eq("")
+        expect(output).to include("Created config/db/migrate/.keep")
 
         # lib/bookshelf/types.rb
         types = <<~EXPECTED
