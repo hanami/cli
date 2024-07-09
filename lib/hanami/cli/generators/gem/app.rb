@@ -79,7 +79,10 @@ module Hanami
               fs.write("app/structs/.keep", t("keep.erb", context))
 
               fs.write("config/db/migrate/.keep" , t("keep.erb", context))
-              fs.write("db/.keep" , t("keep.erb", context))
+
+              if context.generate_sqlite?
+                fs.write("db/.keep" , t("keep.erb", context))
+              end
             end
 
             fs.write("app/operation.rb", t("operation.erb", context))
