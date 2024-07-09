@@ -20,7 +20,7 @@ module Hanami
             option \
               :skip_tests,
               required: false,
-              type: :boolean,
+              type: :flag,
               default: DEFAULT_SKIP_TESTS,
               desc: "Skip test generation"
 

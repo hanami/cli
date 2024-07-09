@@ -31,7 +31,7 @@ module Hanami
 
           # @since 2.1.0
           # @api private
-          option :head, type: :boolean, desc: "Install head deps", default: DEFAULT_HEAD
+          option :head, type: :flag, desc: "Install head deps", default: DEFAULT_HEAD
 
           # @since 2.0.0
           # @api private

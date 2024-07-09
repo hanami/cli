@@ -54,25 +54,25 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          option :skip_install, type: :boolean, required: false,
+          option :skip_install, type: :flag, required: false,
                                 default: SKIP_INSTALL_DEFAULT,
                                 desc: "Skip app installation (Bundler, third-party Hanami plugins)"
 
           # @since 2.1.0
           # @api private
-          option :head, type: :boolean, required: false,
+          option :head, type: :flag, required: false,
                         default: HEAD_DEFAULT,
                         desc: "Use Hanami HEAD version (from GitHub `main` branches)"
 
           # @since 2.1.0
           # @api private
-          option :skip_assets, type: :boolean, required: false,
+          option :skip_assets, type: :flag, required: false,
                                default: SKIP_ASSETS_DEFAULT,
                                desc: "Skip including hanami-assets"
 
           # @since 2.2.0
           # @api private
-          option :skip_db, type: :boolean, required: false,
+          option :skip_db, type: :flag, required: false,
                            default: SKIP_DB_DEFAULT,
                            desc: "Skip including hanami-db"
 

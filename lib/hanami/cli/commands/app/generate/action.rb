@@ -32,13 +32,13 @@ module Hanami
             option \
               :skip_view,
               required: false,
-              type: :boolean,
+              type: :flag,
               default: DEFAULT_SKIP_VIEW,
               desc: "Skip view and template generation"
             option \
               :skip_tests,
               required: false,
-              type: :boolean,
+              type: :flag,
               default: DEFAULT_SKIP_TESTS,
               desc: "Skip test generation"
             option :slice, required: false, desc: "Slice name"
