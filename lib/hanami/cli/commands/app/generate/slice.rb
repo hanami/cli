@@ -16,6 +16,18 @@ module Hanami
             argument :name, required: true, desc: "The slice name"
             option :url, required: false, type: :string, desc: "The slice URL prefix"
 
+            # @since 2.2.0
+            # @api private
+            SKIP_DB_DEFAULT = false
+            private_constant :SKIP_DB_DEFAULT
+
+            # @since 2.2.0
+            # @api private
+            option :skip_db, type: :boolean, required: false,
+                            default: SKIP_DB_DEFAULT,
+                            desc: "Skip database"
+
+
             example [
               "admin          # Admin slice (/admin URL prefix)",
               "users --url=/u # Users slice (/u URL prefix)",
@@ -34,14 +46,14 @@ module Hanami
 
             # @since 2.0.0
             # @api private
-            def call(name:, url: nil, **)
+            def call(name:, url: nil, skip_db: SKIP_DB_DEFAULT, **)
               require "hanami/setup"
 
               app = inflector.underscore(Hanami.app.namespace)
               name = inflector.underscore(Shellwords.shellescape(name))
               url = sanitize_url_prefix(name, url)
 
-              generator.call(app, name, url)
+              generator.call(app, name, url, skip_db: skip_db)
             end
 
             private

@@ -85,7 +85,8 @@ module Hanami
               skip_view: DEFAULT_SKIP_VIEW,
               skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument
               slice: nil,
-              context: nil, **
+              context: nil,
+              **
             )
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
               name = naming.action_name(name)

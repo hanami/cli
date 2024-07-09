@@ -321,6 +321,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     end
   end
 
+  context "with --skip-db" do
+    it "generates a slice without hanami-db files" do
+      within_application_directory do
+        subject.call(name: slice, skip_db: true)
+
+        expect(fs.exist?("slices/admin/db")).to be(false)
+        expect(fs.exist?("slices/admin/repos")).to be(false)
+        expect(fs.exist?("slices/admin/relations")).to be(false)
+        expect(fs.exist?("slices/admin/structs")).to be(false)
+      end
+    end
+  end
+
   private
 
   def within_application_directory

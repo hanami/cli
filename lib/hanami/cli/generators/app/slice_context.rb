@@ -14,8 +14,7 @@ module Hanami
           def initialize(inflector, app, slice, url, **options)
             @slice = slice
             @url = url
-            @options = options
-            super(inflector, app)
+            super(inflector, app, **options)
           end
 
           # @since 2.0.0

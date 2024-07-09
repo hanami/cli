@@ -19,7 +19,9 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, slice, url, context: SliceContext.new(inflector, app, slice, url)) # rubocop:disable Metrics/AbcSize
+          def call(app, slice, url, context: nil, **opts)
+            context ||= SliceContext.new(inflector, app, slice, url, **opts)
+
             fs.inject_line_at_class_bottom(
               fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
             )
