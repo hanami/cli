@@ -3,7 +3,7 @@
 module <%= camelized_slice_name %>
   class Slice < Hanami::Slice
     <%- if generate_db? -%>
-    config.db.import_from_parent = <%= db_import_from_parent? %>
+    config.db.import_from_parent = <%= import_db_from_parent? %>
     <%- end -%>
   end
 end

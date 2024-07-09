@@ -51,14 +51,19 @@ module Hanami
           # @since 2.2.0
           # @api private
           def generate_db?
-            # FIXME: separate this since DB can be shared from app/ and should generate no files?
             !options.fetch(:skip_db, false)
           end
 
           # @since 2.2.0
           # @api private
-          def db_import_from_parent?
-            options.fetch(:app_db, false)
+          def import_db_from_parent?
+            generate_db? && options.fetch(:app_db, false)
+          end
+
+          # @since 2.2.0
+          # @api private
+          def separate_db_from_parent?
+            generate_db? && options.fetch(:slice_db, true)
           end
 
           private

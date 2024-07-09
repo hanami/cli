@@ -50,6 +50,10 @@ module Hanami
 
               fs.write(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
               fs.write(fs.join(directory, "structs", ".keep"), t("keep.erb", context))
+
+              if context.separate_db_from_parent?
+                fs.write(fs.join(directory, "config", "db", ".keep"), t("keep.erb", context))
+              end
             end
 
             fs.write(fs.join(directory, "actions/.keep"), t("keep.erb", context))

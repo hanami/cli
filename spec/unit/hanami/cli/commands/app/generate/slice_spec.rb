@@ -64,6 +64,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
         end
       CODE
       expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
+      expect(fs.exist?("slices/admin/config/db/.keep")).to be(true)
 
       # Action
       action = <<~CODE
@@ -360,6 +361,32 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
           end
         CODE
         expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
+
+        expect(fs.exist?("slices/admin/db")).to be(true)
+        expect(fs.exist?("slices/admin/repos")).to be(true)
+        expect(fs.exist?("slices/admin/relations")).to be(true)
+        expect(fs.exist?("slices/admin/structs")).to be(true)
+      end
+    end
+  end
+
+  context "with --slice-db" do
+    it "generates a slice with hanami-db files and slice config to inherit DB config" do
+      within_application_directory do
+        subject.call(name: slice, slice_db: true)
+
+        slice_class = <<~CODE
+          # frozen_string_literal: true
+
+          module Admin
+            class Slice < Hanami::Slice
+              config.db.import_from_parent = false
+            end
+          end
+        CODE
+        expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
+
+        expect(fs.exist?("slices/admin/config/db/.keep")).to be(true)
 
         expect(fs.exist?("slices/admin/db")).to be(true)
         expect(fs.exist?("slices/admin/repos")).to be(true)
