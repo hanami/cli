@@ -2,6 +2,7 @@
 
 require_relative "slice_context"
 require "dry/files/path"
+require_relative "../constants"
 
 module Hanami
   module CLI
@@ -12,19 +13,6 @@ module Hanami
         # @since 2.2.0
         # @api private
         class OperationContext < SliceContext
-          # TODO: move these constants somewhere that will let us reuse them
-          KEY_SEPARATOR = %r{\.|/}
-          private_constant :KEY_SEPARATOR
-
-          NAMESPACE_SEPARATOR = "::"
-          private_constant :NAMESPACE_SEPARATOR
-
-          INDENTATION = "  "
-          private_constant :INDENTATION
-
-          OFFSET = INDENTATION
-          private_constant :OFFSET
-
           # @since 2.2.0
           # @api private
           attr_reader :key
