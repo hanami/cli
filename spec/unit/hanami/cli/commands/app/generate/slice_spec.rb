@@ -53,16 +53,17 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       expect(fs.directory?("slices/#{slice}")).to be(true)
       expect(output).to include("Created slices/#{slice}/")
 
-      # # Slice
-      # slice_class = <<~CODE
-      #   # frozen_string_literal: true
-      #
-      #   module Admin
-      #     class Slice < Hanami::Slice
-      #     end
-      #   end
-      # CODE
-      # expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
+      # Slice
+      slice_class = <<~CODE
+        # frozen_string_literal: true
+
+        module Admin
+          class Slice < Hanami::Slice
+            config.db.import_from_parent = false
+          end
+        end
+      CODE
+      expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
 
       # Action
       action = <<~CODE
@@ -326,10 +327,44 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       within_application_directory do
         subject.call(name: slice, skip_db: true)
 
+        slice_class = <<~CODE
+          # frozen_string_literal: true
+
+          module Admin
+            class Slice < Hanami::Slice
+            end
+          end
+        CODE
+        expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
+
         expect(fs.exist?("slices/admin/db")).to be(false)
         expect(fs.exist?("slices/admin/repos")).to be(false)
         expect(fs.exist?("slices/admin/relations")).to be(false)
         expect(fs.exist?("slices/admin/structs")).to be(false)
+      end
+    end
+  end
+
+  context "with --app-db" do
+    it "generates a slice with hanami-db files and slice config to inherit DB config" do
+      within_application_directory do
+        subject.call(name: slice, app_db: true)
+
+        slice_class = <<~CODE
+          # frozen_string_literal: true
+
+          module Admin
+            class Slice < Hanami::Slice
+              config.db.import_from_parent = true
+            end
+          end
+        CODE
+        expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
+
+        expect(fs.exist?("slices/admin/db")).to be(true)
+        expect(fs.exist?("slices/admin/repos")).to be(true)
+        expect(fs.exist?("slices/admin/relations")).to be(true)
+        expect(fs.exist?("slices/admin/structs")).to be(true)
       end
     end
   end

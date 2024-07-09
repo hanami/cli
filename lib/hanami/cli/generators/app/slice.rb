@@ -28,7 +28,7 @@ module Hanami
 
             fs.mkdir(directory = "slices/#{slice}")
 
-            # fs.write("#{directory}/config/slice.rb", t("slice.erb", context))
+            fs.write("#{directory}/config/slice.rb", t("slice.erb", context))
             fs.write(fs.join(directory, "action.rb"), t("action.erb", context))
             fs.write(fs.join(directory, "view.rb"), t("view.erb", context))
             fs.write(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))

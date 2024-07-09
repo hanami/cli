@@ -27,6 +27,17 @@ module Hanami
                             default: SKIP_DB_DEFAULT,
                             desc: "Skip database"
 
+            # @since 2.2.0
+            # @api private
+            APP_DB_DEFAULT = false
+            private_constant :APP_DB_DEFAULT
+
+            # @since 2.2.0
+            # @api private
+            option :app_db, type: :boolean, required: false,
+                            default: APP_DB_DEFAULT,
+                            desc: "Import slice's DB config from the app"
+
 
             example [
               "admin          # Admin slice (/admin URL prefix)",
@@ -46,14 +57,14 @@ module Hanami
 
             # @since 2.0.0
             # @api private
-            def call(name:, url: nil, skip_db: SKIP_DB_DEFAULT, **)
+            def call(name:, url: nil, skip_db: SKIP_DB_DEFAULT, app_db: APP_DB_DEFAULT, **)
               require "hanami/setup"
 
               app = inflector.underscore(Hanami.app.namespace)
               name = inflector.underscore(Shellwords.shellescape(name))
               url = sanitize_url_prefix(name, url)
 
-              generator.call(app, name, url, skip_db: skip_db)
+              generator.call(app, name, url, skip_db: skip_db, app_db: app_db)
             end
 
             private

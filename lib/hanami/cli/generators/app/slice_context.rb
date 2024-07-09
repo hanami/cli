@@ -47,9 +47,18 @@ module Hanami
             %(<%= javascript_tag "app" %>)
           end
 
+
+          # @since 2.2.0
+          # @api private
           def generate_db?
             # FIXME: separate this since DB can be shared from app/ and should generate no files?
             !options.fetch(:skip_db, false)
+          end
+
+          # @since 2.2.0
+          # @api private
+          def db_import_from_parent?
+            options.fetch(:app_db, false)
           end
 
           private
