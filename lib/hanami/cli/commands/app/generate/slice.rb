@@ -24,8 +24,8 @@ module Hanami
             # @since 2.2.0
             # @api private
             option :skip_db, type: :boolean, required: false,
-                            default: SKIP_DB_DEFAULT,
-                            desc: "Skip database"
+                             default: SKIP_DB_DEFAULT,
+                             desc: "Skip database"
 
             # @since 2.2.0
             # @api private
@@ -46,8 +46,8 @@ module Hanami
             # @since 2.2.0
             # @api private
             option :slice_db, type: :boolean, required: false,
-                            default: SLICE_DB_DEFAULT,
-                            desc: "Use separate DB config for the slice"
+                              default: SLICE_DB_DEFAULT,
+                              desc: "Use separate DB config for the slice"
 
             example [
               "admin          # Admin slice (/admin URL prefix)",
@@ -72,14 +72,26 @@ module Hanami
               url: nil,
               skip_db: SKIP_DB_DEFAULT,
               app_db: APP_DB_DEFAULT,
-              slice_db: SLICE_DB_DEFAULT,
-              **
+              slice_db: false
+              # We override the slice_db default value above,
+              # due to needing to make app_db, slice_db, and skip_db mutually exclusive
+              # But we still want to show the effective default value
             )
               require "hanami/setup"
 
               app = inflector.underscore(Hanami.app.namespace)
               name = inflector.underscore(Shellwords.shellescape(name))
               url = sanitize_url_prefix(name, url)
+
+              if app_db && slice_db
+                raise ConflictingOptionsError.new(:app_db, :slice_db)
+              elsif skip_db && app_db
+                raise ConflictingOptionsError.new(:skip_db, :app_db)
+              elsif skip_db && slice_db
+                raise ConflictingOptionsError.new(:skip_db, :slice_db)
+              elsif !app_db && !skip_db
+                slice_db = SLICE_DB_DEFAULT
+              end
 
               generator.call(app, name, url, skip_db: skip_db, app_db: app_db, slice_db: slice_db)
             end

@@ -100,7 +100,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       expect(fs.read("slices/admin/relations/.keep")).to eq("")
       expect(output).to include("Created slices/admin/relations/.keep")
 
-
       # Repo
       repo = <<~EXPECTED
         # frozen_string_literal: true
@@ -371,7 +370,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   end
 
   context "with --slice-db" do
-    it "generates a slice with hanami-db files and slice config to inherit DB config" do
+    it "generates a slice with hanami-db files and independent DB config" do
       within_application_directory do
         subject.call(name: slice, slice_db: true)
 
@@ -392,6 +391,32 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
         expect(fs.exist?("slices/admin/repos")).to be(true)
         expect(fs.exist?("slices/admin/relations")).to be(true)
         expect(fs.exist?("slices/admin/structs")).to be(true)
+      end
+    end
+  end
+
+  describe "incompatible options" do
+    it "disallows --app-db and --slice-db" do
+      within_application_directory do
+        expect {
+          subject.call(name: slice, slice_db: true, app_db: true)
+        }.to raise_error(Hanami::CLI::ConflictingOptionsError)
+      end
+    end
+
+    it "disallows --skip-db and --app-db" do
+      within_application_directory do
+        expect {
+          subject.call(name: slice, skip_db: true, app_db: true)
+        }.to raise_error(Hanami::CLI::ConflictingOptionsError)
+      end
+    end
+
+    it "disallows --skip-db and --slice-db" do
+      within_application_directory do
+        expect {
+          subject.call(name: slice, skip_db: true, slice_db: true)
+        }.to raise_error(Hanami::CLI::ConflictingOptionsError)
       end
     end
   end
