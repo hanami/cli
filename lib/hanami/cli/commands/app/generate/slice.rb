@@ -74,8 +74,8 @@ module Hanami
               app_db: APP_DB_DEFAULT,
               slice_db: false
               # We override the slice_db default value above,
-              # due to needing to make app_db, slice_db, and skip_db mutually exclusive
-              # But we still want to show the effective default value
+              # due to making app_db, slice_db, and skip_db mutually exclusive.
+              # We set the default value below after those checks.
             )
               require "hanami/setup"
 
