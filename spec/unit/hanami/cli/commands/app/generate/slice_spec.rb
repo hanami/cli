@@ -73,8 +73,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       relation = <<~EXPECTED
         # frozen_string_literal: true
 
-        require "bookshelf/db/relation"
-
         module Admin
           module DB
             class Relation < Bookshelf::DB::Relation
@@ -91,8 +89,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       repo = <<~EXPECTED
         # frozen_string_literal: true
 
-        require "bookshelf/db/repo"
-
         module Admin
           module DB
             class Repo < Bookshelf::DB::Repo
@@ -108,8 +104,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       # Struct
       struct = <<~EXPECTED
         # frozen_string_literal: true
-
-        require "bookshelf/db/struct"
 
         module Admin
           module DB
