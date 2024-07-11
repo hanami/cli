@@ -28,7 +28,6 @@ module Hanami
 
             fs.mkdir(directory = "slices/#{slice}")
 
-            fs.write("#{directory}/config/slice.rb", t("slice.erb", context))
             fs.write(fs.join(directory, "action.rb"), t("action.erb", context))
             fs.write(fs.join(directory, "view.rb"), t("view.erb", context))
             fs.write(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
@@ -50,18 +49,12 @@ module Hanami
 
               fs.write(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
               fs.write(fs.join(directory, "structs", ".keep"), t("keep.erb", context))
-
-              if context.separate_db_from_parent?
-                fs.write(fs.join(directory, "config", "db", ".keep"), t("keep.erb", context))
-              end
             end
 
             fs.write(fs.join(directory, "actions/.keep"), t("keep.erb", context))
             fs.write(fs.join(directory, "views/.keep"), t("keep.erb", context))
             fs.write(fs.join(directory, "templates/.keep"), t("keep.erb", context))
             fs.write(fs.join(directory, "templates/layouts/.keep"), t("keep.erb", context))
-            # fs.write(fs.join(directory, entities/.keep"), t("keep.erb", context))
-            # fs.write(fs.join(directory, repositories/.keep"), t("keep.erb", context))
           end
 
           private

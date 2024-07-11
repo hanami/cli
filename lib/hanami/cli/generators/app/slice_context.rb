@@ -48,23 +48,10 @@ module Hanami
             %(<%= javascript_tag "app" %>)
           end
 
-
           # @since 2.2.0
           # @api private
           def generate_db?
             !options.fetch(:skip_db, false)
-          end
-
-          # @since 2.2.0
-          # @api private
-          def import_db_from_parent?
-            generate_db? && options.fetch(:app_db, false)
-          end
-
-          # @since 2.2.0
-          # @api private
-          def separate_db_from_parent?
-            generate_db? && options.fetch(:slice_db, true)
           end
 
           private

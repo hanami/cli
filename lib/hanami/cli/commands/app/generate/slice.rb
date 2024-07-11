@@ -23,31 +23,11 @@ module Hanami
 
             # @since 2.2.0
             # @api private
-            option :skip_db, type: :boolean, required: false,
-                             default: SKIP_DB_DEFAULT,
-                             desc: "Skip database"
-
-            # @since 2.2.0
-            # @api private
-            APP_DB_DEFAULT = false
-            private_constant :APP_DB_DEFAULT
-
-            # @since 2.2.0
-            # @api private
-            option :app_db, type: :boolean, required: false,
-                            default: APP_DB_DEFAULT,
-                            desc: "Import slice's DB config from the app"
-
-            # @since 2.2.0
-            # @api private
-            SLICE_DB_DEFAULT = true
-            private_constant :SLICE_DB_DEFAULT
-
-            # @since 2.2.0
-            # @api private
-            option :slice_db, type: :boolean, required: false,
-                              default: SLICE_DB_DEFAULT,
-                              desc: "Use separate DB config for the slice"
+            option :skip_db,
+              type: :boolean,
+              required: false,
+              default: SKIP_DB_DEFAULT,
+              desc: "Skip database"
 
             example [
               "admin          # Admin slice (/admin URL prefix)",
@@ -70,12 +50,7 @@ module Hanami
             def call(
               name:,
               url: nil,
-              skip_db: SKIP_DB_DEFAULT,
-              app_db: APP_DB_DEFAULT,
-              slice_db: false
-              # We override the slice_db default value above,
-              # due to making app_db, slice_db, and skip_db mutually exclusive.
-              # We set the default value below after those checks.
+              skip_db: SKIP_DB_DEFAULT
             )
               require "hanami/setup"
 
@@ -83,17 +58,7 @@ module Hanami
               name = inflector.underscore(Shellwords.shellescape(name))
               url = sanitize_url_prefix(name, url)
 
-              slice_db = SLICE_DB_DEFAULT if !app_db && !skip_db
-
-              if app_db && slice_db
-                raise ConflictingOptionsError.new(:app_db, :slice_db)
-              elsif app_db && skip_db
-                raise ConflictingOptionsError.new(:app_db, :skip_db)
-              elsif skip_db && slice_db
-                raise ConflictingOptionsError.new(:skip_db, :slice_db)
-              end
-
-              generator.call(app, name, url, skip_db: skip_db, app_db: app_db, slice_db: slice_db)
+              generator.call(app, name, url, skip_db: skip_db)
             end
 
             private
