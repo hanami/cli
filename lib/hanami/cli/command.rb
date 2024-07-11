@@ -27,7 +27,7 @@ module Hanami
         inflector: Dry::Inflector.new,
         **opts
       )
-        super(out: out, err: err, fs: fs, inflector: inflector, **opts)
+        super
       end
 
       # Returns a new command.
