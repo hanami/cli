@@ -2,6 +2,7 @@
 
 require_relative "slice_context"
 require "dry/files/path"
+require_relative "../constants"
 
 module Hanami
   module CLI
@@ -12,19 +13,6 @@ module Hanami
         # @since 2.1.0
         # @api private
         class ViewContext < SliceContext
-          # TODO: move these constants somewhere that will let us reuse them
-          KEY_SEPARATOR = "."
-          private_constant :KEY_SEPARATOR
-
-          NAMESPACE_SEPARATOR = "::"
-          private_constant :NAMESPACE_SEPARATOR
-
-          INDENTATION = "  "
-          private_constant :INDENTATION
-
-          OFFSET = INDENTATION * 2
-          private_constant :OFFSET
-
           # @since 2.1.0
           # @api private
           attr_reader :key
@@ -76,7 +64,7 @@ module Hanami
           # @api private
           def module_namespace_declaration
             namespaces.each_with_index.map { |token, i|
-              "#{OFFSET}#{INDENTATION * i}module #{inflector.camelize(token)}"
+              "#{NESTED_OFFSET}#{INDENTATION * i}module #{inflector.camelize(token)}"
             }.join($/)
           end
 
@@ -84,14 +72,14 @@ module Hanami
           # @api private
           def module_namespace_end
             namespaces.each_with_index.map { |_, i|
-              "#{OFFSET}#{INDENTATION * i}end"
+              "#{NESTED_OFFSET}#{INDENTATION * i}end"
             }.reverse.join($/)
           end
 
           # @since 2.1.0
           # @api private
           def module_namespace_offset
-            "#{OFFSET}#{INDENTATION * namespaces.count}"
+            "#{NESTED_OFFSET}#{INDENTATION * namespaces.count}"
           end
         end
       end
