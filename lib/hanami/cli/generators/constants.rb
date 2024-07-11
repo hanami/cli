@@ -5,7 +5,6 @@ module Hanami
     # @since 2.2.0
     # @api private
     module Generators
-
       # @since 2.2.0
       # @api private
       INDENTATION = "  "

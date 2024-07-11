@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "slice_context"
 require "dry/files/path"
+require_relative "slice_context"
 require_relative "../constants"
 
 module Hanami
