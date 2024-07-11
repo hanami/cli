@@ -12,7 +12,7 @@ module Hanami
         module Generate
           # @since 2.0.0
           # @api private
-          class Slice < Command
+          class Slice < App::Command
             argument :name, required: true, desc: "The slice name"
             option :url, required: false, type: :string, desc: "The slice URL prefix"
 
