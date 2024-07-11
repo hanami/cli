@@ -83,14 +83,14 @@ module Hanami
               name = inflector.underscore(Shellwords.shellescape(name))
               url = sanitize_url_prefix(name, url)
 
+              slice_db = SLICE_DB_DEFAULT if !app_db && !skip_db
+
               if app_db && slice_db
                 raise ConflictingOptionsError.new(:app_db, :slice_db)
-              elsif skip_db && app_db
-                raise ConflictingOptionsError.new(:skip_db, :app_db)
+              elsif app_db && skip_db
+                raise ConflictingOptionsError.new(:app_db, :skip_db)
               elsif skip_db && slice_db
                 raise ConflictingOptionsError.new(:skip_db, :slice_db)
-              elsif !app_db && !skip_db
-                slice_db = SLICE_DB_DEFAULT
               end
 
               generator.call(app, name, url, skip_db: skip_db, app_db: app_db, slice_db: slice_db)
