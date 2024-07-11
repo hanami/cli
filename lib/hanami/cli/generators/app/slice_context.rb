@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../context"
+require_relative "../constants"
 
 module Hanami
   module CLI

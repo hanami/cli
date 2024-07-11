@@ -80,6 +80,44 @@ module Hanami
           !options.fetch(:skip_assets, false)
         end
 
+        # @since 2.2.0
+        # @api private
+        def generate_db?
+          !options.fetch(:skip_db, false)
+        end
+
+        # @since 2.2.0
+        # @api private
+        def generate_sqlite?
+          database_option == Commands::Gem::New::DATABASE_SQLITE
+        end
+
+        # @since 2.2.0
+        # @api private
+        def generate_postgres?
+          database_option == Commands::Gem::New::DATABASE_POSTGRES
+        end
+
+        # @since 2.2.0
+        # @api private
+        def generate_mysql?
+          database_option == Commands::Gem::New::DATABASE_MYSQL
+        end
+
+        # @since 2.2.0
+        # @api private
+        def database_url
+          if generate_sqlite?
+            "sqlite://db/#{app}.sqlite"
+          elsif generate_postgres?
+            "postgres://localhost/#{app}"
+          elsif generate_mysql?
+            "mysql://localhost/#{app}"
+          else
+            raise "Unknown database option: #{database_option}"
+          end
+        end
+
         # @since 2.1.0
         # @api private
         def bundled_views?
@@ -107,6 +145,10 @@ module Hanami
         end
 
         private
+
+        def database_option
+          options.fetch(:database, Commands::Gem::New::DATABASE_SQLITE)
+        end
 
         # @since 2.0.0
         # @api private
