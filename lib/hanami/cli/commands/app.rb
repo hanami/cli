@@ -46,6 +46,7 @@ module Hanami
               prefix.register "operation", Generate::Operation
               prefix.register "part", Generate::Part
               prefix.register "slice", Generate::Slice
+              prefix.register "struct", Generate::Struct
               prefix.register "view", Generate::View
             end
           end
