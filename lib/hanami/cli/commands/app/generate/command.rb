@@ -28,7 +28,7 @@ module Hanami
               generator_class: nil,
               **opts
             )
-              raise "Provide a generator class (that takes fs and inflector)" if generator_class.nil?
+              raise "Provide a generator_class (that takes fs: and inflector:)" if generator_class.nil?
 
               super(fs: fs, inflector: inflector, **opts)
               @generator = generator_class.new(fs: fs, inflector: inflector, out: out)

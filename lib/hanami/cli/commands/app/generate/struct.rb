@@ -13,7 +13,7 @@ module Hanami
         module Generate
           # @since 2.2.0
           # @api private
-          class Struct < App::Command
+          class Struct < Command
             argument :name, required: true, desc: "Struct name"
             option :slice, required: false, desc: "Slice name"
 
@@ -27,12 +27,10 @@ module Hanami
             # @since 2.2.0
             # @api private
             def initialize(
-              fs:, inflector:,
-              generator: Generators::App::Struct.new(fs: fs, inflector: inflector),
+              generator_class: nil,
               **opts
             )
-              super(fs: fs, inflector: inflector, **opts)
-              @generator = generator
+              super
             end
 
             # @since 2.2.0
