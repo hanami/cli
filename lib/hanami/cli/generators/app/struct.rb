@@ -29,7 +29,6 @@ module Hanami
               app_namespace: app_namespace,
               extra_namespace: "Structs",
               local_parent_class: "DB::Struct",
-              body: [],
               key: key,
               slice: slice,
             ).call
