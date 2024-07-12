@@ -14,7 +14,16 @@ module Hanami
         class Helper
           # @since 2.2.0
           # @api private
-          def initialize(fs, inflector, app_namespace, extra_namespace, local_parent_class, body, key, slice)
+          def initialize(
+            fs:,
+            inflector:,
+            app_namespace:,
+            key:,
+            slice:,
+            local_parent_class:,
+            extra_namespace: nil,
+            body: []
+          )
             @fs = fs
             @inflector = inflector
             @app_namespace = app_namespace

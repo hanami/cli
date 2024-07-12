@@ -35,8 +35,21 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(app_namespace, key, slice)
-            Helper.new(@fs, @inflector, app_namespace, "Structs", "DB::Struct", [], key, slice).call
+            Helper.new(
+              fs: fs,
+              inflector: inflector,
+              app_namespace: app_namespace,
+              extra_namespace: "Structs",
+              local_parent_class: "DB::Struct",
+              body: [],
+              key: key,
+              slice: slice,
+            ).call
           end
+
+          private
+
+          attr_reader :fs, :inflector, :out
         end
       end
     end

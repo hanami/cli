@@ -27,14 +27,13 @@ module Hanami
           # @api private
           def call(app_namespace, key, slice)
             helper = Helper.new(
-              fs,
-              inflector,
-              app_namespace,
-              nil,
-              "Operation",
-              ["def call", "end"],
-              key,
-              slice,
+              fs: fs,
+              inflector: inflector,
+              app_namespace: app_namespace,
+              key: key,
+              slice: slice,
+              local_parent_class: "Operation",
+              body: ["def call", "end"],
             )
             helper.call
 
