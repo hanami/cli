@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module <%= camelized_slice_name %>
-  class Slice < Hanami::Slice
+  module DB
+    class Repo < <%= camelized_app_name %>::DB::Repo
+    end
   end
 end
