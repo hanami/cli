@@ -15,10 +15,10 @@ module Hanami
             option :slice, required: false, desc: "Slice name"
 
             example [
-              %(operations.create_user               (MyApp::Operations::CreateUser)),
-              %(operations.user.create               (MyApp::Operations::Create::User)),
-              %(operations.create_user --slice=admin (Admin::Operations::CreateUser)),
-              %(Operations::CreateUser               (MyApp::Operations::CreateUser)),
+              %(services.create_user               (MyApp::Services::CreateUser)),
+              %(services.user.create               (MyApp::Services::Create::User)),
+              %(services.create_user --slice=admin (Admin::Services::CreateUser)),
+              %(Services::CreateUser               (MyApp::Services::CreateUser)),
             ]
             attr_reader :generator
             private :generator
