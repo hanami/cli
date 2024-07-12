@@ -14,21 +14,46 @@ module Hanami
         class Helper
           # @since 2.2.0
           # @api private
-          def initialize(fs, inflector, app_namespace, key, slice)
+          def initialize(fs, inflector, app_namespace, extra_namespace, local_parent_class, body, key, slice)
             @fs = fs
             @inflector = inflector
             @app_namespace = app_namespace
+            @extra_namespace = extra_namespace&.downcase
+            @local_parent_class = local_parent_class
+            @body = body
             @key = key
             @slice = slice
             raise_missing_slice_error_if_missing(slice) if slice
           end
+
+          def call
+            fs.mkdir(directory)
+            fs.write(path, file_contents)
+          end
+
+          def namespaced_key?
+            key.split(KEY_SEPARATOR).length > 1
+          end
+
+          private
+
+          attr_reader(
+            :fs,
+            :inflector,
+            :app_namespace,
+            :extra_namespace,
+            :local_parent_class,
+            :body,
+            :key,
+            :slice,
+          )
 
           def class_name
             key.split(KEY_SEPARATOR)[-1]
           end
 
           def local_namespaces
-            ["structs"] + key.split(KEY_SEPARATOR)[..-2]
+            Array(extra_namespace) + key.split(KEY_SEPARATOR)[..-2]
           end
 
           def container_namespace
@@ -61,15 +86,6 @@ module Hanami
             )
           end
 
-          def call
-            fs.mkdir(directory)
-            fs.write(path, file_contents)
-          end
-
-          private
-
-          attr_reader :fs, :inflector, :app_namespace, :key, :slice
-
           def class_definition(class_name:, container_namespace:, local_namespaces:)
             container_module = normalize(container_namespace)
 
@@ -78,13 +94,14 @@ module Hanami
               .compact
               .prepend(container_module)
 
-            parent_class = [container_module, "DB", "Struct"].join("::")
+            parent_class = [container_module, local_parent_class].join("::")
 
             RubyFileGenerator.class(
               normalize(class_name),
               parent_class: parent_class,
               modules: modules,
               header: ["# frozen_string_literal: true"],
+              body: body
             )
           end
 
