@@ -33,14 +33,6 @@ module Hanami
             )
               super
             end
-
-            # @since 2.2.0
-            # @api private
-            def call(name:, slice: nil, **)
-              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
-
-              generator.call(app.namespace, name, slice)
-            end
           end
         end
       end
