@@ -18,8 +18,9 @@ module Hanami
             option :slice, required: false, desc: "Slice name"
 
             example [
-              %(books.add               (MyApp::Books::Add)),
-              %(books.add --slice=admin (Admin::Books::Add)),
+              %(book                (MyApp::Structs::Book)),
+              %(book/published_book (MyApp::Structs::Book::PublishedBook)),
+              %(book --slice=admin  (Admin::Structs::Book)),
             ]
             attr_reader :generator
             private :generator
