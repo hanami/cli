@@ -53,17 +53,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
       expect(fs.directory?("slices/#{slice}")).to be(true)
       expect(output).to include("Created slices/#{slice}/")
 
-      # # Slice
-      # slice_class = <<~CODE
-      #   # frozen_string_literal: true
-      #
-      #   module Admin
-      #     class Slice < Hanami::Slice
-      #     end
-      #   end
-      # CODE
-      # expect(fs.read("slices/#{slice}/config/slice.rb")).to eq(slice_class)
-
       # Action
       action = <<~CODE
         # auto_register: false
@@ -77,9 +66,56 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
       expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
       expect(output).to include("Created slices/#{slice}/action.rb")
-
       expect(fs.read("slices/#{slice}/actions/.keep")).to eq("")
       expect(output).to include("Created slices/#{slice}/actions/.keep")
+
+      # Relation
+      relation = <<~EXPECTED
+        # frozen_string_literal: true
+
+        module Admin
+          module DB
+            class Relation < Bookshelf::DB::Relation
+            end
+          end
+        end
+      EXPECTED
+      expect(fs.read("slices/admin/db/relation.rb")).to eq(relation)
+      expect(output).to include("Created slices/admin/db/relation.rb")
+      expect(fs.read("slices/admin/relations/.keep")).to eq("")
+      expect(output).to include("Created slices/admin/relations/.keep")
+
+      # Repo
+      repo = <<~EXPECTED
+        # frozen_string_literal: true
+
+        module Admin
+          module DB
+            class Repo < Bookshelf::DB::Repo
+            end
+          end
+        end
+      EXPECTED
+      expect(fs.read("slices/admin/db/repo.rb")).to eq(repo)
+      expect(output).to include("Created slices/admin/db/repo.rb")
+      expect(fs.read("slices/admin/repos/.keep")).to eq("")
+      expect(output).to include("Created slices/admin/repos/.keep")
+
+      # Struct
+      struct = <<~EXPECTED
+        # frozen_string_literal: true
+
+        module Admin
+          module DB
+            class Struct < Bookshelf::DB::Struct
+            end
+          end
+        end
+      EXPECTED
+      expect(fs.read("slices/admin/db/struct.rb")).to eq(struct)
+      expect(output).to include("Created slices/admin/db/struct.rb")
+      expect(fs.read("slices/admin/structs/.keep")).to eq("")
+      expect(output).to include("Created slices/admin/structs/.keep")
 
       view = <<~RUBY
         # auto_register: false
@@ -238,6 +274,44 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
         # slices/admin/app/assets/css/app.css
         expect(fs.exist?("slices/admin/assets/css/app.css")).to be(false)
+      end
+    end
+  end
+
+  context "with dry-monads bundled" do
+    before do
+      allow(Hanami).to receive(:bundled?).with("dry-monads").and_return(bundled_assets)
+    end
+
+    it "generates a slice with an operation that includes dry-monads result" do
+      within_application_directory do
+        subject.call(name: slice)
+
+        action = <<~CODE
+          # auto_register: false
+          # frozen_string_literal: true
+
+          module Admin
+            class Action < #{app}::Action
+            end
+          end
+        CODE
+
+        expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
+        expect(output).to include("Created slices/#{slice}/action.rb")
+      end
+    end
+  end
+
+  context "with --skip-db" do
+    it "generates a slice without hanami-db files" do
+      within_application_directory do
+        subject.call(name: slice, skip_db: true)
+
+        expect(fs.exist?("slices/admin/db")).to be(false)
+        expect(fs.exist?("slices/admin/repos")).to be(false)
+        expect(fs.exist?("slices/admin/relations")).to be(false)
+        expect(fs.exist?("slices/admin/structs")).to be(false)
       end
     end
   end
