@@ -17,7 +17,7 @@ module Hanami
             example [
               %(operations.create_user               (MyApp::Operations::CreateUser)),
               %(operations.user.create               (MyApp::Operations::Create::User)),
-              %(operations.create_user               --slice=admin (Admin::Operations::CreateUser)),
+              %(operations.create_user --slice=admin (Admin::Operations::CreateUser)),
               %(Operations::CreateUser               (MyApp::Operations::CreateUser)),
             ]
             attr_reader :generator
