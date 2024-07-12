@@ -27,10 +27,10 @@ module Hanami
               fs: fs,
               inflector: inflector,
               app_namespace: app_namespace,
-              extra_namespace: "Structs",
-              local_parent_class: "DB::Struct",
               key: key,
               slice: slice,
+              extra_namespace: "Structs",
+              local_parent_class: "DB::Struct",
             ).call
           end
 
