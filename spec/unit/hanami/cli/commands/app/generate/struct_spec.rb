@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator_class: Hanami::CLI::Generators::App::Struct) }
+  subject { described_class.new(fs: fs, inflector: inflector, generator_class: Hanami::CLI::Generators::App::Struct, out: out) }
 
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
