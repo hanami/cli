@@ -11,7 +11,7 @@ module Hanami
       module App
         # @since 2.2.0
         # @api private
-        class Helper
+        class RubyFileWriter
           # @since 2.2.0
           # @api private
           def initialize(

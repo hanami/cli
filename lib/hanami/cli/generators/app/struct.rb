@@ -20,22 +20,10 @@ module Hanami
             @out = out
           end
 
-          def extra_namespace
-            "Structs"
-          end
-
-          def relative_parent_class
-            "DB::Struct"
-          end
-
-          def body
-            []
-          end
-
           # @since 2.2.0
           # @api private
           def call(app_namespace, key, slice)
-            Helper.new(
+            RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
               app_namespace: app_namespace,

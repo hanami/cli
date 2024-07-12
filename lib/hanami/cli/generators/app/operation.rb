@@ -26,7 +26,7 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(app_namespace, key, slice)
-            helper = Helper.new(
+            helper = RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
               app_namespace: app_namespace,
