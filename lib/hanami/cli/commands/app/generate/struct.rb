@@ -27,7 +27,7 @@ module Hanami
             # @since 2.2.0
             # @api private
             def initialize(
-              generator_class: nil,
+              generator_class: Generators::App::Struct,
               **opts
             )
               super
