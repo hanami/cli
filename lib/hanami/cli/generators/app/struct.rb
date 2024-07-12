@@ -30,7 +30,7 @@ module Hanami
               key: key,
               slice: slice,
               extra_namespace: "Structs",
-              local_parent_class: "DB::Struct",
+              relative_parent_class: "DB::Struct",
             ).call
           end
 

@@ -20,7 +20,7 @@ module Hanami
             app_namespace:,
             key:,
             slice:,
-            local_parent_class:,
+            relative_parent_class:,
             extra_namespace: nil,
             body: []
           )
@@ -28,7 +28,7 @@ module Hanami
             @inflector = inflector
             @app_namespace = app_namespace
             @extra_namespace = extra_namespace&.downcase
-            @local_parent_class = local_parent_class
+            @relative_parent_class = relative_parent_class
             @body = body
             @key = key
             @slice = slice
@@ -51,7 +51,7 @@ module Hanami
             :inflector,
             :app_namespace,
             :extra_namespace,
-            :local_parent_class,
+            :relative_parent_class,
             :body,
             :key,
             :slice,
@@ -103,7 +103,7 @@ module Hanami
               .compact
               .prepend(container_module)
 
-            parent_class = [container_module, local_parent_class].join("::")
+            parent_class = [container_module, relative_parent_class].join("::")
 
             RubyFileGenerator.class(
               normalize(class_name),

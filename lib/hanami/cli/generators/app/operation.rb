@@ -32,7 +32,7 @@ module Hanami
               app_namespace: app_namespace,
               key: key,
               slice: slice,
-              local_parent_class: "Operation",
+              relative_parent_class: "Operation",
               body: ["def call", "end"],
             )
             helper.call
