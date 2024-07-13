@@ -42,12 +42,6 @@ module Hanami
             fs.write(path, file_contents)
           end
 
-          # @since 2.2.0
-          # @api private
-          def namespaced_key?
-            key.split(KEY_SEPARATOR).length > 1
-          end
-
           private
 
           # @since 2.2.0
