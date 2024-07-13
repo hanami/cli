@@ -22,16 +22,11 @@ module Hanami
               %(books/drafts_repo   (MyApp::Repos::Books::DraftsRepo)),
               %(books --slice=admin  (Admin::Repos::BooksRepo)),
             ]
-            attr_reader :generator
-            private :generator
 
             # @since 2.2.0
             # @api private
-            def initialize(
-              generator_class: Generators::App::Repo,
-              **opts
-            )
-              super
+            def generator_class
+              Generators::App::Repo
             end
 
             # @since 2.2.0
