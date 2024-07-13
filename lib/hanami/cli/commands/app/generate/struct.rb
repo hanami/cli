@@ -22,16 +22,11 @@ module Hanami
               %(book/published_book (MyApp::Structs::Book::PublishedBook)),
               %(book --slice=admin  (Admin::Structs::Book)),
             ]
-            attr_reader :generator
-            private :generator
 
             # @since 2.2.0
             # @api private
-            def initialize(
-              generator_class: Generators::App::Struct,
-              **opts
-            )
-              super
+            def initialize(**)
+              super(generator_class: Generators::App::Struct, **)
             end
           end
         end

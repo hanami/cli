@@ -21,8 +21,8 @@ module Hanami
 
             # @since 2.2.0
             # @api private
-            def initialize(**opts)
-              super(generator_class: Generators::App::Operation, **opts)
+            def initialize(**)
+              super(generator_class: Generators::App::Operation, **)
             end
           end
         end
