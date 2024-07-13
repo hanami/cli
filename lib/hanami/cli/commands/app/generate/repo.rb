@@ -39,7 +39,7 @@ module Hanami
                                 end
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
 
-              generator.call(app.namespace, normalized_name, slice)
+              super(name: normalized_name, slice: slice, **)
             end
           end
         end
