@@ -22,24 +22,9 @@ module Hanami
               %(book/published_book (MyApp::Structs::Book::PublishedBook)),
               %(book --slice=admin  (Admin::Structs::Book)),
             ]
-            attr_reader :generator
-            private :generator
 
-            # @since 2.2.0
-            # @api private
-            def initialize(
-              generator_class: Generators::App::Struct,
-              **opts
-            )
-              super
-            end
-
-            # @since 2.2.0
-            # @api private
-            def call(name:, slice: nil, **)
-              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
-
-              generator.call(app.namespace, name, slice)
+            def generator_class
+              Generators::App::Struct
             end
           end
         end

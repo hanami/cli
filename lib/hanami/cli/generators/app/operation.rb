@@ -2,6 +2,7 @@
 
 require "erb"
 require "dry/files"
+require_relative "../constants"
 require_relative "../../errors"
 
 module Hanami
@@ -13,10 +14,6 @@ module Hanami
         class Operation
           # @since 2.2.0
           # @api private
-          KEY_SEPARATOR = %r{\.|/}
-
-          # @since 2.2.0
-          # @api private
           def initialize(fs:, inflector:, out: $stdout)
             @fs = fs
             @inflector = inflector
@@ -26,7 +23,7 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(app_namespace, key, slice)
-            helper = RubyFileWriter.new(
+            RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
               app_namespace: app_namespace,
@@ -34,10 +31,9 @@ module Hanami
               slice: slice,
               relative_parent_class: "Operation",
               body: ["def call", "end"],
-            )
-            helper.call
+            ).call
 
-            unless helper.namespaced_key?
+            unless key.match?(KEY_SEPARATOR)
               out.puts(
                 "  Note: We generated a top-level operation. " \
                 "To generate into a directory, add a namespace: `my_namespace.add_book`"

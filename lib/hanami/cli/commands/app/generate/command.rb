@@ -25,13 +25,15 @@ module Hanami
             def initialize(
               fs:,
               inflector:,
-              generator_class: nil,
               **opts
             )
-              raise "Provide a generator_class (that takes fs: and inflector:)" if generator_class.nil?
-
-              super(fs: fs, inflector: inflector, **opts)
+              super
               @generator = generator_class.new(fs: fs, inflector: inflector, out: out)
+            end
+
+            def generator_class
+              # Must be implemented by subclasses, with class that takes:
+              # fs:, inflector:, out:
             end
 
             # @since 2.2.0

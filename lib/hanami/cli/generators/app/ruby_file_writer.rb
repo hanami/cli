@@ -27,48 +27,66 @@ module Hanami
             @fs = fs
             @inflector = inflector
             @app_namespace = app_namespace
+            @key = key
+            @slice = slice
             @extra_namespace = extra_namespace&.downcase
             @relative_parent_class = relative_parent_class
             @body = body
-            @key = key
-            @slice = slice
             raise_missing_slice_error_if_missing(slice) if slice
           end
 
+          # @since 2.2.0
+          # @api private
           def call
             fs.mkdir(directory)
             fs.write(path, file_contents)
           end
 
-          def namespaced_key?
-            key.split(KEY_SEPARATOR).length > 1
-          end
-
           private
 
+          # @since 2.2.0
+          # @api private
           attr_reader(
             :fs,
             :inflector,
             :app_namespace,
+            :key,
+            :slice,
             :extra_namespace,
             :relative_parent_class,
             :body,
-            :key,
-            :slice,
           )
 
+          # @since 2.2.0
+          # @api private
+          def file_contents
+            class_definition(
+              class_name: class_name,
+              container_namespace: container_namespace,
+              local_namespaces: local_namespaces,
+            )
+          end
+
+          # @since 2.2.0
+          # @api private
           def class_name
             key.split(KEY_SEPARATOR)[-1]
           end
 
-          def local_namespaces
-            Array(extra_namespace) + key.split(KEY_SEPARATOR)[..-2]
-          end
-
+          # @since 2.2.0
+          # @api private
           def container_namespace
             slice || app_namespace
           end
 
+          # @since 2.2.0
+          # @api private
+          def local_namespaces
+            Array(extra_namespace) + key.split(KEY_SEPARATOR)[..-2]
+          end
+
+          # @since 2.2.0
+          # @api private
           def directory
             base = if slice
                      fs.join("slices", slice)
@@ -83,18 +101,14 @@ module Hanami
                            end
           end
 
+          # @since 2.2.0
+          # @api private
           def path
             fs.join(directory, "#{class_name}.rb")
           end
 
-          def file_contents
-            class_definition(
-              class_name: class_name,
-              container_namespace: container_namespace,
-              local_namespaces: local_namespaces,
-            )
-          end
-
+          # @since 2.2.0
+          # @api private
           def class_definition(class_name:, container_namespace:, local_namespaces:)
             container_module = normalize(container_namespace)
 
@@ -114,10 +128,14 @@ module Hanami
             )
           end
 
+          # @since 2.2.0
+          # @api private
           def normalize(name)
             inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
           end
 
+          # @since 2.2.0
+          # @api private
           def raise_missing_slice_error_if_missing(slice)
             if slice
               slice_directory = fs.join("slices", slice)

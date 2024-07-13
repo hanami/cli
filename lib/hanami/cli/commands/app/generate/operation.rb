@@ -19,10 +19,8 @@ module Hanami
               %(books.add --slice=admin (Admin::Books::Add)),
             ]
 
-            # @since 2.2.0
-            # @api private
-            def initialize(**opts)
-              super(generator_class: Generators::App::Operation, **opts)
+            def generator_class
+              Generators::App::Operation
             end
           end
         end
