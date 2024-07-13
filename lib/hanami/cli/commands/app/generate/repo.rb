@@ -31,7 +31,7 @@ module Hanami
 
             # @since 2.2.0
             # @api private
-            def call(name:, slice: nil, **)
+            def call(name:, slice: nil, **opts)
               normalized_name = if name.end_with?("_repo")
                                   name
                                 else
@@ -39,7 +39,7 @@ module Hanami
                                 end
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
 
-              super(name: normalized_name, slice: slice, **)
+              super(name: normalized_name, slice: slice, **opts)
             end
           end
         end
