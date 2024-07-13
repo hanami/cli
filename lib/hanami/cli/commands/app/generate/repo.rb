@@ -20,7 +20,7 @@ module Hanami
             example [
               %(books               (MyApp::Repos::BooksRepo)),
               %(books/drafts_repo   (MyApp::Repos::Books::DraftsRepo)),
-              %(books --slice=admin  (Admin::Repos::BooksRepo)),
+              %(books --slice=admin (Admin::Repos::BooksRepo)),
             ]
 
             # @since 2.2.0
