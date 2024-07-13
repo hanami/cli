@@ -27,11 +27,11 @@ module Hanami
             @fs = fs
             @inflector = inflector
             @app_namespace = app_namespace
+            @key = key
+            @slice = slice
             @extra_namespace = extra_namespace&.downcase
             @relative_parent_class = relative_parent_class
             @body = body
-            @key = key
-            @slice = slice
             raise_missing_slice_error_if_missing(slice) if slice
           end
 
@@ -50,11 +50,11 @@ module Hanami
             :fs,
             :inflector,
             :app_namespace,
+            :key,
+            :slice,
             :extra_namespace,
             :relative_parent_class,
             :body,
-            :key,
-            :slice,
           )
 
           # @since 2.2.0
