@@ -107,5 +107,17 @@ module Hanami
         super("`#{option1}' and `#{option2}' cannot be used together")
       end
     end
+
+    # @since 2.2.0
+    # @api public
+    class InvalidMigrationNameError < Error
+      def initialize(name)
+        super(<<~TEXT)
+          Invalid migration name: #{name}
+
+          Name must contain only letters, numbers, and underscores.
+        TEXT
+      end
+    end
   end
 end
