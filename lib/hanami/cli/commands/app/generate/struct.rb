@@ -23,10 +23,8 @@ module Hanami
               %(book --slice=admin  (Admin::Structs::Book)),
             ]
 
-            # @since 2.2.0
-            # @api private
-            def initialize(**)
-              super(generator_class: Generators::App::Struct, **)
+            def generator_class
+              Generators::App::Struct
             end
           end
         end
