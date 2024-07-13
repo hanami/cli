@@ -316,6 +316,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     end
   end
 
+  private
+
   def within_application_directory
     application = Struct.new(:namespace).new(app)
 
