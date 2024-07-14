@@ -5,6 +5,8 @@ require "ripper"
 module Hanami
   module CLI
     class RubyFileGenerator
+      # @api private
+      # @since 2.2.0
       class GeneratedUnparseableCodeError < Error
         def initialize(source_code)
           super(
@@ -23,20 +25,6 @@ module Hanami
 
       INDENT = "  "
 
-      def initialize(
-        class_name: nil,
-        parent_class: nil,
-        modules: [],
-        header: [],
-        body: []
-      )
-        @class_name = class_name
-        @parent_class = parent_class
-        @modules = modules
-        @header = header.any? ? (header + [""]) : []
-        @body = body
-      end
-
       def self.class(class_name, **args)
         new(class_name: class_name, **args).to_s
       end
@@ -49,6 +37,20 @@ module Hanami
                        end
 
         new(modules: module_names, class_name: nil, parent_class: nil, **args).to_s
+      end
+
+      def initialize(
+        class_name: nil,
+        parent_class: nil,
+        modules: [],
+        header: [],
+        body: []
+      )
+        @class_name = class_name
+        @parent_class = parent_class
+        @modules = modules
+        @header = header.any? ? (header + [""]) : []
+        @body = body
       end
 
       def to_s

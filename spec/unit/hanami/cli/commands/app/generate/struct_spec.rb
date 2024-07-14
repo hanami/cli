@@ -10,7 +10,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
   let(:dir) { inflector.underscore(app) }
 
   def output
-    out.rewind && out.read.chomp
+    out.string.chomp
   end
 
   context "generating for app" do
@@ -74,7 +74,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
   end
 
   context "generating for a slice" do
-    it "generates a struct in a top-level namespace, with recommendation" do
+    it "generates a struct in a top-level namespace" do
       fs.mkdir("slices/main")
       subject.call(name: "book", slice: "main")
 
