@@ -23,7 +23,7 @@ module Hanami
         end
       end
 
-      INDENT = " "
+      INDENT = "  "
 
       def self.class(class_name, **args)
         new(class_name: class_name, **args).to_s
