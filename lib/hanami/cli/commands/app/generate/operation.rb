@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require "dry/inflector"
-require "dry/files"
-require "shellwords"
-require_relative "../../../naming"
-require_relative "../../../errors"
-
 module Hanami
   module CLI
     module Commands
