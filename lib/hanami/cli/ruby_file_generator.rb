@@ -21,21 +21,7 @@ module Hanami
         end
       end
 
-      INDENT = "  "
-
-      def initialize(
-        class_name: nil,
-        parent_class: nil,
-        modules: [],
-        header: [],
-        body: []
-      )
-        @class_name = class_name
-        @parent_class = parent_class
-        @modules = modules
-        @header = header.any? ? (header + [""]) : []
-        @body = body
-      end
+      INDENT = " "
 
       def self.class(class_name, **args)
         new(class_name: class_name, **args).to_s
@@ -49,6 +35,20 @@ module Hanami
                        end
 
         new(modules: module_names, class_name: nil, parent_class: nil, **args).to_s
+      end
+
+      def initialize(
+        class_name: nil,
+        parent_class: nil,
+        modules: [],
+        header: [],
+        body: []
+      )
+        @class_name = class_name
+        @parent_class = parent_class
+        @modules = modules
+        @header = header.any? ? (header + [""]) : []
+        @body = body
       end
 
       def to_s
