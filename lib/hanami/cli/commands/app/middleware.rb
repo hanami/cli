@@ -34,7 +34,7 @@ module Hanami
           private_constant :DEFAULT_WITH_ARGUMENTS
 
           option :with_arguments, default: DEFAULT_WITH_ARGUMENTS, required: false,
-                                  desc: "Include inspected arguments", type: :boolean
+                                  desc: "Include inspected arguments", type: :flag
 
           example [
             "middleware                  # Print app Rack middleware stack",

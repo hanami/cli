@@ -11,7 +11,7 @@ module Hanami
 
             option :target, desc: "Target migration number", aliases: ["-t"]
             option :dump, required: false, type: :boolean, default: true,
-              desc: "Dump the database structure after migrating"
+                          desc: "Dump the database structure after migrating"
 
             def call(target: nil, app: false, slice: nil, dump: true, command_exit: method(:exit), **)
               databases(app: app, slice: slice).each do |database|

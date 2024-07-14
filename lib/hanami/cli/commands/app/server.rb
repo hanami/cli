@@ -41,8 +41,8 @@ module Hanami
           option :port, default: Hanami::Port::DEFAULT, required: false,
                         desc: "The port to run the server on (falls back to the rack handler)"
           option :config, default: DEFAULT_CONFIG_PATH, required: false, desc: "Rack configuration file"
-          option :debug, default: false, required: false, desc: "Turn on/off debug output", type: :boolean
-          option :warn, default: false, required: false, desc: "Turn on/off warnings", type: :boolean
+          option :debug, default: false, required: false, desc: "Turn on/off debug output", type: :flag
+          option :warn, default: false, required: false, desc: "Turn on/off warnings", type: :flag
 
           # @since 2.0.0
           # @api private
