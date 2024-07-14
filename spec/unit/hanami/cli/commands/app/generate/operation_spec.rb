@@ -3,17 +3,16 @@
 require "hanami"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
+  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
 
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
-  let(:generator) { Hanami::CLI::Generators::App::Operation.new(fs: fs, inflector: inflector, out: out) }
   let(:app) { Hanami.app.namespace }
   let(:dir) { inflector.underscore(app) }
 
   def output
-    out.rewind && out.read.chomp
+    out.string.chomp
   end
 
   context "generating for app" do
