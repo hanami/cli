@@ -35,7 +35,7 @@ module Hanami
               normalized_name = if name.end_with?("_repo")
                                   name
                                 else
-                                  "#{inflector.pluralize(name)}_repo"
+                                  "#{inflector.singularize(name)}_repo"
                                 end
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
 

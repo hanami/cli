@@ -15,26 +15,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
 
   context "generating for app" do
     describe "without namespace" do
-      it "generates a repo and pluralizes name properly" do
-        subject.call(name: "book")
-
-        repo_file = <<~EXPECTED
-          # frozen_string_literal: true
-
-          module Test
-            module Repos
-              class BooksRepo < Test::DB::Repo
-              end
-            end
-          end
-        EXPECTED
-
-        expect(fs.read("app/repos/books_repo.rb")).to eq(repo_file)
-        expect(output).to include("Created app/repos/books_repo.rb")
-      end
-
-      it "passed through repo name if repo_suffix" do
-        subject.call(name: "book_repo")
+      it "generates a repo and singularizes name properly" do
+        subject.call(name: "books")
 
         repo_file = <<~EXPECTED
           # frozen_string_literal: true
@@ -49,6 +31,24 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
 
         expect(fs.read("app/repos/book_repo.rb")).to eq(repo_file)
         expect(output).to include("Created app/repos/book_repo.rb")
+      end
+
+      it "passed through repo name if repo_ suffix is preent" do
+        subject.call(name: "books_repo")
+
+        repo_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module Test
+            module Repos
+              class BooksRepo < Test::DB::Repo
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/repos/books_repo.rb")).to eq(repo_file)
+        expect(output).to include("Created app/repos/books_repo.rb")
       end
     end
 
@@ -94,23 +94,23 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
   end
 
   context "generating for a slice" do
-    it "generates a repo in a top-level namespace, with recommendation" do
+    it "generates a repo and singularizes name properly" do
       fs.mkdir("slices/main")
-      subject.call(name: "book", slice: "main")
+      subject.call(name: "books", slice: "main")
 
       repo_file = <<~EXPECTED
         # frozen_string_literal: true
 
         module Main
           module Repos
-            class BooksRepo < Main::DB::Repo
+            class BookRepo < Main::DB::Repo
             end
           end
         end
       EXPECTED
 
-      expect(fs.read("slices/main/repos/books_repo.rb")).to eq(repo_file)
-      expect(output).to include("Created slices/main/repos/books_repo.rb")
+      expect(fs.read("slices/main/repos/book_repo.rb")).to eq(repo_file)
+      expect(output).to include("Created slices/main/repos/book_repo.rb")
     end
 
     it "generates a repo in a nested namespace" do
@@ -123,15 +123,15 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
         module Main
           module Repos
             module Book
-              class DraftsRepo < Main::DB::Repo
+              class DraftRepo < Main::DB::Repo
               end
             end
           end
         end
       EXPECTED
 
-      expect(fs.read("slices/main/repos/book/drafts_repo.rb")).to eq(repo_file)
-      expect(output).to include("Created slices/main/repos/book/drafts_repo.rb")
+      expect(fs.read("slices/main/repos/book/draft_repo.rb")).to eq(repo_file)
+      expect(output).to include("Created slices/main/repos/book/draft_repo.rb")
     end
   end
 end
