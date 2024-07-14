@@ -3,12 +3,16 @@
 require "hanami"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
-  subject { described_class.new(fs: fs) }
+  subject { described_class.new(fs: fs, inflector: inflector) }
 
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
+  let(:inflector) { Dry::Inflector.new }
 
   let(:out) { StringIO.new }
-  def output; out.string; end
+
+  def output
+    out.string.chomp
+  end
 
   let(:app) { Hanami.app.namespace }
 
@@ -47,9 +51,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
       expect {
         subject.call(name: "create posts")
       }.to raise_error(include_in_order(
-        "Invalid migration name: create posts",
-        "Name must contain only letters, numbers, and underscores."
-      ))
+                         "Invalid migration name: create posts",
+                         "Name must contain only letters, numbers, and underscores."
+                       ))
     end
   end
 

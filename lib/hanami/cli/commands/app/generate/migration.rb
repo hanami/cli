@@ -7,7 +7,7 @@ module Hanami
         module Generate
           # @since 2.2.0
           # @api private
-          class Migration < App::Command
+          class Migration < Command
             argument :name, required: true, desc: "Migration name"
             option :slice, required: false, desc: "Slice name"
 
@@ -17,24 +17,8 @@ module Hanami
               %(create_users --slice=admin),
             ]
 
-            attr_reader :generator
-            private :generator
-
-            # @since 2.2.0
-            # @api private
-            def initialize(
-              fs:, inflector:,
-              generator: Generators::App::Migration.new(fs: fs, inflector: inflector),
-              **opts
-            )
-              super(fs: fs, inflector: inflector, **opts)
-              @generator = generator
-            end
-
-            # @since 2.2.0
-            # @api private
-            def call(name:, slice: nil, **)
-              generator.call(name, slice)
+            def generator_class
+              Generators::App::Migration
             end
           end
         end
