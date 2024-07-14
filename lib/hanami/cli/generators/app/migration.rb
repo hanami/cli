@@ -18,16 +18,18 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(_app_namespace, name, slice, **_opts)
-            ensure_valid_name name
+            normalized_name = inflector.underscore(name)
+            ensure_valid_name(normalized_name)
 
-            name = inflector.underscore(name)
-            slice = inflector.underscore(slice) if slice
+            base = if slice
+                     fs.join("slices", inflector.underscore(slice), "config", "db", "migrate")
+                   else
+                     fs.join("config", "db", "migrate")
+                   end
 
-            if slice
-              generate_for_slice(name, slice)
-            else
-              generate_for_app(name)
-            end
+            path = fs.join(base, file_name(normalized_name))
+
+            fs.write(path, FILE_CONTENTS)
           end
 
           private
@@ -41,23 +43,6 @@ module Hanami
             unless VALID_NAME_REGEX.match?(name.downcase)
               raise InvalidMigrationNameError.new(name)
             end
-          end
-
-          def generate_for_slice(name, slice)
-            slice_dir = fs.join("slices", slice)
-            raise MissingSliceError.new(slice) unless fs.directory?(slice_dir)
-
-            migrate_dir = fs.join(slice_dir, "config", "db", "migrate")
-            fs.mkdir_p migrate_dir
-
-            fs.write fs.join(migrate_dir, file_name(name)), FILE_CONTENTS
-          end
-
-          def generate_for_app(name)
-            migrate_dir = fs.join("config", "db", "migrate")
-            fs.mkdir_p migrate_dir
-
-            fs.write fs.join(migrate_dir, file_name(name)), FILE_CONTENTS
           end
 
           def file_name(name)

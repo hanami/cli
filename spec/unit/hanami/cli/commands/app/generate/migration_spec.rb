@@ -11,7 +11,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
   let(:out) { StringIO.new }
 
   def output
-    out.string.chomp
+    out.string.strip
   end
 
   let(:app) { Hanami.app.namespace }
@@ -29,7 +29,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
   }
 
   before do
-    allow(Time).to receive(:now) { Time.new(2024, 07, 13, 14, 06, 00) }
+    allow(Time).to receive(:now) { Time.new(2024, 7, 13, 14, 6, 0) }
   end
 
   context "generating for app" do
@@ -37,14 +37,14 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
       subject.call(name: "create_posts")
 
       expect(fs.read("config/db/migrate/20240713140600_create_posts.rb")).to eq migration_file_contents
-      expect(output.strip).to eq "Created config/db/migrate/20240713140600_create_posts.rb"
+      expect(output).to eq("Created config/db/migrate/20240713140600_create_posts.rb")
     end
 
     it "generates a migration with underscored version of camel cased name" do
       subject.call(name: "CreatePosts")
 
       expect(fs.read("config/db/migrate/20240713140600_create_posts.rb")).to eq migration_file_contents
-      expect(output.strip).to eq "Created config/db/migrate/20240713140600_create_posts.rb"
+      expect(output).to eq("Created config/db/migrate/20240713140600_create_posts.rb")
     end
 
     it "raises an error if given an invalid name" do
@@ -65,7 +65,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
       subject.call(name: "create_posts", slice: "main")
 
       expect(fs.read("slices/main/config/db/migrate/20240713140600_create_posts.rb")).to eq migration_file_contents
-      expect(output.strip).to eq "Created slices/main/config/db/migrate/20240713140600_create_posts.rb"
+      expect(output).to eq("Created slices/main/config/db/migrate/20240713140600_create_posts.rb")
     end
   end
 end
