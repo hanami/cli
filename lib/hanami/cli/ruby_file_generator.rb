@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "ripper"
-require_relative "generators/constants"
 
 module Hanami
   module CLI
@@ -23,6 +22,8 @@ module Hanami
           )
         end
       end
+
+      INDENT = " "
 
       def self.class(class_name, **args)
         new(class_name: class_name, **args).to_s
@@ -108,7 +109,7 @@ module Hanami
         if line.strip.empty?
           ""
         else
-          INDENTATION + line
+          INDENT + line
         end
       end
 
