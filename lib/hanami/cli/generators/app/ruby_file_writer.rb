@@ -22,7 +22,7 @@ module Hanami
             slice:,
             relative_parent_class:,
             extra_namespace: nil,
-            class_body: []
+            body: []
           )
             @fs = fs
             @inflector = inflector
@@ -31,7 +31,7 @@ module Hanami
             @slice = slice
             @extra_namespace = extra_namespace&.downcase
             @relative_parent_class = relative_parent_class
-            @class_body = class_body
+            @body = body
             raise_missing_slice_error_if_missing(slice) if slice
           end
 
@@ -54,7 +54,7 @@ module Hanami
             :slice,
             :extra_namespace,
             :relative_parent_class,
-            :class_body,
+            :body,
           )
 
           # @since 2.2.0
@@ -124,7 +124,7 @@ module Hanami
               parent_class: parent_class,
               modules: modules,
               header: ["# frozen_string_literal: true"],
-              body: class_body
+              body: body
             )
           end
 

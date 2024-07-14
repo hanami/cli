@@ -31,7 +31,7 @@ module Hanami
               slice: slice,
               extra_namespace: "Repos",
               relative_parent_class: "DB::Repo",
-              class_body: [],
+              body: [],
             ).call
           end
 
