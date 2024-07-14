@@ -30,7 +30,7 @@ module Hanami
               key: key,
               slice: slice,
               relative_parent_class: "Operation",
-              body: ["def call", "end"],
+              class_body: ["def call", "end"],
             ).call
 
             unless key.match?(KEY_SEPARATOR)
