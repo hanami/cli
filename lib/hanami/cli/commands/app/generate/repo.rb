@@ -37,7 +37,7 @@ module Hanami
                                 else
                                   "#{inflector.singularize(name)}_repo"
                                 end
-              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
+              slice = inflector.underscore(slice) if slice
 
               super(name: normalized_name, slice: slice, **opts)
             end
