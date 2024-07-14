@@ -22,7 +22,7 @@ module Hanami
             ensure_valid_name(normalized_name)
 
             base = if slice
-                     fs.join("slices", inflector.underscore(slice), "config", "db", "migrate")
+                     fs.join("slices", slice, "config", "db", "migrate")
                    else
                      fs.join("config", "db", "migrate")
                    end
