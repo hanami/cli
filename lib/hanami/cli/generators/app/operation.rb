@@ -2,6 +2,7 @@
 
 require "erb"
 require "dry/files"
+require_relative "../constants"
 require_relative "../../errors"
 
 module Hanami
@@ -21,54 +22,80 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(app, key, slice)
-            context = OperationContext.new(inflector, app, slice, key)
+          def call(app_namespace, key, slice)
+            operation_name = key.split(KEY_SEPARATOR)[-1]
+            local_namespaces = key.split(KEY_SEPARATOR)[..-2]
+            container_namespace = slice || app_namespace
 
-            if slice
-              generate_for_slice(context, slice)
-            else
-              generate_for_app(context)
-            end
+            raise_missing_slice_error_if_missing(slice) if slice
+            print_namespace_recommendation(operation_name) if local_namespaces.none?
+
+            directory = directory(slice, local_namespaces: local_namespaces)
+            path = fs.join(directory, "#{operation_name}.rb")
+            fs.mkdir(directory)
+
+            file_contents = class_definition(
+              operation_name: operation_name,
+              container_namespace: container_namespace,
+              local_namespaces: local_namespaces,
+            )
+            fs.write(path, file_contents)
           end
 
           private
 
           attr_reader :fs, :inflector, :out
 
-          def generate_for_slice(context, slice)
-            slice_directory = fs.join("slices", slice)
-            raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
+          def directory(slice = nil, local_namespaces:)
+            base = if slice
+                     fs.join("slices", slice)
+                   else
+                     fs.join("app")
+                   end
 
-            if context.namespaces.any?
-              fs.mkdir(directory = fs.join(slice_directory, context.namespaces))
-              fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_slice_operation.erb", context))
+            if local_namespaces.any?
+              fs.join(base, local_namespaces)
             else
-              fs.mkdir(directory = fs.join(slice_directory))
-              fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_slice_operation.erb", context))
-              out.puts("  Note: We generated a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
+              fs.join(base)
             end
           end
 
-          def generate_for_app(context)
-            if context.namespaces.any?
-              fs.mkdir(directory = fs.join("app", context.namespaces))
-              fs.write(fs.join(directory, "#{context.name}.rb"), t("nested_app_operation.erb", context))
-            else
-              fs.mkdir(directory = fs.join("app"))
-              out.puts("  Note: We generated a top-level operation. To generate into a directory, add a namespace: `my_namespace.#{context.name}`")
-              fs.write(fs.join(directory, "#{context.name}.rb"), t("top_level_app_operation.erb", context))
+          def class_definition(operation_name:, container_namespace:, local_namespaces:)
+            container_module = normalize(container_namespace)
+
+            modules = local_namespaces
+              .map { normalize(_1) }
+              .compact
+              .prepend(container_module)
+
+            parent_class = [container_module, "Operation"].join("::")
+
+            RubyFileGenerator.class(
+              normalize(operation_name),
+              parent_class: parent_class,
+              modules: modules,
+              body: ["def call", "end"],
+              header: ["# frozen_string_literal: true"],
+            )
+          end
+
+          def normalize(name)
+            inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
+          end
+
+          def print_namespace_recommendation(operation_name)
+            out.puts(
+              "  Note: We generated a top-level operation. " \
+              "To generate into a directory, add a namespace: `my_namespace.#{operation_name}`"
+            )
+          end
+
+          def raise_missing_slice_error_if_missing(slice)
+            if slice
+              slice_directory = fs.join("slices", slice)
+              raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
             end
           end
-
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/operation/#{path}")
-            ).result(context.ctx)
-          end
-
-          alias_method :t, :template
         end
       end
     end
