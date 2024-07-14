@@ -43,6 +43,7 @@ module Hanami
             register "generate", aliases: ["g"] do |prefix|
               prefix.register "action", Generate::Action
               prefix.register "component", Generate::Component
+              prefix.register "migration", Generate::Migration
               prefix.register "operation", Generate::Operation
               prefix.register "part", Generate::Part
               prefix.register "repo", Generate::Repo
