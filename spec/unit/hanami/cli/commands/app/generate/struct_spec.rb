@@ -7,7 +7,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
-  let(:dir) { inflector.underscore(app) }
 
   def output
     out.string.chomp
