@@ -10,7 +10,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
   let(:dir) { inflector.underscore(app) }
 
   def output
-    out.rewind && out.read.chomp
+    out.string
   end
 
   context "generating for app" do
