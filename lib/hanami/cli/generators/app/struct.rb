@@ -11,7 +11,7 @@ module Hanami
       module App
         # @since 2.2.0
         # @api private
-        class Operation
+        class Struct
           # @since 2.2.0
           # @api private
           def initialize(fs:, inflector:, out: $stdout)
@@ -29,16 +29,9 @@ module Hanami
               app_namespace: app_namespace,
               key: key,
               slice: slice,
-              relative_parent_class: "Operation",
-              body: ["def call", "end"],
+              extra_namespace: "Structs",
+              relative_parent_class: "DB::Struct",
             ).call
-
-            unless key.match?(KEY_SEPARATOR)
-              out.puts(
-                "  Note: We generated a top-level operation. " \
-                "To generate into a directory, add a namespace: `my_namespace.add_book`"
-              )
-            end
           end
 
           private
