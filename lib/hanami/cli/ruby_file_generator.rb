@@ -6,6 +6,8 @@ require_relative "generators/constants"
 module Hanami
   module CLI
     class RubyFileGenerator
+      # @api private
+      # @since 2.2.0
       class GeneratedUnparseableCodeError < Error
         def initialize(source_code)
           super(
