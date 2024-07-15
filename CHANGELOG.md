@@ -2,6 +2,17 @@
 
 Hanami Command Line Interface
 
+## v2.2.0.beta1 - 2024-07-16
+
+## Added
+
+- [Sean Collins] Generate db files in `hanami new` and `generate slice`
+- [Tim Riley] Add `db` commands: `create`, `drop`, `migrate`, `structure dump` `structure load`, `seed` `prepare`, `version`
+- [Tim Riley] Support SQLite and Postgres for `db` commands
+- [Sean Collins] Add `generate` commands for db components: `generate migration`, `generate relation`, `generate repo`, `generate struct`
+- [Krzysztof] Add `generate component` command
+- [Sean Collins] Add `generate operation` command
+
 ## v2.1.1 - 2024-03-19
 
 ### Fixed
