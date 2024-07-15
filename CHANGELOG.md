@@ -13,6 +13,10 @@ Hanami Command Line Interface
 - [Krzysztof] Add `generate component` command
 - [Sean Collins] Add `generate operation` command
 
+## Changed
+
+- Drop support for Ruby 3.0
+
 ## v2.1.1 - 2024-03-19
 
 ### Fixed
