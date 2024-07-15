@@ -39,7 +39,7 @@ module Hanami
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **)
-              normalized_slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
+              normalized_slice = inflector.underscore(slice) if slice
               generator.call(app.namespace, name, normalized_slice)
             end
           end
