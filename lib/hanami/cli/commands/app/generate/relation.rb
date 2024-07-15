@@ -26,13 +26,7 @@ module Hanami
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **opts)
-              normalized_name = if name.end_with?("_relation")
-                                  name
-                                else
-                                  inflector.pluralize(name)
-                                end
-
-              super(name: normalized_name, slice: slice, **opts)
+              super(name: name, slice: slice, **opts)
             end
           end
         end

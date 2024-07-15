@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../constants"
+
 module Hanami
   module CLI
     module Generators
@@ -18,6 +20,8 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(app_namespace, key, slice)
+            schema_name = key.split(KEY_SEPARATOR).last
+
             RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
@@ -26,7 +30,7 @@ module Hanami
               slice: slice,
               extra_namespace: "Relations",
               relative_parent_class: "DB::Relation",
-              body: [],
+              body: ["schema :#{schema_name}, infer: true"],
             ).call
           end
 
