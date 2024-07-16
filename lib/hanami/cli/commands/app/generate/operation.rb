@@ -7,7 +7,9 @@ module Hanami
         module Generate
           # @since 2.2.0
           # @api private
-          class Operation < Generate::Command
+          class Operation < Command
+            argument :name, required: true, desc: "Operation name"
+
             example [
               %(books.add               (MyApp::Books::Add)),
               %(books.add --slice=admin (Admin::Books::Add)),

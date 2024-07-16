@@ -9,7 +9,6 @@ module Hanami
           # @api private
           class Struct < Command
             argument :name, required: true, desc: "Struct name"
-            option :slice, required: false, desc: "Slice name"
 
             example [
               %(book                (MyApp::Structs::Book)),

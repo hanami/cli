@@ -9,7 +9,6 @@ module Hanami
           # @api private
           class Migration < Command
             argument :name, required: true, desc: "Migration name"
-            option :slice, required: false, desc: "Slice name"
 
             example [
               %(create_posts),
