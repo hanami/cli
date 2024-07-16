@@ -46,6 +46,7 @@ module Hanami
               prefix.register "migration", Generate::Migration
               prefix.register "operation", Generate::Operation
               prefix.register "part", Generate::Part
+              prefix.register "relation", Generate::Relation
               prefix.register "repo", Generate::Repo
               prefix.register "slice", Generate::Slice
               prefix.register "struct", Generate::Struct

@@ -7,7 +7,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
-  let(:dir) { inflector.underscore(app) }
 
   def output
     out.string.chomp
@@ -32,7 +31,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
       expect(output).to include("Created app/structs/book.rb")
     end
 
-    it "generates a struct in a deep namespace with default separator" do
+    it "generates a struct in a namespace with default separator" do
       subject.call(name: "book.book_draft")
 
       struct_file = <<~EXPECTED
@@ -53,7 +52,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
     end
 
     it "generates an struct in a deep namespace with slash separators" do
-      subject.call(name: "book/published_book")
+      subject.call(name: "book/published/hardcover")
 
       struct_file = <<~EXPECTED
         # frozen_string_literal: true
@@ -61,15 +60,17 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
         module Test
           module Structs
             module Book
-              class PublishedBook < Test::DB::Struct
+              module Published
+                class Hardcover < Test::DB::Struct
+                end
               end
             end
           end
         end
       EXPECTED
 
-      expect(fs.read("app/structs/book/published_book.rb")).to eq(struct_file)
-      expect(output).to include("Created app/structs/book/published_book.rb")
+      expect(fs.read("app/structs/book/published/hardcover.rb")).to eq(struct_file)
+      expect(output).to include("Created app/structs/book/published/hardcover.rb")
     end
   end
 

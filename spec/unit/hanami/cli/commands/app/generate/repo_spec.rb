@@ -7,10 +7,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
-  let(:dir) { inflector.underscore(app) }
 
   def output
-    out.rewind && out.read.chomp
+    out.string
   end
 
   context "generating for app" do
@@ -52,7 +51,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
       end
     end
 
-    it "generates a repo in a deep namespace with default separator" do
+    it "generates a repo in a namespace with default separator" do
       subject.call(name: "books.drafts_repo")
 
       repo_file = <<~EXPECTED
@@ -73,7 +72,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
     end
 
     it "generates an repo in a deep namespace with slash separators" do
-      subject.call(name: "books/published_repo")
+      subject.call(name: "books/published/hardcover_repo")
 
       repo_file = <<~EXPECTED
         # frozen_string_literal: true
@@ -81,15 +80,17 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
         module Test
           module Repos
             module Books
-              class PublishedRepo < Test::DB::Repo
+              module Published
+                class HardcoverRepo < Test::DB::Repo
+                end
               end
             end
           end
         end
       EXPECTED
 
-      expect(fs.read("app/repos/books/published_repo.rb")).to eq(repo_file)
-      expect(output).to include("Created app/repos/books/published_repo.rb")
+      expect(fs.read("app/repos/books/published/hardcover_repo.rb")).to eq(repo_file)
+      expect(output).to include("Created app/repos/books/published/hardcover_repo.rb")
     end
   end
 

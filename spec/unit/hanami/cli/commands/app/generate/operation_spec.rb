@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "hanami"
-
 RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
   subject { described_class.new(fs: fs, inflector: inflector, out: out) }
 
@@ -9,7 +7,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
-  let(:dir) { inflector.underscore(app) }
 
   def output
     out.string.chomp
