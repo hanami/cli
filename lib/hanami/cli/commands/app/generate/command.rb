@@ -14,7 +14,6 @@ module Hanami
           # @since 2.2.0
           # @api private
           class Command < App::Command
-            argument :name, required: true, desc: "Name"
             option :slice, required: false, desc: "Slice name"
 
             attr_reader :generator

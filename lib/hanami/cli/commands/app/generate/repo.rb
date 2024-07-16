@@ -15,7 +15,6 @@ module Hanami
           # @api private
           class Repo < Command
             argument :name, required: true, desc: "Repo name"
-            option :slice, required: false, desc: "Slice name"
 
             example [
               %(books               (MyApp::Repos::BooksRepo)),

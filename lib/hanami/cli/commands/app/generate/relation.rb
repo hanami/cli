@@ -9,7 +9,6 @@ module Hanami
           # @api private
           class Relation < Command
             argument :name, required: true, desc: "Relation name"
-            option :slice, required: false, desc: "Slice name"
 
             example [
               %(books               (MyApp::Relation::Book)),
