@@ -89,19 +89,19 @@ module Hanami
         # @since 2.2.0
         # @api private
         def generate_sqlite?
-          database_option == Commands::Gem::New::DATABASE_SQLITE
+          generate_db? && database_option == Commands::Gem::New::DATABASE_SQLITE
         end
 
         # @since 2.2.0
         # @api private
         def generate_postgres?
-          database_option == Commands::Gem::New::DATABASE_POSTGRES
+          generate_db? && database_option == Commands::Gem::New::DATABASE_POSTGRES
         end
 
         # @since 2.2.0
         # @api private
         def generate_mysql?
-          database_option == Commands::Gem::New::DATABASE_MYSQL
+          generate_db? && database_option == Commands::Gem::New::DATABASE_MYSQL
         end
 
         # @since 2.2.0
