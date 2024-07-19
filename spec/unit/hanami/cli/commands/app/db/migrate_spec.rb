@@ -323,7 +323,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     end
   end
 
-  context "no db/config dir" do
+  context "no db/config/" do
     def before_prepare
       write "app/relations/.keep", ""
     end
@@ -338,6 +338,27 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       expect(output).to include(
         "WARNING: Database db/app.sqlite3 expects the folder config/db/ to exist but it does not."
       )
+      expect(output).not_to include "migrated"
+    end
+  end
+
+  context "no db/config/migrate/" do
+    def before_prepare
+      write "app/relations/.keep", ""
+      write "config/db/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+    end
+
+    it "prints a warning, and does not migrate the database" do
+      command.call
+
+      expect(output).to include(
+        "WARNING: Database db/app.sqlite3 expects migrations to be located within config/db/migrate/ but that folder does not exist."
+      )
+      expect(output).to include("No database migrations can be run for this database.")
       expect(output).not_to include "migrated"
     end
   end

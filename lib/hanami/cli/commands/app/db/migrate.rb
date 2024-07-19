@@ -15,7 +15,11 @@ module Hanami
 
             def call(target: nil, app: false, slice: nil, dump: true, command_exit: method(:exit), **)
               databases(app: app, slice: slice).each do |database|
-                migrate_database(database, target: target)
+                if database.migrations_dir?
+                  migrate_database(database, target: target)
+                else
+                  warn_on_missing_migrations_dir(database)
+                end
               end
 
               run_command(Structure::Dump, app: app, slice: slice, command_exit: command_exit) if dump
@@ -39,6 +43,15 @@ module Hanami
 
             def migrations?(database)
               database.migrations_dir? && database.sequel_migrator.files.any?
+            end
+
+            def warn_on_missing_migrations_dir(database)
+              relative_path = database.slice.root.relative_path_from(database.slice.app.root).join("config", "db", "migrate").to_s
+              out.puts <<~STR
+                WARNING: Database #{database.name} expects migrations to be located within #{relative_path}/ but that folder does not exist.
+
+                No database migrations can be run for this database.
+              STR
             end
           end
         end
