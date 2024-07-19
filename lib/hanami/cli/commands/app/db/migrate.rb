@@ -15,10 +15,12 @@ module Hanami
 
             def call(target: nil, app: false, slice: nil, dump: true, command_exit: method(:exit), **)
               databases(app: app, slice: slice).each do |database|
-                if database.migrations_dir?
-                  migrate_database(database, target: target)
-                else
+                if migrations_dir_missing?(database)
                   warn_on_missing_migrations_dir(database)
+                elsif no_migrations?(database)
+                  warn_on_empty_migrations_dir(database)
+                else
+                  migrate_database(database, target: target)
                 end
               end
 
@@ -28,27 +30,36 @@ module Hanami
             private
 
             def migrate_database(database, target:)
-              return true unless migrations?(database)
-
               measure "database #{database.name} migrated" do
                 if target
                   database.run_migrations(target: Integer(target))
                 else
                   database.run_migrations
                 end
-
-                true
               end
             end
 
-            def migrations?(database)
-              database.migrations_dir? && database.sequel_migrator.files.any?
+            def migrations_dir_missing?(database)
+              !database.migrations_dir?
+            end
+
+            def no_migrations?(database)
+              database.sequel_migrator.files.empty?
             end
 
             def warn_on_missing_migrations_dir(database)
               relative_path = database.slice.root.relative_path_from(database.slice.app.root).join("config", "db", "migrate").to_s
               out.puts <<~STR
                 WARNING: Database #{database.name} expects migrations to be located within #{relative_path}/ but that folder does not exist.
+
+                No database migrations can be run for this database.
+              STR
+            end
+
+            def warn_on_empty_migrations_dir(database)
+              relative_path = database.slice.root.relative_path_from(database.slice.app.root).join("config", "db", "migrate").to_s
+              out.puts <<~STR
+                WARNING: Database #{database.name} has the correct migrations folder #{relative_path}/ but that folder is empty.
 
                 No database migrations can be run for this database.
               STR
