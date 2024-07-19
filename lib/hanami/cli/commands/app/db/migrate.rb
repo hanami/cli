@@ -68,7 +68,8 @@ module Hanami
                 .slice
                 .root
                 .relative_path_from(database.slice.app.root)
-                .join("config", "db", "migrate") + "/"
+                .join("config", "db", "migrate")
+                .to_s + "/"
             end
           end
         end
