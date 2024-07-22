@@ -51,11 +51,7 @@ module Hanami
           private
 
           def resolve_engine(engine, opts)
-            if engine
-              ENGINES.fetch(engine).(app, opts)
-            else
-              ENGINES.map { |(_, loader)| loader.(app, opts) }.compact.first
-            end
+            ENGINES.fetch(engine, ENGINES[DEFAULT_ENGINE]).call(app, opts)
           end
         end
       end
