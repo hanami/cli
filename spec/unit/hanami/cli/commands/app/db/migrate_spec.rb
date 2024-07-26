@@ -363,9 +363,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       command.call
 
       expect(output).to include(
-        "WARNING: Database db/app.sqlite3 has the correct migrations folder config/db/migrate/ but that folder is empty."
+        "NOTE: Empty database migrations folder (config/db/migrate/) for db/app.sqlite3"
       )
-      expect(output).to include("No database migrations can be run for this database.")
       expect(output).not_to include "migrated"
     end
   end

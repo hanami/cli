@@ -57,9 +57,7 @@ module Hanami
 
             def warn_on_empty_migrations_dir(database)
               out.puts <<~STR
-                WARNING: Database #{database.name} has the correct migrations folder #{relative_migrations_dir(database)} but that folder is empty.
-
-                No database migrations can be run for this database.
+                NOTE: Empty database migrations folder (#{relative_migrations_dir(database)}) for #{database.name}
               STR
             end
 
