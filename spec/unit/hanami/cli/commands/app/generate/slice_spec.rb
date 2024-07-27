@@ -71,6 +71,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
       # Relation
       relation = <<~EXPECTED
+        # auto_register: false
         # frozen_string_literal: true
 
         module Admin
@@ -87,6 +88,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
       # Repo
       repo = <<~EXPECTED
+        # auto_register: false
         # frozen_string_literal: true
 
         module Admin
@@ -103,6 +105,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
       # Struct
       struct = <<~EXPECTED
+        # auto_register: false
         # frozen_string_literal: true
 
         module Admin
