@@ -898,6 +898,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         # app/db/relation.rb
         relation = <<~EXPECTED
+          # auto_register: false
           # frozen_string_literal: true
 
           require "hanami/db/relation"
@@ -916,6 +917,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         # app/db/repo.rb
         repo = <<~EXPECTED
+          # auto_register: false
           # frozen_string_literal: true
 
           require "hanami/db/repo"
@@ -934,6 +936,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         # app/db/struct.rb
         struct = <<~EXPECTED
+          # auto_register: false
           # frozen_string_literal: true
 
           require "hanami/db/struct"
