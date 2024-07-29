@@ -85,6 +85,9 @@ module Hanami
               Process.fork do
                 cmd, *args = assets_command(slice)
                 system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
+              rescue NotImplementedError
+                cmd, *args = assets_command(slice)
+                system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
               rescue Interrupt
                 # When this has been interrupted (by the Signal.trap handler in #call), catch the
                 # interrupt and exit cleanly, without showing the default full backtrace.
