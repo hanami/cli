@@ -11,7 +11,7 @@ module Hanami
         module Assets
           # Base class for assets commands.
           #
-          # Finds slices with assets present (anything in an `assets/` dir), then forks a child
+          # Finds slices with assets present (anything in an `assets/` dir), then forks or spawns a child
           # process for each slice to run the assets command (`config/assets.js`) for the slice.
           #
           # Prefers the slice's own `config/assets.js` if present, otherwise falls back to the
@@ -85,6 +85,8 @@ module Hanami
               Process.fork do
                 cmd, *args = assets_command(slice)
                 system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
+              # Handle Process.fork not being implemented on non-POSIX OS's
+              # by only spawning a child process of the main process
               rescue NotImplementedError
                 cmd, *args = assets_command(slice)
                 system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
