@@ -88,8 +88,10 @@ module Hanami
               # Handle Process.fork not being implemented on non-POSIX OS's
               # by only spawning a child process of the main process
               rescue NotImplementedError
-                cmd, *args = assets_command(slice)
-                system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
+                Thread.new do
+                  cmd, *args = assets_command(slice)
+                  system_call.call(cmd, *args, out_prefix: "[#{slice.slice_name}] ")
+                end
               rescue Interrupt
                 # When this has been interrupted (by the Signal.trap handler in #call), catch the
                 # interrupt and exit cleanly, without showing the default full backtrace.
