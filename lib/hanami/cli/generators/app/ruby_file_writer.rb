@@ -23,7 +23,7 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(key:, namespace:, base_path:, relative_parent_class:, extra_namespace: nil, body: [])
-            Definition.new(
+            ClassFile.new(
               fs: fs,
               inflector: inflector,
               key: key,
@@ -42,7 +42,7 @@ module Hanami
           attr_reader :fs, :inflector
         end
 
-        class Definition
+        class ClassFile
           def initialize(
             fs:,
             inflector:,
