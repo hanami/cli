@@ -17,7 +17,7 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(_app_namespace, name, slice, **_opts)
+          def call(_namespace, name, slice, **_opts)
             normalized_name = inflector.underscore(name)
             ensure_valid_name(normalized_name)
 

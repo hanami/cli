@@ -17,7 +17,7 @@ module Hanami
           def initialize(
             fs:,
             inflector:,
-            app_namespace:,
+            namespace:,
             key:,
             slice:,
             relative_parent_class:,
@@ -26,7 +26,7 @@ module Hanami
           )
             @fs = fs
             @inflector = inflector
-            @app_namespace = app_namespace
+            @namespace = namespace
             @key = key
             @slice = slice
             @extra_namespace = extra_namespace&.downcase
@@ -49,7 +49,7 @@ module Hanami
           attr_reader(
             :fs,
             :inflector,
-            :app_namespace,
+            :namespace,
             :key,
             :slice,
             :extra_namespace,
@@ -76,7 +76,7 @@ module Hanami
           # @since 2.2.0
           # @api private
           def container_namespace
-            slice || app_namespace
+            slice || namespace
           end
 
           # @since 2.2.0
