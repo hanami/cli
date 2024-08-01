@@ -17,7 +17,6 @@ module Hanami
           def initialize(fs:, inflector:)
             @fs = fs
             @inflector = inflector
-            # raise_missing_slice_error_if_missing(slice) unless slice.app?
           end
 
           # @since 2.2.0
