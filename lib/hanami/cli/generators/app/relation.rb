@@ -19,7 +19,7 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(namespace, key, slice)
+          def call(key:, namespace:, base_path:)
             schema_name = key.split(KEY_SEPARATOR).last
 
             RubyFileWriter.new(
@@ -27,7 +27,7 @@ module Hanami
               inflector: inflector,
               namespace: namespace,
               key: key,
-              slice: slice,
+              base_path: base_path,
               extra_namespace: "Relations",
               relative_parent_class: "DB::Relation",
               body: ["schema :#{schema_name}, infer: true"],

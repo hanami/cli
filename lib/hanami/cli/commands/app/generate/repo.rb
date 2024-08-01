@@ -30,13 +30,9 @@ module Hanami
 
             # @since 2.2.0
             # @api private
-            def call(name:, slice: nil, **opts)
-              normalized_name = if name.end_with?("_repo")
-                                  name
-                                else
-                                  "#{inflector.singularize(name)}_repo"
-                                end
-              super(name: normalized_name, slice: slice, **opts)
+            def call(name:, **opts)
+              name = "#{inflector.singularize(name)}_repo" unless name.end_with?("_repo")
+              super
             end
           end
         end
