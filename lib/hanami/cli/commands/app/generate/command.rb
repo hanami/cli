@@ -38,12 +38,17 @@ module Hanami
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **)
-              namespace = if slice
-                            inflector.camelize(slice).gsub(/[^\p{Alnum}]/, "")
-                          else
-                            app.namespace
-                          end
-              generator.call(namespace, name)
+              generator.call(namespace: namespace(slice), key: name)
+            end
+
+            private
+
+            def namespace(slice)
+              if slice
+                inflector.camelize(slice).gsub(/[^\p{Alnum}]/, "")
+              else
+                app.namespace
+              end
             end
           end
         end
