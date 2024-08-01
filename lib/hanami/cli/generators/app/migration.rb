@@ -17,11 +17,12 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(_namespace, name, slice, **_opts)
+          def call(namespace:, name:, base_path:, **_opts)
+            _namespace = namespace
             normalized_name = inflector.underscore(name)
             ensure_valid_name(normalized_name)
 
-            base = if slice
+            base = if base_path == "app"
                      fs.join("slices", slice, "config", "db", "migrate")
                    else
                      fs.join("config", "db", "migrate")

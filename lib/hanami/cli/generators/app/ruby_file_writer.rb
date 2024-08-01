@@ -14,6 +14,35 @@ module Hanami
         class RubyFileWriter
           # @since 2.2.0
           # @api private
+          def initialize(fs:, inflector:)
+            @fs = fs
+            @inflector = inflector
+            # raise_missing_slice_error_if_missing(slice) unless slice.app?
+          end
+
+          # @since 2.2.0
+          # @api private
+          def call(key:, namespace:, base_path:, relative_parent_class:, extra_namespace: nil, body: [])
+            Definition.new(
+              fs: fs,
+              inflector: inflector,
+              key: key,
+              namespace: namespace,
+              base_path: base_path,
+              relative_parent_class: relative_parent_class,
+              extra_namespace: extra_namespace,
+              body: body,
+            ).write
+          end
+
+          private
+
+          # @since 2.2.0
+          # @api private
+          attr_reader :fs, :inflector
+        end
+
+        class Definition
           def initialize(
             fs:,
             inflector:,
@@ -26,19 +55,15 @@ module Hanami
           )
             @fs = fs
             @inflector = inflector
-            @namespace = namespace
             @key = key
+            @namespace = namespace
             @base_path = base_path
             @extra_namespace = extra_namespace&.downcase
             @relative_parent_class = relative_parent_class
             @body = body
-            # raise_missing_slice_error_if_missing(slice) unless slice.app?
           end
 
-          # @since 2.2.0
-          # @api private
-          def call
-            fs.mkdir(directory)
+          def write
             fs.write(path, file_contents)
           end
 
@@ -119,15 +144,6 @@ module Hanami
           # @api private
           def normalize(name)
             inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
-          end
-
-          # @since 2.2.0
-          # @api private
-          def raise_missing_slice_error_if_missing(slice)
-            # FIXME: Rename or remove?
-            unless fs.directory?(slice.source_path)
-              raise MissingSliceError.new(slice)
-            end
           end
         end
       end

@@ -25,13 +25,14 @@ module Hanami
             RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
+            ).call(
               namespace: namespace,
               key: key,
               base_path: base_path,
               extra_namespace: "Relations",
               relative_parent_class: "DB::Relation",
               body: ["schema :#{schema_name}, infer: true"],
-            ).call
+            )
           end
 
           private

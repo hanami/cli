@@ -23,12 +23,13 @@ module Hanami
             RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
+            ).call(
               namespace: namespace,
               base_path: base_path,
               key: key,
               relative_parent_class: "Operation",
               body: ["def call", "end"],
-            ).call
+            )
 
             unless key.match?(KEY_SEPARATOR)
               out.puts(
