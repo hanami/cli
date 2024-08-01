@@ -17,8 +17,9 @@ module Hanami
           def initialize(
             fs:,
             inflector:,
-            namespace:,
             key:,
+            namespace:,
+            base_path:,
             relative_parent_class:,
             extra_namespace: nil,
             body: []
@@ -27,6 +28,7 @@ module Hanami
             @inflector = inflector
             @namespace = namespace
             @key = key
+            @base_path = base_path
             @extra_namespace = extra_namespace&.downcase
             @relative_parent_class = relative_parent_class
             @body = body
@@ -47,8 +49,9 @@ module Hanami
           attr_reader(
             :fs,
             :inflector,
-            :namespace,
             :key,
+            :namespace,
+            :base_path,
             :extra_namespace,
             :relative_parent_class,
             :body,
@@ -79,18 +82,10 @@ module Hanami
           # @api private
           def directory
             @directory ||= if local_namespaces.any?
-                             fs.join(source_path, local_namespaces)
+                             fs.join(base_path, local_namespaces)
                            else
-                             source_path
+                             base_path
                            end
-          end
-
-          def source_path
-            if namespace == Hanami.app.namespace
-              "app"
-            else
-              fs.join("slices", inflector.underscore(namespace))
-            end
           end
 
           # @since 2.2.0
