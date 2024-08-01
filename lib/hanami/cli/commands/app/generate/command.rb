@@ -38,28 +38,18 @@ module Hanami
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **)
-              generator.call(
-                key: name,
-                namespace: namespace(slice),
-                base_path: base_path(slice)
-              )
-            end
-
-            private
-
-            def base_path(slice)
               if slice
-                fs.join("slices", inflector.underscore(slice))
+                generator.call(
+                  key: name,
+                  namespace: slice,
+                  base_path: fs.join("slices", inflector.underscore(slice))
+                )
               else
-                "app"
-              end
-            end
-
-            def namespace(slice)
-              if slice
-                inflector.camelize(slice).gsub(/[^\p{Alnum}]/, "")
-              else
-                app.namespace
+                generator.call(
+                  key: name,
+                  namespace: app.namespace,
+                  base_path: "app"
+                )
               end
             end
           end
