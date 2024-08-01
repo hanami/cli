@@ -19,13 +19,12 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(namespace, key, slice)
+          def call(namespace, key)
             RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
               namespace: namespace,
               key: key,
-              slice: slice,
               relative_parent_class: "Operation",
               body: ["def call", "end"],
             ).call
