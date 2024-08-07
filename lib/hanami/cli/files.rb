@@ -18,6 +18,15 @@ module Hanami
       # @api private
       def write(path, *content)
         already_exists = exist?(path)
+
+        # delete .keep file on generate, excluding running `hanami new`
+        base = path.split('/')[0]
+        keepfile = Dir.glob('**/.keep', base:)
+
+        if caller_locations(1,1)[0].label != 'generate_app' && keepfile.any? && exist?("#{base}/#{keepfile[0]}")
+          delete("#{base}/#{keepfile[0]}")
+        end
+
         super
         if already_exists
           updated(path)
