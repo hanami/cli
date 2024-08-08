@@ -16,6 +16,8 @@ gem "hanami-db", github: "hanami/db", branch: "main"
 gem "hanami-router", github: "hanami/router", branch: "main"
 gem "hanami-utils", github: "hanami/utils", branch: "main"
 
+gem "dry-system", github: "dry-rb/dry-system", branch: "main"
+
 gem "rack"
 
 gem "pg"
