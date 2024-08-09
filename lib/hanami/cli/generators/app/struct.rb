@@ -17,16 +17,17 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(app_namespace, key, slice)
+          def call(key:, namespace:, base_path:)
             RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
-              app_namespace: app_namespace,
+            ).call(
               key: key,
-              slice: slice,
+              namespace: namespace,
+              base_path: base_path,
               extra_namespace: "Structs",
               relative_parent_class: "DB::Struct",
-            ).call
+            )
           end
 
           private
