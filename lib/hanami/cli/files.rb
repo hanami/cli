@@ -19,15 +19,18 @@ module Hanami
       def write(path, *content)
         already_exists = exist?(path)
 
-        # delete .keep files unless running `hanami new`
-        base = path.split('/')[0]
-        keepfile = Dir.glob('**/.keep', base:)
+        if !directory?(path)
+          file = Pathname.new(path)
 
-        if caller_locations(1,1)[0].label != 'generate_app' && keepfile.any? && exist?("#{base}/#{keepfile[0]}")
-          delete("#{base}/#{keepfile[0]}")
+          file.ascend do |part|
+            potential_keepfile = (part.dirname + '.keep').to_path
+            delete(potential_keepfile) if exist?(potential_keepfile)
+          end
+
         end
 
         super
+
         if already_exists
           updated(path)
         else
