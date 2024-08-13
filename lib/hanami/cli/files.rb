@@ -21,6 +21,7 @@ module Hanami
 
         if !directory?(path)
           file = Pathname.new(path)
+          file = file.relative_path_from(Pathname.new('/')) unless file.relative?
 
           file.ascend do |part|
             potential_keepfile = (part.dirname + '.keep').to_path
