@@ -17,8 +17,7 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(namespace:, key:, base_path:, **_opts)
-            _namespace = namespace
+          def call(key:, base_path:, **_opts)
             name = inflector.underscore(key)
             ensure_valid_name(name)
 
