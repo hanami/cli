@@ -41,6 +41,17 @@ jobs:
       - name: Run all tests
         run: bundle exec rake spec
     services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3307:3306
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
       postgres:
         # Use postgres:14 for CLI compatibility with ubuntu-latest, currently ubuntu-22.04
         # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md
@@ -48,10 +59,10 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
