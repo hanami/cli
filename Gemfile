@@ -20,6 +20,7 @@ gem "dry-system", github: "dry-rb/dry-system", branch: "main"
 
 gem "rack"
 
+gem "mysql2"
 gem "pg"
 gem "sqlite3"
 

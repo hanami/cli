@@ -3,7 +3,6 @@
 require "open3"
 require "uri"
 
-# Default to a URL that should work with postgres as installed by asdf/mise.
 POSTGRES_BASE_DB_NAME = "hanami_cli_test"
 POSTGRES_BASE_URL = ENV.fetch("POSTGRES_BASE_URL", "postgres://postgres:postgres@localhost:5433/#{POSTGRES_BASE_DB_NAME}")
 POSTGRES_BASE_URI = URI(POSTGRES_BASE_URL)

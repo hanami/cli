@@ -54,6 +54,16 @@ module Hanami
                 )
               end
 
+              def schema_migrations_sql_dump
+                search_path = slice["db.gateway"].connection
+                  .fetch("SHOW search_path").to_a.first
+                  .fetch(:search_path)
+
+                +"SET search_path TO #{search_path};\n\n" << super
+              end
+
+              private
+
               def escaped_name
                 Shellwords.escape(name)
               end
@@ -65,14 +75,6 @@ module Hanami
                   vars["PGUSER"] = database_uri.user.to_s if database_uri.user
                   vars["PGPASSWORD"] = database_uri.password.to_s if database_uri.password
                 end
-              end
-
-              def schema_migrations_sql_dump
-                search_path = slice["db.gateway"].connection
-                  .fetch("SHOW search_path").to_a.first
-                  .fetch(:search_path)
-
-                +"SET search_path TO #{search_path};\n\n" << super
               end
             end
           end

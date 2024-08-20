@@ -6,7 +6,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
   let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  def output; out.string; end
+  def output = out.string
 
   before do
     # Prevent the command from exiting the spec run in the case of unexpected system call failures
@@ -94,6 +94,22 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         expect { Hanami.app["db.gateway"] }.not_to raise_error
 
         expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
+      end
+    end
+
+    describe "mysql", :mysql do
+      before do
+        ENV["DATABASE_URL"] = "#{MYSQL_BASE_URL}_app"
+      end
+
+      it "creates the database" do
+        command.call
+
+        # binding.irb
+
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
+
+        expect(output).to include "database #{MYSQL_BASE_DB_NAME}_app created"
       end
     end
   end
