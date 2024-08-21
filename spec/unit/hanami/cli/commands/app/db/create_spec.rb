@@ -105,7 +105,16 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       it "creates the database" do
         command.call
 
-        # binding.irb
+        expect { Hanami.app["db.gateway"] }.not_to raise_error
+
+        expect(output).to include "database #{MYSQL_BASE_DB_NAME}_app created"
+      end
+
+      it "does not create the database if it already exists" do
+        command.run_command(Hanami::CLI::Commands::App::DB::Create)
+        out.truncate(0)
+
+        command.call
 
         expect { Hanami.app["db.gateway"] }.not_to raise_error
 
