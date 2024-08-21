@@ -6,7 +6,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
   let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  def output; out.string; end
+  def output = out.string
 
   before do
     # Prevent the command from exiting the spec run in the case of unexpected system call failures
@@ -248,6 +248,62 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
       expect(output).to include "app-db-err"
 
       expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main dropped"
+
+      expect(command).to have_received(:exit).with(2).once
+    end
+  end
+
+  describe "mysql", :mysql do
+    before do
+      ENV["DATABASE_URL"] = "#{MYSQL_BASE_URL}_app"
+    end
+
+    it "drops the database" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      expect { Hanami.app["db.gateway"].connection.test_connection }.not_to raise_error
+      Hanami.app.stop :db
+
+      command.call
+
+      expect {
+        Hanami.app["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+
+      expect(command).not_to have_received(:exit)
+    end
+
+    it "does not drop a database that does not exist" do
+      command.call
+
+      expect {
+        Hanami.app["db.gateway"].connection.test_connection
+      }.to raise_error Sequel::DatabaseConnectionError
+
+      expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app dropped"
+
+      expect(command).not_to have_received(:exit)
+    end
+
+    it "prints errors for any drop commands that fail and exits with non-zero status" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_matching(/-e "DROP DATABASE/), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-db-err")
+
+      command.call
+
+      expect { Hanami.app["db.gateway"].connection.test_connection }.not_to raise_error
+
+      expect(output).to include "failed to drop database #{POSTGRES_BASE_DB_NAME}_app"
+      expect(output).to include "app-db-err"
 
       expect(command).to have_received(:exit).with(2).once
     end

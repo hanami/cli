@@ -19,6 +19,14 @@ module Hanami
 
               # @api private
               # @since 2.2.0
+              def exec_drop_command
+                return true unless exists?
+
+                exec_mysql_cli(%(-e "DROP DATABASE #{escaped_name}"))
+              end
+
+              # @api private
+              # @since 2.2.0
               def exists?
                 result = exec_mysql_cli(%(-e "SHOW DATABASES LIKE '#{name}'" --batch))
 
