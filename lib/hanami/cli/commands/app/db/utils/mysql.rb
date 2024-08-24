@@ -14,7 +14,7 @@ module Hanami
               def exec_create_command
                 return true if exists?
 
-                exec_mysql_cli(%(-e "CREATE DATABASE #{escaped_name}"))
+                exec_cli("mysql", %(-e "CREATE DATABASE #{escaped_name}"))
               end
 
               # @api private
@@ -22,20 +22,23 @@ module Hanami
               def exec_drop_command
                 return true unless exists?
 
-                exec_mysql_cli(%(-e "DROP DATABASE #{escaped_name}"))
+                exec_cli("mysql", %(-e "DROP DATABASE #{escaped_name}"))
               end
 
               # @api private
               # @since 2.2.0
               def exists?
-                result = exec_mysql_cli(%(-e "SHOW DATABASES LIKE '#{name}'" --batch))
+                result = exec_cli("mysql", %(-e "SHOW DATABASES LIKE '#{name}'" --batch))
 
                 result.successful? && result.out != ""
               end
 
               # @api private
               def exec_dump_command
-                raise Hanami::CLI::NotImplementedError
+                exec_cli(
+                  "mysqldump",
+                  "--no-data --routines --skip-comments --result-file=#{structure_file} #{escaped_name}"
+                )
               end
 
               # @api private
@@ -49,9 +52,9 @@ module Hanami
                 Shellwords.escape(name)
               end
 
-              def exec_mysql_cli(cli_args)
+              def exec_cli(cli_name, cli_args)
                 system_call.call(
-                  "mysql #{cli_options} #{cli_args}",
+                  "#{cli_name} #{cli_options} #{cli_args}",
                   env: cli_env_vars
                 )
               end
