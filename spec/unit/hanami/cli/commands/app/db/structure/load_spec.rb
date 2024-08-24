@@ -8,7 +8,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
   let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  def output; out.string; end
+  def output = out.string
 
   before do
     # Prevent the command from exiting the spec run in the case of unexpected system call failures
@@ -169,6 +169,52 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
       expect(output).to include %("#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql" FAILED)
       expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
+
+      expect(command).to have_received(:exit).with 2
+    end
+  end
+
+  describe "mysql", :mysql do
+    before do
+      ENV["DATABASE_URL"] = "#{MYSQL_BASE_URL}_app"
+      db_structure_dump
+    end
+
+    def table_exists?(slice, table_name)
+      connection = slice["db.gateway"].connection
+      database_name = connection.fetch("SELECT DATABASE()").to_a.first.values.first
+
+      connection.fetch(<<~SQL).to_a.length == 1
+        SELECT TABLE_NAME
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE table_schema = '#{database_name}'
+        AND table_name = '#{table_name}'
+      SQL
+    end
+
+    it "loads the structure for each db" do
+      expect { command.call }
+        .to change { table_exists?(Hanami.app, "posts") }
+        .to true
+
+      expect(output).to include(
+        "#{MYSQL_BASE_DB_NAME}_app structure loaded from config/db/structure.sql",
+      )
+    end
+
+    it "prints errors for any dumps that fail and exits with non-zero status" do
+      # Fail to load the app db
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_including("#{MYSQL_BASE_DB_NAME}_app"), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-load-err")
+
+      command.call
+
+      expect(table_exists?(Hanami.app, "posts")).to be false
+
+      expect(output).to include %("#{MYSQL_BASE_DB_NAME}_app structure loaded from config/db/structure.sql" FAILED)
 
       expect(command).to have_received(:exit).with 2
     end

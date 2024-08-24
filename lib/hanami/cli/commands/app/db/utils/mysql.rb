@@ -43,7 +43,12 @@ module Hanami
 
               # @api private
               def exec_load_command
-                raise Hanami::CLI::NotImplementedError
+                exec_cli(
+                  "mysql",
+                  %(--execute "SET FOREIGN_KEY_CHECKS = 0; SOURCE #{structure_file}; SET FOREIGN_KEY_CHECKS = 1" --database #{escaped_name})
+                )
+
+                # binding.irb
               end
 
               private
