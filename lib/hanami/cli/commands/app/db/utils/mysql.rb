@@ -34,6 +34,7 @@ module Hanami
               end
 
               # @api private
+              # @since 2.2.0
               def exec_dump_command
                 exec_cli(
                   "mysqldump",
@@ -42,13 +43,12 @@ module Hanami
               end
 
               # @api private
+              # @since 2.2.0
               def exec_load_command
                 exec_cli(
                   "mysql",
                   %(--execute "SET FOREIGN_KEY_CHECKS = 0; SOURCE #{structure_file}; SET FOREIGN_KEY_CHECKS = 1" --database #{escaped_name})
                 )
-
-                # binding.irb
               end
 
               private

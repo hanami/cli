@@ -4,7 +4,7 @@ require "open3"
 require "uri"
 
 MYSQL_BASE_DB_NAME = "hanami_cli_test"
-# Use "127.0.0.1" instead of "localhost" so MySQL connects with TCP instead of a Unix socket
+# Connect to "127.0.0.1" instead of "localhost" so MySQL uses TCP rather than a Unix socket
 MYSQL_BASE_URL = ENV.fetch("MYSQL_BASE_URL", "mysql2://root:password@127.0.0.1:3307/#{MYSQL_BASE_DB_NAME}")
 MYSQL_BASE_URI = URI(MYSQL_BASE_URL)
 
