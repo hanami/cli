@@ -68,4 +68,4 @@ RSpec.configure do |config|
   end
 end
 
-Dir.glob("#{__dir__}/support/**/*.rb").each(&method(:require))
+Dir.glob("#{__dir__}/support/**/*.rb").each { require _1 }
