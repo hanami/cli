@@ -4,7 +4,7 @@ require "open3"
 require "uri"
 
 POSTGRES_BASE_DB_NAME = "hanami_cli_test"
-POSTGRES_BASE_URL = ENV.fetch("POSTGRES_BASE_URL", "postgres://postgres:postgres@localhost:5433/#{POSTGRES_BASE_DB_NAME}")
+POSTGRES_BASE_URL = ENV.fetch("POSTGRES_BASE_URL", "postgres://postgres:password@localhost:5433/#{POSTGRES_BASE_DB_NAME}")
 POSTGRES_BASE_URI = URI(POSTGRES_BASE_URL)
 
 RSpec.configure do |config|
