@@ -102,8 +102,9 @@ module Hanami
 
                 STR
               elsif slices.length < 1
+                relative_path = database.slice.root.relative_path_from(database.slice.app.root).join("config", "db").to_s
                 out.puts <<~STR
-                  WARNING: Database #{database.name} has no config/db/ directory.
+                  WARNING: Database #{database.name} expects the folder #{relative_path}/ to exist but it does not.
 
                 STR
               end

@@ -1243,7 +1243,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("mysql2")
-          expect(fs.read(".env")).to include("DATABASE_URL=mysql://localhost/#{app}")
+          expect(fs.read(".env")).to include("DATABASE_URL=mysql2://localhost/#{app}")
           expect(fs.read(".gitignore")).to_not include("db/*.sqlite")
           expect(fs.exist?("db/")).to be(false)
         end
@@ -1255,7 +1255,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("mysql2")
-          expect(fs.read(".env")).to include("DATABASE_URL=mysql://localhost/#{app}")
+          expect(fs.read(".env")).to include("DATABASE_URL=mysql2://localhost/#{app}")
           expect(fs.read(".gitignore")).to_not include("db/*.sqlite")
           expect(fs.exist?("db/")).to be(false)
         end

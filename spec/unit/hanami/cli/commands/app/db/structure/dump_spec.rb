@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration, :postgres do
+RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration do
   subject(:command) {
     described_class.new(system_call: system_call, out: out)
   }
@@ -8,7 +8,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
   let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  def output; out.string; end
+  def output = out.string
 
   before do
     # Prevent the command from exiting the spec run in the case of unexpected system call failures
@@ -210,6 +210,45 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
 
       expect(output).to include %("#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql" FAILED)
       expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql"
+
+      expect(command).to have_received(:exit).with 2
+    end
+  end
+
+  describe "mysql", :mysql do
+    before do
+      ENV["DATABASE_URL"] = "#{MYSQL_BASE_URL}_app"
+      db_migrate
+    end
+
+    it "dumps the structure, including schema_migrations" do
+      command.call
+
+      dump = File.read(Hanami.app.root.join("config", "db", "structure.sql"))
+      expect(dump).to include("CREATE TABLE `posts`")
+      expect(dump).to include(<<~SQL)
+        INSERT INTO schema_migrations (filename) VALUES
+        ('20240602201330_create_posts.rb');
+      SQL
+
+      expect(output).to include(
+        "#{MYSQL_BASE_DB_NAME}_app structure dumped to config/db/structure.sql"
+      )
+    end
+
+    it "prints errors for any dumps that fail and exits with non-zero status" do
+      # Fail to dump the app db
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_including("mysqldump"), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "dump-err")
+
+      command.call
+
+      expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be false
+
+      expect(output).to include %("#{MYSQL_BASE_DB_NAME}_app structure dumped to config/db/structure.sql" FAILED)
 
       expect(command).to have_received(:exit).with 2
     end
