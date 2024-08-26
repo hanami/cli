@@ -25,6 +25,9 @@ module Hanami
             DEFAULT_SKIP_TESTS = false
             private_constant :DEFAULT_SKIP_TESTS
 
+            DEFAULT_SKIP_ROUTE = false
+            private_constant :DEFAULT_SKIP_ROUTE
+
             argument :name, required: true, desc: "Action name"
             option :url, required: false, type: :string, desc: "Action URL"
             option :http, required: false, type: :string, desc: "Action HTTP method"
@@ -41,6 +44,12 @@ module Hanami
               type: :flag,
               default: DEFAULT_SKIP_TESTS,
               desc: "Skip test generation"
+            option \
+              :skip_route,
+              required: false,
+              type: :flag,
+              default: DEFAULT_SKIP_ROUTE,
+              desc: "Skip route generation"
             option :slice, required: false, desc: "Slice name"
 
             # rubocop:disable Layout/LineLength
@@ -83,7 +92,8 @@ module Hanami
               http: nil,
               format: DEFAULT_FORMAT,
               skip_view: DEFAULT_SKIP_VIEW,
-              skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument
+              skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument,
+              skip_route: DEFAULT_SKIP_ROUTE,
               slice: nil,
               context: nil,
               **
@@ -96,7 +106,7 @@ module Hanami
                 raise InvalidActionNameError.new(name)
               end
 
-              generator.call(app.namespace, controller, action, url, http, format, skip_view, slice, context: context)
+              generator.call(app.namespace, controller, action, url, http, format, skip_view, skip_route, slice, context: context)
             end
 
             # rubocop:enable Metrics/ParameterLists
