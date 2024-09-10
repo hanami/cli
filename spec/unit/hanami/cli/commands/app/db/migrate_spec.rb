@@ -240,22 +240,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     end
   end
 
-  context "no migration files" do
-    def before_prepare
-      write "config/db/migrate/.keep", ""
-    end
-
-    before do
-      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
-      db_create
-    end
-
-    it "does nothing" do
-      command.call
-      expect(output).to be_empty
-    end
-  end
-
   context "multiple dbs with identical database_url" do
     def before_prepare
       write "slices/admin/config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
@@ -323,7 +307,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     end
   end
 
-  context "no db config dir" do
+  context "no db/config/" do
     def before_prepare
       write "app/relations/.keep", ""
     end
@@ -335,7 +319,52 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     it "prints a warning, and does not migrate the database" do
       command.call
 
-      expect(output).to match %{WARNING:.+no config/db/ directory.}
+      expect(output).to include(
+        "WARNING: Database db/app.sqlite3 expects the folder config/db/ to exist but it does not."
+      )
+      expect(output).not_to include "migrated"
+    end
+  end
+
+  context "no db/config/migrate/" do
+    def before_prepare
+      write "app/relations/.keep", ""
+      write "config/db/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+    end
+
+    it "prints a warning, and does not migrate the database" do
+      command.call
+
+      expect(output).to include(
+        "WARNING: Database db/app.sqlite3 expects migrations to be located within config/db/migrate/ but that folder does not exist."
+      )
+      expect(output).to include("No database migrations can be run for this database.")
+      expect(output).not_to include "migrated"
+    end
+  end
+
+  context "empty db/config/migrate/" do
+    def before_prepare
+      write "app/relations/.keep", ""
+      write "config/db/.keep", ""
+      write "config/db/migrate/.keep", ""
+    end
+
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+      db_create
+    end
+
+    it "prints a warning, and does not migrate the database" do
+      command.call
+
+      expect(output).to include(
+        "NOTE: Empty database migrations folder (config/db/migrate/) for db/app.sqlite3"
+      )
       expect(output).not_to include "migrated"
     end
   end
