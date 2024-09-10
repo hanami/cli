@@ -14,7 +14,7 @@ module Hanami
             class Postgres < Database
               # @api private
               def create_command
-                existing_stdout, status = Open3.capture2(cli_env_vars, "psql -t -c '\\l #{escaped_name}'")
+                existing_stdout, status = Open3.capture2(cli_env_vars.merge("PGDATABASE" => "postgres"), "psql -t -c '\\l #{escaped_name}'")
 
                 return true if status.success? && existing_stdout.include?(escaped_name)
 
