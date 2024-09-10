@@ -19,16 +19,17 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(app_namespace, key, slice)
+          def call(key:, namespace:, base_path:)
             RubyFileWriter.new(
               fs: fs,
               inflector: inflector,
-              app_namespace: app_namespace,
+            ).call(
+              namespace: namespace,
+              base_path: base_path,
               key: key,
-              slice: slice,
               relative_parent_class: "Operation",
               body: ["def call", "end"],
-            ).call
+            )
 
             unless key.match?(KEY_SEPARATOR)
               out.puts(

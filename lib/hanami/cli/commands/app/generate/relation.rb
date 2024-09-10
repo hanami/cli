@@ -21,12 +21,6 @@ module Hanami
             def generator_class
               Generators::App::Relation
             end
-
-            # @since 2.2.0
-            # @api private
-            def call(name:, slice: nil, **opts)
-              super(name: name, slice: slice, **opts)
-            end
           end
         end
       end
