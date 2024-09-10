@@ -2,6 +2,9 @@
 # frozen_string_literal: true
 
 require "dry/operation"
+<%- if generate_db? -%>
+require "dry/operation/extensions/rom"
+<%- end -%>
 
 module <%= camelized_app_name %>
   class Operation < Dry::Operation
