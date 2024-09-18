@@ -9,12 +9,13 @@ module Hanami
           class Migrate < DB::Command
             desc "Migrates database"
 
+            option :gateway, required: false, desc: "Use database for gateway"
             option :target, desc: "Target migration number", aliases: ["-t"]
             option :dump, required: false, type: :boolean, default: true,
                           desc: "Dump the database structure after migrating"
 
-            def call(target: nil, app: false, slice: nil, dump: true, command_exit: method(:exit), **)
-              databases(app: app, slice: slice).each do |database|
+            def call(target: nil, app: false, slice: nil, gateway: nil, dump: true, command_exit: method(:exit), **)
+              databases(app: app, slice: slice, gateway: gateway).each do |database|
                 if migrations_dir_missing?(database)
                   warn_on_missing_migrations_dir(database)
                 elsif no_migrations?(database)
@@ -24,7 +25,7 @@ module Hanami
                 end
               end
 
-              run_command(Structure::Dump, app: app, slice: slice, command_exit: command_exit) if dump
+              run_command(Structure::Dump, app: app, slice: slice, gateway: gateway, command_exit: command_exit) if dump
             end
 
             private
@@ -36,6 +37,8 @@ module Hanami
                 else
                   database.run_migrations
                 end
+
+                true
               end
             end
 

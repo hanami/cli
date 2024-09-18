@@ -9,7 +9,7 @@ unless ENV["CI"]
   gem "yard-junk"
 end
 
-gem "hanami", github: "hanami/hanami", branch: "main"
+gem "hanami", github: "hanami/hanami", branch: "multiple-gateways"
 gem "hanami-assets", github: "hanami/assets", branch: "main"
 gem "hanami-controller", github: "hanami/controller", branch: "main"
 gem "hanami-db", github: "hanami/db", branch: "main"

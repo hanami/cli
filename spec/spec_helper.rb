@@ -66,6 +66,8 @@ RSpec.configure do |config|
     example.run
     $LOADED_FEATURES.delete(SPEC_ROOT.join("fixtures/test/config/app.rb").to_s)
   end
+
+  RSpec::Matchers.define_negated_matcher :not_change, :change
 end
 
 Dir.glob("#{__dir__}/support/**/*.rb").each { require _1 }

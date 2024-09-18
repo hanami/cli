@@ -11,9 +11,6 @@ module Hanami
             # @api private
             # @since 2.2.0
             class Database
-              MIGRATIONS_DIR = "config/db/migrate"
-              private_constant :MIGRATIONS_DIR
-
               DATABASE_CLASS_RESOLVER = Hash.new { |_, key|
                 raise "#{key} is not a supported db scheme"
               }.update(
@@ -35,21 +32,32 @@ module Hanami
                 }
               ).freeze
 
-              def self.[](slice, system_call:)
+              def self.from_slice(slice:, system_call:)
                 provider = slice.container.providers[:db]
                 raise "this is not a db slice" unless provider
 
-                database_scheme = provider.source.database_url.then { URI(_1).scheme }
-                database_class = DATABASE_CLASS_RESOLVER[database_scheme].call
-                database_class.new(slice: slice, system_call: system_call)
+                provider.source.database_urls.map { |(gateway_name, database_url)|
+                  database_scheme = URI(database_url).scheme
+                  database_class = DATABASE_CLASS_RESOLVER[database_scheme].call
+
+                  database = database_class.new(
+                    slice: slice,
+                    gateway_name: gateway_name,
+                    system_call: system_call
+                  )
+
+                  [gateway_name, database]
+                }.to_h
               end
 
               attr_reader :slice
+              attr_reader :gateway_name
 
               attr_reader :system_call
 
-              def initialize(slice:, system_call:)
+              def initialize(slice:, gateway_name:, system_call:)
                 @slice = slice
+                @gateway_name = gateway_name
                 @system_call = system_call
               end
 
@@ -58,7 +66,7 @@ module Hanami
               end
 
               def database_url
-                slice.container.providers[:db].source.database_url
+                slice.container.providers[:db].source.database_urls.fetch(gateway_name)
               end
 
               def database_uri
@@ -66,7 +74,7 @@ module Hanami
               end
 
               def gateway
-                slice["db.config"].gateways[:default]
+                slice["db.config"].gateways[gateway_name]
               end
 
               def connection
@@ -128,7 +136,15 @@ module Hanami
               end
 
               def migrations_path
-                slice.root.join(MIGRATIONS_DIR)
+                path = slice.root.join("config", "db")
+
+                if gateway_name == :default
+                  path = path.join("migrate")
+                else
+                  path = path.join("#{gateway_name}_migrate")
+                end
+
+                path
               end
 
               def migrations_dir?
@@ -136,7 +152,13 @@ module Hanami
               end
 
               def structure_file
-                slice.root.join("config/db/structure.sql")
+                path = slice.root.join("config", "db")
+
+                if gateway_name == :default
+                  path.join("structure.sql")
+                else
+                  path.join("#{gateway_name}_structure.sql")
+                end
               end
 
               def schema_migrations_sql_dump

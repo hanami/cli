@@ -121,6 +121,80 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Dump, :app_integration
       expect(output).not_to include "db/app.sqlite3"
     end
 
+    context "app with gateways" do
+      def before_prepare
+        ENV["DATABASE_URL__EXTRA"] = "sqlite://db/app_extra.sqlite3"
+
+        write "config/db/extra_migrate/20240602201330_create_users.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :users do
+                primary_key :id
+                column :name, :text, null: false
+              end
+            end
+          end
+        RUBY
+      end
+
+      it "dumps the structure for all the app's gateways when given --app" do
+        command.call(app: true)
+
+        expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be true
+        expect(Hanami.app.root.join("config", "db", "extra_structure.sql").exist?).to be true
+
+        expect(output).to include "db/app.sqlite3 structure dumped to config/db/structure.sql"
+        expect(output).to include "db/app_extra.sqlite3 structure dumped to config/db/extra_structure.sql"
+      end
+
+      it "dumps the structure for for a slice's gateway when given --app and --gateway" do
+        command.call(app: true, gateway: "extra")
+
+        expect(Hanami.app.root.join("config", "db", "extra_structure.sql").exist?).to be true
+        expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be false
+
+        expect(output).to include "db/app_extra.sqlite3 structure dumped to config/db/extra_structure.sql"
+        expect(output).not_to include "db/app.sqlite3"
+      end
+    end
+
+    context "slice with gateways" do
+      def before_prepare
+        ENV["MAIN__DATABASE_URL__EXTRA"] = "sqlite://db/main_extra.sqlite3"
+
+        write "slices/main/config/db/extra_migrate/20240602201330_create_users.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :users do
+                primary_key :id
+                column :name, :text, null: false
+              end
+            end
+          end
+        RUBY
+      end
+
+      it "dumps the structure for all the slice's gateways when given --slice" do
+        command.call(slice: "main")
+
+        expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be true
+        expect(Main::Slice.root.join("config", "db", "extra_structure.sql").exist?).to be true
+
+        expect(output).to include "db/main.sqlite3 structure dumped to slices/main/config/db/structure.sql"
+        expect(output).to include "db/main_extra.sqlite3 structure dumped to slices/main/config/db/extra_structure.sql"
+      end
+
+      it "dumps the structure for for a slice's gateway when given --slice and --gateway" do
+        command.call(slice: "main", gateway: "extra")
+
+        expect(Main::Slice.root.join("config", "db", "extra_structure.sql").exist?).to be true
+        expect(Main::Slice.root.join("config", "db", "structure.sql").exist?).to be false
+
+        expect(output).to include "db/main_extra.sqlite3 structure dumped to slices/main/config/db/extra_structure.sql"
+        expect(output).not_to include "db/main.sqlite3"
+      end
+    end
+
     it "prints errors for any dumps that fail and exits with non-zero status" do
       # Fail to dump the app db
       allow(system_call).to receive(:call).and_call_original

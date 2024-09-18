@@ -39,56 +39,76 @@ module Hanami
 
             private
 
-            def databases(app: false, slice: nil)
-              if app
-                [database_for_app]
-              elsif slice
-                [database_for_slice(slice)]
+            def databases(app: false, slice: nil, gateway: nil)
+              databases =
+                if app
+                  [database_for_app(gateway: gateway)]
+                elsif slice
+                  [database_for_slice(slice, gateway: gateway)]
+                elsif gateway
+                  # TODO: fix these conditions, it's a bit messy now
+                  [database_for_app(gateway: gateway)]
+                else
+                  all_databases
+                end
+
+              databases.flatten
+            end
+
+            def database_for_app(gateway: nil)
+              databases = build_databases(app)
+
+              # TODO: see if we can unify this methid with database_for_slice
+              if gateway
+                databases.fetch(gateway.to_sym) # TODO: raise unknown gateway error for missing key
               else
-                all_databases
+                databases.values
               end
             end
 
-            def database_for_app
-              build_database(app)
-            end
-
-            def database_for_slice(slice)
+            def database_for_slice(slice, gateway: nil)
               unless slice.is_a?(Class) && slice < Hanami::Slice
                 slice_name = inflector.underscore(Shellwords.shellescape(slice)).to_sym
                 slice = app.slices[slice_name]
               end
 
-              build_database(slice)
+              databases = build_databases(slice)
+
+              if gateway
+                databases.fetch(gateway.to_sym) # TODO: raise unknown gateway error for missing key
+              else
+                databases.values
+              end
             end
 
             def all_databases
               slices = [app] + app.slices.with_nested
 
               slices_by_database_url = slices.each_with_object({}) { |slice, hsh|
-                provider = slice.container.providers[:db]
-                next unless provider
+                db_provider_source = slice.container.providers[:db]&.source
+                next unless db_provider_source
 
-                database_url = provider.source.database_url
-                hsh[database_url] ||= []
-                hsh[database_url] << slice
+                db_provider_source.database_urls.values.each do |url|
+                  hsh[url] ||= []
+                  hsh[url] << slice
+                end
               }
 
-              databases = slices_by_database_url.each_with_object([]) { |(url, slices), arr|
+              slices_by_database_url.each_with_object([]) { |(url, slices), arr|
                 slices_with_config = slices.select { _1.root.join("config", "db").directory? }
 
-                database = build_database(slices_with_config.first || slices.first)
+                databases = build_databases(slices_with_config.first || slices.first).values
 
-                warn_on_misconfigured_database database, slices_with_config
+                databases.each do |database|
+                  warn_on_misconfigured_database database, slices_with_config
+                end
 
-                arr << database
+                arr.concat databases
               }
-
-              databases
             end
 
-            def build_database(slice)
-              Utils::Database[slice, system_call: system_call]
+            def build_databases(slice)
+              Utils::Database.from_slice(slice: slice, system_call: system_call)
             end
 
             def warn_on_misconfigured_database(database, slices)
@@ -96,13 +116,14 @@ module Hanami
                 out.puts <<~STR
                   WARNING: Database #{database.name} is configured for multiple config/db/ directories:
 
-                  #{slices.map { "- " + _1.root.relative_path_from(_1.app.root).join("config", "db").to_s }.join("\n")}
+                  #{slices.map { '- ' + _1.root.relative_path_from(_1.app.root).join('config', 'db').to_s }.join("\n")}
 
                   Migrating database using #{database.slice.slice_name.to_s.inspect} slice only.
 
                 STR
               elsif slices.length < 1
-                relative_path = database.slice.root.relative_path_from(database.slice.app.root).join("config", "db").to_s
+                relative_path = database.slice.root.relative_path_from(database.slice.app.root).join("config",
+                                                                                                     "db").to_s
                 out.puts <<~STR
                   WARNING: Database #{database.name} expects the folder #{relative_path}/ to exist but it does not.
 

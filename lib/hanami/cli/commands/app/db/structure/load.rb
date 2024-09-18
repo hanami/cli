@@ -14,15 +14,17 @@ module Hanami
 
               desc "Loads database from config/db/structure.sql file"
 
+              option :gateway, required: false, desc: "Use database for gateway"
+
               # @api private
-              def call(app: false, slice: nil, command_exit: method(:exit), **)
+              def call(app: false, slice: nil, gateway: nil, command_exit: method(:exit), **)
                 exit_codes = []
 
-                databases(app: app, slice: slice).each do |database|
-                  structure_path = database.slice.root.join(STRUCTURE_PATH)
-                  next unless structure_path.exist?
+                databases(app: app, slice: slice, gateway: gateway).each do |database|
+                  next unless database.structure_file.exist?
 
-                  relative_structure_path = structure_path.relative_path_from(database.slice.app.root)
+                  relative_structure_path = database.structure_file
+                    .relative_path_from(database.slice.app.root)
 
                   measure("#{database.name} structure loaded from #{relative_structure_path}") do
                     catch :load_failed do
