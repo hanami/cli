@@ -40,6 +40,11 @@ module Hanami
             private
 
             def databases(app: false, slice: nil, gateway: nil)
+              if gateway && !app && !slice
+                err.puts "When specifying --gateway, an --app or --slice must also be given"
+                exit 1
+              end
+
               databases =
                 if slice
                   [database_for_slice(slice, gateway: gateway)]
@@ -61,7 +66,10 @@ module Hanami
               databases = build_databases(slice)
 
               if gateway
-                databases.fetch(gateway.to_sym) # TODO: raise unknown gateway error for missing key
+                databases.fetch(gateway.to_sym) do
+                  err.puts %(No gateway "#{gateway}" in #{slice})
+                  exit 1
+                end
               else
                 databases.values
               end
