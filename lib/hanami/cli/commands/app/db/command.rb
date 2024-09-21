@@ -119,14 +119,16 @@ module Hanami
                 out.puts <<~STR
                   WARNING: Database #{database.name} is configured for multiple config/db/ directories:
 
-                  #{slices.map { '- ' + _1.root.relative_path_from(_1.app.root).join('config', 'db').to_s }.join("\n")}
+                  #{slices.map { "- " + _1.root.relative_path_from(_1.app.root).join("config", "db").to_s }.join("\n")}
 
                   Migrating database using #{database.slice.slice_name.to_s.inspect} slice only.
 
                 STR
               elsif slices.length < 1
-                relative_path = database.slice.root.relative_path_from(database.slice.app.root).join("config",
-                                                                                                     "db").to_s
+                relative_path = database.slice.root
+                  .relative_path_from(database.slice.app.root)
+                  .join("config", "db").to_s
+
                 out.puts <<~STR
                   WARNING: Database #{database.name} expects the folder #{relative_path}/ to exist but it does not.
 
