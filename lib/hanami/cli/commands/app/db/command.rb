@@ -77,7 +77,7 @@ module Hanami
               end
             end
 
-            def all_databases
+            def all_databases # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
               slices = [app] + app.slices.with_nested
 
               slices_by_database_url = slices.each_with_object({}) { |slice, hsh|
@@ -90,10 +90,10 @@ module Hanami
                 end
               }
 
-              slices_by_database_url.each_with_object([]) { |(url, slices), arr|
-                slices_with_config = slices.select { _1.root.join("config", "db").directory? }
+              slices_by_database_url.each_with_object([]) { |(_url, slices_for_url), arr|
+                slices_with_config = slices_for_url.select { _1.root.join("config", "db").directory? }
 
-                databases = build_databases(slices_with_config.first || slices.first).values
+                databases = build_databases(slices_with_config.first || slices_for_url.first).values
 
                 databases.each do |database|
                   warn_on_misconfigured_database database, slices_with_config
@@ -114,7 +114,7 @@ module Hanami
               exit 1
             end
 
-            def warn_on_misconfigured_database(database, slices)
+            def warn_on_misconfigured_database(database, slices) # rubocop:disable Metrics/AbcSize
               if slices.length > 1
                 out.puts <<~STR
                   WARNING: Database #{database.name} is configured for multiple config/db/ directories:
