@@ -34,7 +34,7 @@ module Hanami
 
               def self.from_slice(slice:, system_call:)
                 provider = slice.container.providers[:db]
-                raise "this is not a db slice" unless provider
+                raise "No :db provider for #{slice}" unless provider
 
                 provider.source.database_urls.map { |(gateway_name, database_url)|
                   database_scheme = URI(database_url).scheme

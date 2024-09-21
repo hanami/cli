@@ -63,6 +63,8 @@ module Hanami
                 slice = app.slices[slice_name]
               end
 
+              ensure_database_slice slice
+
               databases = build_databases(slice)
 
               if gateway
@@ -103,6 +105,13 @@ module Hanami
 
             def build_databases(slice)
               Utils::Database.from_slice(slice: slice, system_call: system_call)
+            end
+
+            def ensure_database_slice(slice)
+              return if slice.container.providers[:db]
+
+              out.puts "#{slice} does not have a :db provider."
+              exit 1
             end
 
             def warn_on_misconfigured_database(database, slices)
