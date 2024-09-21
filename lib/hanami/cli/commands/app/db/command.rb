@@ -44,23 +44,12 @@ module Hanami
                 if slice
                   [database_for_slice(slice, gateway: gateway)]
                 elsif app
-                  [database_for_app(gateway: gateway)]
+                  [database_for_slice(self.app, gateway: gateway)]
                 else
                   all_databases
                 end
 
               databases.flatten
-            end
-
-            def database_for_app(gateway: nil)
-              databases = build_databases(app)
-
-              # TODO: see if we can unify this methid with database_for_slice
-              if gateway
-                databases.fetch(gateway.to_sym) # TODO: raise unknown gateway error for missing key
-              else
-                databases.values
-              end
             end
 
             def database_for_slice(slice, gateway: nil)
