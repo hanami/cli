@@ -41,12 +41,9 @@ module Hanami
 
             def databases(app: false, slice: nil, gateway: nil)
               databases =
-                if app
-                  [database_for_app(gateway: gateway)]
-                elsif slice
+                if slice
                   [database_for_slice(slice, gateway: gateway)]
-                elsif gateway
-                  # TODO: fix these conditions, it's a bit messy now
+                elsif app
                   [database_for_app(gateway: gateway)]
                 else
                   all_databases
