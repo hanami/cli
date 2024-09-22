@@ -9,10 +9,12 @@ module Hanami
           class Drop < DB::Command
             desc "Delete databases"
 
-            def call(app: false, slice: nil, **)
+            option :gateway, required: false, desc: "Use database for gateway"
+
+            def call(app: false, slice: nil, gateway: nil, **)
               exit_codes = []
 
-              databases(app: app, slice: slice).each do |database|
+              databases(app: app, slice: slice, gateway: gateway).each do |database|
                 result = database.exec_drop_command
                 exit_codes << result.exit_code if result.respond_to?(:exit_code)
 

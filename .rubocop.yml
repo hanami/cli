@@ -42,3 +42,5 @@ Style/TrailingCommaInHashLiteral:
   Enabled: false
 Style/StringConcatenation:
   Enabled: false
+Style/ZeroLengthPredicate:
+  Enabled: false

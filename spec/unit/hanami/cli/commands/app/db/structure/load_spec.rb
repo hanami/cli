@@ -88,22 +88,96 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
       db_structure_dump
     end
 
-    def table_exists?(slice, table_name)
-      slice["db.gateway"].connection
-        .fetch("PRAGMA table_info(#{table_name})")
-        .to_a.any?
-    end
-
     it "loads the structure for each db" do
       expect { command.call }
-        .to change { table_exists?(Hanami.app, "posts") }
-        .and change { table_exists?(Main::Slice, "comments") }
+        .to change { Hanami.app["db.gateway"].connection.tables.include?(:posts) }
+        .and change { Main::Slice["db.gateway"].connection.tables.include?(:comments) }
         .to true
 
       expect(output).to include_in_order(
         "db/app.sqlite3 structure loaded from config/db/structure.sql",
         "db/main.sqlite3 structure loaded from slices/main/config/db/structure.sql"
       )
+    end
+
+    context "app with gateways" do
+      def before_prepare
+        ENV["DATABASE_URL__EXTRA"] = "sqlite://db/app_extra.sqlite3"
+
+        write "config/db/extra_migrate/20240602201330_create_users.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :users do
+                primary_key :id
+                column :name, :text, null: false
+              end
+            end
+          end
+        RUBY
+      end
+
+      it "loads the structure for all the app's gateways when given --app" do
+        expect { command.call(app: true) }
+          .to change { Hanami.app["db.gateways.default"].connection.tables.include?(:posts) }
+          .and change { Hanami.app["db.gateways.extra"].connection.tables.include?(:users) }
+          .to true
+
+        expect(output).to include_in_order(
+          "db/app.sqlite3 structure loaded from config/db/structure.sql in",
+          "db/app_extra.sqlite3 structure loaded from config/db/extra_structure.sql in"
+        )
+      end
+
+      it "loads the structure for a specific gateway database when given --app and --gateway" do
+        expect { command.call(app: true, gateway: "extra") }
+          .to change { Hanami.app["db.gateways.extra"].connection.tables.include?(:users) }
+          .to(true)
+          .and not_change { Hanami.app["db.gateways.default"].connection.tables.include?(:posts) }
+          .from false
+
+        expect(output).to include "db/app_extra.sqlite3 structure loaded from config/db/extra_structure.sql in"
+        expect(output).not_to include "db/app.sqlite3"
+      end
+    end
+
+    context "slice with gateways" do
+      def before_prepare
+        ENV["MAIN__DATABASE_URL__EXTRA"] = "sqlite://db/main_extra.sqlite3"
+
+        write "slices/main/config/db/extra_migrate/20240602201330_create_users.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :users do
+                primary_key :id
+                column :name, :text, null: false
+              end
+            end
+          end
+        RUBY
+      end
+
+      it "loads the structure for all the slice's gateways when given --slice" do
+        expect { command.call(slice: "main") }
+          .to change { Main::Slice["db.gateways.default"].connection.tables.include?(:comments) }
+          .and change { Main::Slice["db.gateways.extra"].connection.tables.include?(:users) }
+          .to true
+
+        expect(output).to include_in_order(
+          "db/main.sqlite3 structure loaded from slices/main/config/db/structure.sql in",
+          "db/main_extra.sqlite3 structure loaded from slices/main/config/db/extra_structure.sql in"
+        )
+      end
+
+      it "loads the structure for a specific gateway database when given --slice and --gateway" do
+        expect { command.call(slice: "main", gateway: "extra") }
+          .to change { Main::Slice["db.gateways.extra"].connection.tables.include?(:users) }
+          .to(true)
+          .and not_change { Main::Slice["db.gateways.default"].connection.tables.include?(:comments) }
+          .from false
+
+        expect(output).to include "db/main_extra.sqlite3 structure loaded from slices/main/config/db/extra_structure.sql in"
+        expect(output).not_to include "db/main.sqlite3"
+      end
     end
   end
 
@@ -114,16 +188,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
       db_structure_dump
     end
 
-    def table_exists?(slice, table_name)
-      slice["db.gateway"].connection
-        .fetch("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '#{table_name}'")
-        .to_a.first.fetch(:count) == 1
-    end
-
     it "loads the structure for each db" do
       expect { command.call }
-        .to change { table_exists?(Hanami.app, "posts") }
-        .and change { table_exists?(Main::Slice, "comments") }
+        .to change { Hanami.app["db.gateway"].connection.tables.include?(:posts) }
+        .and change { Main::Slice["db.gateway"].connection.tables.include?(:comments) }
         .to true
 
       expect(output).to include_in_order(
@@ -134,10 +202,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
     it "loads the structure for the app db when given --app" do
       expect { command.call(app: true) }
-        .to change { table_exists?(Hanami.app, "posts") }
-        .to true
-
-      expect(table_exists?(Main::Slice, "comments")).to be false
+        .to change { Hanami.app["db.gateway"].connection.tables.include?(:posts) }
+        .to(true)
+        .and not_change { Main::Slice["db.gateway"].connection.tables.include?(:comments) }
+        .from false
 
       expect(output).to include "#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql"
       expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
@@ -145,10 +213,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
     it "loads the structure for a slice db when given --slice" do
       expect { command.call(slice: "main") }
-        .to change { table_exists?(Main::Slice, "comments") }
-        .to true
-
-      expect(table_exists?(Hanami.app, "posts")).to be false
+        .to change { Main::Slice["db.gateway"].connection.tables.include?(:comments) }
+        .to(true)
+        .and not_change { Hanami.app["db.gateway"].connection.tables.include?(:posts) }
+        .from false
 
       expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
       expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
@@ -164,8 +232,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
       command.call
 
-      expect(table_exists?(Hanami.app, "posts")).to be false
-      expect(table_exists?(Main::Slice, "comments")).to be true
+      expect(Hanami.app["db.gateway"].connection.tables.include?(:posts)).to be false
+      expect(Main::Slice["db.gateway"].connection.tables.include?(:comments)).to be true
 
       expect(output).to include %("#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql" FAILED)
       expect(output).to include "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql"
@@ -180,21 +248,9 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
       db_structure_dump
     end
 
-    def table_exists?(slice, table_name)
-      connection = slice["db.gateway"].connection
-      database_name = connection.fetch("SELECT DATABASE()").to_a.first.values.first
-
-      connection.fetch(<<~SQL).to_a.length == 1
-        SELECT TABLE_NAME
-        FROM INFORMATION_SCHEMA.TABLES
-        WHERE table_schema = '#{database_name}'
-        AND table_name = '#{table_name}'
-      SQL
-    end
-
     it "loads the structure for each db" do
       expect { command.call }
-        .to change { table_exists?(Hanami.app, "posts") }
+        .to change { Hanami.app["db.gateway"].connection.tables.include?(:posts) }
         .to true
 
       expect(output).to include(
@@ -212,7 +268,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
       command.call
 
-      expect(table_exists?(Hanami.app, "posts")).to be false
+      expect(Hanami.app["db.gateway"].connection.tables.include?(:posts)).to be false
 
       expect(output).to include %("#{MYSQL_BASE_DB_NAME}_app structure loaded from config/db/structure.sql" FAILED)
 

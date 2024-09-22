@@ -17,12 +17,14 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(key:, base_path:, **_opts)
+          def call(key:, base_path:, gateway: nil, **_opts)
             name = inflector.underscore(key)
             ensure_valid_name(name)
 
             base_path = "" if base_path == "app" # Migrations are in root dir, not app/
-            path = fs.join(base_path, "config", "db", "migrate", file_name(name))
+            migrate_dir = gateway ? "#{gateway}_migrate" : "migrate"
+
+            path = fs.join(base_path, "config", "db", migrate_dir, file_name(name))
 
             fs.write(path, FILE_CONTENTS)
           end

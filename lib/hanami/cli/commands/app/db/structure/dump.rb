@@ -11,13 +11,15 @@ module Hanami
             class Dump < DB::Command
               desc "Dumps database structure to config/db/structure.sql file"
 
+              option :gateway, required: false, desc: "Use database for gateway"
+
               # @api private
-              def call(app: false, slice: nil, command_exit: method(:exit), **)
+              def call(app: false, slice: nil, gateway: nil, command_exit: method(:exit), **)
                 exit_codes = []
 
-                databases(app: app, slice: slice).each do |database|
-                  structure_path = database.slice.root.join("config", "db", "structure.sql")
-                  relative_structure_path = structure_path.relative_path_from(database.slice.app.root)
+                databases(app: app, slice: slice, gateway: gateway).each do |database|
+                  relative_structure_path = database.structure_file
+                    .relative_path_from(database.slice.app.root)
 
                   measure("#{database.name} structure dumped to #{relative_structure_path}") do
                     catch :dump_failed do
@@ -29,7 +31,7 @@ module Hanami
                         throw :dump_failed, false
                       end
 
-                      File.open(structure_path, "a") do |f|
+                      File.open(database.structure_file, "a") do |f|
                         f.puts "#{database.schema_migrations_sql_dump}\n"
                       end
 

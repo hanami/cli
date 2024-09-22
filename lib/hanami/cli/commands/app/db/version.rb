@@ -9,9 +9,11 @@ module Hanami
           class Version < DB::Command
             desc "Print schema version"
 
+            option :gateway, required: false, desc: "Use database for gateway"
+
             # @api private
-            def call(app: false, slice: nil, **)
-              databases(app: app, slice: slice).each do |database|
+            def call(app: false, slice: nil, gateway: nil, **)
+              databases(app: app, slice: slice, gateway: gateway).each do |database|
                 unless database.migrations_dir?
                   out.puts "=> Cannot find version for slice #{database.slice.slice_name.to_s.inspect}: missing config/db/migrate/ dir"
                   return
