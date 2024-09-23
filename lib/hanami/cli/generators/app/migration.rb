@@ -21,10 +21,10 @@ module Hanami
             name = inflector.underscore(key)
             ensure_valid_name(name)
 
-            base_path = "" if base_path == "app" # Migrations are in root dir, not app/
+            base_path = nil if base_path == "app" # Migrations are in the root dir, not app/
             migrate_dir = gateway ? "#{gateway}_migrate" : "migrate"
 
-            path = fs.join(base_path, "config", "db", migrate_dir, file_name(name))
+            path = fs.join(*[base_path, "config", "db", migrate_dir, file_name(name)].compact)
 
             fs.write(path, FILE_CONTENTS)
           end
