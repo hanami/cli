@@ -13,12 +13,11 @@ module Hanami
               command_exit = -> code { throw :command_exited, code }
               command_exit_arg = {command_exit: command_exit}
 
-              # Since we're operating on potentially multiple gateways for a given slice, we need to
-              # run our operatiopns in a particular order to satisfy our ROM/Sequel's migrator
-              # setup, which requires _all_ the databases in a slice to be created before we can use
-              # the migrator.
+              # Since any slice may have multiple databases, we need to run the steps below in a
+              # particular order to satisfy our ROM/Sequel's migrator, which requires _all_ the
+              # databases in a slice to be created before we can use it.
               #
-              # So, create/load every database first, before any other operations.
+              # So before we do anything else, make sure to create/load every database first.
               databases(app: app, slice: slice).each do |database|
                 command_args = {
                   **command_exit_arg,
