@@ -10,10 +10,8 @@ module Hanami
             desc "Prepare databases"
 
             def call(app: false, slice: nil, **)
-              exit_codes = []
-
               command_exit = -> code { throw :command_exited, code }
-              command_args = {slice: slice, command_exit: command_exit}
+              command_exit_arg = {command_exit: command_exit}
 
               # Since we're operating on potentially multiple gateways for a given slice, we need to
               # run our operatiopns in a particular order to satisfy our ROM/Sequel's migrator
@@ -22,41 +20,46 @@ module Hanami
               #
               # So, create/load every database first, before any other operations.
               databases(app: app, slice: slice).each do |database|
-                db_command_args = {
-                  **command_args,
-                  app: !slice,
+                command_args = {
+                  **command_exit_arg,
+                  app: database.slice.app?,
+                  slice: database.slice,
                   gateway: database.gateway_name.to_s
                 }
 
                 exit_code = catch :command_exited do
                   unless database.exists?
-                    run_command(DB::Create, **db_command_args)
-                    run_command(DB::Structure::Load, **db_command_args)
+                    run_command(DB::Create, **command_args)
+                    run_command(DB::Structure::Load, **command_args)
                   end
 
                   nil
                 end
 
-                exit_codes << exit_code if exit_code
+                return exit exit_code if exit_code.to_i > 1
               end
 
-              # Once all databases are created, the migrator will load, and we can migrate each one.
+              # Once all databases are created, the migrator will properly load for each slice, and
+              # we can migrate each database.
               databases(app: app, slice: slice).each do |database|
-                db_command_args = {
-                  **command_args,
-                  app: !slice,
+                command_args = {
+                  **command_exit_arg,
+                  app: database.slice.app?,
+                  slice: database.slice,
                   gateway: database.gateway_name.to_s
                 }
 
-                run_command(DB::Migrate, **db_command_args)
+                exit_code = catch :command_exited do
+                  run_command(DB::Migrate, **command_args)
+
+                  nil
+                end
+
+                return exit exit_code if exit_code.to_i > 1
               end
 
               # Finally, load the seeds for the slice overall, which is a once-per-slice operation.
-              run_command(DB::Seed, **command_args)
-
-              exit_codes.each do |code|
-                break exit code if code > 0
-              end
+              run_command(DB::Seed, app: app, slice: slice)
             end
           end
         end
