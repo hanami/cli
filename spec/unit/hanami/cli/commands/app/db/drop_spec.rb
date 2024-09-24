@@ -139,6 +139,38 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
       expect(command).to have_received(:exit).with(1).once
     end
 
+    context "app and slice with gateways" do
+      def before_prepare
+        write "config/db/.keep", ""
+        write "slices/main/config/db/.keep", ""
+
+        ENV["DATABASE_URL__EXTRA"] = "sqlite://db/app_extra.sqlite3"
+        ENV["MAIN__DATABASE_URL__EXTRA"] = "sqlite://db/main_extra.sqlite3"
+      end
+
+      before do
+        command.run_command(Hanami::CLI::Commands::App::DB::Create)
+        out.truncate(0)
+      end
+
+      it "drops the databases for all gateways" do
+        expect { command.call }
+          .to change { File.exist?(@dir.join("db", "app.sqlite3")) }.to(false)
+          .and change { File.exist?(@dir.join("db", "app_extra.sqlite3")) }.to(false)
+          .and change { File.exist?(@dir.join("db", "main.sqlite3")) }.to(false)
+          .and change { File.exist?(@dir.join("db", "main_extra.sqlite3")) }.to(false)
+
+        expect(output.strip).to eq(<<~TEXT.strip)
+          => database db/app.sqlite3 dropped
+          => database db/app_extra.sqlite3 dropped
+          => database db/main.sqlite3 dropped
+          => database db/main_extra.sqlite3 dropped
+        TEXT
+
+        expect(command).not_to have_received(:exit)
+      end
+    end
+
     context "app with gateways" do
       def before_prepare
         write "config/db/.keep", ""
