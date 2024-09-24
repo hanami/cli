@@ -80,26 +80,31 @@ module Hanami
             def all_databases # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
               slices = [app] + app.slices.with_nested
 
-              slices_by_database_url = slices.each_with_object({}) { |slice, hsh|
+              slice_gateways_by_database_url = slices.each_with_object({}) { |slice, hsh|
                 db_provider_source = slice.container.providers[:db]&.source
                 next unless db_provider_source
 
-                db_provider_source.database_urls.values.each do |url|
+                db_provider_source.database_urls.each do |gateway, url|
                   hsh[url] ||= []
-                  hsh[url] << slice
+                  hsh[url] << {slice: slice, gateway: gateway}
                 end
               }
 
-              slices_by_database_url.each_with_object([]) { |(_url, slices_for_url), arr|
-                slices_with_config = slices_for_url.select { _1.root.join("config", "db").directory? }
+              slice_gateways_by_database_url.each_with_object([]) { |(url, slice_gateways), arr|
+                slice_gateways_with_config = slice_gateways.select {
+                  _1[:slice].root.join("config", "db").directory?
+                }
 
-                databases = build_databases(slices_with_config.first || slices_for_url.first).values
+                db_slice_gateway = slice_gateways_with_config.first || slice_gateways.first
+                database = Utils::Database.database_class(url).new(
+                  slice: db_slice_gateway.fetch(:slice),
+                  gateway_name: db_slice_gateway.fetch(:gateway),
+                  system_call: system_call
+                )
 
-                databases.each do |database|
-                  warn_on_misconfigured_database database, slices_with_config
-                end
+                warn_on_misconfigured_database database, slice_gateways.map { _1.fetch(:slice) }
 
-                arr.concat databases
+                arr << database
               }
             end
 
@@ -124,7 +129,7 @@ module Hanami
                   Migrating database using #{database.slice.slice_name.to_s.inspect} slice only.
 
                 STR
-              elsif slices.length < 1
+              elsif !database.db_config_dir?
                 relative_path = database.slice.root
                   .relative_path_from(database.slice.app.root)
                   .join("config", "db").to_s

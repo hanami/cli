@@ -32,15 +32,17 @@ module Hanami
                 }
               ).freeze
 
+              def self.database_class(database_url)
+                database_scheme = URI(database_url).scheme
+                DATABASE_CLASS_RESOLVER[database_scheme].call
+              end
+
               def self.from_slice(slice:, system_call:)
                 provider = slice.container.providers[:db]
                 raise "No :db provider for #{slice}" unless provider
 
                 provider.source.database_urls.map { |(gateway_name, database_url)|
-                  database_scheme = URI(database_url).scheme
-                  database_class = DATABASE_CLASS_RESOLVER[database_scheme].call
-
-                  database = database_class.new(
+                  database = database_class(database_url).new(
                     slice: slice,
                     gateway_name: gateway_name,
                     system_call: system_call
@@ -135,16 +137,20 @@ module Hanami
                 sequel_migrator.applied_migrations
               end
 
+              def db_config_path
+                slice.root.join("config", "db")
+              end
+
+              def db_config_dir?
+                db_config_path.directory?
+              end
+
               def migrations_path
-                path = slice.root.join("config", "db")
-
                 if gateway_name == :default
-                  path = path.join("migrate")
+                  db_config_path.join("migrate")
                 else
-                  path = path.join("#{gateway_name}_migrate")
+                  db_config_path.join("#{gateway_name}_migrate")
                 end
-
-                path
               end
 
               def migrations_dir?
