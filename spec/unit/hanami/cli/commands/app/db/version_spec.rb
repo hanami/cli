@@ -96,7 +96,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Version, :app_integration do
   it "prints an error when given a slice without migrations" do
     command.call(slice: "admin")
 
-    expect(output).to include %(Cannot find version for slice "admin")
+    expect(output).to include %(Cannot find version for database db/app.sqlite3: no migrations directory at slices/admin/config/db/migrate/)
     expect(output).not_to include "current schema version"
   end
 
