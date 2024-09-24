@@ -15,7 +15,8 @@ module Hanami
             def call(app: false, slice: nil, gateway: nil, **)
               databases(app: app, slice: slice, gateway: gateway).each do |database|
                 unless database.migrations_dir?
-                  out.puts "=> Cannot find version for slice #{database.slice.slice_name.to_s.inspect}: missing config/db/migrate/ dir"
+                  relative_migrations_path = database.migrations_path.relative_path_from(database.slice.app.root)
+                  out.puts "=> Cannot find version for database #{database.name}: no migrations directory at #{relative_migrations_path}/"
                   return
                 end
 
