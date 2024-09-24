@@ -54,7 +54,7 @@ module Hanami
 
             def warn_on_missing_migrations_dir(database)
               out.puts <<~STR
-                WARNING: Database #{database.name} expects migrations to be located within #{relative_migrations_dir(database)} but that folder does not exist.
+                WARNING: Database #{database.name} expects migrations to be located within #{relative_migrations_path(database)} but that folder does not exist.
 
                 No database migrations can be run for this database.
               STR
@@ -62,16 +62,14 @@ module Hanami
 
             def warn_on_empty_migrations_dir(database)
               out.puts <<~STR
-                NOTE: Empty database migrations folder (#{relative_migrations_dir(database)}) for #{database.name}
+                NOTE: Empty database migrations folder (#{relative_migrations_path(database)}) for #{database.name}
               STR
             end
 
-            def relative_migrations_dir(database)
+            def relative_migrations_path(database)
               database
-                .slice
-                .root
+                .migrations_path
                 .relative_path_from(database.slice.app.root)
-                .join("config", "db", "migrate")
                 .to_s + "/"
             end
           end
