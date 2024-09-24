@@ -31,6 +31,8 @@ module Hanami
             private
 
             def migrate_database(database, target:)
+              return true unless database.migrations_dir?
+
               measure "database #{database.name} migrated" do
                 if target
                   database.run_migrations(target: Integer(target))
