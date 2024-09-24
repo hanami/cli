@@ -13,7 +13,17 @@ module Hanami
             desc "Load seed data"
 
             def call(app: false, slice: nil, **)
+              # We use `databases` below to discover the databases throughout the app and slices. It
+              # yields every database, so in a slice with multiple gateways, we'll see multiple
+              # databases for the slice.
+              #
+              # Since `db seed` is intended to run over whole slices only (not per-gateway), keep
+              # track of the seeded slices here, so we can avoid seeding a slice multiple times.
+              seeded_slices = []
+
               databases(app: app, slice: slice).each do |database|
+                next if seeded_slices.include?(database.slice)
+
                 seeds_path = database.slice.root.join(SEEDS_PATH)
                 next unless seeds_path.file?
 
@@ -21,6 +31,8 @@ module Hanami
                 measure "seed data loaded from #{relative_seeds_path}" do
                   load seeds_path.to_s
                 end
+
+                seeded_slices << database.slice
               end
             end
           end

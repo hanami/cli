@@ -12,7 +12,7 @@ module Hanami
             option :gateway, required: false, desc: "Use database for gateway"
             option :target, desc: "Target migration number", aliases: ["-t"]
             option :dump, required: false, type: :boolean, default: true,
-                          desc: "Dump the database structure after migrating"
+              desc: "Dump the database structure after migrating"
 
             def call(target: nil, app: false, slice: nil, gateway: nil, dump: true, command_exit: method(:exit), **)
               databases(app: app, slice: slice, gateway: gateway).each do |database|
@@ -31,6 +31,8 @@ module Hanami
             private
 
             def migrate_database(database, target:)
+              return true unless database.migrations_dir?
+
               measure "database #{database.name} migrated" do
                 if target
                   database.run_migrations(target: Integer(target))
@@ -52,7 +54,7 @@ module Hanami
 
             def warn_on_missing_migrations_dir(database)
               out.puts <<~STR
-                WARNING: Database #{database.name} expects migrations to be located within #{relative_migrations_dir(database)} but that folder does not exist.
+                WARNING: Database #{database.name} expects migrations to be located within #{relative_migrations_path(database)} but that folder does not exist.
 
                 No database migrations can be run for this database.
               STR
@@ -60,16 +62,14 @@ module Hanami
 
             def warn_on_empty_migrations_dir(database)
               out.puts <<~STR
-                NOTE: Empty database migrations folder (#{relative_migrations_dir(database)}) for #{database.name}
+                NOTE: Empty database migrations folder (#{relative_migrations_path(database)}) for #{database.name}
               STR
             end
 
-            def relative_migrations_dir(database)
+            def relative_migrations_path(database)
               database
-                .slice
-                .root
+                .migrations_path
                 .relative_path_from(database.slice.app.root)
-                .join("config", "db", "migrate")
                 .to_s + "/"
             end
           end
