@@ -54,6 +54,12 @@ module Hanami
             !options.fetch(:skip_db, false)
           end
 
+          # @since 2.2.0
+          # @api private
+          def generate_route?
+            !options.fetch(:skip_route, false)
+          end
+
           private
 
           attr_reader :slice

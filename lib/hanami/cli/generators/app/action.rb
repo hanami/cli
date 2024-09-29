@@ -21,12 +21,12 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, controller, action, url, http, format, skip_view, slice, context: nil)
+          def call(app, controller, action, url, http, format, skip_view, skip_route, slice, context: nil)
             context ||= ActionContext.new(inflector, app, slice, controller, action)
             if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, slice, context)
+              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
             else
-              generate_for_app(controller, action, url, http, format, skip_view, context)
+              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
             end
           end
 
@@ -72,15 +72,17 @@ module Hanami
           attr_reader :inflector
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, slice, context)
+          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
-            fs.inject_line_at_block_bottom(
-              fs.join("config", "routes.rb"),
-              slice_matcher(slice),
-              route(controller, action, url, http)
-            )
+            if generate_route?(skip_route)
+              fs.inject_line_at_block_bottom(
+                fs.join("config", "routes.rb"),
+                slice_matcher(slice),
+                route(controller, action, url, http)
+              )
+            end
 
             fs.mkdir(directory = fs.join(slice_directory, "actions", controller))
             fs.write(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
@@ -95,12 +97,14 @@ module Hanami
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, context)
-            fs.inject_line_at_class_bottom(
-              fs.join("config", "routes.rb"),
-              "class Routes",
-              route(controller, action, url, http)
-            )
+          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
+            if generate_route?(skip_route)
+              fs.inject_line_at_class_bottom(
+                fs.join("config", "routes.rb"),
+                "class Routes",
+                route(controller, action, url, http)
+              )
+            end
 
             fs.mkdir(directory = fs.join("app", "actions", controller))
             fs.write(fs.join(directory, "#{action}.rb"), t("action.erb", context))
@@ -133,6 +137,14 @@ module Hanami
           def generate_view?(skip_view, view, directory)
             return false if skip_view
             return generate_restful_view?(view, directory) if rest_view?(view)
+
+            true
+          end
+
+          # @api private
+          # @since 2.2.0
+          def generate_route?(skip_route)
+            return false if skip_route
 
             true
           end

@@ -23,11 +23,24 @@ module Hanami
 
             # @since 2.2.0
             # @api private
+            DEFAULT_SKIP_ROUTE = false
+            private_constant :DEFAULT_SKIP_ROUTE
+
+            # @since 2.2.0
+            # @api private
             option :skip_db,
               type: :boolean,
               required: false,
               default: SKIP_DB_DEFAULT,
               desc: "Skip database"
+            # @since 2.2.0
+            # @api private
+            option :skip_route,
+              type: :boolean,
+              required: false,
+              type: :flag,
+              default: DEFAULT_SKIP_ROUTE,
+              desc: "Skip route generation"
 
             example [
               "admin          # Admin slice (/admin URL prefix)",
@@ -50,7 +63,8 @@ module Hanami
             def call(
               name:,
               url: nil,
-              skip_db: SKIP_DB_DEFAULT
+              skip_db: SKIP_DB_DEFAULT,
+              skip_route: DEFAULT_SKIP_ROUTE
             )
               require "hanami/setup"
 
@@ -58,7 +72,7 @@ module Hanami
               name = inflector.underscore(Shellwords.shellescape(name))
               url = sanitize_url_prefix(name, url)
 
-              generator.call(app, name, url, skip_db: skip_db)
+              generator.call(app, name, url, skip_db: skip_db, skip_route: skip_route)
             end
 
             private
