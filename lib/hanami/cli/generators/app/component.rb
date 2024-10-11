@@ -2,6 +2,7 @@
 
 require "erb"
 require "dry/files"
+
 module Hanami
   module CLI
     module Generators
