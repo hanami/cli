@@ -2,9 +2,22 @@
 
 Hanami Command Line Interface
 
+## v2.2.0.beta2 - 2024-09-25
+
+### Added
+
+- [Tim Riley] MySQL support for `db` commands (#226)
+- [Tim Riley] Support for multiple gateways in `db` commands (#232, #234, #237, #238)
+
+### Changed
+
+- [Kyle Plump, Tim Riley] Delete `.keep` files when generating new files into previously empty directory (#224)
+- [Sean Collins] Add `db/*.sqlite` to the `.gitignore` in new apps (#210)
+- [Sean Collins] Print warnings for misconfigured databases when running `db` commands (#211)
+
 ## v2.2.0.beta1 - 2024-07-16
 
-## Added
+### Added
 
 - [Sean Collins] Generate db files in `hanami new` and `generate slice`
 - [Tim Riley] Add `db` commands: `create`, `drop`, `migrate`, `structure dump` `structure load`, `seed` `prepare`, `version`
@@ -13,7 +26,7 @@ Hanami Command Line Interface
 - [Krzysztof] Add `generate component` command
 - [Sean Collins] Add `generate operation` command
 
-## Changed
+### Changed
 
 - Drop support for Ruby 3.0
 

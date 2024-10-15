@@ -170,12 +170,14 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
 
         expect(output).to include_in_order(
           "database db/app.sqlite3 created",
+          "db/app.sqlite3 structure loaded from config/db/structure.sql",
+          "database db/main.sqlite3 created",
+          "db/main.sqlite3 structure loaded from slices/main/config/db/structure.sql",
           "database db/app.sqlite3 migrated",
           "db/app.sqlite3 structure dumped to config/db/structure.sql",
-          "seed data loaded from config/db/seeds.rb",
-          "database db/main.sqlite3 created",
           "database db/main.sqlite3 migrated",
           "db/main.sqlite3 structure dumped to slices/main/config/db/structure.sql",
+          "seed data loaded from config/db/seeds.rb",
           "seed data loaded from slices/main/config/db/seeds.rb"
         )
       end
@@ -258,12 +260,14 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
 
         expect(output).to include_in_order(
           "database #{POSTGRES_BASE_DB_NAME}_app created",
-          "database #{POSTGRES_BASE_DB_NAME}_app migrated",
-            "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
-          "seed data loaded from config/db/seeds.rb",
+          "#{POSTGRES_BASE_DB_NAME}_app structure loaded from config/db/structure.sql",
           "database #{POSTGRES_BASE_DB_NAME}_main created",
+          "#{POSTGRES_BASE_DB_NAME}_main structure loaded from slices/main/config/db/structure.sql",
+          "database #{POSTGRES_BASE_DB_NAME}_app migrated",
+          "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
           "database #{POSTGRES_BASE_DB_NAME}_main migrated",
           "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql",
+          "seed data loaded from config/db/seeds.rb",
           "seed data loaded from slices/main/config/db/seeds.rb"
         )
       end
@@ -402,31 +406,27 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
       end
     end
 
-    it "prints errors for any prepares that fail and exits with a non-zero status" do
+    it "prints errors for any command that fails and exits immediately with a non-zero status" do
       # Fail to create the app db
       allow(system_call).to receive(:call).and_call_original
       allow(system_call)
         .to receive(:call)
-        .with(a_string_matching(/createdb.+_app/), anything)
-        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-db-err")
+        .with(a_string_matching(/createdb.+_main/), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "main-db-err")
 
       command.call
 
-      expect(Main::Slice["relations.comments"].to_a).to eq [{id: 1, body: "First comment"}]
-      expect { Hanami.app["relations.posts"].to_a }.to raise_error Sequel::DatabaseError
-
-      dump = File.read(Main::Slice.root.join("config", "db", "structure.sql"))
-      expect(dump).to include("CREATE TABLE public.comments")
-      expect(Hanami.app.root.join("config", "db", "structure.sql").exist?).to be false
+      expect { Hanami.app["relations.posts"] }.to raise_error Sequel::DatabaseError
+      expect { Main::Slice["relations.comments"] }.to raise_error Sequel::DatabaseError
 
       expect(output).to include_in_order(
-        "failed to create database #{POSTGRES_BASE_DB_NAME}_app",
-        "app-db-err",
-        "database #{POSTGRES_BASE_DB_NAME}_main created",
-        "database #{POSTGRES_BASE_DB_NAME}_main migrated",
-          "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql",
-        "seed data loaded from slices/main/config/db/seeds.rb"
+        "database #{POSTGRES_BASE_DB_NAME}_app created",
+        "failed to create database #{POSTGRES_BASE_DB_NAME}_main",
+        "main-db-err"
       )
+
+      expect(output).not_to include "migrated"
+      expect(output).not_to include "seed data loaded"
 
       expect(command).to have_received(:exit).with 2
     end

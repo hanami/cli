@@ -1,37 +1,50 @@
 # frozen_string_literal: true
 
-RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
+RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_integration do
+  subject { described_class.new(inflector: inflector, out: out) }
+
+  let(:inflector) { Dry::Inflector.new }
 
   let(:out) { StringIO.new }
-  let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
-  let(:inflector) { Dry::Inflector.new }
-  let(:app) { Hanami.app.namespace }
+  def output = out.string
 
-  def output
-    out.string
+  before do
+    with_directory(@dir = make_tmp_directory) do
+      write "config/app.rb", <<~RUBY
+        module TestApp
+          class App < Hanami::App
+          end
+        end
+      RUBY
+
+      write "app/relations/.keep", ""
+
+      write "slices/main/.keep", ""
+
+      require "hanami/setup"
+    end
+
+    Dir.chdir(@dir)
   end
 
   context "generating for app" do
-    describe "without namespace" do
-      it "generates a relation" do
-        subject.call(name: "books")
+    it "generates a relation" do
+      subject.call(name: "books")
 
-        relation_file = <<~RUBY
-          # frozen_string_literal: true
+      relation_file = <<~RUBY
+        # frozen_string_literal: true
 
-          module Test
-            module Relations
-              class Books < Test::DB::Relation
-                schema :books, infer: true
-              end
+        module TestApp
+          module Relations
+            class Books < TestApp::DB::Relation
+              schema :books, infer: true
             end
           end
-        RUBY
+        end
+      RUBY
 
-        expect(fs.read("app/relations/books.rb")).to eq(relation_file)
-        expect(output).to include("Created app/relations/books.rb")
-      end
+      expect(Hanami.app.root.join("app/relations/books.rb").read).to eq relation_file
+      expect(output).to include("Created app/relations/books.rb")
     end
 
     it "generates a relation in a namespace with default separator" do
@@ -40,10 +53,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
       relation_file = <<~RUBY
         # frozen_string_literal: true
 
-        module Test
+        module TestApp
           module Relations
             module Books
-              class Drafts < Test::DB::Relation
+              class Drafts < TestApp::DB::Relation
                 schema :drafts, infer: true
               end
             end
@@ -51,7 +64,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
         end
       RUBY
 
-      expect(fs.read("app/relations/books/drafts.rb")).to eq(relation_file)
+      expect(Hanami.app.root.join("app/relations/books/drafts.rb").read).to eq(relation_file)
       expect(output).to include("Created app/relations/books/drafts.rb")
     end
 
@@ -61,10 +74,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
       relation_file = <<~RUBY
         # frozen_string_literal: true
 
-        module Test
+        module TestApp
           module Relations
             module Books
-              class PublishedBooks < Test::DB::Relation
+              class PublishedBooks < TestApp::DB::Relation
                 schema :published_books, infer: true
               end
             end
@@ -72,14 +85,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
         end
       RUBY
 
-      expect(fs.read("app/relations/books/published_books.rb")).to eq(relation_file)
+      expect(Hanami.app.root.join("app/relations/books/published_books.rb").read).to eq(relation_file)
       expect(output).to include("Created app/relations/books/published_books.rb")
+    end
+
+    it "deletes the redundant .keep file" do
+      expect { subject.call(name: "books") }
+        .to change { Hanami.app.root.join("app/relations/.keep").file? }
+        .to false
     end
   end
 
   context "generating for a slice" do
     it "generates a relation" do
-      fs.mkdir("slices/main")
       subject.call(name: "books", slice: "main")
 
       relation_file = <<~RUBY
@@ -94,12 +112,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
         end
       RUBY
 
-      expect(fs.read("slices/main/relations/books.rb")).to eq(relation_file)
+      expect(Hanami.app.root.join("slices/main/relations/books.rb").read).to eq(relation_file)
       expect(output).to include("Created slices/main/relations/books.rb")
     end
 
     it "generates a relation in a nested namespace" do
-      fs.mkdir("slices/main")
       subject.call(name: "book.drafts", slice: "main")
 
       relation_file = <<~RUBY
@@ -116,7 +133,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, :app do
         end
       RUBY
 
-      expect(fs.read("slices/main/relations/book/drafts.rb")).to eq(relation_file)
+      expect(Hanami.app.root.join("slices/main/relations/book/drafts.rb").read).to eq(relation_file)
       expect(output).to include("Created slices/main/relations/book/drafts.rb")
     end
   end

@@ -40,6 +40,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
       expect(output).to eq("Created config/db/migrate/20240713140600_create_posts.rb")
     end
 
+    it "generates a migration for a gateway" do
+      subject.call(name: "create_posts", gateway: "extra")
+
+      expect(fs.read("config/db/extra_migrate/20240713140600_create_posts.rb")).to eq migration_file_contents
+      expect(output).to eq("Created config/db/extra_migrate/20240713140600_create_posts.rb")
+    end
+
     it "generates a migration with underscored version of camel cased name" do
       subject.call(name: "CreatePosts")
 

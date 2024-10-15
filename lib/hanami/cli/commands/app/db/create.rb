@@ -9,10 +9,12 @@ module Hanami
           class Create < DB::Command
             desc "Create databases"
 
-            def call(app: false, slice: nil, command_exit: method(:exit), **)
+            option :gateway, required: false, desc: "Use database for gateway"
+
+            def call(app: false, slice: nil, gateway: nil, command_exit: method(:exit), **)
               exit_codes = []
 
-              databases(app: app, slice: slice).each do |database|
+              databases(app: app, slice: slice, gateway: gateway).each do |database|
                 result = database.exec_create_command
                 exit_codes << result.exit_code if result.respond_to?(:exit_code)
 

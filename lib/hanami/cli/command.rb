@@ -23,7 +23,7 @@ module Hanami
       def self.new(
         out: $stdout,
         err: $stderr,
-        fs: Hanami::CLI::Files.new,
+        fs: Hanami::CLI::Files.new(out: out),
         inflector: Dry::Inflector.new,
         **opts
       )

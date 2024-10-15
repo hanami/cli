@@ -4,7 +4,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
   subject(:command) { described_class.new(out: out) }
 
   let(:out) { StringIO.new }
-  def output; out.string; end
+  def output = out.string
 
   let(:dump_command) { instance_spy(Hanami::CLI::Commands::App::DB::Structure::Dump) }
 
@@ -69,32 +69,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         end
       RUBY
 
-      write "app/relations/posts.rb", <<~RUBY
-        module TestApp
-          module Relations
-            class Posts < Hanami::DB::Relation
-              schema :posts, infer: true
-            end
-          end
-        end
-      RUBY
-
       write "slices/main/config/db/migrate/20240602201330_create_comments.rb", <<~RUBY
         ROM::SQL.migration do
           change do
             create_table :comments do
               primary_key :id
               column :body, :text, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "slices/main/relations/comments.rb", <<~RUBY
-        module Main
-          module Relations
-            class Comments < Hanami::DB::Relation
-              schema :comments, infer: true
             end
           end
         end
@@ -111,21 +91,23 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       it "runs the migrations and dumps the structure for all databases" do
         command.call
 
-        expect(Hanami.app["relations.posts"].to_a).to eq []
-        expect(Main::Slice["relations.comments"].to_a).to eq []
+        expect(Hanami.app["db.gateway"].connection.tables).to include :posts
+        expect(Main::Slice["db.gateway"].connection.tables).to include :comments
 
         expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
         expect(dump_command).to have_received(:call).once
 
-        expect(output).to include "database db/app.sqlite3 migrated"
-        expect(output).to include "database db/main.sqlite3 migrated"
+        expect(output).to include_in_order(
+          "database db/app.sqlite3 migrated",
+          "database db/main.sqlite3 migrated"
+        )
       end
 
       it "runs the migration and dumps the structure for the app db when given --app" do
         command.call(app: true)
 
-        expect(Hanami.app["relations.posts"].to_a).to eq []
-        expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
+        expect(Hanami.app["db.gateway"].connection.tables).to include :posts
+        expect(Main::Slice["db.gateway"].connection.tables).not_to include :comments
 
         expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
         expect(dump_command).to have_received(:call).once
@@ -137,8 +119,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       it "runs the migration and dumps the structure for a slice db when given --slice" do
         command.call(slice: "main")
 
-        expect(Main::Slice["relations.comments"].to_a).to eq []
-        expect { Hanami.app["relations.posts"].to_a }.to raise_error Sequel::Error
+        expect(Main::Slice["db.gateway"].connection.tables).to include :comments
+        expect(Hanami.app["db.gateway"].connection.tables).not_to include :posts
 
         expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
         expect(dump_command).to have_received(:call).exactly(1).time
@@ -148,25 +130,115 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       end
 
       it "runs migrations to a specific target" do
-        column_names = -> {
-          Hanami.app["db.gateway"].connection
-            .fetch("PRAGMA table_info(posts)")
-            .to_a.map { _1[:name] }
-        }
+        columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
 
         command.call # migrate to add_body_to_posts
-        expect(column_names.()).to eq %w[id title body]
+        expect(columns.()).to eq %i[id title body]
 
         command.call(target: "20240602201330") # migrate back to create_posts
-        expect(column_names.()).to eq %w[id title] # no more body
+        expect(columns.()).to eq %i[id title] # no more body
 
-        expect(Hanami.app["relations.posts"].to_a).to eq []
+        expect(Hanami.app["db.gateway"].connection.tables).to include :posts
       end
 
       it "does not dump the database structure when given --dump=false" do
         command.call(dump: false)
 
         expect(dump_command).not_to have_received(:call)
+      end
+
+      context "app with multiple gateways" do
+        def before_prepare
+          super
+
+          ENV["DATABASE_URL__EXTRA"] = "sqlite://db/app_extra.sqlite3"
+
+          write "config/db/extra_migrate/20240602201330_create_comments.rb", <<~RUBY
+            ROM::SQL.migration do
+              change do
+                create_table :users do
+                  primary_key :id
+                  column :name, :text, null: false
+                end
+              end
+            end
+          RUBY
+        end
+
+        it "runs the migration and dumps the structure for all the app's gateways when given --app" do
+          command.call(app: true)
+
+          expect(Hanami.app["db.gateways.default"].connection.tables).to include :posts
+          expect(Hanami.app["db.gateways.extra"].connection.tables).to include :users
+
+          expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
+          expect(dump_command).to have_received(:call).once
+
+          expect(output).to include_in_order(
+            "database db/app.sqlite3 migrated in",
+            "database db/app_extra.sqlite3 migrated in"
+          )
+        end
+
+        it "runs the migration and dumps the structure for a single app gateway when --app and --gateway" do
+          command.call(app: true, gateway: "extra")
+
+          expect(Hanami.app["db.gateways.extra"].connection.tables).to include :users
+          expect(Hanami.app["db.gateways.default"].connection.tables).not_to include :posts
+
+          expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil, gateway: "extra"))
+          expect(dump_command).to have_received(:call).once
+
+          expect(output).to include "database db/app_extra.sqlite3 migrated in"
+          expect(output).not_to include "db/app.sqlite3"
+        end
+      end
+
+      context "slice with multiple gateways" do
+        def before_prepare
+          super
+
+          ENV["MAIN__DATABASE_URL__EXTRA"] = "sqlite://db/main_extra.sqlite3"
+
+          write "slices/main/config/db/extra_migrate/20240602201330_create_comments.rb", <<~RUBY
+            ROM::SQL.migration do
+              change do
+                create_table :users do
+                  primary_key :id
+                  column :name, :text, null: false
+                end
+              end
+            end
+          RUBY
+        end
+
+        it "runs the migration and dumps the structure for all the slices's gateways when given --slice" do
+          command.call(slice: "main")
+
+          expect(Main::Slice["db.gateways.default"].connection.tables).to include :comments
+          expect(Main::Slice["db.gateways.extra"].connection.tables).to include :users
+
+          expect(dump_command).to have_received(:call).with(hash_including(slice: "main"))
+          expect(dump_command).to have_received(:call).once
+
+          expect(output).to include_in_order(
+            "database db/main.sqlite3 migrated in",
+            "database db/main_extra.sqlite3 migrated in"
+          )
+        end
+
+        it "runs the migration and dumps the structure for a single slice gateway when --slice and --gateway" do
+          command.call(slice: "main", gateway: "extra")
+
+          expect(Main::Slice["db.gateways.extra"].connection.tables).to include :users
+          expect(Main::Slice["db.gateways.default"].connection.tables).not_to include :comments
+
+          expect(dump_command).to have_received(:call).with(hash_including(slice: "main", gateway: "extra"))
+          expect(dump_command).to have_received(:call).once
+
+          expect(output).to include "database db/main_extra.sqlite3 migrated in"
+          expect(output).not_to include "db/main.sqlite3"
+        end
       end
     end
 
@@ -180,34 +252,36 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       it "runs the migrations and dumps the structure for all databases" do
         command.call
 
-        expect(Hanami.app["relations.posts"].to_a).to eq []
-        expect(Main::Slice["relations.comments"].to_a).to eq []
+        expect(Hanami.app["db.gateway"].connection.tables).to include :posts
+        expect(Main::Slice["db.gateway"].connection.tables).to include :comments
 
         expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
         expect(dump_command).to have_received(:call).once
 
-        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app migrated"
-        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_main migrated"
+        expect(output).to include_in_order(
+          "database #{POSTGRES_BASE_DB_NAME}_app migrated",
+          "database #{POSTGRES_BASE_DB_NAME}_main migrated"
+        )
       end
 
       it "runs the migration and dumps the structure for the app db when given --app" do
         command.call(app: true)
 
-        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app migrated"
-        expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
-
-        expect(Hanami.app["relations.posts"].to_a).to eq []
-        expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
+        expect(Hanami.app["db.gateway"].connection.tables).to include :posts
+        expect(Main::Slice["db.gateway"].connection.tables).not_to include :comments
 
         expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
         expect(dump_command).to have_received(:call).once
+
+        expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app migrated"
+        expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
       end
 
       it "runs the migration and dumps the structure for a slice db when given --slice" do
         command.call(slice: "main")
 
-        expect(Main::Slice["relations.comments"].to_a).to eq []
-        expect { Hanami.app["relations.posts"].to_a }.to raise_error Sequel::Error
+        expect(Main::Slice["db.gateway"].connection.tables).to include :comments
+        expect(Hanami.app["db.gateway"].connection.tables).not_to include :posts
 
         expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
         expect(dump_command).to have_received(:call).exactly(1).time
@@ -217,19 +291,15 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       end
 
       it "runs migrations to a specific target" do
-        column_names = -> {
-          Hanami.app["db.gateway"].connection
-            .fetch("SELECT column_name FROM information_schema.columns WHERE table_name = 'posts'")
-            .to_a.map { _1[:column_name] }
-        }
+        columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
 
         command.call # migrate to add_body_to_posts
-        expect(column_names.()).to eq %w[id title body]
+        expect(columns.()).to eq %i[id title body]
 
         command.call(target: "20240602201330") # migrate back to create_posts
-        expect(column_names.()).to eq %w[id title] # no more body
+        expect(columns.()).to eq %i[id title] # no more body
 
-        expect(Hanami.app["relations.posts"].to_a).to eq []
+        expect(Hanami.app["db.gateway"].connection.tables).to include :posts
       end
 
       it "does not dump the database structure when given --dump=false" do
@@ -253,32 +323,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         end
       RUBY
 
-      write "slices/admin/relations/posts.rb", <<~RUBY
-        module Admin
-          module Relations
-            class Posts < Hanami::DB::Relation
-              schema :posts, infer: true
-            end
-          end
-        end
-      RUBY
-
       write "slices/main/config/db/migrate/20240602201330_create_users.rb", <<~RUBY
         ROM::SQL.migration do
           change do
             create_table :comments do
               primary_key :id
               column :body, :text, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "slices/main/relations/comments.rb", <<~RUBY
-        module Main
-          module Relations
-            class Comments < Hanami::DB::Relation
-              schema :comments, infer: true
             end
           end
         end
@@ -302,8 +352,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         "database db/confused.sqlite3 migrated"
       )
 
-      expect(Admin::Slice["relations.posts"].to_a).to eq []
-      expect { Main::Slice["relations.comments"].to_a }.to raise_error Sequel::Error
+      expect(Admin::Slice["db.gateway"].connection.tables).to include :posts
+      expect(Main::Slice["db.gateway"].connection.tables).not_to include :comments
     end
   end
 
