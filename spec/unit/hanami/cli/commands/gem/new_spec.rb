@@ -452,6 +452,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # frozen_string_literal: true
 
         require "dry/operation"
+        require "dry/operation/extensions/rom"
 
         module #{inflector.camelize(app)}
           class Operation < Dry::Operation
