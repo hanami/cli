@@ -58,7 +58,7 @@ module Hanami
                 migrations_sql = super
                 return unless migrations_sql
                 
-                search_path = slice["db.gateway"].connection
+                search_path = gateway.connection
                   .fetch("SHOW search_path").to_a.first
                   .fetch(:search_path)
 
