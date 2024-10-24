@@ -18,8 +18,8 @@ module Hanami
           # @api private
           ACTION_SEPARATOR = "." # TODO: rename to container key separator
 
-          # Overloads {Hanami::CLI::Commands::App::Command#call} to ensure an appropriate `HANAMI_ENV`
-          # environment variable is set.
+          # Overloads {Hanami::CLI::Commands::App::Command#call} to ensure an appropriate
+          # `HANAMI_ENV` environment variable is set.
           #
           # Uses an `--env` option if provided, then falls back to an already-set `HANAMI_ENV`
           # environment variable, and defaults to "development" in the absence of both.
@@ -27,6 +27,12 @@ module Hanami
           # @since 2.0.0
           # @api private
           module Environment
+            # @since 2.2.0
+            # @api private
+            def self.prepended(klass)
+              klass.option :env, desc: "App environment (development, test, production)", aliases: ["e"]
+            end
+
             # @since 2.0.0
             # @api private
             def call(*args, **opts)
@@ -37,7 +43,7 @@ module Hanami
               ENV["HANAMI_ENV"] = hanami_env
               Hanami::Env.load
 
-              super(*args, **opts)
+              super
             end
           end
 
