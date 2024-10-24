@@ -31,8 +31,11 @@ module Hanami
                         throw :dump_failed, false
                       end
 
-                      File.open(database.structure_file, "a") do |f|
-                        f.puts "#{database.schema_migrations_sql_dump}\n"
+                      migrations_sql = database.schema_migrations_sql_dump
+                      if migrations_sql
+                        File.open(database.structure_file, "a") do |f|
+                          f.puts "#{migrations_sql}\n"
+                        end
                       end
 
                       true
