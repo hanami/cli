@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
-  subject(:command) { described_class.new(out: out) }
+  subject(:command) { described_class.new(out: out, test_env_executor: test_env_executor) }
 
   let(:out) { StringIO.new }
   def output = out.string
+
+  let(:test_env_executor) { instance_spy(Hanami::CLI::InteractiveSystemCall) }
 
   let(:dump_command) { instance_spy(Hanami::CLI::Commands::App::DB::Structure::Dump) }
 
@@ -416,6 +418,52 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         "NOTE: Empty database migrations folder (config/db/migrate/) for db/app.sqlite3"
       )
       expect(output).not_to include "migrated"
+    end
+  end
+
+  describe "automatic test env execution" do
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+      db_create
+    end
+
+    # Manipulate $0 and ARGV to match the values expected when `hanami` is invoked directly.
+    #
+    # This is an awkward arrangement, but necessary for the way we're testing DB commands at the
+    # moment: instead of outside-in integration tests (executing the CLI itself, or at least
+    # interacting with the top-level CLI class), we're instead interacting with each specific
+    # command class in Ruby.
+    before do
+      @original_0 = $0.dup
+      @original_argv = ARGV.dup
+
+      $0 = "hanami"
+      ARGV.replace(%w[db migrate --env development])
+    end
+
+    after do
+      $0 = @original_0
+      ARGV.replace(@original_argv)
+    end
+
+    it "re-executes the command in test env when run with development env" do
+      command.call(env: "development")
+
+      expect(test_env_executor).to have_received(:call).with(
+        "bundle exec hanami",
+        "db", "migrate",
+        {
+          env: hash_including("HANAMI_ENV" => "test")
+        }
+      )
+    end
+
+    it "does not re-execute the command when run with other environments" do
+      command.call(env: "test")
+      expect(test_env_executor).not_to have_received(:call)
+
+      command.call(env: "production")
+      expect(test_env_executor).not_to have_received(:call)
     end
   end
 end

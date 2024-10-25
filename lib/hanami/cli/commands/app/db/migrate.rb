@@ -25,7 +25,16 @@ module Hanami
                 end
               end
 
-              run_command(Structure::Dump, app: app, slice: slice, gateway: gateway, command_exit: command_exit) if dump
+              # Only dump for the initial command, not a re-run of the command in test env
+              if dump && !ENV.key?("HANAMI_CLI_DB_COMMAND_RE_RUN_IN_TEST")
+                run_command(
+                  Structure::Dump,
+                  app: app, slice: slice, gateway: gateway,
+                  command_exit: command_exit
+                )
+              end
+
+              re_run_development_command_in_test
             end
 
             private
