@@ -150,10 +150,18 @@ module Hanami
             # Invokes the currently executing `hanami` CLI command again, but with any `--env` args
             # removed and the `HANAMI_ENV=test` env var set.
             #
-            # This runs only if the Hanami env is `:development`. This is important to streamline
-            # the local development experience, making sure that the test databases are kept in sync
-            # with operations run on the development databases.
+            # This is called by certain `db` commands only, and runs only if the Hanami env is
+            # `:development`. This behavior important to streamline the local development
+            # experience, making sure that the test databases are kept in sync with operations run
+            # on the development databases.
+            #
+            # Spawning an entirely new process to change the env is a compromise approach until we
+            # can have an API for reinitializing the DB subsystem in-process with a different env.
             def re_run_development_command_in_test
+              # Only invoke a new procees if we've been called as `hanami`. This avoids awkward
+              # failures when testing commands via RSpec, for which the $0 is "/full/path/to/rspec".
+              return unless $0.end_with?("hanami")
+
               return unless Hanami.env == :development
 
               cmd = $0
