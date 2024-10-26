@@ -112,7 +112,7 @@ module Hanami
           elsif generate_postgres?
             "postgres://localhost/#{app}"
           elsif generate_mysql?
-            "mysql2://localhost/#{app}"
+            "mysql2://root@localhost/#{app}"
           else
             raise "Unknown database option: #{database_option}"
           end
