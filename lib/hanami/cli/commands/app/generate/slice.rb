@@ -29,16 +29,15 @@ module Hanami
             # @since 2.2.0
             # @api private
             option :skip_db,
-              type: :boolean,
+              type: :flag,
               required: false,
               default: SKIP_DB_DEFAULT,
               desc: "Skip database"
             # @since 2.2.0
             # @api private
             option :skip_route,
-              type: :boolean,
-              required: false,
               type: :flag,
+              required: false,
               default: DEFAULT_SKIP_ROUTE,
               desc: "Skip route generation"
 
