@@ -29,6 +29,8 @@ module Hanami
               exit_codes.each do |code|
                 break command_exit.(code) if code > 0
               end
+
+              re_run_development_command_in_test
             end
           end
         end
