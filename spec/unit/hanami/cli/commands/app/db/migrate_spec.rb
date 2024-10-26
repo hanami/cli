@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
-  subject(:command) { described_class.new(out: out) }
+  subject(:command) { described_class.new(out: out, test_env_executor: test_env_executor) }
 
   let(:out) { StringIO.new }
   def output = out.string
+
+  let(:test_env_executor) { instance_spy(Hanami::CLI::InteractiveSystemCall) }
 
   let(:dump_command) { instance_spy(Hanami::CLI::Commands::App::DB::Structure::Dump) }
 
@@ -416,6 +418,37 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         "NOTE: Empty database migrations folder (config/db/migrate/) for db/app.sqlite3"
       )
       expect(output).not_to include "migrated"
+    end
+  end
+
+  describe "automatic test env execution" do
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+      db_create
+    end
+
+    around do |example|
+      as_hanami_cli_with_args(%w[db migrate]) { example.run }
+    end
+
+    it "re-executes the command in test env when run with development env" do
+      command.call(env: "development")
+
+      expect(test_env_executor).to have_received(:call).with(
+        "bundle exec hanami",
+        "db", "migrate",
+        {
+          env: hash_including("HANAMI_ENV" => "test")
+        }
+      )
+    end
+
+    it "does not re-execute the command when run with other environments" do
+      command.call(env: "test")
+      expect(test_env_executor).not_to have_received(:call)
+
+      command.call(env: "production")
+      expect(test_env_executor).not_to have_received(:call)
     end
   end
 end

@@ -2,10 +2,15 @@
 
 RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration do
   subject(:command) {
-    described_class.new(system_call: system_call, out: out)
+    described_class.new(
+      system_call: system_call,
+      test_env_executor: test_env_executor,
+      out: out
+    )
   }
 
   let(:system_call) { Hanami::CLI::SystemCall.new }
+  let(:test_env_executor) { instance_spy(Hanami::CLI::InteractiveSystemCall) }
 
   let(:out) { StringIO.new }
   def output = out.string
@@ -273,6 +278,36 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
       expect(output).to include %("#{MYSQL_BASE_DB_NAME}_app structure loaded from config/db/structure.sql" FAILED)
 
       expect(command).to have_received(:exit).with 2
+    end
+  end
+
+  describe "automatic test env execution" do
+    before do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+    end
+
+    around do |example|
+      as_hanami_cli_with_args(%w[db structure load]) { example.run }
+    end
+
+    it "re-executes the command in test env when run with development env" do
+      command.call(env: "development")
+
+      expect(test_env_executor).to have_received(:call).with(
+        "bundle exec hanami",
+        "db", "structure", "load",
+        {
+          env: hash_including("HANAMI_ENV" => "test")
+        }
+      )
+    end
+
+    it "does not re-execute the command when run with other environments" do
+      command.call(env: "test")
+      expect(test_env_executor).not_to have_received(:call)
+
+      command.call(env: "production")
+      expect(test_env_executor).not_to have_received(:call)
     end
   end
 end

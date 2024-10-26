@@ -58,7 +58,9 @@ module Hanami
               end
 
               # Finally, load the seeds for the slice overall, which is a once-per-slice operation.
-              run_command(DB::Seed, app: app, slice: slice)
+              run_command(DB::Seed, app: app, slice: slice) unless re_running_in_test?
+
+              re_run_development_command_in_test
             end
           end
         end
