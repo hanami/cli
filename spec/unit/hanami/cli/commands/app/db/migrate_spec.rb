@@ -427,23 +427,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
       db_create
     end
 
-    # Manipulate $0 and ARGV to match the values expected when `hanami` is invoked directly.
-    #
-    # This is an awkward arrangement, but necessary for the way we're testing DB commands at the
-    # moment: instead of outside-in integration tests (executing the CLI itself, or at least
-    # interacting with the top-level CLI class), we're instead interacting with each specific
-    # command class in Ruby.
-    before do
-      @original_0 = $0.dup
-      @original_argv = ARGV.dup
-
-      $0 = "hanami"
-      ARGV.replace(%w[db migrate --env development])
-    end
-
-    after do
-      $0 = @original_0
-      ARGV.replace(@original_argv)
+    around do |example|
+      as_hanami_cli_with_args(%w[db migrate]) { example.run }
     end
 
     it "re-executes the command in test env when run with development env" do
