@@ -27,11 +27,13 @@ module Hanami
               out:, err:,
               system_call: SystemCall.new,
               test_env_executor: InteractiveSystemCall.new(out: out, err: err),
+              nested_command: false,
               **opts
             )
               super(out: out, err: err, **opts)
               @system_call = system_call
               @test_env_executor = test_env_executor
+              @nested_command = nested_command
             end
 
             def run_command(klass, ...)
@@ -40,7 +42,13 @@ module Hanami
                 inflector: inflector,
                 fs: fs,
                 system_call: system_call,
+                test_env_executor: test_env_executor,
+                nested_command: true,
               ).call(...)
+            end
+
+            def nested_command?
+              @nested_command
             end
 
             private
@@ -158,10 +166,16 @@ module Hanami
             # Spawning an entirely new process to change the env is a compromise approach until we
             # can have an API for reinitializing the DB subsystem in-process with a different env.
             def re_run_development_command_in_test
-              # Only invoke a new procees if we've been called as `hanami`. This avoids awkward
+              # Only invoke a new process if we've been called as `hanami`. This avoids awkward
               # failures when testing commands via RSpec, for which the $0 is "/full/path/to/rspec".
               return unless $0.end_with?("hanami")
 
+              # If this special env key is set, then a re-run has already been invoked. This would
+              # mean the current command is actually a nested command run by another db command. In
+              # this case, don't trigger a re-runs, because one is already in process.
+              return if nested_command?
+
+              # Re-runs in test are for development-env commands only.
               return unless Hanami.env == :development
 
               cmd = $0
@@ -174,6 +188,10 @@ module Hanami
                   "HANAMI_CLI_DB_COMMAND_RE_RUN_IN_TEST" => "true"
                 }
               )
+            end
+
+            def re_running_in_test?
+              ENV.key?("HANAMI_CLI_DB_COMMAND_RE_RUN_IN_TEST")
             end
 
             # Returns the `ARGV` with every option argument included, but the `-e` or `--env` args
