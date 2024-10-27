@@ -56,6 +56,8 @@ module Hanami
               # Add your migration here.
               #
               # See https://sequel.jeremyevans.net/rdoc/files/doc/migration_rdoc.html for details.
+              def change
+              end
             end
           RUBY
           private_constant :FILE_CONTENTS

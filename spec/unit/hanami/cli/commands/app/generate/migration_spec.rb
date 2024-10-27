@@ -24,6 +24,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
         # Add your migration here.
         #
         # See https://sequel.jeremyevans.net/rdoc/files/doc/migration_rdoc.html for details.
+        def change
+        end
       end
     RUBY
   }
