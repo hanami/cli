@@ -106,7 +106,9 @@ module Hanami
 
               slice_gateways_by_database_url.each_with_object([]) { |(url, slice_gateways), arr|
                 slice_gateways_with_config = slice_gateways.select {
-                  _1[:slice].root.join("config", "db").directory?
+                  migrate_dir = _1[:gateway] == :default ? "migrate" : "#{_1[:gateway]}_migrate"
+
+                  _1[:slice].root.join("config", "db", migrate_dir).directory?
                 }
 
                 db_slice_gateway = slice_gateways_with_config.first || slice_gateways.first

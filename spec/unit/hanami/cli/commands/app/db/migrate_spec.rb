@@ -414,6 +414,119 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     end
   end
 
+  context "multiple slices with matching gateways, and no duplicate config/db/ gateway migrate dirs" do
+    def before_prepare
+      write "slices/admin/config/db/posts_migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/main/config/db/comments_migrate/20240602201330_create_users.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :comments do
+              primary_key :id
+              column :body, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/admin/relations/.keep", ""
+      write "slices/main/relations/.keep", ""
+    end
+
+    before do
+      ENV["ADMIN__DATABASE_URL__POSTS"] = "sqlite://db/posts.sqlite3"
+      ENV["ADMIN__DATABASE_URL__COMMENTS"] = "sqlite://db/comments.sqlite3"
+      ENV["MAIN__DATABASE_URL__POSTS"] = "sqlite://db/posts.sqlite3"
+      ENV["MAIN__DATABASE_URL__COMMENTS"] = "sqlite://db/comments.sqlite3"
+      db_create
+    end
+
+    it "migrates the database using the slice with config/db/" do
+      command.call
+
+      expect(output).to include "database db/comments.sqlite3 migrated"
+      expect(output).to include "database db/posts.sqlite3 migrated"
+      expect(output).not_to include "WARNING"
+
+      expect(Admin::Slice["db.gateways.posts"].connection.tables).to include :posts
+      expect(Admin::Slice["db.gateways.comments"].connection.tables).to include :comments
+    end
+  end
+
+  context "multiple slices with matching gateways, but duplicate config/db/ gateway migrate dirs" do
+    def before_prepare
+      write "slices/admin/config/db/posts_migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      # Duplicated from admin
+      write "slices/main/config/db/posts_migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/main/config/db/comments_migrate/20240602201330_create_users.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :comments do
+              primary_key :id
+              column :body, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/admin/relations/.keep", ""
+      write "slices/main/relations/.keep", ""
+    end
+
+    before do
+      ENV["ADMIN__DATABASE_URL__POSTS"] = "sqlite://db/posts.sqlite3"
+      ENV["ADMIN__DATABASE_URL__COMMENTS"] = "sqlite://db/comments.sqlite3"
+      ENV["MAIN__DATABASE_URL__POSTS"] = "sqlite://db/posts.sqlite3"
+      ENV["MAIN__DATABASE_URL__COMMENTS"] = "sqlite://db/comments.sqlite3"
+      db_create
+    end
+
+    it "prints a warning before running the migrations from the first config dir only" do
+      command.call
+
+      expect(output).to include_in_order(
+        "WARNING: Database db/posts.sqlite3 is configured for multiple config/db/ directories:",
+        "- slices/admin/config/db",
+        "- slices/main/config/db",
+        %(Using config in "admin" slice only.),
+        "database db/comments.sqlite3 migrated",
+        "database db/posts.sqlite3 migrated"
+      )
+
+      expect(Admin::Slice["db.gateways.posts"].connection.tables).to include :posts
+      expect(Admin::Slice["db.gateways.comments"].connection.tables).to include :comments
+    end
+  end
+
   context "no db/config/migrate/" do
     def before_prepare
       write "app/relations/.keep", ""
