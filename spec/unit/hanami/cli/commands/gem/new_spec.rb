@@ -948,11 +948,26 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.read("app/structs/.keep")).to eq("")
         expect(output).to include("Created app/structs/.keep")
 
-        expect(fs.read("db/.keep")).to eq("")
-        expect(output).to include("Created db/.keep")
+        seeds = <<~EXPECTED
+          # This seeds file should ensure the existence of database records required to run the app.
+          #
+          # The code should be idempotent so that it can be executed at any time.
+          #
+          # To load the seeds, run `hanami db seed`. Seeds are also loaded as part of `hanami db prepare`.
+
+          # Example:
+          #
+          #   categories = Hanami.app["relations.categories"]
+          #   categories.insert(title: "General")
+        EXPECTED
+        expect(fs.read("config/db/seeds.rb")).to eq(seeds)
+        expect(output).to include("Created config/db/seeds.rb")
 
         expect(fs.read("config/db/migrate/.keep")).to eq("")
         expect(output).to include("Created config/db/migrate/.keep")
+
+        expect(fs.read("db/.keep")).to eq("")
+        expect(output).to include("Created db/.keep")
 
         # lib/bookshelf/types.rb
         types = <<~EXPECTED
