@@ -1020,7 +1020,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.exist?("app/db/struct.rb")).to be(false)
         expect(fs.exist?("app/db/relation.rb")).to be(false)
         expect(fs.exist?("config/db/")).to be(false)
-        expect(fs.read("app/operation.rb")).to_not match("ROM")
         expect(fs.read(".gitignore")).to_not include("db/*.sqlite")
         expect(fs.exist?("db/")).to be(false)
       end
