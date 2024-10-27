@@ -116,7 +116,7 @@ module Hanami
                   system_call: system_call
                 )
 
-                warn_on_misconfigured_database database, slice_gateways.map { _1.fetch(:slice) }
+                warn_on_misconfigured_database database, slice_gateways_with_config.map { _1.fetch(:slice) }
 
                 arr << database
               }
@@ -140,7 +140,7 @@ module Hanami
 
                   #{slices.map { "- " + _1.root.relative_path_from(_1.app.root).join("config", "db").to_s }.join("\n")}
 
-                  Migrating database using #{database.slice.slice_name.to_s.inspect} slice only.
+                  Using config in #{database.slice.slice_name.to_s.inspect} slice only.
 
                 STR
               elsif !database.db_config_dir?

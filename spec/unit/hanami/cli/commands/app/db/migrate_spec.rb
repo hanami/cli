@@ -312,7 +312,40 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
     end
   end
 
-  context "multiple dbs with identical database_url" do
+  context "db used across slices, with one slice containing config/db/" do
+    def before_prepare
+      write "slices/admin/config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
+        ROM::SQL.migration do
+          change do
+            create_table :posts do
+              primary_key :id
+              column :title, :text, null: false
+            end
+          end
+        end
+      RUBY
+
+      write "slices/admin/relations/.keep", ""
+      write "slices/main/relations/.keep", ""
+    end
+
+    before do
+      ENV["ADMIN__DATABASE_URL"] = "sqlite://db/shared.sqlite3"
+      ENV["MAIN__DATABASE_URL"] = "sqlite://db/shared.sqlite3"
+      db_create
+    end
+
+    it "migrates the database using the slice with config/db/" do
+      command.call
+
+      expect(output).to include "database db/shared.sqlite3 migrated"
+      expect(output).not_to include "WARNING"
+
+      expect(Admin::Slice["db.gateway"].connection.tables).to include :posts
+    end
+  end
+
+  context "db used across slices, with multiple slices containing a config/db/" do
     def before_prepare
       write "slices/admin/config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
         ROM::SQL.migration do
@@ -335,6 +368,9 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
           end
         end
       RUBY
+
+      write "slices/admin/relations/.keep", ""
+      write "slices/main/relations/.keep", ""
     end
 
     before do
@@ -350,7 +386,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
         "WARNING: Database db/confused.sqlite3 is configured for multiple config/db/ directories",
         "- slices/admin/config/db",
         "- slices/main/config/db",
-        'Migrating database using "admin" slice only',
+        'Using config in "admin" slice only',
         "database db/confused.sqlite3 migrated"
       )
 
