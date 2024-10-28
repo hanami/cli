@@ -41,16 +41,28 @@ module Hanami
             end
 
             register "generate", aliases: ["g"] do |prefix|
-              prefix.register "action", Generate::Action
-              prefix.register "component", Generate::Component
-              prefix.register "migration", Generate::Migration
-              prefix.register "operation", Generate::Operation
-              prefix.register "part", Generate::Part
-              prefix.register "relation", Generate::Relation
-              prefix.register "repo", Generate::Repo
               prefix.register "slice", Generate::Slice
-              prefix.register "struct", Generate::Struct
-              prefix.register "view", Generate::View
+              prefix.register "component", Generate::Component
+
+              if Hanami.bundled?("hanami-controller")
+                prefix.register "action", Generate::Action
+              end
+
+              if Hanami.bundled?("dry-operation")
+                prefix.register "operation", Generate::Operation
+              end
+
+              if Hanami.bundled?("hanami-view")
+                prefix.register "view", Generate::View
+                prefix.register "part", Generate::Part
+              end
+
+              if Hanami.bundled?("hanami-db")
+                prefix.register "migration", Generate::Migration
+                prefix.register "relation", Generate::Relation
+                prefix.register "repo", Generate::Repo
+                prefix.register "struct", Generate::Struct
+              end
             end
           end
         end
