@@ -25,7 +25,11 @@ module Hanami
                 next if seeded_slices.include?(database.slice)
 
                 seeds_path = database.slice.root.join(SEEDS_PATH)
-                next unless seeds_path.file?
+
+                unless seeds_path.file?
+                  out.puts "no seeds found at #{seeds_path.relative_path_from(database.slice.app.root)}"
+                  next
+                end
 
                 relative_seeds_path = seeds_path.relative_path_from(database.slice.app.root)
                 measure "seed data loaded from #{relative_seeds_path}" do
