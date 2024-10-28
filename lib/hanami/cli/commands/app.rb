@@ -48,7 +48,7 @@ module Hanami
                 prefix.register "action", Generate::Action
               end
 
-              if Hanami.bundled?("hanami-operation")
+              if Hanami.bundled?("dry-operation")
                 prefix.register "operation", Generate::Operation
               end
 
