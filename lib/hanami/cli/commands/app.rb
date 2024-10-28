@@ -42,13 +42,13 @@ module Hanami
 
             register "generate", aliases: ["g"] do |prefix|
               prefix.register "slice", Generate::Slice
+              prefix.register "component", Generate::Component
 
               if Hanami.bundled?("hanami-controller")
                 prefix.register "action", Generate::Action
               end
 
               if Hanami.bundled?("hanami-operation")
-                prefix.register "component", Generate::Component
                 prefix.register "operation", Generate::Operation
               end
 
