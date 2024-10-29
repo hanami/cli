@@ -24,8 +24,8 @@ module Hanami
             AUTO_INDENT: true,
             PROMPT_I: "#{prompt}> ",
             PROMPT_N: "#{prompt}> ",
-            PROMPT_S: "#{prompt} %l> ",
-            PROMPT_C: "#{prompt} ?> ",
+            PROMPT_S: "#{prompt}%l ",
+            PROMPT_C: "#{prompt}* ",
             RETURN: "=> %s\n"
           }
 
