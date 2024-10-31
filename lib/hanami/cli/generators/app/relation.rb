@@ -19,8 +19,14 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(key:, namespace:, base_path:)
+          def call(key:, namespace:, base_path:, gateway:)
             schema_name = key.split(KEY_SEPARATOR).last
+            body_content = ["schema :#{schema_name}, infer: true"]
+
+            if gateway
+              gateway_name = gateway.split(KEY_SEPARATOR).last
+              body_content.unshift("gateway :#{gateway_name}")
+            end
 
             RubyFileWriter.new(
               fs: fs,
@@ -31,7 +37,7 @@ module Hanami
               base_path: base_path,
               extra_namespace: "Relations",
               relative_parent_class: "DB::Relation",
-              body: ["schema :#{schema_name}, infer: true"],
+              body: body_content,
             )
           end
 
