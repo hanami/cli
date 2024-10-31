@@ -8,7 +8,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Seed, :app_integration do
   let(:system_call) { Hanami::CLI::SystemCall.new }
 
   let(:out) { StringIO.new }
-  def output; out.string; end
+  def output = out.string
 
   before do
     @env = ENV.to_h
@@ -155,6 +155,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Seed, :app_integration do
       expect(Main::Slice["relations.comments"].to_a).to eq [{id: 1, body: "First comment"}]
 
       expect(output).not_to include "seed data loaded from config/db/seeds.rb"
+      expect(output).to include "no seeds found at config/db/seeds.rb"
       expect(output).to include "seed data loaded from slices/main/config/db/seeds.rb"
     end
   end
@@ -166,7 +167,10 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Seed, :app_integration do
       expect(Hanami.app["relations.posts"].to_a).to eq []
       expect(Main::Slice["relations.comments"].to_a).to eq []
 
-      expect(output).to be_empty
+      expect(output).to include_in_order(
+        "no seeds found at config/db/seeds.rb",
+        "no seeds found at slices/main/config/db/seeds.rb"
+      )
     end
   end
 end

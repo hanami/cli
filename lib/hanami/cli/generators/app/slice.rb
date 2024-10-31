@@ -22,9 +22,11 @@ module Hanami
           def call(app, slice, url, context: nil, **opts)
             context ||= SliceContext.new(inflector, app, slice, url, **opts)
 
-            fs.inject_line_at_class_bottom(
-              fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
-            )
+            if context.generate_route?
+              fs.inject_line_at_class_bottom(
+                fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
+              )
+            end
 
             fs.mkdir(directory = "slices/#{slice}")
 

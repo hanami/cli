@@ -224,6 +224,15 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         expect(output).to_not include("app/templates/#{controller}/#{action}.html.erb")
       end
     end
+
+    it "can skip route creation" do
+      within_application_directory do
+        subject.call(name: "no.route", skip_route: true)
+
+        expect(fs.read("config/routes.rb")).to_not match(%(get "/no/route", to: "no.route"))
+        expect(output).to_not include("Updated config/routes.rb")
+      end
+    end
   end
 
   context "generate for app, with hanami view bundled" do
@@ -330,6 +339,78 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
         expect(fs.read("app/actions/api/users/thing.rb")).to eq(action_file)
         expect(output).to include("Created app/actions/api/users/thing.rb")
+      end
+    end
+
+    it "allows route generation to be skipped" do
+      context = Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action)
+      allow(context).to receive(:bundled_views?) { true }
+
+      within_application_directory do
+        subject.call(name: action_name, context: context, skip_route: true)
+
+        # Route
+        routes = <<~CODE
+          # frozen_string_literal: true
+
+          require "hanami/routes"
+
+          module #{app}
+            class Routes < Hanami::Routes
+              root { "Hello from Hanami" }
+            end
+          end
+        CODE
+
+        # route
+        expect(fs.read("config/routes.rb")).to eq(routes)
+        expect(output).to_not include("Updated config/routes.rb")
+
+        # action
+        action_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module #{inflector.camelize(app)}
+            module Actions
+              module #{inflector.camelize(controller)}
+                class #{inflector.camelize(action)} < #{inflector.camelize(app)}::Action
+                  def handle(request, response)
+                  end
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/actions/#{controller}/#{action}.rb")).to eq(action_file)
+        expect(output).to include("Created app/actions/#{controller}/#{action}.rb")
+
+        # view
+        view_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module #{inflector.camelize(app)}
+            module Views
+              module #{inflector.camelize(controller)}
+                class #{inflector.camelize(action)} < #{inflector.camelize(app)}::View
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/views/#{controller}/#{action}.rb")).to eq(view_file)
+        expect(output).to include("Created app/views/#{controller}/#{action}.rb")
+
+        # template
+        expect(fs.directory?("app/templates/#{controller}")).to be(true)
+
+        template_file = <<~EXPECTED
+          <h1>#{inflector.camelize(app)}::Views::#{inflector.camelize(controller)}::#{inflector.camelize(action)}</h1>
+        EXPECTED
+
+        expect(fs.read("app/templates/#{controller}/#{action}.html.erb")).to eq(template_file)
+        expect(output).to include("Created app/views/#{controller}/#{action}.rb")
       end
     end
 

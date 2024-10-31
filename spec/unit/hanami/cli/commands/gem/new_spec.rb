@@ -455,8 +455,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         module #{inflector.camelize(app)}
           class Operation < Dry::Operation
-            # Provide `transaction do ... end` method for database transactions
-            include Dry::Operation::Extensions::ROM
           end
         end
       EXPECTED
@@ -950,11 +948,31 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.read("app/structs/.keep")).to eq("")
         expect(output).to include("Created app/structs/.keep")
 
-        expect(fs.read("db/.keep")).to eq("")
-        expect(output).to include("Created db/.keep")
+        seeds = <<~EXPECTED
+          # This seeds file should create the database records required to run the app.
+          #
+          # The code should be idempotent so that it can be executed at any time.
+          #
+          # To load the seeds, run `hanami db seed`. Seeds are also loaded as part of `hanami db prepare`.
+
+          # For example, if you have appropriate repos available:
+          #
+          #   category_repo = Hanami.app["repos.category_repo"]
+          #   category_repo.create(title: "General")
+          #
+          # Alternatively, you can use relations directly:
+          #
+          #   categories = Hanami.app["relations.categories"]
+          #   categories.insert(title: "General")
+        EXPECTED
+        expect(fs.read("config/db/seeds.rb")).to eq(seeds)
+        expect(output).to include("Created config/db/seeds.rb")
 
         expect(fs.read("config/db/migrate/.keep")).to eq("")
         expect(output).to include("Created config/db/migrate/.keep")
+
+        expect(fs.read("db/.keep")).to eq("")
+        expect(output).to include("Created db/.keep")
 
         # lib/bookshelf/types.rb
         types = <<~EXPECTED
@@ -1007,7 +1025,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         expect(fs.exist?("app/db/struct.rb")).to be(false)
         expect(fs.exist?("app/db/relation.rb")).to be(false)
         expect(fs.exist?("config/db/")).to be(false)
-        expect(fs.read("app/operation.rb")).to_not match("ROM")
         expect(fs.read(".gitignore")).to_not include("db/*.sqlite")
         expect(fs.exist?("db/")).to be(false)
       end
@@ -1243,7 +1260,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("mysql2")
-          expect(fs.read(".env")).to include("DATABASE_URL=mysql2://localhost/#{app}")
+          expect(fs.read(".env")).to include("DATABASE_URL=mysql2://root@localhost/#{app}")
           expect(fs.read(".gitignore")).to_not include("db/*.sqlite")
           expect(fs.exist?("db/")).to be(false)
         end
@@ -1255,7 +1272,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         fs.chdir(app) do
           expect(fs.read("Gemfile")).to include("hanami-db")
           expect(fs.read("Gemfile")).to include("mysql2")
-          expect(fs.read(".env")).to include("DATABASE_URL=mysql2://localhost/#{app}")
+          expect(fs.read(".env")).to include("DATABASE_URL=mysql2://root@localhost/#{app}")
           expect(fs.read(".gitignore")).to_not include("db/*.sqlite")
           expect(fs.exist?("db/")).to be(false)
         end

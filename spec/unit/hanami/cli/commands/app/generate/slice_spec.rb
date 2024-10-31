@@ -316,6 +316,29 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     end
   end
 
+  context "with --skip-route" do
+    it "generates a slice without corresponding route" do
+      within_application_directory do
+        subject.call(name: slice, skip_route: true)
+
+        # Route
+        blank_routes = <<~CODE
+          # frozen_string_literal: true
+
+          require "hanami/routes"
+
+          module #{app}
+            class Routes < Hanami::Routes
+              root { "Hello from Hanami" }
+            end
+          end
+        CODE
+
+        expect(fs.read("config/routes.rb")).to include(blank_routes)
+      end
+    end
+  end
+
   private
 
   def within_application_directory
