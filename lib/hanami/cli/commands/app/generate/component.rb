@@ -15,10 +15,10 @@ module Hanami
             option :slice, required: false, desc: "Slice name"
 
             example [
-              %(operations.create_user               (MyApp::Operations::CreateUser)),
-              %(operations.user.create               (MyApp::Operations::Create::User)),
-              %(operations.create_user               --slice=admin (Admin::Operations::CreateUser)),
-              %(Operations::CreateUser               (MyApp::Operations::CreateUser)),
+              %(isbn_decoder               (MyApp::IsbnDecoder)),
+              %(recommenders.fiction       (MyApp::Recommenders::Fiction)),
+              %(isbn_decoder --slice=admin (Admin::IsbnDecoder)),
+              %(Exporters::Complete::CSV   (MyApp::Exporters::Complete::CSV)),
             ]
             attr_reader :generator
             private :generator
