@@ -23,10 +23,7 @@ module Hanami
             schema_name = key.split(KEY_SEPARATOR).last
             body_content = ["schema :#{schema_name}, infer: true"]
 
-            if gateway
-              gateway_name = gateway.split(KEY_SEPARATOR).last
-              body_content.unshift("gateway :#{gateway_name}")
-            end
+            body_content.prepend("gateway :#{gateway}") if gateway
 
             RubyFileWriter.new(
               fs: fs,
