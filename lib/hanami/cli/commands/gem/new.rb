@@ -126,7 +126,6 @@ module Hanami
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
-            raise ConflictingOptionsError.new("--skip-db", "--database") if skip_db && database
 
             normalized_database ||= normalize_database(database)
 
