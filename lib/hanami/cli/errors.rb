@@ -102,14 +102,6 @@ module Hanami
 
     # @since 2.2.0
     # @api public
-    class ConflictingOptionsError < Error
-      def initialize(option1, option2)
-        super("`#{option1}' and `#{option2}' cannot be used together")
-      end
-    end
-
-    # @since 2.2.0
-    # @api public
     class InvalidMigrationNameError < Error
       def initialize(name)
         super(<<~TEXT)
