@@ -143,11 +143,11 @@ module Hanami
                 if skip_install
                   out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"
                 else
-                  out.puts "Running Bundler install..."
+                  out.puts "Running bundle install..."
                   bundler.install!
 
                   unless skip_assets
-                    out.puts "Running NPM install..."
+                    out.puts "Running npm install..."
                     system_call.call("npm", ["install"]).tap do |result|
                       unless result.successful?
                         puts "NPM ERROR:"
@@ -156,7 +156,7 @@ module Hanami
                     end
                   end
 
-                  out.puts "Running Hanami install..."
+                  out.puts "Running hanami install..."
                   run_install_command!(head: head)
                 end
               end
