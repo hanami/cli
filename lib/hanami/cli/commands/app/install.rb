@@ -33,9 +33,21 @@ module Hanami
           # @api private
           option :head, type: :flag, desc: "Install head deps", default: DEFAULT_HEAD
 
+          # @api private
+          private attr_reader :bundler
+
+          def initialize(
+            fs:,
+            bundler: CLI::Bundler.new(fs: fs),
+            **opts
+          )
+            @bundler = bundler
+          end
+
           # @since 2.0.0
           # @api private
           def call(head: DEFAULT_HEAD, **)
+            bundler.install!
           end
         end
       end

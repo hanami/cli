@@ -88,8 +88,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.directory?(app)).to be(true)
     expect(output).to include("Created #{app}/")
     expect(output).to include("-> Within #{app}/")
-    expect(output).to include("Running Bundler install...")
-    expect(output).to include("Running Hanami install...")
+    expect(output).to include("Running bundle install...")
+    expect(output).to include("Running npm install...")
+    expect(output).to include("Running hanami install...")
 
     fs.chdir(app) do
       # .gitignore
@@ -551,8 +552,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.directory?(app)).to be(true)
       expect(output).to include("Created #{app}/")
       expect(output).to include("-> Within #{app}/")
-      expect(output).to include("Running Bundler install...")
-      expect(output).to include("Running Hanami install...")
+      expect(output).to include("Running bundle install...")
+      expect(output).to include("Running npm install...")
+      expect(output).to include("Running hanami install...")
 
       fs.chdir(app) do
         # .gitignore
