@@ -2,6 +2,16 @@
 
 Hanami Command Line Interface
 
+## v2.2.1 - 2024-11-12
+
+### Changed
+
+- [Tim Riley] Run a bundle install inside `hanami install`. Combined with first-party extension gems modifying the new app's `Gemfile` via a `before "install"` command hook, this ensures that all necessary gems are installed duringthe `hanami new` command. (#269)
+
+### Fixed
+
+- [Tim Riley] Allow `hanami new` to be called with `--skip-db` (#266)
+
 ## v2.2.0 - 2024-11-05
 
 ### Changed
