@@ -291,7 +291,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
       expect(output).to include_in_order(
         "database #{POSTGRES_BASE_DB_NAME}_app created",
         "database #{POSTGRES_BASE_DB_NAME}_app migrated",
-          "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
+        "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
         "seed data loaded from config/db/seeds.rb",
       )
       expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_main"
@@ -310,7 +310,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
       expect(output).to include_in_order(
         "database #{POSTGRES_BASE_DB_NAME}_main created",
         "database #{POSTGRES_BASE_DB_NAME}_main migrated",
-          "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql",
+        "#{POSTGRES_BASE_DB_NAME}_main structure dumped to slices/main/config/db/structure.sql",
         "seed data loaded from slices/main/config/db/seeds.rb"
       )
       expect(output).not_to include "#{POSTGRES_BASE_DB_NAME}_app"
@@ -349,7 +349,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
         expect(output).to include_in_order(
           "database #{POSTGRES_BASE_DB_NAME}_app created",
           "database #{POSTGRES_BASE_DB_NAME}_app migrated",
-            "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
+          "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
           "seed data loaded from config/db/seeds.rb",
         )
       end
@@ -377,7 +377,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
         expect(output).to include_in_order(
           "database #{POSTGRES_BASE_DB_NAME}_app created", # TODO: it would be good not to include this
           "database #{POSTGRES_BASE_DB_NAME}_app migrated",
-            "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
+          "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql",
           "seed data loaded from config/db/seeds.rb",
         )
       end
@@ -405,7 +405,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Prepare, :app_integration do
         expect(output).to include_in_order(
           "database #{POSTGRES_BASE_DB_NAME}_app created", # TODO: it would be good not to include this
           "database #{POSTGRES_BASE_DB_NAME}_app migrated",
-            "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql"
+          "#{POSTGRES_BASE_DB_NAME}_app structure dumped to config/db/structure.sql"
         )
         expect(output).not_to include "seed data loaded from config/db/seeds.rb"
       end

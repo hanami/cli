@@ -43,20 +43,20 @@ module Hanami
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
             fs.mkdir(directory = fs.join(slice_directory, "views", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.rb"), t("slice_view.erb", context))
+            fs.create(fs.join(directory, "#{context.name}.rb"), t("slice_view.erb", context))
 
             fs.mkdir(directory = fs.join(slice_directory, "templates", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.#{format}.erb"),
-                     t(template_with_format_ext("slice_template", format), context))
+            fs.create(fs.join(directory, "#{context.name}.#{format}.erb"),
+                      t(template_with_format_ext("slice_template", format), context))
           end
 
           def generate_for_app(context, format, _slice)
             fs.mkdir(directory = fs.join("app", "views", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.rb"), t("app_view.erb", context))
+            fs.create(fs.join(directory, "#{context.name}.rb"), t("app_view.erb", context))
 
             fs.mkdir(directory = fs.join("app", "templates", context.namespaces))
-            fs.write(fs.join(directory, "#{context.name}.#{format}.erb"),
-                     t(template_with_format_ext("app_template", format), context))
+            fs.create(fs.join(directory, "#{context.name}.#{format}.erb"),
+                      t(template_with_format_ext("app_template", format), context))
           end
 
           # rubocop:enable Metrics/AbcSize

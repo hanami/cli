@@ -106,7 +106,8 @@ module Hanami
                 raise InvalidActionNameError.new(name)
               end
 
-              generator.call(app.namespace, controller, action, url, http, format, skip_view, skip_route, slice, context: context)
+              generator.call(app.namespace, controller, action, url, http, format, skip_view, skip_route, slice,
+                             context: context)
             end
 
             # rubocop:enable Metrics/ParameterLists

@@ -30,33 +30,33 @@ module Hanami
 
             fs.mkdir(directory = "slices/#{slice}")
 
-            fs.write(fs.join(directory, "action.rb"), t("action.erb", context))
-            fs.write(fs.join(directory, "view.rb"), t("view.erb", context))
-            fs.write(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
-            fs.write(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
-            fs.write(fs.join(directory, "operation.rb"), t("operation.erb", context))
+            fs.create(fs.join(directory, "action.rb"), t("action.erb", context))
+            fs.create(fs.join(directory, "view.rb"), t("view.erb", context))
+            fs.create(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
+            fs.create(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
+            fs.create(fs.join(directory, "operation.rb"), t("operation.erb", context))
 
             if context.bundled_assets?
-              fs.write(fs.join(directory, "assets", "js", "app.js"), t("app_js.erb", context))
-              fs.write(fs.join(directory, "assets", "css", "app.css"), t("app_css.erb", context))
-              fs.write(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
+              fs.create(fs.join(directory, "assets", "js", "app.js"), t("app_js.erb", context))
+              fs.create(fs.join(directory, "assets", "css", "app.css"), t("app_css.erb", context))
+              fs.create(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
             end
 
             if context.generate_db?
-              fs.write(fs.join(directory, "db", "relation.rb"), t("relation.erb", context))
-              fs.write(fs.join(directory, "relations", ".keep"), t("keep.erb", context))
+              fs.create(fs.join(directory, "db", "relation.rb"), t("relation.erb", context))
+              fs.create(fs.join(directory, "relations", ".keep"), t("keep.erb", context))
 
-              fs.write(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
-              fs.write(fs.join(directory, "repos", ".keep"), t("keep.erb", context))
+              fs.create(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
+              fs.create(fs.join(directory, "repos", ".keep"), t("keep.erb", context))
 
-              fs.write(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
-              fs.write(fs.join(directory, "structs", ".keep"), t("keep.erb", context))
+              fs.create(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
+              fs.create(fs.join(directory, "structs", ".keep"), t("keep.erb", context))
             end
 
-            fs.write(fs.join(directory, "actions/.keep"), t("keep.erb", context))
-            fs.write(fs.join(directory, "views/.keep"), t("keep.erb", context))
-            fs.write(fs.join(directory, "templates/.keep"), t("keep.erb", context))
-            fs.write(fs.join(directory, "templates/layouts/.keep"), t("keep.erb", context))
+            fs.create(fs.join(directory, "actions/.keep"), t("keep.erb", context))
+            fs.create(fs.join(directory, "views/.keep"), t("keep.erb", context))
+            fs.create(fs.join(directory, "templates/.keep"), t("keep.erb", context))
+            fs.create(fs.join(directory, "templates/layouts/.keep"), t("keep.erb", context))
           end
 
           private

@@ -39,7 +39,7 @@ module Hanami
           def initialize(
             fs:,
             bundler: CLI::Bundler.new(fs: fs),
-            **opts
+            **_opts
           )
             @bundler = bundler
           end
