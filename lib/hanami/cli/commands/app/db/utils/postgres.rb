@@ -57,7 +57,7 @@ module Hanami
               def schema_migrations_sql_dump
                 migrations_sql = super
                 return unless migrations_sql
-		
+                
                 search_path = gateway.connection
                   .fetch("SHOW search_path").to_a.first
                   .fetch(:search_path)
