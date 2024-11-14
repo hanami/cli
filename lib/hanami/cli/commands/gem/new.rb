@@ -113,7 +113,7 @@ module Hanami
             @system_call = system_call
           end
 
-          # rubocop:disable Metrics/AbcSize
+          # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
 
           # @since 2.0.0
           # @api private
@@ -166,7 +166,7 @@ module Hanami
               end
             end
           end
-          # rubocop:enable Metrics/AbcSize
+          # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity
 
           private
 

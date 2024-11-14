@@ -38,7 +38,7 @@ module Hanami
               def exec_drop_command
                 begin
                   File.unlink(file_path) if exists?
-                rescue StandardError => e
+                rescue => e
                   # Mimic a system_call result
                   return Failure.new(e.message)
                 end
@@ -76,11 +76,13 @@ module Hanami
               private
 
               def file_path
-                @file_path ||= if File.absolute_path?(name)
-                                 name
-                               else
-                                 slice.app.root.join(name).to_s
-                               end
+                @file_path ||= begin
+                  if File.absolute_path?(name)
+                    name
+                  else
+                    slice.app.root.join(name).to_s
+                  end
+                end
               end
             end
           end

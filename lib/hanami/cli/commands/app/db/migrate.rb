@@ -12,7 +12,7 @@ module Hanami
             option :gateway, required: false, desc: "Use database for gateway"
             option :target, desc: "Target migration number", aliases: ["-t"]
             option :dump, required: false, type: :boolean, default: true,
-                          desc: "Dump the database structure after migrating"
+              desc: "Dump the database structure after migrating"
 
             def call(target: nil, app: false, slice: nil, gateway: nil, dump: true, command_exit: method(:exit), **)
               databases(app: app, slice: slice, gateway: gateway).each do |database|
