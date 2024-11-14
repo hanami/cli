@@ -68,6 +68,17 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.read("#{app}/config/app.rb")).to include("module #{module_name}")
   end
 
+  it "forbids certain confusing app names" do
+    %w[app slice].each do |forbidden_name|
+      expect {
+        subject.call(app: forbidden_name)
+      }.to raise_error(
+        Hanami::CLI::ForbiddenAppNameError,
+        "Cannot create new Hanami app with the name: `#{forbidden_name}'"
+      )
+    end
+  end
+
   it "generates an app" do
     expect(bundler).to receive(:install!)
       .and_return(true)
