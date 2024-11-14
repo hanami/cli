@@ -72,6 +72,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
       expect(fs.read("app/structs/book/published/hardcover.rb")).to eq(struct_file)
       expect(output).to include("Created app/structs/book/published/hardcover.rb")
     end
+
+    context "with existing file" do
+      before do
+        fs.write("app/structs/book/published/hardcover.rb", "existing content")
+      end
+
+      it "raises error" do
+        expect {
+          subject.call(name: "book/published/hardcover")
+        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      end
+    end
   end
 
   context "generating for a slice" do
@@ -113,6 +125,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
 
       expect(fs.read("slices/main/structs/book/draft_book.rb")).to eq(struct_file)
       expect(output).to include("Created slices/main/structs/book/draft_book.rb")
+    end
+
+    context "with existing file" do
+      before do
+        fs.write("slices/main/structs/book/draft_book.rb", "existing content")
+      end
+
+      it "raises error" do
+        expect {
+          subject.call(name: "book.draft_book", slice: "main")
+        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      end
     end
   end
 end

@@ -64,6 +64,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
                          "Name must contain only letters, numbers, and underscores."
                        ))
     end
+
+    context "with existing file" do
+      before do
+        fs.write("config/db/migrate/20240713140600_create_posts.rb", "existing content")
+      end
+
+      it "raises error" do
+        expect {
+          subject.call(name: "create_posts")
+        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      end
+    end
   end
 
   context "generating for a slice" do
@@ -75,6 +87,20 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
 
       expect(fs.read("slices/main/config/db/migrate/20240713140600_create_posts.rb")).to eq migration_file_contents
       expect(output).to eq("Created slices/main/config/db/migrate/20240713140600_create_posts.rb")
+    end
+
+    context "with existing file" do
+      context "with existing file" do
+        before do
+          fs.write("slices/main/config/db/migrate/20240713140600_create_posts.rb", "existing content")
+        end
+
+        it "raises error" do
+          expect {
+            subject.call(name: "create_posts", slice: "main")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
+      end
     end
   end
 end

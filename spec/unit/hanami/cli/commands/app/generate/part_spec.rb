@@ -58,6 +58,22 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
           expect(output).to include("Created app/views/parts/user.rb")
         end
       end
+
+      context "with existing file" do
+        before do
+          within_application_directory do
+            fs.write("app/views/parts/user.rb", "existing content")
+          end
+        end
+
+        it "raises error" do
+          within_application_directory do
+            expect {
+              subject.call(name: "user")
+            }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+          end
+        end
+      end
     end
 
     context "with base part" do
@@ -205,6 +221,23 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
 
           # This is still printed because the fs.write above still prints
           # expect(output).to_not include("Created slices/main/views/part.rb")
+        end
+      end
+    end
+
+    context "with existing file" do
+      before do
+        within_application_directory do
+          fs.mkdir("slices/main")
+          fs.write("slices/main/views/parts/user.rb", "existing content")
+        end
+      end
+
+      it "raises error" do
+        within_application_directory do
+          expect {
+            subject.call(name: "user", slice: "main")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
         end
       end
     end

@@ -92,6 +92,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
       expect(fs.read("app/repos/books/published/hardcover_repo.rb")).to eq(repo_file)
       expect(output).to include("Created app/repos/books/published/hardcover_repo.rb")
     end
+
+    context "with existing file" do
+      before do
+        fs.write("app/repos/book_repo.rb", "existing content")
+      end
+
+      it "raises error" do
+        expect {
+          subject.call(name: "books")
+        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      end
+    end
   end
 
   context "generating for a slice" do
@@ -133,6 +145,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
 
       expect(fs.read("slices/main/repos/book/draft_repo.rb")).to eq(repo_file)
       expect(output).to include("Created slices/main/repos/book/draft_repo.rb")
+    end
+
+    context "with existing file" do
+      before do
+        fs.write("slices/main/repos/book_repo.rb", "existing content")
+      end
+
+      it "raises error" do
+        expect {
+          subject.call(name: "books", slice: "main")
+        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      end
     end
   end
 end

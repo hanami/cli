@@ -31,7 +31,7 @@ module Hanami
               relative_parent_class: relative_parent_class,
               extra_namespace: extra_namespace,
               body: body,
-            ).write
+            ).create
           end
 
           private
@@ -60,6 +60,10 @@ module Hanami
             @extra_namespace = extra_namespace&.downcase
             @relative_parent_class = relative_parent_class
             @body = body
+          end
+
+          def create
+            fs.create(path, file_contents)
           end
 
           def write

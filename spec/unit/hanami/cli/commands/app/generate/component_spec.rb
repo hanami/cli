@@ -38,6 +38,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
         expect(fs.read("app/operations/send_welcome_email.rb")).to eq(component)
         expect(output).to include("Created app/operations/send_welcome_email.rb")
       end
+
+      context "with existing file" do
+        before do
+          fs.write("app/operations/send_welcome_email.rb", "existing content")
+        end
+
+        it "raises error" do
+          expect {
+            subject.call(name: "operations.send_welcome_email")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
+      end
     end
 
     context "deeply nested" do
@@ -62,6 +74,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
         expect(fs.read("app/operations/user/mailing/send_welcome_email.rb")).to eq(component)
         expect(output).to include("Created app/operations/user/mailing/send_welcome_email.rb")
       end
+
+      context "with existing file" do
+        before do
+          fs.write("app/operations/user/mailing/send_welcome_email.rb", "existing content")
+        end
+
+        it "raises error" do
+          expect {
+            subject.call(name: "operations.user.mailing.send_welcome_email")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
+      end
     end
   end
 
@@ -84,6 +108,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
 
         expect(fs.read("slices/main/renderers/welcome_email.rb")).to eq(component)
         expect(output).to include("Created slices/main/renderers/welcome_email.rb")
+      end
+
+      context "with existing file" do
+        before do
+          fs.write("slices/main/renderers/welcome_email.rb", "existing content")
+        end
+
+        it "raises error" do
+          expect {
+            subject.call(name: "renderers.welcome_email", slice: "main")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
       end
     end
 
@@ -109,6 +145,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
 
         expect(fs.read("slices/main/renderers/user/mailing/welcome_email.rb")).to eq(component)
         expect(output).to include("Created slices/main/renderers/user/mailing/welcome_email.rb")
+      end
+
+      context "with existing file" do
+        before do
+          fs.write("slices/main/renderers/user/mailing/welcome_email.rb", "existing content")
+        end
+
+        it "raises error" do
+          expect {
+            subject.call(name: "renderers.user.mailing.welcome_email", slice: "main")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
       end
     end
 
