@@ -115,6 +115,20 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # README.md
       readme = <<~EXPECTED
         # #{inflector.camelize(app)}
+
+        Welcome to your Hanami app!
+
+        ## Getting Started
+
+        - Run the server with `bin/dev`
+        - View the app at [http://localhost:2300](http://localhost:2300)
+        - Run the tests with `bundle exec rake`
+
+        ## Useful Links
+
+        - [Hanami Home](http://hanamirb.org)
+        - [Hanami Guides](https://guides.hanamirb.org/)
+        - [Hanami API Doc](https://gemdocs.org/gems/hanami/latest)
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
       expect(output).to include("Created README.md")
@@ -579,6 +593,20 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # README.md
         readme = <<~EXPECTED
           # #{inflector.camelize(app)}
+
+          Welcome to your Hanami app!
+  
+          ## Getting Started
+  
+          - Run the server with `bin/dev`
+          - View the app at [http://localhost:2300](http://localhost:2300)
+          - Run the tests with `bundle exec rake`
+  
+          ## Useful Links
+  
+          - [Hanami Home](http://hanamirb.org)
+          - [Hanami Guides](https://guides.hanamirb.org/)
+          - [Hanami API Doc](https://gemdocs.org/gems/hanami/latest)
         EXPECTED
         expect(fs.read("README.md")).to eq(readme)
         expect(output).to include("Created README.md")
@@ -1114,6 +1142,20 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # README.md
       readme = <<~EXPECTED
         # #{inflector.camelize(app)}
+
+        Welcome to your Hanami app!
+
+        ## Getting Started
+
+        - Run the server with `bin/dev`
+        - View the app at [http://localhost:2300](http://localhost:2300)
+        - Run the tests with `bundle exec rake`
+
+        ## Useful Links
+
+        - [Hanami Home](http://hanamirb.org)
+        - [Hanami Guides](https://guides.hanamirb.org/)
+        - [Hanami API Doc](https://gemdocs.org/gems/hanami/latest)
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
 
