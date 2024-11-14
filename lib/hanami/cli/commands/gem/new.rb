@@ -46,6 +46,9 @@ module Hanami
           # @api private
           SUPPORTED_DATABASES = [DATABASE_SQLITE, DATABASE_POSTGRES, DATABASE_MYSQL].freeze
 
+          # @api private
+          FORBIDDEN_APP_NAMES = %w[app slice].freeze
+
           desc "Generate a new Hanami app"
 
           # @since 2.0.0
@@ -126,6 +129,7 @@ module Hanami
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
+            raise ForbiddenAppNameError.new(app) if FORBIDDEN_APP_NAMES.include?(app)
 
             normalized_database ||= normalize_database(database)
 

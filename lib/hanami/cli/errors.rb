@@ -44,6 +44,13 @@ module Hanami
       end
     end
 
+    # @api public
+    class ForbiddenAppNameError < Error
+      def initialize(name)
+        super("Cannot create new Hanami app with the name: `#{name}'")
+      end
+    end
+
     # @since 2.0.0
     # @api public
     class MissingSliceError < Error
