@@ -14,7 +14,6 @@ module Hanami
         @out = out
       end
 
-      # @since 2.3.0
       # @api private
       def create(path, *content)
         raise FileAlreadyExistsError.new(path) if exist?(path)
