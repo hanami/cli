@@ -39,10 +39,13 @@ module Hanami
             # @api private
             def call(name:, slice: nil, **)
               if slice
+                base_path = fs.join("slices", inflector.underscore(slice))
+                raise MissingSliceError.new(slice) unless fs.exist?(base_path)
+
                 generator.call(
                   key: name,
                   namespace: slice,
-                  base_path: fs.join("slices", inflector.underscore(slice))
+                  base_path: base_path,
                 )
               else
                 generator.call(

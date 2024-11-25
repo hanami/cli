@@ -128,7 +128,7 @@ module Hanami
               .compact
               .prepend(container_module)
 
-            parent_class = [container_module, relative_parent_class].join("::")
+            parent_class = [container_module, relative_parent_class].join("::") if relative_parent_class
 
             RubyFileGenerator.class(
               normalize(class_name),
