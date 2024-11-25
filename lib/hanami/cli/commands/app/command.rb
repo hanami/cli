@@ -51,7 +51,7 @@ module Hanami
           # @api private
           def self.inherited(klass)
             super
-            klass.prepend(Environment)
+            klass.prepend(Environment) unless klass.ancestors.include?(Environment)
           end
 
           # Returns the Hanami app class.
