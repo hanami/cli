@@ -94,6 +94,26 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
         .to change { Hanami.app.root.join("app/relations/.keep").file? }
         .to false
     end
+
+    it "generates a relation for gateway" do
+      subject.call(name: "books", gateway: "extra")
+
+      relation_file = <<~RUBY
+        # frozen_string_literal: true
+
+        module TestApp
+          module Relations
+            class Books < TestApp::DB::Relation
+              gateway :extra
+              schema :books, infer: true
+            end
+          end
+        end
+      RUBY
+
+      expect(Hanami.app.root.join("app/relations/books.rb").read).to eq relation_file
+      expect(output).to include("Created app/relations/books.rb")
+    end
   end
 
   context "generating for a slice" do
@@ -126,6 +146,28 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
           module Relations
             module Book
               class Drafts < Main::DB::Relation
+                schema :drafts, infer: true
+              end
+            end
+          end
+        end
+      RUBY
+
+      expect(Hanami.app.root.join("slices/main/relations/book/drafts.rb").read).to eq(relation_file)
+      expect(output).to include("Created slices/main/relations/book/drafts.rb")
+    end
+
+    it "generates a relation for gateway" do
+      subject.call(name: "book.drafts", slice: "main", gateway: "extra")
+
+      relation_file = <<~RUBY
+        # frozen_string_literal: true
+
+        module Main
+          module Relations
+            module Book
+              class Drafts < Main::DB::Relation
+                gateway :extra
                 schema :drafts, infer: true
               end
             end

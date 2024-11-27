@@ -68,6 +68,17 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.read("#{app}/config/app.rb")).to include("module #{module_name}")
   end
 
+  it "forbids certain confusing app names" do
+    %w[app slice].each do |forbidden_name|
+      expect {
+        subject.call(app: forbidden_name)
+      }.to raise_error(
+        Hanami::CLI::ForbiddenAppNameError,
+        "Cannot create new Hanami app with the name: `#{forbidden_name}'"
+      )
+    end
+  end
+
   it "generates an app" do
     expect(bundler).to receive(:install!)
       .and_return(true)
@@ -88,8 +99,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
     expect(fs.directory?(app)).to be(true)
     expect(output).to include("Created #{app}/")
     expect(output).to include("-> Within #{app}/")
-    expect(output).to include("Running Bundler install...")
-    expect(output).to include("Running Hanami install...")
+    expect(output).to include("Running bundle install...")
+    expect(output).to include("Running npm install...")
+    expect(output).to include("Running hanami install...")
 
     fs.chdir(app) do
       # .gitignore
@@ -114,6 +126,20 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # README.md
       readme = <<~EXPECTED
         # #{inflector.camelize(app)}
+
+        Welcome to your Hanami app!
+
+        ## Getting Started
+
+        - Run the server with `bin/dev`
+        - View the app at [http://localhost:2300](http://localhost:2300)
+        - Run the tests with `bundle exec rake`
+
+        ## Useful Links
+
+        - [Hanami Home](http://hanamirb.org)
+        - [Hanami Guides](https://guides.hanamirb.org/)
+        - [Hanami API Doc](https://gemdocs.org/gems/hanami/latest)
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
       expect(output).to include("Created README.md")
@@ -133,8 +159,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gem "hanami-validations", "#{hanami_version}"
         gem "hanami-view", "#{hanami_version}"
 
-        gem "dry-types", "~> 1.0", ">= 1.6.1"
-        gem "dry-operation", github: "dry-rb/dry-operation"
+        gem "dry-types", "~> 1.7"
+        gem "dry-operation"
         gem "puma"
         gem "rake"
         gem "sqlite3"
@@ -502,8 +528,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           gem "hanami-validations", github: "hanami/validations", branch: "main"
           gem "hanami-view", github: "hanami/view", branch: "main"
 
-          gem "dry-types", "~> 1.0", ">= 1.6.1"
-          gem "dry-operation", github: "dry-rb/dry-operation"
+          gem "dry-types", "~> 1.7"
+          gem "dry-operation"
           gem "puma"
           gem "rake"
           gem "sqlite3"
@@ -551,8 +577,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       expect(fs.directory?(app)).to be(true)
       expect(output).to include("Created #{app}/")
       expect(output).to include("-> Within #{app}/")
-      expect(output).to include("Running Bundler install...")
-      expect(output).to include("Running Hanami install...")
+      expect(output).to include("Running bundle install...")
+      expect(output).to include("Running npm install...")
+      expect(output).to include("Running hanami install...")
 
       fs.chdir(app) do
         # .gitignore
@@ -577,6 +604,20 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # README.md
         readme = <<~EXPECTED
           # #{inflector.camelize(app)}
+
+          Welcome to your Hanami app!
+  
+          ## Getting Started
+  
+          - Run the server with `bin/dev`
+          - View the app at [http://localhost:2300](http://localhost:2300)
+          - Run the tests with `bundle exec rake`
+  
+          ## Useful Links
+  
+          - [Hanami Home](http://hanamirb.org)
+          - [Hanami Guides](https://guides.hanamirb.org/)
+          - [Hanami API Doc](https://gemdocs.org/gems/hanami/latest)
         EXPECTED
         expect(fs.read("README.md")).to eq(readme)
         expect(output).to include("Created README.md")
@@ -596,8 +637,8 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           gem "hanami-validations", "#{hanami_version}"
           gem "hanami-view", "#{hanami_version}"
 
-          gem "dry-types", "~> 1.0", ">= 1.6.1"
-          gem "dry-operation", github: "dry-rb/dry-operation"
+          gem "dry-types", "~> 1.7"
+          gem "dry-operation"
           gem "puma"
           gem "rake"
           gem "sqlite3"
@@ -1112,6 +1153,20 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       # README.md
       readme = <<~EXPECTED
         # #{inflector.camelize(app)}
+
+        Welcome to your Hanami app!
+
+        ## Getting Started
+
+        - Run the server with `bin/dev`
+        - View the app at [http://localhost:2300](http://localhost:2300)
+        - Run the tests with `bundle exec rake`
+
+        ## Useful Links
+
+        - [Hanami Home](http://hanamirb.org)
+        - [Hanami Guides](https://guides.hanamirb.org/)
+        - [Hanami API Doc](https://gemdocs.org/gems/hanami/latest)
       EXPECTED
       expect(fs.read("README.md")).to eq(readme)
 
@@ -1287,14 +1342,6 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       ).with_message(
         "`foodb' is not a supported database. Supported databases are: sqlite, postgres, mysql"
       )
-    end
-
-    it "doesn't allow --skip-db && --database" do
-      expect {
-        subject.call(app: app, database: "sqlite", skip_db: true)
-      }.to raise_error(
-        Hanami::CLI::ConflictingOptionsError
-      ).with_message("`--skip-db' and `--database' cannot be used together")
     end
   end
 end

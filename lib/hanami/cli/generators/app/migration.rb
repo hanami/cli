@@ -55,7 +55,7 @@ module Hanami
             ROM::SQL.migration do
               # Add your migration here.
               #
-              # See https://sequel.jeremyevans.net/rdoc/files/doc/migration_rdoc.html for details.
+              # See https://guides.hanamirb.org/v2.2/database/migrations/ for details.
               change do
               end
             end

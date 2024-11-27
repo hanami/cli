@@ -2,6 +2,25 @@
 
 Hanami Command Line Interface
 
+## v2.2.1 - 2024-11-12
+
+### Changed
+
+- [Tim Riley] Run a bundle install inside `hanami install`. Combined with first-party extension gems modifying the new app's `Gemfile` via a `before "install"` command hook, this ensures that all necessary gems are installed duringthe `hanami new` command. (#269)
+
+### Fixed
+
+- [Tim Riley] Allow `hanami new` to be called with `--skip-db` (#266)
+
+## v2.2.0 - 2024-11-05
+
+### Changed
+
+- [Kyle Plump] Add `--gateway` optiopn to `generate relation` (#261)
+- [Tim Riley] Depend on stable release of dry-operation in new app `Gemfile` (#262)
+- [Tim Riley] Depend on newser dry-types with a simpler version constraint in new app `Gemfile` (#263)
+- [Adam Lassek] Point to Hanami's own migrations guide from generated migration files (#264)
+
 ## v2.2.0.rc1 - 2024-10-29
 
 ### Added

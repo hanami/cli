@@ -46,6 +46,9 @@ module Hanami
           # @api private
           SUPPORTED_DATABASES = [DATABASE_SQLITE, DATABASE_POSTGRES, DATABASE_MYSQL].freeze
 
+          # @api private
+          FORBIDDEN_APP_NAMES = %w[app slice].freeze
+
           desc "Generate a new Hanami app"
 
           # @since 2.0.0
@@ -126,7 +129,7 @@ module Hanami
             app = inflector.underscore(app)
 
             raise PathAlreadyExistsError.new(app) if fs.exist?(app)
-            raise ConflictingOptionsError.new("--skip-db", "--database") if skip_db && database
+            raise ForbiddenAppNameError.new(app) if FORBIDDEN_APP_NAMES.include?(app)
 
             normalized_database ||= normalize_database(database)
 
@@ -144,11 +147,11 @@ module Hanami
                 if skip_install
                   out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"
                 else
-                  out.puts "Running Bundler install..."
+                  out.puts "Running bundle install..."
                   bundler.install!
 
                   unless skip_assets
-                    out.puts "Running NPM install..."
+                    out.puts "Running npm install..."
                     system_call.call("npm", ["install"]).tap do |result|
                       unless result.successful?
                         puts "NPM ERROR:"
@@ -157,7 +160,7 @@ module Hanami
                     end
                   end
 
-                  out.puts "Running Hanami install..."
+                  out.puts "Running hanami install..."
                   run_install_command!(head: head)
                 end
               end
