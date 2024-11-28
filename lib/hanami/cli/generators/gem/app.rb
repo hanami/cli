@@ -46,6 +46,8 @@ module Hanami
             fs.write("bin/dev", file("dev"))
             fs.chmod("bin/dev", 0o755)
 
+            fs.write("bin/dev.bat", file("dev.bat")) if ::Gem.win_platform?
+
             fs.write("config/app.rb", t("app.erb", context))
             fs.write("config/settings.rb", t("settings.erb", context))
             fs.write("config/routes.rb", t("routes.erb", context))
