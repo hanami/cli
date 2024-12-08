@@ -3,16 +3,19 @@
 require "hanami"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
-  subject { described_class.new(fs: fs, inflector: inflector) }
+  subject { described_class.new(fs: fs, inflector: inflector, err: err) }
 
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
 
   def output
     out.string.strip
   end
+
+  def error_output = err.string.chomp
 
   let(:app) { Hanami.app.namespace }
 
@@ -70,10 +73,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
         fs.write("config/db/migrate/20240713140600_create_posts.rb", "existing content")
       end
 
-      it "raises error" do
-        expect {
+      it "exits with error message" do
+        expect do
           subject.call(name: "create_posts")
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq "Cannot overwrite existing file: `config/db/migrate/20240713140600_create_posts.rb`"
+        end
       end
     end
   end
@@ -95,10 +101,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
           fs.write("slices/main/config/db/migrate/20240713140600_create_posts.rb", "existing content")
         end
 
-        it "raises error" do
-          expect {
+        it "exits with error message" do
+          expect do
             subject.call(name: "create_posts", slice: "main")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+          end.to raise_error SystemExit do |exception|
+            expect(exception.status).to eq 1
+            expect(error_output).to eq "Cannot overwrite existing file: `slices/main/config/db/migrate/20240713140600_create_posts.rb`"
+          end
         end
       end
     end

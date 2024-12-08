@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
+  subject { described_class.new(fs: fs, inflector: inflector, out: out, err: err) }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
 
-  def output
-    out.string.chomp
-  end
+  def output = out.string.chomp
+
+  def error_output = err.string.chomp
 
   context "generating for app" do
     it "generates a struct without a namespace" do
@@ -78,10 +79,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
         fs.write("app/structs/book/published/hardcover.rb", "existing content")
       end
 
-      it "raises error" do
-        expect {
+      it "exits with error message" do
+        expect do
           subject.call(name: "book/published/hardcover")
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq "Cannot overwrite existing file: `app/structs/book/published/hardcover.rb`"
+        end
       end
     end
   end
@@ -132,10 +136,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
         fs.write("slices/main/structs/book/draft_book.rb", "existing content")
       end
 
-      it "raises error" do
-        expect {
+      it "exits with error message" do
+        expect do
           subject.call(name: "book.draft_book", slice: "main")
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq "Cannot overwrite existing file: `slices/main/structs/book/draft_book.rb`"
+        end
       end
     end
   end

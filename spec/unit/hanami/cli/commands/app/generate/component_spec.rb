@@ -4,9 +4,10 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
+  subject { described_class.new(fs: fs, inflector: inflector, out: out, err: err) }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
@@ -17,6 +18,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
   def output
     out.rewind && out.read.chomp
   end
+
+  def error_output = err.string.chomp
 
   context "generating for app" do
     context "shallowly nested" do
@@ -43,10 +46,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
           fs.write("app/operations/send_welcome_email.rb", "existing content")
         end
 
-        it "raises error" do
-          expect {
+        it "exits with error message" do
+          expect do
             subject.call(name: "operations.send_welcome_email")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+          end.to raise_error SystemExit do |exception|
+            expect(exception.status).to eq 1
+            expect(error_output).to eq "Cannot overwrite existing file: `app/operations/send_welcome_email.rb`"
+          end
         end
       end
     end
@@ -79,10 +85,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
           fs.write("app/operations/user/mailing/send_welcome_email.rb", "existing content")
         end
 
-        it "raises error" do
-          expect {
+        it "exits with error message" do
+          expect do
             subject.call(name: "operations.user.mailing.send_welcome_email")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+          end.to raise_error SystemExit do |exception|
+            expect(exception.status).to eq 1
+            expect(error_output).to eq "Cannot overwrite existing file: `app/operations/user/mailing/send_welcome_email.rb`"
+          end
         end
       end
     end
@@ -114,10 +123,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
           fs.write("slices/main/renderers/welcome_email.rb", "existing content")
         end
 
-        it "raises error" do
-          expect {
+        it "exits with error message" do
+          expect do
             subject.call(name: "renderers.welcome_email", slice: "main")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+          end.to raise_error SystemExit do |exception|
+            expect(exception.status).to eq 1
+            expect(error_output).to eq "Cannot overwrite existing file: `slices/main/renderers/welcome_email.rb`"
+          end
         end
       end
     end
@@ -151,10 +163,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
           fs.write("slices/main/renderers/user/mailing/welcome_email.rb", "existing content")
         end
 
-        it "raises error" do
-          expect {
+        it "exits with error message" do
+          expect do
             subject.call(name: "renderers.user.mailing.welcome_email", slice: "main")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+          end.to raise_error SystemExit do |exception|
+            expect(exception.status).to eq 1
+            expect(error_output).to eq "Cannot overwrite existing file: `slices/main/renderers/user/mailing/welcome_email.rb`"
+          end
         end
       end
     end

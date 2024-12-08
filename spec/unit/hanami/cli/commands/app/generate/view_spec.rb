@@ -4,9 +4,10 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
+  subject { described_class.new(fs: fs, inflector: inflector, generator: generator, err: err) }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::App::View.new(fs: fs, inflector: inflector) }
@@ -16,6 +17,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
   def output
     out.rewind && out.read.chomp
   end
+
+  def error_output = err.string.chomp
 
   # it "raises error if action name doesn't respect the convention" do
   #   expect {
@@ -99,11 +102,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
         end
       end
 
-      it "raises error" do
-        within_application_directory do
-          expect {
-            subject.call(name: "users.index")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      it "exits with error message" do
+        expect do
+          within_application_directory { subject.call(name: "users.index") }
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq "Cannot overwrite existing file: `app/views/users/index.rb`"
         end
       end
     end
@@ -152,11 +156,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
         end
       end
 
-      it "raises error" do
-        within_application_directory do
-          expect {
-            subject.call(name: "users.index", slice: "main")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      it "exits with error message" do
+        expect do
+          within_application_directory { subject.call(name: "users.index", slice: "main") }
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq "Cannot overwrite existing file: `slices/main/views/users/index.rb`"
         end
       end
     end
