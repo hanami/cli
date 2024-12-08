@@ -34,62 +34,62 @@ module Hanami
           attr_reader :inflector
 
           def generate_app(app, context) # rubocop:disable Metrics/AbcSize
-            fs.write(".gitignore", t("gitignore.erb", context))
-            fs.write(".env", t("env.erb", context))
+            fs.create(".gitignore", t("gitignore.erb", context))
+            fs.create(".env", t("env.erb", context))
 
-            fs.write("README.md", t("readme.erb", context))
-            fs.write("Gemfile", t("gemfile.erb", context))
-            fs.write("Rakefile", t("rakefile.erb", context))
-            fs.write("Procfile.dev", t("procfile.erb", context))
-            fs.write("config.ru", t("config_ru.erb", context))
+            fs.create("README.md", t("readme.erb", context))
+            fs.create("Gemfile", t("gemfile.erb", context))
+            fs.create("Rakefile", t("rakefile.erb", context))
+            fs.create("Procfile.dev", t("procfile.erb", context))
+            fs.create("config.ru", t("config_ru.erb", context))
 
-            fs.write("bin/dev", file("dev"))
+            fs.create("bin/dev", file("dev"))
             fs.chmod("bin/dev", 0o755)
 
-            fs.write("config/app.rb", t("app.erb", context))
-            fs.write("config/settings.rb", t("settings.erb", context))
-            fs.write("config/routes.rb", t("routes.erb", context))
-            fs.write("config/puma.rb", t("puma.erb", context))
+            fs.create("config/app.rb", t("app.erb", context))
+            fs.create("config/settings.rb", t("settings.erb", context))
+            fs.create("config/routes.rb", t("routes.erb", context))
+            fs.create("config/puma.rb", t("puma.erb", context))
 
-            fs.write("lib/tasks/.keep", t("keep.erb", context))
-            fs.write("lib/#{app}/types.rb", t("types.erb", context))
+            fs.create("lib/tasks/.keep", t("keep.erb", context))
+            fs.create("lib/#{app}/types.rb", t("types.erb", context))
 
-            fs.write("app/actions/.keep", t("keep.erb", context))
-            fs.write("app/action.rb", t("action.erb", context))
-            fs.write("app/view.rb", t("view.erb", context))
-            fs.write("app/views/helpers.rb", t("helpers.erb", context))
-            fs.write("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
+            fs.create("app/actions/.keep", t("keep.erb", context))
+            fs.create("app/action.rb", t("action.erb", context))
+            fs.create("app/view.rb", t("view.erb", context))
+            fs.create("app/views/helpers.rb", t("helpers.erb", context))
+            fs.create("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
 
             if context.generate_assets?
-              fs.write("package.json", t("package.json.erb", context))
-              fs.write("config/assets.js", file("assets.js"))
-              fs.write("app/assets/js/app.js", t("app_js.erb", context))
-              fs.write("app/assets/css/app.css", t("app_css.erb", context))
-              fs.write("app/assets/images/favicon.ico", file("favicon.ico"))
+              fs.create("package.json", t("package.json.erb", context))
+              fs.create("config/assets.js", file("assets.js"))
+              fs.create("app/assets/js/app.js", t("app_js.erb", context))
+              fs.create("app/assets/css/app.css", t("app_css.erb", context))
+              fs.create("app/assets/images/favicon.ico", file("favicon.ico"))
             end
 
             if context.generate_db?
-              fs.write("app/db/relation.rb", t("relation.erb", context))
-              fs.write("app/relations/.keep", t("keep.erb", context))
+              fs.create("app/db/relation.rb", t("relation.erb", context))
+              fs.create("app/relations/.keep", t("keep.erb", context))
 
-              fs.write("app/db/repo.rb", t("repo.erb", context))
-              fs.write("app/repos/.keep", t("keep.erb", context))
+              fs.create("app/db/repo.rb", t("repo.erb", context))
+              fs.create("app/repos/.keep", t("keep.erb", context))
 
-              fs.write("app/db/struct.rb", t("struct.erb", context))
-              fs.write("app/structs/.keep", t("keep.erb", context))
+              fs.create("app/db/struct.rb", t("struct.erb", context))
+              fs.create("app/structs/.keep", t("keep.erb", context))
 
-              fs.write("config/db/seeds.rb", t("seeds.erb", context))
-              fs.write("config/db/migrate/.keep", t("keep.erb", context))
+              fs.create("config/db/seeds.rb", t("seeds.erb", context))
+              fs.create("config/db/migrate/.keep", t("keep.erb", context))
 
               if context.generate_sqlite?
-                fs.write("db/.keep", t("keep.erb", context))
+                fs.create("db/.keep", t("keep.erb", context))
               end
             end
 
-            fs.write("app/operation.rb", t("operation.erb", context))
+            fs.create("app/operation.rb", t("operation.erb", context))
 
-            fs.write("public/404.html", file("404.html"))
-            fs.write("public/500.html", file("500.html"))
+            fs.create("public/404.html", file("404.html"))
+            fs.create("public/500.html", file("500.html"))
           end
 
           def template(path, context)

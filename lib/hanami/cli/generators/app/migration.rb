@@ -26,7 +26,7 @@ module Hanami
 
             path = fs.join(*[base_path, "config", "db", migrate_dir, file_name(name)].compact)
 
-            fs.write(path, FILE_CONTENTS)
+            fs.create(path, FILE_CONTENTS)
           end
 
           private

@@ -114,6 +114,17 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
       expect(Hanami.app.root.join("app/relations/books.rb").read).to eq relation_file
       expect(output).to include("Created app/relations/books.rb")
     end
+
+    context "with existing file" do
+      before do
+        write "app/relations/books.rb", "existing content"
+      end
+
+      it "raises error" do
+        expect { subject.call(name: "books") }
+          .to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      end
+    end
   end
 
   context "generating for a slice" do
@@ -177,6 +188,17 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
 
       expect(Hanami.app.root.join("slices/main/relations/book/drafts.rb").read).to eq(relation_file)
       expect(output).to include("Created slices/main/relations/book/drafts.rb")
+    end
+
+    context "with existing file" do
+      before do
+        write "slices/main/relations/books.rb", "existing content"
+      end
+
+      it "raises error" do
+        expect { subject.call(name: "books", slice: "main") }
+          .to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      end
     end
   end
 end

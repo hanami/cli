@@ -50,7 +50,7 @@ module Hanami
             generate_base_part_for_slice(context, slice)
 
             fs.mkdir(directory = fs.join(slice_directory, "views", "parts", *context.underscored_namespace))
-            fs.write(fs.join(directory, "#{context.underscored_name}.rb"), t("slice_part.erb", context))
+            fs.create(fs.join(directory, "#{context.underscored_name}.rb"), t("slice_part.erb", context))
           end
 
           # @since 2.1.0
@@ -59,7 +59,7 @@ module Hanami
             generate_base_part_for_app(context)
 
             fs.mkdir(directory = fs.join("app", "views", "parts", *context.underscored_namespace))
-            fs.write(fs.join(directory, "#{context.underscored_name}.rb"), t("app_part.erb", context))
+            fs.create(fs.join(directory, "#{context.underscored_name}.rb"), t("app_part.erb", context))
           end
 
           # @since 2.1.0

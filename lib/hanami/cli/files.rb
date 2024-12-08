@@ -14,6 +14,13 @@ module Hanami
         @out = out
       end
 
+      # @api private
+      def create(path, *content)
+        raise FileAlreadyExistsError.new(path) if exist?(path)
+
+        write(path, *content)
+      end
+
       # @since 2.0.0
       # @api private
       def write(path, *content)
@@ -33,10 +40,10 @@ module Hanami
       # @since 2.0.0
       # @api private
       def mkdir(path)
-        unless exist?(path)
-          super
-          created(_path(path))
-        end
+        return if exist?(path)
+
+        super
+        created(_path(path))
       end
 
       # @since 2.0.0

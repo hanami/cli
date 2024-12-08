@@ -91,6 +91,22 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
         expect(output).to include("Created app/templates/special/users/index.html.erb")
       end
     end
+
+    context "with existing file" do
+      before do
+        within_application_directory do
+          fs.write("app/views/users/index.rb", "existing content")
+        end
+      end
+
+      it "raises error" do
+        within_application_directory do
+          expect {
+            subject.call(name: "users.index")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
+      end
+    end
   end
 
   context "generating for a slice" do
@@ -125,6 +141,23 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
 
         expect(fs.read("slices/main/templates/users/index.html.erb")).to eq(template_file)
         expect(output).to include("Created slices/main/templates/users/index.html.erb")
+      end
+    end
+
+    context "with existing file" do
+      before do
+        within_application_directory do
+          fs.mkdir("slices/main")
+          fs.write("slices/main/views/users/index.rb", "existing content")
+        end
+      end
+
+      it "raises error" do
+        within_application_directory do
+          expect {
+            subject.call(name: "users.index", slice: "main")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
       end
     end
   end

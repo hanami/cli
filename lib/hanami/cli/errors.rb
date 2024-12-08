@@ -45,6 +45,13 @@ module Hanami
     end
 
     # @api public
+    class FileAlreadyExistsError < Error
+      def initialize(path)
+        super("Cannot overwrite existing file: `#{path}`")
+      end
+    end
+
+    # @api public
     class ForbiddenAppNameError < Error
       def initialize(name)
         super("Cannot create new Hanami app with the name: `#{name}'")
