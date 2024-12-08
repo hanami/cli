@@ -4,12 +4,11 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
+  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
 
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
-  let(:generator) { Hanami::CLI::Generators::App::Component.new(fs: fs, inflector: inflector) }
   let(:app) { Hanami.app.namespace }
   let(:underscored_app) { inflector.underscore(app) }
   let(:dir) { underscored_app }
@@ -167,7 +166,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
     end
   end
 
-  context "with constantized name for component given" do
+  context "with namespaced constant name for component given" do
     it "generates the component" do
       subject.call(name: "Operations::SendWelcomeEmail")
 
