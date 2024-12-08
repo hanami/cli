@@ -1,7 +1,21 @@
 name: ci
 
-on:
+"on":
   push:
+    paths:
+      - ".github/workflows/ci.yml"
+      - "lib/**"
+      - "*.gemspec"
+      - "spec/**"
+      - "Rakefile"
+      - "Gemfile"
+      - ".rubocop.yml"
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "30 4 * * *"
+  create:
 
 jobs:
   tests:

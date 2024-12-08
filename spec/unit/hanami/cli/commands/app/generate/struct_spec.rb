@@ -75,8 +75,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "app/structs/book/published/hardcover.rb" }
+
       before do
-        fs.write("app/structs/book/published/hardcover.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
       it "exits with error message" do
@@ -84,7 +86,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
           subject.call(name: "book/published/hardcover")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `app/structs/book/published/hardcover.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end
@@ -132,8 +134,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/structs/book/draft_book.rb" }
+
       before do
-        fs.write("slices/main/structs/book/draft_book.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
       it "exits with error message" do
@@ -141,7 +145,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
           subject.call(name: "book.draft_book", slice: "main")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `slices/main/structs/book/draft_book.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end

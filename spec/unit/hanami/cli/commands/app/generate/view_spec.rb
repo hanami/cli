@@ -96,9 +96,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "app/views/users/index.rb" }
+
       before do
         within_application_directory do
-          fs.write("app/views/users/index.rb", "existing content")
+          fs.write(file_path, "existing content")
         end
       end
 
@@ -107,7 +109,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
           within_application_directory { subject.call(name: "users.index") }
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `app/views/users/index.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end
@@ -149,10 +151,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/views/users/index.rb" }
+
       before do
         within_application_directory do
           fs.mkdir("slices/main")
-          fs.write("slices/main/views/users/index.rb", "existing content")
+          fs.write(file_path, "existing content")
         end
       end
 
@@ -161,7 +165,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
           within_application_directory { subject.call(name: "users.index", slice: "main") }
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `slices/main/views/users/index.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end

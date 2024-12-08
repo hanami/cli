@@ -69,8 +69,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "config/db/migrate/20240713140600_create_posts.rb" }
+
       before do
-        fs.write("config/db/migrate/20240713140600_create_posts.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
       it "exits with error message" do
@@ -78,7 +80,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
           subject.call(name: "create_posts")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `config/db/migrate/20240713140600_create_posts.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end
@@ -96,9 +98,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/config/db/migrate/20240713140600_create_posts.rb" }
+
       context "with existing file" do
         before do
-          fs.write("slices/main/config/db/migrate/20240713140600_create_posts.rb", "existing content")
+          fs.write(file_path, "existing content")
         end
 
         it "exits with error message" do
@@ -106,7 +110,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
             subject.call(name: "create_posts", slice: "main")
           end.to raise_error SystemExit do |exception|
             expect(exception.status).to eq 1
-            expect(error_output).to eq "Cannot overwrite existing file: `slices/main/config/db/migrate/20240713140600_create_posts.rb`"
+            expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
           end
         end
       end

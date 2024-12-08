@@ -97,8 +97,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "app/repos/book_repo.rb" }
+
       before do
-        fs.write("app/repos/book_repo.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
       it "exits with error message" do
@@ -106,7 +108,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
           subject.call(name: "books")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `app/repos/book_repo.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end
@@ -154,8 +156,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/repos/book_repo.rb" }
+
       before do
-        fs.write("slices/main/repos/book_repo.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
       it "exits with error message" do
@@ -163,7 +167,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
           subject.call(name: "books", slice: "main")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `slices/main/repos/book_repo.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end

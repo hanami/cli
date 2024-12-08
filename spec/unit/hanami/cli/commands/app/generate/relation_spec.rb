@@ -120,8 +120,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
     end
 
     context "with existing file" do
+      let(:file_path) { "app/relations/books.rb" }
+
       before do
-        write "app/relations/books.rb", "existing content"
+        write file_path, "existing content"
       end
 
       it "exits with error message" do
@@ -129,7 +131,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
           subject.call(name: "books")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `app/relations/books.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end
@@ -199,8 +201,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/relations/books.rb" }
+
       before do
-        write "slices/main/relations/books.rb", "existing content"
+        write file_path, "existing content"
       end
 
       it "exits with error message" do
@@ -208,7 +212,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
           subject.call(name: "books", slice: "main")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `slices/main/relations/books.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end

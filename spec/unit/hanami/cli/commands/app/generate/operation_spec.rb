@@ -83,8 +83,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "app/admin/books/add.rb" }
+
       before do
-        fs.write("app/admin/books/add.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
       it "exits with error message" do
@@ -92,7 +94,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
           subject.call(name: "admin.books.add")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `app/admin/books/add.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end
@@ -146,9 +148,11 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/admin/books/add.rb" }
+
       before do
         fs.mkdir("slices/main")
-        fs.write("slices/main/admin/books/add.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
       it "exits with error message" do
@@ -156,7 +160,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
           subject.call(name: "admin.books.add", slice: "main")
         end.to raise_error SystemExit do |exception|
           expect(exception.status).to eq 1
-          expect(error_output).to eq "Cannot overwrite existing file: `slices/main/admin/books/add.rb`"
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end
