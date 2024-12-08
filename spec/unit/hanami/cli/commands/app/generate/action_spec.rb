@@ -4,9 +4,10 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
+  subject { described_class.new(fs: fs, inflector: inflector, generator: generator, err: err) }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::App::Action.new(fs: fs, inflector: inflector) }
@@ -19,6 +20,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   def output
     out.rewind && out.read.chomp
   end
+
+  def error_output = err.string.chomp
 
   shared_context "with existing files" do
     context "with existing route file" do
@@ -35,50 +38,59 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     end
 
     context "with existing action file" do
+      let(:file_path) { "app/actions/#{controller}/#{action}.rb" }
+
       before do
         within_application_directory do
-          fs.write("app/actions/#{controller}/#{action}.rb", "")
+          fs.write(file_path, "")
         end
       end
 
-      it "raises error" do
-        expect {
-          within_application_directory do
-            generate_action
-          end
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError, "Cannot overwrite existing file: `app/actions/#{controller}/#{action}.rb`")
+      it "exits with error message" do
+        expect do
+          within_application_directory { generate_action }
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
 
     context "with existing view file" do
+      let(:file_path) { "app/views/#{controller}/#{action}.rb" }
+
       before do
         within_application_directory do
-          fs.write("app/views/#{controller}/#{action}.rb", "")
+          fs.write(file_path, "")
         end
       end
 
-      it "raises error" do
-        expect {
-          within_application_directory do
-            generate_action
-          end
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError, "Cannot overwrite existing file: `app/views/#{controller}/#{action}.rb`")
+      it "exits with error message" do
+        expect do
+          within_application_directory { generate_action }
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
 
     context "with existing template file" do
+      let(:file_path) { "app/templates/#{controller}/#{action}.html.erb" }
+
       before do
         within_application_directory do
-          fs.write("app/templates/#{controller}/#{action}.html.erb", "")
+          fs.write(file_path, "")
         end
       end
 
-      it "raises error" do
-        expect {
-          within_application_directory do
-            generate_action
-          end
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError, "Cannot overwrite existing file: `app/templates/#{controller}/#{action}.html.erb`")
+      it "exits with error message" do
+        expect do
+          within_application_directory { generate_action }
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
   end
