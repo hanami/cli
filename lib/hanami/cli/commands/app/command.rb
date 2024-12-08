@@ -40,6 +40,9 @@ module Hanami
               Hanami::Env.load
 
               super
+            rescue FileAlreadyExistsError => error
+              err.puts(error.message)
+              exit(1)
             end
           end
 
