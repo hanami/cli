@@ -18,10 +18,10 @@ module Hanami
             DEFAULT_FORMAT = "html"
             private_constant :DEFAULT_FORMAT
 
-            # TODO: make engine configurable
-
             argument :name, required: true, desc: "View name"
             option :slice, required: false, desc: "Slice name"
+            option :template, required: false, desc: "Template engine to use (officially supported: erb, haml, slim)",
+                              default: "erb"
 
             example [
               %(books.index               (MyApp::Actions::Books::Index)),
@@ -43,10 +43,10 @@ module Hanami
 
             # @since 2.0.0
             # @api private
-            def call(name:, format: DEFAULT_FORMAT, slice: nil, **)
+            def call(name:, format: DEFAULT_FORMAT, template: "erb", slice: nil, **)
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
 
-              generator.call(app.namespace, name, format, slice)
+              generator.call(app.namespace, name, format, template, slice)
             end
           end
         end
