@@ -116,6 +116,14 @@ module Hanami
 
     # @since 2.2.0
     # @api public
+    class DatabaseExistenceCheckError < Error
+      def initialize(original_message)
+        super("Could not check if the database exists. Error message:\n#{original_message}")
+      end
+    end
+
+    # @since 2.2.0
+    # @api public
     class ConflictingOptionsError < Error
       def initialize(option1, option2)
         super("`#{option1}' and `#{option2}' cannot be used together")
