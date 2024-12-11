@@ -28,6 +28,9 @@ module Hanami
             DEFAULT_SKIP_ROUTE = false
             private_constant :DEFAULT_SKIP_ROUTE
 
+            DEFAULT_TEMPLATE = "erb"
+            private_constant :DEFAULT_TEMPLATE
+
             argument :name, required: true, desc: "Action name"
             option :url, required: false, type: :string, desc: "Action URL"
             option :http, required: false, type: :string, desc: "Action HTTP method"
@@ -51,6 +54,8 @@ module Hanami
               default: DEFAULT_SKIP_ROUTE,
               desc: "Skip route generation"
             option :slice, required: false, desc: "Slice name"
+            option :template, required: false, type: :string, default: DEFAULT_TEMPLATE,
+                              desc: "Template engine to use (officially supported options: erb, haml, slim)"
 
             # rubocop:disable Layout/LineLength
             example [
@@ -94,6 +99,7 @@ module Hanami
               skip_view: DEFAULT_SKIP_VIEW,
               skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument,
               skip_route: DEFAULT_SKIP_ROUTE,
+              template: DEFAULT_TEMPLATE,
               slice: nil,
               context: nil,
               **
@@ -106,7 +112,8 @@ module Hanami
                 raise InvalidActionNameError.new(name)
               end
 
-              generator.call(app.namespace, controller, action, url, http, format, skip_view, skip_route, slice, context: context)
+              generator.call(app.namespace, controller, action, url, http, format, skip_view, skip_route, template, slice,
+                             context: context)
             end
 
             # rubocop:enable Metrics/ParameterLists

@@ -297,6 +297,28 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
       end
     end
 
+    it "allows to specify slim template engine" do
+      within_application_directory do
+        subject.call(name: action_name, template: "slim")
+
+        template_file = <<~EXPECTED
+          h1 = Test::Views::Users::Index
+        EXPECTED
+        expect(fs.read("app/templates/#{controller}/#{action}.html.slim")).to eq(template_file)
+      end
+    end
+
+    it "allows to specify HAML template engine" do
+      within_application_directory do
+        subject.call(name: action_name, template: "haml")
+
+        template_file = <<~EXPECTED
+          %h1= Test::Views::Users::Index
+        EXPECTED
+        expect(fs.read("app/templates/#{controller}/#{action}.html.haml")).to eq(template_file)
+      end
+    end
+
     include_context "with existing files" do
       let(:generate_action) { subject.call(name: action_name) }
     end

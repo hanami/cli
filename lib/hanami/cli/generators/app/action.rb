@@ -21,12 +21,12 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, controller, action, url, http, format, skip_view, skip_route, slice, context: nil)
+          def call(app, controller, action, url, http, format, skip_view, skip_route, engine, slice, context: nil)
             context ||= ActionContext.new(inflector, app, slice, controller, action)
             if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
+              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, engine, slice, context)
             else
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
+              generate_for_app(controller, action, url, http, format, skip_view, skip_route, engine, context)
             end
           end
 
@@ -72,7 +72,8 @@ module Hanami
           attr_reader :inflector
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
+          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, engine, slice,
+                                 context)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
@@ -92,12 +93,12 @@ module Hanami
               fs.create(fs.join(directory, "#{action}.rb"), t("slice_view.erb", context))
 
               fs.mkdir(directory = fs.join(slice_directory, "templates", controller))
-              fs.create(fs.join(directory, "#{action}.#{format}.erb"),
-                        t(template_with_format_ext("slice_template", format), context))
+              fs.create(fs.join(directory, "#{action}.#{format}.#{engine}"),
+                        t(template_with_format_ext("slice_template", format, engine), context))
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
+          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, engine, context)
             if generate_route?(skip_route)
               fs.inject_line_at_class_bottom(
                 fs.join("config", "routes.rb"),
@@ -117,8 +118,8 @@ module Hanami
               fs.create(fs.join(view_directory, "#{view}.rb"), t("view.erb", context))
 
               fs.mkdir(template_directory = fs.join("app", "templates", controller))
-              fs.create(fs.join(template_directory, "#{view}.#{format}.erb"),
-                        t(template_with_format_ext("template", format), context))
+              fs.create(fs.join(template_directory, "#{view}.#{format}.#{engine}"),
+                        t(template_with_format_ext("template", format, engine), context))
             end
           end
           # rubocop:enable Metrics/AbcSize
@@ -169,13 +170,13 @@ module Hanami
             RESTFUL_COUNTERPART_VIEWS.fetch(view, nil)
           end
 
-          def template_with_format_ext(name, format)
+          def template_with_format_ext(name, format, engine)
             ext =
               case format.to_sym
               when :html
-                ".html.erb"
+                ".html.#{engine}"
               else
-                ".erb"
+                ".#{engine}"
               end
 
             "#{name}#{ext}"
