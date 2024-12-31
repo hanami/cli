@@ -14,7 +14,7 @@ gem "hanami-assets", github: "hanami/assets", branch: "main"
 gem "hanami-controller", github: "kyleplump/controller", branch: "rack3"
 gem "hanami-db", github: "hanami/db", branch: "main"
 gem "hanami-router", github: "kyleplump/router", branch: "rack3"
-gem "hanami-utils"
+gem "hanami-utils", github: "hanami/utils", branch: "main"
 
 gem "dry-system", github: "dry-rb/dry-system", branch: "main"
 
