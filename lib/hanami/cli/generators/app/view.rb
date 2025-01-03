@@ -25,19 +25,19 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(key:, namespace:, base_path:)
-            write_view_file(key:, namespace:, base_path:)
-            write_template_file(key:, namespace:, base_path:)
+            view_class = view_class_file(key:, namespace:, base_path:)
+            view_class.create
+            write_template_file(key:, namespace:, base_path:, view_class_name: view_class.fully_qualified_name)
           end
 
           private
 
           attr_reader :fs, :inflector, :out
 
-          def write_view_file(key:, namespace:, base_path:)
-            RubyFileWriter.new(
+          def view_class_file(key:, namespace:, base_path:)
+            RubyClassFile.new(
               fs: fs,
               inflector: inflector,
-            ).call(
               namespace: namespace,
               key: inflector.underscore(key),
               base_path: base_path,
@@ -46,17 +46,13 @@ module Hanami
             )
           end
 
-
-          def write_template_file(key:, namespace:, base_path:)
+          def write_template_file(key:, namespace:, base_path:, view_class_name:)
             key_parts = key.split(KEY_SEPARATOR)
             folder_path = fs.join(base_path, "templates", key_parts[..-2])
             file_path = fs.join(folder_path, template_with_format_ext(key_parts.last, DEFAULT_FORMAT))
-            view_class_name = inflector.camelize([namespace, "Views", *key_parts].join("/"))
             body = "<h1>#{view_class_name}</h1>\n"
             fs.write(file_path, body)
           end
-
-          # rubocop:enable Metrics/AbcSize
 
           def template_with_format_ext(name, format)
             ext =
