@@ -48,8 +48,10 @@ module Hanami
 
           def write_template_file(key:, namespace:, base_path:, view_class_name:)
             key_parts = key.split(KEY_SEPARATOR)
-            folder_path = fs.join(base_path, "templates", key_parts[..-2])
-            file_path = fs.join(folder_path, template_with_format_ext(key_parts.last, DEFAULT_FORMAT))
+            class_name_from_key = key_parts.pop
+            modules_from_key = key_parts # Now that the class name has popped off
+            folder_path = fs.join(base_path, "templates", modules_from_key)
+            file_path = fs.join(folder_path, template_with_format_ext(class_name_from_key, DEFAULT_FORMAT))
             body = "<h1>#{view_class_name}</h1>\n"
             fs.write(file_path, body)
           end
