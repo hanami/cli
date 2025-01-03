@@ -14,6 +14,9 @@ module Hanami
           DEFAULT_FORMAT = "html"
           private_constant :DEFAULT_FORMAT
 
+          TEMPLATES_FOLDER = "templates"
+          private_constant :TEMPLATES_FOLDER
+
           # @since 2.0.0
           # @api private
           def initialize(fs:, inflector:, out: $stdout)
@@ -27,7 +30,8 @@ module Hanami
           def call(key:, namespace:, base_path:)
             view_class = view_class_file(key:, namespace:, base_path:)
             view_class.create
-            write_template_file(key:, namespace:, base_path:, view_class_name: view_class.fully_qualified_name)
+            view_class_name = view_class.fully_qualified_name
+            write_template_file(key:, namespace:, base_path:, view_class_name:)
           end
 
           private
@@ -49,14 +53,19 @@ module Hanami
           def write_template_file(key:, namespace:, base_path:, view_class_name:)
             key_parts = key.split(KEY_SEPARATOR)
             class_name_from_key = key_parts.pop
-            modules_from_key = key_parts # Now that the class name has popped off
-            folder_path = fs.join(base_path, "templates", modules_from_key)
-            file_path = fs.join(folder_path, template_with_format_ext(class_name_from_key, DEFAULT_FORMAT))
+            module_names_from_key = key_parts # Now that the class name has popped off
+
+            file_path = fs.join(
+              base_path,
+              TEMPLATES_FOLDER,
+              module_names_from_key,
+              template_file_name(class_name_from_key, DEFAULT_FORMAT),
+            )
             body = "<h1>#{view_class_name}</h1>\n"
             fs.write(file_path, body)
           end
 
-          def template_with_format_ext(name, format)
+          def template_file_name(name, format)
             ext =
               case format.to_sym
               when :html

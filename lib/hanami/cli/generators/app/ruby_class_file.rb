@@ -36,7 +36,7 @@ module Hanami
           end
 
           def fully_qualified_name
-            inflector.camelize([namespace, "Views", *key.split(KEY_SEPARATOR)].join("/"))
+            inflector.camelize([namespace, extra_namespace, *key.split(KEY_SEPARATOR)].join("/"))
           end
 
           private
