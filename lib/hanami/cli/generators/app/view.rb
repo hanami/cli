@@ -26,7 +26,7 @@ module Hanami
           # @api private
           def call(key:, namespace:, base_path:)
             write_view_file(key:, namespace:, base_path:)
-            write_template_file(key:, base_path:)
+            write_template_file(key:, namespace:, base_path:)
           end
 
           private
@@ -47,11 +47,13 @@ module Hanami
           end
 
 
-          def write_template_file(base_path:, key:)
-            folder_path = fs.join(base_path, "templates", key.split(KEY_SEPARATOR)[..-2])
-            fs.mkdir_p(folder_path)
-            file_path = fs.join(folder_path, template_with_format_ext(key.split(KEY_SEPARATOR).last, DEFAULT_FORMAT))
-            fs.write(file_path, "<h1>Test::Views::Users::Index</h1>\n")
+          def write_template_file(key:, namespace:, base_path:)
+            key_parts = key.split(KEY_SEPARATOR)
+            folder_path = fs.join(base_path, "templates", key_parts[..-2])
+            file_path = fs.join(folder_path, template_with_format_ext(key_parts.last, DEFAULT_FORMAT))
+            view_class_name = inflector.camelize([namespace, "Views", *key_parts].join("/"))
+            body = "<h1>#{view_class_name}</h1>\n"
+            fs.write(file_path, body)
           end
 
           # rubocop:enable Metrics/AbcSize
