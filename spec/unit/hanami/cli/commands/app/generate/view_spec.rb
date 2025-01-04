@@ -4,12 +4,11 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
+  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
 
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
-  let(:generator) { Hanami::CLI::Generators::App::View.new(fs: fs, inflector: inflector) }
   let(:app) { Hanami.app.namespace }
   let(:dir) { inflector.underscore(app) }
 
