@@ -6,6 +6,8 @@ module Hanami
   module CLI
     module Generators
       module App
+        # @since 2.2.2
+        # @api private
         class RubyClassFile
           def initialize(
             fs:,
@@ -27,16 +29,24 @@ module Hanami
             @body = body
           end
 
+          # @since 2.2.2
+          # @api private
           def create
             fs.create(path, file_contents)
           end
 
+          # @since 2.2.2
+          # @api private
           def write
             fs.write(path, file_contents)
           end
 
+          # @since 2.2.2
+          # @api private
           def fully_qualified_name
-            inflector.camelize([namespace, extra_namespace, *key.split(KEY_SEPARATOR)].join("/"))
+            inflector.camelize(
+              [namespace, extra_namespace, *key.split(KEY_SEPARATOR)].join("/"),
+            )
           end
 
           private

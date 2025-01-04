@@ -28,10 +28,11 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(key:, namespace:, base_path:)
-            view_class = view_class_file(key:, namespace:, base_path:)
-            view_class.create
-            view_class_name = view_class.fully_qualified_name
-            write_template_file(key:, namespace:, base_path:, view_class_name:)
+            view_class_file(key:, namespace:, base_path:).then do |view_class|
+              view_class.create
+              view_class_name = view_class.fully_qualified_name
+              write_template_file(key:, namespace:, base_path:, view_class_name:)
+            end
           end
 
           private
@@ -52,8 +53,8 @@ module Hanami
 
           def write_template_file(key:, namespace:, base_path:, view_class_name:)
             key_parts = key.split(KEY_SEPARATOR)
-            class_name_from_key = key_parts.pop
-            module_names_from_key = key_parts # Now that the class name has popped off
+            class_name_from_key = key_parts.pop # takes last segment as the class name
+            module_names_from_key = key_parts # the rest of the segments are the module names
 
             file_path = fs.join(
               base_path,
