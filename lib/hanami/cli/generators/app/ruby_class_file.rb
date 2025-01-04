@@ -45,7 +45,7 @@ module Hanami
           # @api private
           def fully_qualified_name
             inflector.camelize(
-              [namespace, extra_namespace, *key.split(KEY_SEPARATOR)].join("/"),
+              [namespace, extra_namespace, *key_parts].join("/"),
             )
           end
 
@@ -76,13 +76,13 @@ module Hanami
           # @since 2.2.0
           # @api private
           def class_name
-            key.split(KEY_SEPARATOR)[-1]
+            key_parts.last
           end
 
           # @since 2.2.0
           # @api private
           def local_namespaces
-            Array(extra_namespace) + key.split(KEY_SEPARATOR)[..-2]
+            Array(extra_namespace) + key_parts[..-2]
           end
 
           # @since 2.2.0
@@ -126,6 +126,12 @@ module Hanami
           # @api private
           def normalize(name)
             inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
+          end
+
+          # @since 2.2.2
+          # @api private
+          def key_parts
+            key.split(KEY_SEPARATOR)
           end
         end
       end
