@@ -20,13 +20,13 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, key, format, slice)
+          def call(app, key, format, engine, slice)
             context = ViewContext.new(inflector, app, slice, key)
 
             if slice
-              generate_for_slice(context, format, slice)
+              generate_for_slice(context, format, engine, slice)
             else
-              generate_for_app(context, format, slice)
+              generate_for_app(context, format, engine, slice)
             end
           end
 
@@ -38,7 +38,7 @@ module Hanami
 
           # rubocop:disable Metrics/AbcSize
 
-          def generate_for_slice(context, format, slice)
+          def generate_for_slice(context, format, engine, slice)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
@@ -46,28 +46,28 @@ module Hanami
             fs.create(fs.join(directory, "#{context.name}.rb"), t("slice_view.erb", context))
 
             fs.mkdir(directory = fs.join(slice_directory, "templates", context.namespaces))
-            fs.create(fs.join(directory, "#{context.name}.#{format}.erb"),
-                      t(template_with_format_ext("slice_template", format), context))
+            fs.create(fs.join(directory, "#{context.name}.#{format}.#{engine}"),
+                      t(template_with_format_ext("slice_template", format, engine), context))
           end
 
-          def generate_for_app(context, format, _slice)
+          def generate_for_app(context, format, engine, _slice)
             fs.mkdir(directory = fs.join("app", "views", context.namespaces))
             fs.create(fs.join(directory, "#{context.name}.rb"), t("app_view.erb", context))
 
             fs.mkdir(directory = fs.join("app", "templates", context.namespaces))
-            fs.create(fs.join(directory, "#{context.name}.#{format}.erb"),
-                      t(template_with_format_ext("app_template", format), context))
+            fs.create(fs.join(directory, "#{context.name}.#{format}.#{engine}"),
+                      t(template_with_format_ext("app_template", format, engine), context))
           end
 
           # rubocop:enable Metrics/AbcSize
 
-          def template_with_format_ext(name, format)
+          def template_with_format_ext(name, format, engine)
             ext =
               case format.to_sym
               when :html
-                ".html.erb"
+                ".html.#{engine}"
               else
-                ".erb"
+                ".#{engine}"
               end
 
             "#{name}#{ext}"

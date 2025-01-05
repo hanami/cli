@@ -92,6 +92,28 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
       end
     end
 
+    it "allows to specify slim template engine" do
+      within_application_directory do
+        subject.call(name: "special.users.index", template: "slim")
+
+        template_file = <<~EXPECTED
+          h1 Test::Views::Special::Users::Index
+        EXPECTED
+        expect(fs.read("app/templates/special/users/index.html.slim")).to eq(template_file)
+      end
+    end
+
+    it "allows to specify HAML template engine" do
+      within_application_directory do
+        subject.call(name: "special.users.index", template: "haml")
+
+        template_file = <<~EXPECTED
+          %h1 Test::Views::Special::Users::Index
+        EXPECTED
+        expect(fs.read("app/templates/special/users/index.html.haml")).to eq(template_file)
+      end
+    end
+
     context "with existing file" do
       before do
         within_application_directory do
@@ -141,6 +163,29 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
 
         expect(fs.read("slices/main/templates/users/index.html.erb")).to eq(template_file)
         expect(output).to include("Created slices/main/templates/users/index.html.erb")
+      end
+    end
+    it "allows to specify slim template engine" do
+      within_application_directory do
+        fs.mkdir("slices/main")
+        subject.call(name: "users.index", slice: "main", template: "slim")
+
+        template_file = <<~EXPECTED
+          h1 Main::Views::Users::Index
+        EXPECTED
+        expect(fs.read("slices/main/templates/users/index.html.slim")).to eq(template_file)
+      end
+    end
+
+    it "allows to specify HAML template engine" do
+      within_application_directory do
+        fs.mkdir("slices/main")
+        subject.call(name: "users.index", slice: "main", template: "haml")
+
+        template_file = <<~EXPECTED
+          %h1 Main::Views::Users::Index
+        EXPECTED
+        expect(fs.read("slices/main/templates/users/index.html.haml")).to eq(template_file)
       end
     end
 
