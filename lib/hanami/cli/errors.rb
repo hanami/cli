@@ -46,8 +46,12 @@ module Hanami
 
     # @api public
     class FileAlreadyExistsError < Error
-      def initialize(path)
-        super("Cannot overwrite existing file: `#{path}`")
+      ERROR_MESSAGE = <<~ERROR.chomp
+        The file `%{file_path}` could not be generated because it already exists in your application.
+      ERROR
+
+      def initialize(file_path)
+        super(ERROR_MESSAGE % {file_path:})
       end
     end
 

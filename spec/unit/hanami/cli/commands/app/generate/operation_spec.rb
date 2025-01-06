@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
+  subject { described_class.new(fs: fs, inflector: inflector, out: out, err: err) }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
@@ -11,6 +12,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
   def output
     out.string.chomp
   end
+
+  def error_output = err.string.chomp
 
   context "generating for app" do
     it "generates an operation without a namespace, with a recommendation" do
@@ -80,14 +83,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "app/admin/books/add.rb" }
+
       before do
-        fs.write("app/admin/books/add.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
-      it "raises error" do
-        expect {
+      it "exits with error message" do
+        expect do
           subject.call(name: "admin.books.add")
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
   end
@@ -140,15 +148,20 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/admin/books/add.rb" }
+
       before do
         fs.mkdir("slices/main")
-        fs.write("slices/main/admin/books/add.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
-      it "raises error" do
-        expect {
+      it "exits with error message" do
+        expect do
           subject.call(name: "admin.books.add", slice: "main")
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
   end

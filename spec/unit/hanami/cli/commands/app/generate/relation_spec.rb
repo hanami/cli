@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_integration do
-  subject { described_class.new(inflector: inflector, out: out) }
+  subject { described_class.new(inflector: inflector, out: out, err: err) }
 
   let(:inflector) { Dry::Inflector.new }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
+
   def output = out.string
+
+  def error_output = err.string.chomp
 
   before do
     with_directory(@dir = make_tmp_directory) do
@@ -116,13 +120,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
     end
 
     context "with existing file" do
+      let(:file_path) { "app/relations/books.rb" }
+
       before do
-        write "app/relations/books.rb", "existing content"
+        write file_path, "existing content"
       end
 
-      it "raises error" do
-        expect { subject.call(name: "books") }
-          .to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      it "exits with error message" do
+        expect do
+          subject.call(name: "books")
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
   end
@@ -191,13 +201,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/relations/books.rb" }
+
       before do
-        write "slices/main/relations/books.rb", "existing content"
+        write file_path, "existing content"
       end
 
-      it "raises error" do
-        expect { subject.call(name: "books", slice: "main") }
-          .to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      it "exits with error message" do
+        expect do
+          subject.call(name: "books", slice: "main")
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
   end
