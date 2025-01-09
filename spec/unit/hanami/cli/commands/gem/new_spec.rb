@@ -108,7 +108,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       gitignore = <<~EXPECTED
         .env*.local
         log/*
-        public/
+        public/*
+        !public/404.html
+        !public/500.html
         node_modules/
         db/*.sqlite
       EXPECTED
@@ -586,7 +588,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         gitignore = <<~EXPECTED
           .env*.local
           log/*
-          public/
+          public/*
+          !public/404.html
+          !public/500.html
           node_modules/
           db/*.sqlite
         EXPECTED
