@@ -51,7 +51,7 @@ module Hanami
 
           private
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           attr_reader(
             :fs,
@@ -64,7 +64,7 @@ module Hanami
             :body,
           )
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           def file_contents
             class_definition(
@@ -73,19 +73,19 @@ module Hanami
             )
           end
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           def class_name
             key_parts.last
           end
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           def local_namespaces
             Array(extra_namespace) + key_parts[..-2]
           end
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           def directory
             @directory ||= if local_namespaces.any?
@@ -95,13 +95,13 @@ module Hanami
                            end
           end
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           def path
             fs.join(directory, "#{class_name}.rb")
           end
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           def class_definition(class_name:, local_namespaces:)
             container_module = normalize(namespace)
@@ -122,7 +122,7 @@ module Hanami
             )
           end
 
-          # @since 2.2.0
+          # @since 2.2.2
           # @api private
           def normalize(name)
             inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
