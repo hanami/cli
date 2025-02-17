@@ -204,28 +204,6 @@ module Hanami
             RESTFUL_COUNTERPART_VIEWS.fetch(view, nil)
           end
 
-          def template_with_format_ext(name, format)
-            ext =
-              case format.to_sym
-              when :html
-                ".html.erb"
-              else
-                ".erb"
-              end
-
-            "#{name}#{ext}"
-          end
-
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/action/#{path}"), trim_mode: "-",
-            ).result(context.ctx)
-          end
-
-          alias_method :t, :template
-
           def route_url(controller, action, url)
             action = ROUTE_RESTFUL_URL_SUFFIXES.fetch(action) { [action] }
             url ||= "#{PATH_SEPARATOR}#{(controller + action).join(PATH_SEPARATOR)}"
