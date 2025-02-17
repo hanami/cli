@@ -89,7 +89,7 @@ module Hanami
               inflector: inflector,
               namespace: context.camelized_slice_name,
               key: inflector.underscore(key),
-              base_path: fs.join("slices", slice),
+              base_path: slice_directory,
               relative_parent_class: "Action",
               extra_namespace: "Actions",
               body: [
@@ -99,15 +99,19 @@ module Hanami
               ].compact
             ).create
 
-            directory = fs.join(slice_directory, "actions", controller)
+            view = action
+            view_directory = fs.join(slice_directory, "views", controller)
 
-            if generate_view?(skip_view, action, directory)
-              fs.mkdir(directory = fs.join(slice_directory, "views", controller))
-              fs.create(fs.join(directory, "#{action}.rb"), t("slice_view.erb", context))
-
-              fs.mkdir(directory = fs.join(slice_directory, "templates", controller))
-              fs.create(fs.join(directory, "#{action}.#{format}.erb"),
-                        t(template_with_format_ext("slice_template", format), context))
+            if generate_view?(skip_view, view, view_directory)
+              Generators::App::View.new(
+                fs: fs,
+                inflector: inflector,
+                out: out
+              ).call(
+                key: key,
+                namespace: context.camelized_slice_name,
+                base_path: fs.join("slices", slice),
+              )
             end
           end
 
@@ -140,11 +144,15 @@ module Hanami
             view_directory = fs.join("app", "views", controller)
 
             if generate_view?(skip_view, view, view_directory)
-              view_generator = Generators::App::View.new(
+              Generators::App::View.new(
                 fs: fs,
                 inflector: inflector,
                 out: out
-              ).call(key: key, namespace: context.camelized_app_name, base_path: "app")
+              ).call(
+                key: key,
+                namespace: context.camelized_app_name,
+                base_path: "app",
+              )
             end
           end
           # rubocop:enable Metrics/AbcSize

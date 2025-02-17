@@ -1198,7 +1198,12 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
       end
 
       it "raises error if slice is unexisting" do
-        expect { subject.call(slice: "foo", name: action_name) }.to raise_error(Hanami::CLI::MissingSliceError, "slice `foo' is missing, please generate with `hanami generate slice foo'")
+        expect {
+          subject.call(slice: "foo", name: action_name)
+        }.to raise_error(
+          Hanami::CLI::MissingSliceError,
+          "slice `foo' is missing, please generate with `hanami generate slice foo'",
+        )
       end
     end
 
