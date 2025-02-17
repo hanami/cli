@@ -105,8 +105,9 @@ module Hanami
               if controller.empty?
                 raise InvalidActionNameError.new(name)
               end
+              namespace = slice || app.namespace
 
-              generator.call(app.namespace, controller, action, url, http, format, skip_view, skip_route, slice, key:, context:)
+              generator.call(controller, action, url, http, format, skip_view, skip_route, slice, namespace: namespace, key:, context:)
             end
 
             # rubocop:enable Metrics/ParameterLists
