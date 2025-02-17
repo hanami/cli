@@ -22,12 +22,13 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, controller, action, url, http, format, skip_view, skip_route, slice, context: nil)
+          def call(app, controller, action, url, http, format, skip_view, skip_route, slice, key:, context: nil)
             context ||= ActionContext.new(inflector, app, slice, controller, action)
+
             if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, slice:)
+              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, key:, slice:)
             else
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, slice:)
+              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, key:, slice:)
             end
           end
 
@@ -71,7 +72,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, slice:)
+          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, key:, slice:)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
@@ -83,7 +84,6 @@ module Hanami
               )
             end
 
-            key = [controller, action].join(".")
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
@@ -115,7 +115,7 @@ module Hanami
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, slice: nil)
+          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, key:, slice: nil)
             if generate_route?(skip_route)
               fs.inject_line_at_class_bottom(
                 fs.join("config", "routes.rb"),
@@ -124,7 +124,6 @@ module Hanami
               )
             end
 
-            key = [controller, action].join(".")
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
