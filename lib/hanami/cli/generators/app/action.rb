@@ -27,9 +27,9 @@ module Hanami
             bundled_views  = context.bundled_views?
 
             if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, key:, slice:, bundled_views:)
+              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, bundled_views:)
             else
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, key:, slice:, bundled_views:)
+              generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, bundled_views:)
             end
           end
 
@@ -73,7 +73,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, key:, slice:, bundled_views:)
+          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:,key:, slice:, bundled_views:)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
@@ -88,7 +88,7 @@ module Hanami
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
-              namespace: context.camelized_slice_name,
+              namespace: namespace,
               key: inflector.underscore(key),
               base_path: slice_directory,
               relative_parent_class: "Action",
@@ -110,13 +110,13 @@ module Hanami
                 out: out
               ).call(
                 key: key,
-                namespace: context.camelized_slice_name,
+                namespace: namespace,
                 base_path: fs.join("slices", slice),
               )
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, key:, slice: nil, bundled_views: false)
+          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice: nil, bundled_views: false)
             if generate_route?(skip_route)
               fs.inject_line_at_class_bottom(
                 fs.join("config", "routes.rb"),
@@ -128,7 +128,7 @@ module Hanami
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
-              namespace: context.camelized_app_name,
+              namespace: namespace,
               key: inflector.underscore(key),
               base_path: "app",
               relative_parent_class: "Action",
@@ -150,7 +150,7 @@ module Hanami
                 out: out
               ).call(
                 key: key,
-                namespace: context.camelized_app_name,
+                namespace: namespace,
                 base_path: "app",
               )
             end
