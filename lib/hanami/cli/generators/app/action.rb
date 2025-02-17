@@ -105,10 +105,6 @@ module Hanami
               )
             end
 
-            fs.mkdir(directory = fs.join("app", "actions", controller))
-
-            #fs.create(fs.join(directory, "#{action}.rb"), t("action.erb", context))
-
             key = [controller, action].join(".")
             RubyClassFile.new(
               fs: fs,
@@ -150,18 +146,19 @@ module Hanami
           # @api private
           # @since 2.1.0
           def generate_view?(skip_view, view, directory)
-            return false if skip_view
-            return generate_restful_view?(view, directory) if rest_view?(view)
-
-            true
+            if skip_view
+              false
+            elsif rest_view?(view)
+              generate_restful_view?(view, directory)
+            else
+              true
+            end
           end
 
           # @api private
           # @since 2.2.0
           def generate_route?(skip_route)
-            return false if skip_route
-
-            true
+            !skip_route
           end
 
           # @api private
