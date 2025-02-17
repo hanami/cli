@@ -63,7 +63,7 @@ module Hanami
               template_file_name(class_name_from_key, DEFAULT_FORMAT),
             )
             body = "<h1>#{view_class_name}</h1>\n"
-            fs.write(file_path, body)
+            fs.create(file_path, body)
           end
 
           def template_file_name(name, format)

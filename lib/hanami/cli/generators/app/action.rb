@@ -14,9 +14,10 @@ module Hanami
         class Action
           # @since 2.0.0
           # @api private
-          def initialize(fs:, inflector:)
+          def initialize(fs:, inflector:, out: $stdout)
             @fs = fs
             @inflector = inflector
+            @out = out
           end
 
           # @since 2.0.0
@@ -67,9 +68,7 @@ module Hanami
           PATH_SEPARATOR = "/"
           private_constant :PATH_SEPARATOR
 
-          attr_reader :fs
-
-          attr_reader :inflector
+          attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
           def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
@@ -130,12 +129,11 @@ module Hanami
             view_directory = fs.join("app", "views", controller)
 
             if generate_view?(skip_view, view, view_directory)
-              fs.mkdir(view_directory)
-              fs.create(fs.join(view_directory, "#{view}.rb"), t("view.erb", context))
-
-              fs.mkdir(template_directory = fs.join("app", "templates", controller))
-              fs.create(fs.join(template_directory, "#{view}.#{format}.erb"),
-                        t(template_with_format_ext("template", format), context))
+              view_generator = Generators::App::View.new(
+                fs: fs,
+                inflector: inflector,
+                out: out
+              ).call(key: key, namespace: context.camelized_app_name, base_path: "app")
             end
           end
           # rubocop:enable Metrics/AbcSize
