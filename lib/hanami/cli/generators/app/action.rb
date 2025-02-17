@@ -25,9 +25,9 @@ module Hanami
           def call(app, controller, action, url, http, format, skip_view, skip_route, slice, context: nil)
             context ||= ActionContext.new(inflector, app, slice, controller, action)
             if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
+              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, slice:)
             else
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
+              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, slice:)
             end
           end
 
@@ -71,7 +71,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
+          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, context, slice:)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
@@ -115,7 +115,7 @@ module Hanami
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
+          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context, slice: nil)
             if generate_route?(skip_route)
               fs.inject_line_at_class_bottom(
                 fs.join("config", "routes.rb"),
