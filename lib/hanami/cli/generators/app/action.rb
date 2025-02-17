@@ -107,7 +107,24 @@ module Hanami
             end
 
             fs.mkdir(directory = fs.join("app", "actions", controller))
-            fs.create(fs.join(directory, "#{action}.rb"), t("action.erb", context))
+
+            #fs.create(fs.join(directory, "#{action}.rb"), t("action.erb", context))
+
+            key = [controller, action].join(".")
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: context.camelized_app_name,
+              key: inflector.underscore(key),
+              base_path: "app",
+              relative_parent_class: "Action",
+              extra_namespace: "Actions",
+              body: [
+                "def handle(request, response)",
+                ("  response.body = self.class.name" unless context.bundled_views?),
+                "end"
+              ].compact
+            ).create
 
             view = action
             view_directory = fs.join("app", "views", controller)
