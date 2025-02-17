@@ -83,8 +83,23 @@ module Hanami
               )
             end
 
-            fs.mkdir(directory = fs.join(slice_directory, "actions", controller))
-            fs.create(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
+            key = [controller, action].join(".")
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: context.camelized_slice_name,
+              key: inflector.underscore(key),
+              base_path: fs.join("slices", slice),
+              relative_parent_class: "Action",
+              extra_namespace: "Actions",
+              body: [
+                "def handle(request, response)",
+                ("  response.body = self.class.name" unless context.bundled_views?),
+                "end"
+              ].compact
+            ).create
+
+            directory = fs.join(slice_directory, "actions", controller)
 
             if generate_view?(skip_view, action, directory)
               fs.mkdir(directory = fs.join(slice_directory, "views", controller))
