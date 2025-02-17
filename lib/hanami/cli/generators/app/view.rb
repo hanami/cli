@@ -31,7 +31,7 @@ module Hanami
             view_class_file(key:, namespace:, base_path:).then do |view_class|
               view_class.create
               view_class_name = view_class.fully_qualified_name
-              write_template_file(key:, namespace:, base_path:, view_class_name:)
+              create_template_file(key:, namespace:, base_path:, view_class_name:)
             end
           end
 
@@ -51,7 +51,7 @@ module Hanami
             )
           end
 
-          def write_template_file(key:, namespace:, base_path:, view_class_name:)
+          def create_template_file(key:, namespace:, base_path:, view_class_name:)
             key_parts = key.split(KEY_SEPARATOR)
             class_name_from_key = key_parts.pop # takes last segment as the class name
             module_names_from_key = key_parts # the rest of the segments are the module names
