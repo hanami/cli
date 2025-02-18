@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "erb"
 require "dry/files"
 require_relative "../../errors"
 

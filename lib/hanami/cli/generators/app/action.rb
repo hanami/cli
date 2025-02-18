@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "erb"
 require "dry/files"
 require_relative "../../errors"
 
@@ -31,7 +30,7 @@ module Hanami
             key_parts = key.split(KEY_SEPARATOR)
             *controller_names, action_name = key_parts
 
-            insert_route(controller_names:, action_name:, url_path:, http:, skip_route:, slice:, base_path:)
+            insert_route(key:, base_path:, slice:, url_path:, http:, skip_route:)
             generate_action(namespace:, key:, base_path:, include_placeholder_body: skip_view)
             generate_view(controller_names:, view_name: action_name, skip_view:, namespace:, key:, base_path:)
           end
@@ -108,7 +107,8 @@ module Hanami
             /slice[[:space:]]*:#{slice}/
           end
 
-          def insert_route(controller_names:, action_name:, url_path:, http:, skip_route:, slice:, base_path:)
+          def insert_route(key:, base_path:, slice:, url_path:, http:, skip_route:)
+            *controller_names, action_name = key.split(KEY_SEPARATOR)
             if slice
               unless skip_route
                 fs.inject_line_at_block_bottom(
