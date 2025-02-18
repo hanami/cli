@@ -24,9 +24,12 @@ module Hanami
           # @api private
           def call(controller, action, url, http, format, skip_view, skip_route, slice, namespace:, key:)
             if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:)
+              base_path = fs.join("slices", slice)
+              raise MissingSliceError.new(slice) unless fs.directory?(base_path)
+              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, base_path:)
             else
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:)
+              base_path = "app"
+              generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, base_path:)
             end
           end
 
@@ -70,10 +73,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:,key:, slice:)
-            slice_directory = fs.join("slices", slice)
-            raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
-
+          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, base_path:)
             if generate_route?(skip_route)
               fs.inject_line_at_block_bottom(
                 fs.join("config", "routes.rb"),
@@ -87,7 +87,7 @@ module Hanami
               inflector: inflector,
               namespace: namespace,
               key: inflector.underscore(key),
-              base_path: slice_directory,
+              base_path: base_path,
               relative_parent_class: "Action",
               extra_namespace: "Actions",
               body: [
@@ -98,7 +98,7 @@ module Hanami
             ).create
 
             view = action
-            view_directory = fs.join(slice_directory, "views", controller)
+            view_directory = fs.join(base_path, "views", controller)
 
             if generate_view?(skip_view, view, view_directory)
               Generators::App::View.new(
@@ -113,7 +113,7 @@ module Hanami
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice: nil)
+          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, base_path:, slice: nil)
             if generate_route?(skip_route)
               fs.inject_line_at_class_bottom(
                 fs.join("config", "routes.rb"),
@@ -127,7 +127,7 @@ module Hanami
               inflector: inflector,
               namespace: namespace,
               key: inflector.underscore(key),
-              base_path: "app",
+              base_path: base_path,
               relative_parent_class: "Action",
               extra_namespace: "Actions",
               body: [
@@ -138,7 +138,7 @@ module Hanami
             ).create
 
             view = action
-            view_directory = fs.join("app", "views", controller)
+            view_directory = fs.join(base_path, "views", controller)
 
             if generate_view?(skip_view, view, view_directory)
               Generators::App::View.new(
@@ -148,7 +148,7 @@ module Hanami
               ).call(
                 key: key,
                 namespace: namespace,
-                base_path: "app",
+                base_path: base_path
               )
             end
           end
