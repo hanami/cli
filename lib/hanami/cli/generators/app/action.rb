@@ -74,7 +74,7 @@ module Hanami
 
           # rubocop:disable Metrics/AbcSize
           def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, base_path:)
-            if generate_route?(skip_route)
+            unless skip_route
               fs.inject_line_at_block_bottom(
                 fs.join("config", "routes.rb"),
                 slice_matcher(slice),
@@ -114,7 +114,7 @@ module Hanami
           end
 
           def generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, base_path:, slice: nil)
-            if generate_route?(skip_route)
+            unless skip_route
               fs.inject_line_at_class_bottom(
                 fs.join("config", "routes.rb"),
                 "class Routes",
@@ -173,12 +173,6 @@ module Hanami
             else
               true
             end
-          end
-
-          # @api private
-          # @since 2.2.0
-          def generate_route?(skip_route)
-            !skip_route
           end
 
           # @api private
