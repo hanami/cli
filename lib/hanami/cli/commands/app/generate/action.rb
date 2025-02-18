@@ -97,15 +97,13 @@ module Hanami
             )
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
               key = naming.action_name(name)
-              *controller, action = key.split(ACTION_SEPARATOR)
 
-              if controller.empty?
-                raise InvalidActionNameError.new(name)
-              end
+              raise InvalidActionNameError.new(name) unless key.include?(ACTION_SEPARATOR)
+
               namespace = slice || app.namespace
               skip_view ||= !Hanami.bundled?("hanami-view")
 
-              generator.call(controller, action, url, http, format, skip_view, skip_route, slice, namespace: namespace, key:)
+              generator.call(url, http, format, skip_view, skip_route, slice, namespace: namespace, key:)
             end
 
             # rubocop:enable Metrics/ParameterLists

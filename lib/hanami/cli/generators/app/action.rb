@@ -22,7 +22,9 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(controller, action, url_path, http, format, skip_view, skip_route, slice, namespace:, key:)
+          def call(url_path, http, format, skip_view, skip_route, slice, namespace:, key:)
+            *controller, action = key.split(Commands::App::Command::ACTION_SEPARATOR)
+
             if slice
               base_path = fs.join("slices", slice)
               raise MissingSliceError.new(slice) unless fs.directory?(base_path)
