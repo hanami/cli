@@ -27,7 +27,7 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(namespace:, key:, base_path:, url_path:, http_verb:, skip_view:, skip_route:)
-            insert_route(namespace:, key:, base_path:, url_path:, http_verb:, skip_route:)
+            insert_route(namespace:, key:, base_path:, url_path:, http_verb:, skip_route:) unless skip_route
 
             generate_action(key:, namespace:, base_path:, include_placeholder_body: skip_view)
 
@@ -112,21 +112,17 @@ module Hanami
             *controller_names, action_name = key.split(KEY_SEPARATOR)
 
             if namespace == Hanami.app.namespace
-              unless skip_route
-                fs.inject_line_at_class_bottom(
-                  fs.join("config", "routes.rb"),
-                  "class Routes",
-                  route(controller_names, action_name, url_path, http_verb)
-                )
-              end
+              fs.inject_line_at_class_bottom(
+                fs.join("config", "routes.rb"),
+                "class Routes",
+                route(controller_names, action_name, url_path, http_verb)
+              )
             else
-              unless skip_route
-                fs.inject_line_at_block_bottom(
-                  fs.join("config", "routes.rb"),
-                  slice_matcher(namespace),
-                  route(controller_names, action_name, url_path, http_verb)
-                )
-              end
+              fs.inject_line_at_block_bottom(
+                fs.join("config", "routes.rb"),
+                slice_matcher(namespace),
+                route(controller_names, action_name, url_path, http_verb)
+              )
             end
           end
 
