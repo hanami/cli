@@ -110,7 +110,7 @@ module Hanami
                             "app"
                           end
 
-              generator.call(url, http, skip_view, skip_route, namespace:, key:, base_path:)
+              generator.call(namespace:, key:, base_path:, url_path: url, http_verb: http, skip_view:, skip_route:)
             end
             # rubocop:enable Metrics/ParameterLists
 
