@@ -82,6 +82,7 @@ module Hanami
 
             # @since 2.0.0
             # @api private
+            # rubocop:disable Lint/ParameterLists
             def call(
               name:,
               slice: nil,
@@ -104,6 +105,7 @@ module Hanami
                 skip_view: skip_view || !Hanami.bundled?("hanami-view"),
               )
             end
+            # rubocop:enable Lint/ParameterLists
           end
         end
       end

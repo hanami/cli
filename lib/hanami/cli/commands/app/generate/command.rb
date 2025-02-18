@@ -49,7 +49,7 @@ module Hanami
                   key: name,
                   namespace: slice,
                   base_path: base_path,
-                  **,
+                  **
                 )
               else
                 generator.call(
