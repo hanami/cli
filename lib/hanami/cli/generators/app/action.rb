@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dry/files"
+require_relative "../constants"
 require_relative "../../errors"
 
 # rubocop:disable Metrics/ParameterLists
@@ -73,6 +74,8 @@ module Hanami
 
           attr_reader :fs, :inflector, :out, :view_generator
 
+          # @api private
+          # @since x.x.x
           def generate_action(key:, namespace:, base_path:, include_placeholder_body:)
             RubyClassFile.new(
               fs: fs,
@@ -90,12 +93,14 @@ module Hanami
             ).create
           end
 
+          # @api private
+          # @since x.x.x
           def generate_view(key:, namespace:, base_path:)
-            *controller_names, view_name = key.split(KEY_SEPARATOR)
+            *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
 
-            view_directory = fs.join(base_path, "views", controller_names)
+            view_directory = fs.join(base_path, "views", controller_name_parts)
 
-            if generate_view?(view_name, view_directory)
+            if generate_view?(action_name, view_directory)
               view_generator.call(
                 key: key,
                 namespace: namespace,
@@ -104,6 +109,8 @@ module Hanami
             end
           end
 
+          # @api private
+          # @since x.x.x
           def insert_route(key:, namespace:, base_path:, url_path:, http_verb:, skip_route:)
             routes_location = fs.join("config", "routes.rb")
             route = route_definition(key:, url_path:, http_verb:)
@@ -116,19 +123,22 @@ module Hanami
             end
           end
 
+          # @api private
+          # @since x.x.x
           def route_definition(key:, url_path:, http_verb:)
             *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
 
             method = route_http(action_name, http_verb)
             path = route_url(controller_name_parts, action_name, url_path)
+
             %(#{method} "#{path}", to: "#{key}")
           end
 
           # @api private
           # @since 2.1.0
-          def generate_view?(view, directory)
-            if rest_view?(view)
-              generate_restful_view?(view, directory)
+          def generate_view?(action_name, directory)
+            if rest_view?(action_name)
+              generate_restful_view?(action_name, directory)
             else
               true
             end

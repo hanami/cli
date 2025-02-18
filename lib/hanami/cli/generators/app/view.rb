@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dry/files"
+require_relative "../constants"
 require_relative "../../errors"
 
 module Hanami
