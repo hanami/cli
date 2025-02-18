@@ -27,12 +27,11 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(url_path, http, skip_view, skip_route, slice, namespace:, key:, base_path:)
-            key_parts = key.split(KEY_SEPARATOR)
-            *controller_names, action_name = key_parts
-
             insert_route(key:, base_path:, slice:, url_path:, http:, skip_route:)
-            generate_action(namespace:, key:, base_path:, include_placeholder_body: skip_view)
-            generate_view(controller_names:, view_name: action_name, skip_view:, namespace:, key:, base_path:)
+
+            generate_action(key:, namespace:, base_path:, include_placeholder_body: skip_view)
+
+            generate_view(key:, namespace:, base_path:) unless skip_view
           end
 
           private
@@ -91,10 +90,12 @@ module Hanami
             ).create
           end
 
-          def generate_view(controller_names:, view_name:, skip_view:, namespace:, key:, base_path:)
+          def generate_view(key:, namespace:, base_path:)
+            *controller_names, view_name = key.split(KEY_SEPARATOR)
+
             view_directory = fs.join(base_path, "views", controller_names)
 
-            if generate_view?(skip_view, view_name, view_directory)
+            if generate_view?(view_name, view_directory)
               view_generator.call(
                 key: key,
                 namespace: namespace,
@@ -109,6 +110,7 @@ module Hanami
 
           def insert_route(key:, base_path:, slice:, url_path:, http:, skip_route:)
             *controller_names, action_name = key.split(KEY_SEPARATOR)
+
             if slice
               unless skip_route
                 fs.inject_line_at_block_bottom(
@@ -134,10 +136,8 @@ module Hanami
 
           # @api private
           # @since 2.1.0
-          def generate_view?(skip_view, view, directory)
-            if skip_view
-              false
-            elsif rest_view?(view)
+          def generate_view?(view, directory)
+            if rest_view?(view)
               generate_restful_view?(view, directory)
             else
               true
