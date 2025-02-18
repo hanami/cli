@@ -26,7 +26,6 @@ module Hanami
             *controller, action = key.split(Commands::App::Command::ACTION_SEPARATOR)
 
             if slice
-
               unless skip_route
                 fs.inject_line_at_block_bottom(
                   fs.join("config", "routes.rb"),
@@ -34,11 +33,7 @@ module Hanami
                   route(controller, action, url_path, http)
                 )
               end
-
-              generate_files(controller, action, skip_view, namespace:, key:, base_path:)
             else
-              base_path = "app"
-
               unless skip_route
                 fs.inject_line_at_class_bottom(
                   fs.join("config", "routes.rb"),
@@ -46,9 +41,9 @@ module Hanami
                   route(controller, action, url_path, http)
                 )
               end
-
-              generate_files(controller, action, skip_view, namespace:, key:, base_path:)
             end
+
+            generate_files(controller, action, skip_view, namespace:, key:, base_path:)
           end
 
           private
