@@ -1149,7 +1149,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         end
       end
 
-      it "raises error if slice is unexisting" do
+      it "raises error if slice is nonexistent" do
         expect {
           subject.call(slice: "foo", name: action_name)
         }.to raise_error(

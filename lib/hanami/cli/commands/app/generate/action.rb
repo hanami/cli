@@ -102,8 +102,15 @@ module Hanami
 
               namespace = slice || app.namespace
               skip_view ||= !Hanami.bundled?("hanami-view")
+              base_path = if slice
+                            fs.join("slices", slice).tap do |slice_path|
+                              raise MissingSliceError.new(slice) unless fs.directory?(slice_path)
+                            end
+                          else
+                            "app"
+                          end
 
-              generator.call(url, http, format, skip_view, skip_route, slice, namespace: namespace, key:)
+              generator.call(url, http, skip_view, skip_route, slice, namespace: namespace, key:, base_path:)
             end
 
             # rubocop:enable Metrics/ParameterLists

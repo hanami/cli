@@ -22,12 +22,10 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(url_path, http, format, skip_view, skip_route, slice, namespace:, key:)
+          def call(url_path, http, skip_view, skip_route, slice, namespace:, key:, base_path:)
             *controller, action = key.split(Commands::App::Command::ACTION_SEPARATOR)
 
             if slice
-              base_path = fs.join("slices", slice)
-              raise MissingSliceError.new(slice) unless fs.directory?(base_path)
 
               unless skip_route
                 fs.inject_line_at_block_bottom(
@@ -37,7 +35,7 @@ module Hanami
                 )
               end
 
-              generate_files(controller, action, http, format, skip_view, namespace:, key:, base_path:)
+              generate_files(controller, action, skip_view, namespace:, key:, base_path:)
             else
               base_path = "app"
 
@@ -49,7 +47,7 @@ module Hanami
                 )
               end
 
-              generate_files(controller, action, http, format, skip_view, namespace:, key:, base_path:)
+              generate_files(controller, action, skip_view, namespace:, key:, base_path:)
             end
           end
 
@@ -93,7 +91,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_files(controller, action, http, format, skip_view, namespace:, key:, base_path:)
+          def generate_files(controller, action, skip_view, namespace:, key:, base_path:)
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
