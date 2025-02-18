@@ -76,6 +76,20 @@ module Hanami
 
           # @api private
           # @since x.x.x
+          def insert_route(key:, namespace:, url_path:, http_method:)
+            routes_location = fs.join("config", "routes.rb")
+            route = route_definition(key:, url_path:, http_method:)
+
+            if namespace == Hanami.app.namespace
+              fs.inject_line_at_class_bottom(routes_location, "class Routes", route)
+            else
+              slice_matcher = /slice[[:space:]]*:#{namespace}/
+              fs.inject_line_at_block_bottom(routes_location, slice_matcher, route)
+            end
+          end
+
+          # @api private
+          # @since x.x.x
           def generate_action(key:, namespace:, base_path:, include_placeholder_body:)
             RubyClassFile.new(
               fs: fs,
@@ -106,20 +120,6 @@ module Hanami
                 namespace: namespace,
                 base_path: base_path,
               )
-            end
-          end
-
-          # @api private
-          # @since x.x.x
-          def insert_route(key:, namespace:, url_path:, http_method:)
-            routes_location = fs.join("config", "routes.rb")
-            route = route_definition(key:, url_path:, http_method:)
-
-            if namespace == Hanami.app.namespace
-              fs.inject_line_at_class_bottom(routes_location, "class Routes", route)
-            else
-              slice_matcher = /slice[[:space:]]*:#{namespace}/
-              fs.inject_line_at_block_bottom(routes_location, slice_matcher, route)
             end
           end
 
