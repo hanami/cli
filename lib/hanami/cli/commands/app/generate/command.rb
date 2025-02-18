@@ -40,7 +40,7 @@ module Hanami
 
             # @since 2.2.0
             # @api private
-            def call(name:, slice: nil, **)
+            def call(name:, slice: nil, **opts)
               if slice
                 base_path = fs.join("slices", inflector.underscore(slice))
                 raise MissingSliceError.new(slice) unless fs.exist?(base_path)
@@ -49,14 +49,14 @@ module Hanami
                   key: name,
                   namespace: slice,
                   base_path: base_path,
-                  **
+                  **opts,
                 )
               else
                 generator.call(
                   key: name,
                   namespace: app.namespace,
                   base_path: "app",
-                  **
+                  **opts,
                 )
               end
             end
