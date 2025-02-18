@@ -82,8 +82,6 @@ module Hanami
               @generator = generator
             end
 
-            # rubocop:disable Metrics/ParameterLists
-
             # @since 2.0.0
             # @api private
             def call(

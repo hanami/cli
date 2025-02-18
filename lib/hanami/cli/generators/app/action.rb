@@ -35,7 +35,7 @@ module Hanami
                 )
               end
 
-              generate_for_slice(controller, action, url, http, format, skip_view, namespace:, key:, slice:, base_path:)
+              generate_files(controller, action, url, http, format, skip_view, namespace:, key:, base_path:)
             else
               base_path = "app"
 
@@ -47,7 +47,7 @@ module Hanami
                 )
               end
 
-              generate_for_app(controller, action, url, http, format, skip_view, namespace:, key:, slice:, base_path:)
+              generate_files(controller, action, url, http, format, skip_view, namespace:, key:, base_path:)
             end
           end
 
@@ -91,39 +91,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, namespace:, key:, slice:, base_path:)
-            RubyClassFile.new(
-              fs: fs,
-              inflector: inflector,
-              namespace: namespace,
-              key: inflector.underscore(key),
-              base_path: base_path,
-              relative_parent_class: "Action",
-              extra_namespace: "Actions",
-              body: [
-                "def handle(request, response)",
-                ("  response.body = self.class.name" if skip_view),
-                "end"
-              ].compact
-            ).create
-
-            view = action
-            view_directory = fs.join(base_path, "views", controller)
-
-            if generate_view?(skip_view, view, view_directory)
-              Generators::App::View.new(
-                fs: fs,
-                inflector: inflector,
-                out: out
-              ).call(
-                key: key,
-                namespace: namespace,
-                base_path: fs.join("slices", slice),
-              )
-            end
-          end
-
-          def generate_for_app(controller, action, url, http, format, skip_view, namespace:, key:, base_path:, slice: nil)
+          def generate_files(controller, action, url, http, format, skip_view, namespace:, key:, base_path:)
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
@@ -154,7 +122,6 @@ module Hanami
               )
             end
           end
-          # rubocop:enable Metrics/AbcSize
 
           def slice_matcher(slice)
             /slice[[:space:]]*:#{slice}/
