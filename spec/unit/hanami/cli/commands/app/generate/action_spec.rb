@@ -153,7 +153,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "raises error if HTTP method is unknown" do
       expect {
-        subject.call(name: action_name, http_verb: "foo")
+        subject.call(name: action_name, http_method: "foo")
       }.to raise_error(Hanami::CLI::UnknownHTTPMethodError, "unknown HTTP method: `foo'")
     end
 
@@ -213,7 +213,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "allows to specify action HTTP method" do
       within_application_directory do
-        subject.call(name: action_name, http_verb: "put")
+        subject.call(name: action_name, http_method: "put")
         expect(fs.read("config/routes.rb")).to match(%(put "/users", to: "users.index"))
         expect(output).to include("Updated config/routes.rb")
       end

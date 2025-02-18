@@ -27,8 +27,8 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(namespace:, key:, base_path:, url_path:, http_verb:, skip_view:, skip_route:)
-            insert_route(namespace:, key:, base_path:, url_path:, http_verb:, skip_route:) unless skip_route
+          def call(namespace:, key:, base_path:, url_path:, http_method:, skip_view:, skip_route:)
+            insert_route(namespace:, key:, base_path:, url_path:, http_method:, skip_route:) unless skip_route
 
             generate_action(key:, namespace:, base_path:, include_placeholder_body: skip_view)
 
@@ -111,9 +111,9 @@ module Hanami
 
           # @api private
           # @since x.x.x
-          def insert_route(key:, namespace:, base_path:, url_path:, http_verb:, skip_route:)
+          def insert_route(key:, namespace:, base_path:, url_path:, http_method:, skip_route:)
             routes_location = fs.join("config", "routes.rb")
-            route = route_definition(key:, url_path:, http_verb:)
+            route = route_definition(key:, url_path:, http_method:)
 
             if namespace == Hanami.app.namespace
               fs.inject_line_at_class_bottom(routes_location, "class Routes", route)
@@ -125,10 +125,10 @@ module Hanami
 
           # @api private
           # @since x.x.x
-          def route_definition(key:, url_path:, http_verb:)
+          def route_definition(key:, url_path:, http_method:)
             *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
 
-            method = route_http(action_name, http_verb)
+            method = route_http(action_name, http_method)
             path = route_url(controller_name_parts, action_name, url_path)
 
             %(#{method} "#{path}", to: "#{key}")
@@ -171,11 +171,11 @@ module Hanami
             CLI::URL.call(url_path)
           end
 
-          def route_http(action, http_verb)
-            result = (http_verb ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
+          def route_http(action, http_method)
+            result = (http_method ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
 
             unless ROUTE_HTTP_METHODS.include?(result)
-              raise UnknownHTTPMethodError.new(http_verb)
+              raise UnknownHTTPMethodError.new(http_method)
             end
 
             result
