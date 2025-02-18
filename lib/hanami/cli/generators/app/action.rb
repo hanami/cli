@@ -26,10 +26,28 @@ module Hanami
             if slice
               base_path = fs.join("slices", slice)
               raise MissingSliceError.new(slice) unless fs.directory?(base_path)
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, base_path:)
+
+              unless skip_route
+                fs.inject_line_at_block_bottom(
+                  fs.join("config", "routes.rb"),
+                  slice_matcher(slice),
+                  route(controller, action, url, http)
+                )
+              end
+
+              generate_for_slice(controller, action, url, http, format, skip_view, namespace:, key:, slice:, base_path:)
             else
               base_path = "app"
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, base_path:)
+
+              unless skip_route
+                fs.inject_line_at_class_bottom(
+                  fs.join("config", "routes.rb"),
+                  "class Routes",
+                  route(controller, action, url, http)
+                )
+              end
+
+              generate_for_app(controller, action, url, http, format, skip_view, namespace:, key:, slice:, base_path:)
             end
           end
 
@@ -73,15 +91,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, base_path:)
-            unless skip_route
-              fs.inject_line_at_block_bottom(
-                fs.join("config", "routes.rb"),
-                slice_matcher(slice),
-                route(controller, action, url, http)
-              )
-            end
-
+          def generate_for_slice(controller, action, url, http, format, skip_view, namespace:, key:, slice:, base_path:)
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
@@ -113,15 +123,7 @@ module Hanami
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, base_path:, slice: nil)
-            unless skip_route
-              fs.inject_line_at_class_bottom(
-                fs.join("config", "routes.rb"),
-                "class Routes",
-                route(controller, action, url, http)
-              )
-            end
-
+          def generate_for_app(controller, action, url, http, format, skip_view, namespace:, key:, base_path:, slice: nil)
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
