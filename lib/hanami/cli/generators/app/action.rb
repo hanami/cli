@@ -164,6 +164,8 @@ module Hanami
             RESTFUL_COUNTERPART_VIEWS.fetch(view, nil)
           end
 
+          # @api private
+          # @since 2.1.0
           def route_url(controller, action, url_path)
             action = ROUTE_RESTFUL_URL_SUFFIXES.fetch(action) { [action] }
             url_path ||= "#{PATH_SEPARATOR}#{(controller + action).join(PATH_SEPARATOR)}"
@@ -171,6 +173,8 @@ module Hanami
             CLI::URL.call(url_path)
           end
 
+          # @api private
+          # @since 2.1.0
           def route_http(action, http_method)
             result = (http_method ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
 

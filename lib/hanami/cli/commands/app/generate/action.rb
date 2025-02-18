@@ -13,7 +13,7 @@ module Hanami
         module Generate
           # @since 2.0.0
           # @api private
-          class Action < App::Command
+          class Action < Command
             # TODO: ideally the default format should lookup
             #       slice configuration (Action's `default_response_format`)
             DEFAULT_FORMAT = "html"
@@ -76,55 +76,34 @@ module Hanami
             ]
             # rubocop:enable Layout/LineLength
 
-            # @since 2.0.0
-            # @api private
-            def initialize(
-              fs:, inflector:,
-              naming: Naming.new(inflector: inflector),
-              generator: Generators::App::Action.new(fs: fs, inflector: inflector),
-              **opts
-            )
-              super(fs: fs, inflector: inflector, **opts)
-
-              @naming = naming
-              @generator = generator
+            def generator_class
+              Generators::App::Action
             end
 
             # @since 2.0.0
             # @api private
             def call(
               name:,
+              slice: nil,
               url_path: nil,
               http_method: nil,
-              format: DEFAULT_FORMAT,
               skip_view: DEFAULT_SKIP_VIEW,
-              skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument,
               skip_route: DEFAULT_SKIP_ROUTE,
-              slice: nil,
-              **
+              skip_tests: DEFAULT_SKIP_TESTS # rubocop:disable Lint/UnusedMethodArgument
             )
-              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
-              key = naming.action_name(name)
+              name = Naming.new(inflector:).action_name(name)
 
-              raise InvalidActionNameError.new(name) unless key.include?(ACTION_SEPARATOR)
+              raise InvalidActionNameError.new(name) unless name.include?(ACTION_SEPARATOR)
 
-              namespace = slice || app.namespace
-              skip_view ||= !Hanami.bundled?("hanami-view")
-              base_path = if slice
-                            fs.join("slices", slice).tap do |slice_path|
-                              raise MissingSliceError.new(slice) unless fs.directory?(slice_path)
-                            end
-                          else
-                            "app"
-                          end
-
-              generator.call(namespace:, key:, base_path:, url_path:, http_method:, skip_view:, skip_route:)
+              super(
+                name:,
+                slice:,
+                url_path:,
+                skip_route:,
+                http_method:,
+                skip_view: skip_view || !Hanami.bundled?("hanami-view"),
+              )
             end
-            # rubocop:enable Metrics/ParameterLists
-
-            private
-
-            attr_reader :naming, :generator
           end
         end
       end

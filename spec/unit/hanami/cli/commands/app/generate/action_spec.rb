@@ -4,12 +4,11 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
+  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
 
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
-  let(:generator) { Hanami::CLI::Generators::App::Action.new(fs: fs, inflector: inflector) }
   let(:app) { Hanami.app.namespace }
   let(:dir) { inflector.underscore(app) }
   let(:controller) { "users" }
@@ -293,8 +292,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   end
 
   context "generate for app, with hanami view bundled" do
-    let(:context) { Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, [controller], action) }
-
     before do
       allow(Hanami).to receive(:bundled?).and_call_original
       allow(Hanami).to receive(:bundled?).with("hanami-view").and_return(true)
@@ -302,7 +299,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "generates action" do
       within_application_directory do
-        subject.call(name: action_name, context: context)
+        subject.call(name: action_name)
 
         # Route
         routes = <<~CODE
@@ -371,12 +368,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     end
 
     context "with nested action name" do
-      let(:context) { Hanami::CLI::Generators::App::ActionContext.new(inflector, app, nil, %w[api users], "thing") }
-
       it "allows to specify nested action name" do
         within_application_directory do
           action_name = "api/users.thing"
-          subject.call(name: action_name, context: context)
+          subject.call(name: action_name)
 
           expect(fs.read("config/routes.rb")).to match(%(get "/api/users/thing", to: "api.users.thing"))
           expect(output).to include("Updated config/routes.rb")
@@ -406,7 +401,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "allows route generation to be skipped" do
       within_application_directory do
-        subject.call(name: action_name, context: context, skip_route: true)
+        subject.call(name: action_name, skip_route: true)
 
         # Route
         routes = <<~CODE
@@ -527,7 +522,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             fs.write("app/views/users/new.rb", view)
 
             # Invoke the generator
-            subject.call(name: action_name, context: context)
+            subject.call(name: action_name)
 
             # Verify
             expected_routes = <<~CODE
@@ -590,7 +585,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
               fs.write("config/routes.rb", routes)
 
               # Invoke the generator
-              subject.call(name: action_name, context: context)
+              subject.call(name: action_name)
 
               # Verify
               expected_routes = <<~CODE
@@ -667,7 +662,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
               fs.write("config/routes.rb", routes)
 
               # Invoke the generator
-              subject.call(name: action_name, skip_view: true, context: context)
+              subject.call(name: action_name, skip_view: true)
 
               # Verify
               expected_routes = <<~CODE
@@ -767,7 +762,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             fs.write("app/views/users/edit.rb", view)
 
             # Invoke the generator
-            subject.call(name: action_name, context: context)
+            subject.call(name: action_name)
 
             # Verify
             expected_routes = <<~CODE
@@ -830,7 +825,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
               fs.write("config/routes.rb", routes)
 
               # Invoke the generator
-              subject.call(name: action_name, context: context)
+              subject.call(name: action_name)
 
               # Verify
               expected_routes = <<~CODE
@@ -907,7 +902,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
               fs.write("config/routes.rb", routes)
 
               # Invoke the generator
-              subject.call(name: action_name, skip_view: true, context: context)
+              subject.call(name: action_name, skip_view: true)
 
               # Verify
               expected_routes = <<~CODE
@@ -956,7 +951,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     end
 
     include_context "with existing files" do
-      let(:generate_action) { subject.call(name: action_name, context: context) }
+      let(:generate_action) { subject.call(name: action_name) }
     end
   end
 
@@ -1160,8 +1155,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
     end
 
     context "with hanami view bundled" do
-      let(:context) { Hanami::CLI::Generators::App::ActionContext.new(inflector, app, slice, [controller], action) }
-
       before do
         allow(Hanami).to receive(:bundled?).and_call_original
         allow(Hanami).to receive(:bundled?).with("hanami-view").and_return(true)
@@ -1171,7 +1164,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         within_application_directory do
           prepare_slice!
 
-          subject.call(name: action_name, slice: slice, context: context)
+          subject.call(name: action_name, slice: slice)
 
           # Route
           routes = <<~CODE
@@ -1302,7 +1295,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
             EXPECTED
             fs.write("slices/#{slice}/views/users/new.rb", view_file)
 
-            subject.call(name: action_name, slice: slice, context: context)
+            subject.call(name: action_name, slice: slice)
 
             expected_routes = <<~CODE
               # frozen_string_literal: true
