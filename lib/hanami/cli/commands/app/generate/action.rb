@@ -95,7 +95,6 @@ module Hanami
               skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument,
               skip_route: DEFAULT_SKIP_ROUTE,
               slice: nil,
-              context: nil,
               **
             )
               slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
@@ -106,8 +105,9 @@ module Hanami
                 raise InvalidActionNameError.new(name)
               end
               namespace = slice || app.namespace
+              skip_view ||= !Hanami.bundled?("hanami-view")
 
-              generator.call(controller, action, url, http, format, skip_view, skip_route, slice, namespace: namespace, key:, context:)
+              generator.call(controller, action, url, http, format, skip_view, skip_route, slice, namespace: namespace, key:)
             end
 
             # rubocop:enable Metrics/ParameterLists

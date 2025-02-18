@@ -22,14 +22,11 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(controller, action, url, http, format, skip_view, skip_route, slice, namespace:, key:, context: nil)
-            context ||= ActionContext.new(inflector, namespace, slice, controller, action)
-            bundled_views  = context.bundled_views?
-
+          def call(controller, action, url, http, format, skip_view, skip_route, slice, namespace:, key:)
             if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, bundled_views:)
+              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:)
             else
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:, bundled_views:)
+              generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice:)
             end
           end
 
@@ -73,7 +70,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:,key:, slice:, bundled_views:)
+          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, namespace:,key:, slice:)
             slice_directory = fs.join("slices", slice)
             raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
 
@@ -95,7 +92,7 @@ module Hanami
               extra_namespace: "Actions",
               body: [
                 "def handle(request, response)",
-                ("  response.body = self.class.name" unless bundled_views),
+                ("  response.body = self.class.name" if skip_view),
                 "end"
               ].compact
             ).create
@@ -116,7 +113,7 @@ module Hanami
             end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice: nil, bundled_views: false)
+          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, namespace:, key:, slice: nil)
             if generate_route?(skip_route)
               fs.inject_line_at_class_bottom(
                 fs.join("config", "routes.rb"),
@@ -135,7 +132,7 @@ module Hanami
               extra_namespace: "Actions",
               body: [
                 "def handle(request, response)",
-                ("  response.body = self.class.name" unless bundled_views),
+                ("  response.body = self.class.name" if skip_view),
                 "end"
               ].compact
             ).create
