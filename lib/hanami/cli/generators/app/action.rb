@@ -18,6 +18,11 @@ module Hanami
             @fs = fs
             @inflector = inflector
             @out = out
+            @view_generator = Generators::App::View.new(
+              fs: fs,
+              inflector: inflector,
+              out: out
+            )
           end
 
           # @since 2.0.0
@@ -84,7 +89,7 @@ module Hanami
           PATH_SEPARATOR = "/"
           private_constant :PATH_SEPARATOR
 
-          attr_reader :fs, :inflector, :out
+          attr_reader :fs, :inflector, :out, :view_generator
 
           def generate_action(key:, namespace:, base_path:, include_placeholder_body:)
             RubyClassFile.new(
@@ -107,14 +112,10 @@ module Hanami
             view_directory = fs.join(base_path, "views", controller)
 
             if generate_view?(skip_view, view_name, view_directory)
-              Generators::App::View.new(
-                fs: fs,
-                inflector: inflector,
-                out: out
-              ).call(
+              view_generator.call(
                 key: key,
                 namespace: namespace,
-                base_path: base_path
+                base_path: base_path,
               )
             end
           end
