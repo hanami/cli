@@ -23,14 +23,14 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(url_path, http, skip_view, skip_route, slice, namespace:, key:, base_path:)
-            *controller, action = key.split(Commands::App::Command::ACTION_SEPARATOR)
+            *controller_names, action_name = key.split(Commands::App::Command::ACTION_SEPARATOR)
 
             if slice
               unless skip_route
                 fs.inject_line_at_block_bottom(
                   fs.join("config", "routes.rb"),
                   slice_matcher(slice),
-                  route(controller, action, url_path, http)
+                  route(controller_names, action_name, url_path, http)
                 )
               end
             else
@@ -38,12 +38,13 @@ module Hanami
                 fs.inject_line_at_class_bottom(
                   fs.join("config", "routes.rb"),
                   "class Routes",
-                  route(controller, action, url_path, http)
+                  route(controller_names, action_name, url_path, http)
                 )
               end
             end
 
-            generate_files(controller, action, skip_view, namespace:, key:, base_path:)
+            generate_action(namespace:, key:, base_path:, include_placeholder_body: skip_view)
+            generate_view(controller_names, action_name, skip_view, namespace:, key:, base_path:)
           end
 
           private
@@ -85,8 +86,7 @@ module Hanami
 
           attr_reader :fs, :inflector, :out
 
-          # rubocop:disable Metrics/AbcSize
-          def generate_files(controller, action, skip_view, namespace:, key:, base_path:)
+          def generate_action(key:, namespace:, base_path:, include_placeholder_body:)
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
@@ -97,15 +97,16 @@ module Hanami
               extra_namespace: "Actions",
               body: [
                 "def handle(request, response)",
-                ("  response.body = self.class.name" if skip_view),
+                ("  response.body = self.class.name" if include_placeholder_body),
                 "end"
               ].compact
             ).create
+          end
 
-            view = action
+          def generate_view(controller, view_name, skip_view, namespace:, key:, base_path:)
             view_directory = fs.join(base_path, "views", controller)
 
-            if generate_view?(skip_view, view, view_directory)
+            if generate_view?(skip_view, view_name, view_directory)
               Generators::App::View.new(
                 fs: fs,
                 inflector: inflector,
