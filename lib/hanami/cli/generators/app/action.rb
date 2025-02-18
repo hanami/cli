@@ -22,7 +22,7 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(controller, action, url, http, format, skip_view, skip_route, slice, namespace:, key:)
+          def call(controller, action, url_path, http, format, skip_view, skip_route, slice, namespace:, key:)
             if slice
               base_path = fs.join("slices", slice)
               raise MissingSliceError.new(slice) unless fs.directory?(base_path)
@@ -31,11 +31,11 @@ module Hanami
                 fs.inject_line_at_block_bottom(
                   fs.join("config", "routes.rb"),
                   slice_matcher(slice),
-                  route(controller, action, url, http)
+                  route(controller, action, url_path, http)
                 )
               end
 
-              generate_files(controller, action, url, http, format, skip_view, namespace:, key:, base_path:)
+              generate_files(controller, action, http, format, skip_view, namespace:, key:, base_path:)
             else
               base_path = "app"
 
@@ -43,11 +43,11 @@ module Hanami
                 fs.inject_line_at_class_bottom(
                   fs.join("config", "routes.rb"),
                   "class Routes",
-                  route(controller, action, url, http)
+                  route(controller, action, url_path, http)
                 )
               end
 
-              generate_files(controller, action, url, http, format, skip_view, namespace:, key:, base_path:)
+              generate_files(controller, action, http, format, skip_view, namespace:, key:, base_path:)
             end
           end
 
@@ -91,7 +91,7 @@ module Hanami
           attr_reader :fs, :inflector, :out
 
           # rubocop:disable Metrics/AbcSize
-          def generate_files(controller, action, url, http, format, skip_view, namespace:, key:, base_path:)
+          def generate_files(controller, action, http, format, skip_view, namespace:, key:, base_path:)
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
@@ -128,8 +128,7 @@ module Hanami
           end
 
           def route(controller, action, url, http)
-            %(#{route_http(action,
-                           http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
+            %(#{route_http(action, http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
           end
 
           # @api private
