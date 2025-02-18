@@ -27,8 +27,8 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(namespace:, key:, base_path:, url_path:, http_method:, skip_view:, skip_route:)
-            insert_route(namespace:, key:, base_path:, url_path:, http_method:) unless skip_route
+          def call(key:, namespace:, base_path:, url_path:, http_method:, skip_view:, skip_route:)
+            insert_route(key:, namespace:, base_path:, url_path:, http_method:) unless skip_route
 
             generate_action(key:, namespace:, base_path:, include_placeholder_body: skip_view)
 
