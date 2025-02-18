@@ -30,24 +30,7 @@ module Hanami
           def call(url_path, http, skip_view, skip_route, slice, namespace:, key:, base_path:)
             *controller_names, action_name = key.split(Commands::App::Command::ACTION_SEPARATOR)
 
-            if slice
-              unless skip_route
-                fs.inject_line_at_block_bottom(
-                  fs.join("config", "routes.rb"),
-                  slice_matcher(slice),
-                  route(controller_names, action_name, url_path, http)
-                )
-              end
-            else
-              unless skip_route
-                fs.inject_line_at_class_bottom(
-                  fs.join("config", "routes.rb"),
-                  "class Routes",
-                  route(controller_names, action_name, url_path, http)
-                )
-              end
-            end
-
+            insert_route(controller_names:, action_name:, url_path:, http:, skip_route:, slice:, base_path:)
             generate_action(namespace:, key:, base_path:, include_placeholder_body: skip_view)
             generate_view(controller_names, action_name, skip_view, namespace:, key:, base_path:)
           end
@@ -122,6 +105,26 @@ module Hanami
 
           def slice_matcher(slice)
             /slice[[:space:]]*:#{slice}/
+          end
+
+          def insert_route(controller_names:, action_name:, url_path:, http:, skip_route:, slice:, base_path:)
+            if slice
+              unless skip_route
+                fs.inject_line_at_block_bottom(
+                  fs.join("config", "routes.rb"),
+                  slice_matcher(slice),
+                  route(controller_names, action_name, url_path, http)
+                )
+              end
+            else
+              unless skip_route
+                fs.inject_line_at_class_bottom(
+                  fs.join("config", "routes.rb"),
+                  "class Routes",
+                  route(controller_names, action_name, url_path, http)
+                )
+              end
+            end
           end
 
           def route(controller, action, url, http)
