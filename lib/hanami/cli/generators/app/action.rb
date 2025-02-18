@@ -104,30 +104,24 @@ module Hanami
             end
           end
 
-          def slice_matcher(slice)
-            /slice[[:space:]]*:#{slice}/
-          end
-
           def insert_route(key:, namespace:, base_path:, url_path:, http_verb:, skip_route:)
-            *controller_names, action_name = key.split(KEY_SEPARATOR)
+            routes_location = fs.join("config", "routes.rb")
+            route = route_definition(key:, url_path:, http_verb:)
 
             if namespace == Hanami.app.namespace
-              fs.inject_line_at_class_bottom(
-                fs.join("config", "routes.rb"),
-                "class Routes",
-                route(controller_names, action_name, url_path, http_verb)
-              )
+              fs.inject_line_at_class_bottom(routes_location, "class Routes", route)
             else
-              fs.inject_line_at_block_bottom(
-                fs.join("config", "routes.rb"),
-                slice_matcher(namespace),
-                route(controller_names, action_name, url_path, http_verb)
-              )
+              slice_matcher = /slice[[:space:]]*:#{namespace}/
+              fs.inject_line_at_block_bottom(routes_location, slice_matcher, route)
             end
           end
 
-          def route(controller, action, url, http)
-            %(#{route_http(action, http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
+          def route_definition(key:, url_path:, http_verb:)
+            *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
+
+            method = route_http(action_name, http_verb)
+            path = route_url(controller_name_parts, action_name, url_path)
+            %(#{method} "#{path}", to: "#{key}")
           end
 
           # @api private
@@ -160,18 +154,18 @@ module Hanami
             RESTFUL_COUNTERPART_VIEWS.fetch(view, nil)
           end
 
-          def route_url(controller, action, url)
+          def route_url(controller, action, url_path)
             action = ROUTE_RESTFUL_URL_SUFFIXES.fetch(action) { [action] }
-            url ||= "#{PATH_SEPARATOR}#{(controller + action).join(PATH_SEPARATOR)}"
+            url_path ||= "#{PATH_SEPARATOR}#{(controller + action).join(PATH_SEPARATOR)}"
 
-            CLI::URL.call(url)
+            CLI::URL.call(url_path)
           end
 
-          def route_http(action, http)
-            result = (http ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
+          def route_http(action, http_verb)
+            result = (http_verb ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
 
             unless ROUTE_HTTP_METHODS.include?(result)
-              raise UnknownHTTPMethodError.new(http)
+              raise UnknownHTTPMethodError.new(http_verb)
             end
 
             result
