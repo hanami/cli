@@ -28,7 +28,7 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(namespace:, key:, base_path:, url_path:, http_method:, skip_view:, skip_route:)
-            insert_route(namespace:, key:, base_path:, url_path:, http_method:, skip_route:) unless skip_route
+            insert_route(namespace:, key:, base_path:, url_path:, http_method:) unless skip_route
 
             generate_action(key:, namespace:, base_path:, include_placeholder_body: skip_view)
 
@@ -111,7 +111,7 @@ module Hanami
 
           # @api private
           # @since x.x.x
-          def insert_route(key:, namespace:, base_path:, url_path:, http_method:, skip_route:)
+          def insert_route(key:, namespace:, base_path:, url_path:, http_method:)
             routes_location = fs.join("config", "routes.rb")
             route = route_definition(key:, url_path:, http_method:)
 
