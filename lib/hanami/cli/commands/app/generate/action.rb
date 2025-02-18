@@ -29,8 +29,8 @@ module Hanami
             private_constant :DEFAULT_SKIP_ROUTE
 
             argument :name, required: true, desc: "Action name"
-            option :url, required: false, type: :string, desc: "Action URL"
-            option :http, required: false, type: :string, desc: "Action HTTP method"
+            option :url, as: :url_path, required: false, type: :string, desc: "Action URL path"
+            option :http, as: :http_verb, required: false, type: :string, desc: "Action HTTP method"
             # option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
             option \
               :skip_view,
@@ -86,8 +86,8 @@ module Hanami
             # @api private
             def call(
               name:,
-              url: nil,
-              http: nil,
+              url_path: nil,
+              http_verb: nil,
               format: DEFAULT_FORMAT,
               skip_view: DEFAULT_SKIP_VIEW,
               skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument,
@@ -110,7 +110,7 @@ module Hanami
                             "app"
                           end
 
-              generator.call(namespace:, key:, base_path:, url_path: url, http_verb: http, skip_view:, skip_route:)
+              generator.call(namespace:, key:, base_path:, url_path:, http_verb:, skip_view:, skip_route:)
             end
             # rubocop:enable Metrics/ParameterLists
 

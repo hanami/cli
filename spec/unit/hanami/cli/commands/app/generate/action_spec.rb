@@ -153,13 +153,13 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "raises error if HTTP method is unknown" do
       expect {
-        subject.call(name: action_name, http: "foo")
+        subject.call(name: action_name, http_verb: "foo")
       }.to raise_error(Hanami::CLI::UnknownHTTPMethodError, "unknown HTTP method: `foo'")
     end
 
     it "raises error if URL is invalid" do
       expect {
-        subject.call(name: action_name, url: "//")
+        subject.call(name: action_name, url_path: "//")
       }.to raise_error(Hanami::CLI::InvalidURLError, "invalid URL: `//'")
     end
 
@@ -197,7 +197,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "allows to non-RESTful action URL" do
       within_application_directory do
-        subject.call(name: "talent.apply", url: "/talent/apply")
+        subject.call(name: "talent.apply", url_path: "/talent/apply")
         expect(fs.read("config/routes.rb")).to match(%(get "/talent/apply", to: "talent.apply"))
         expect(output).to include("Updated config/routes.rb")
       end
@@ -205,7 +205,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "allows to specify action URL" do
       within_application_directory do
-        subject.call(name: action_name, url: "/people")
+        subject.call(name: action_name, url_path: "/people")
         expect(fs.read("config/routes.rb")).to match(%(get "/people", to: "users.index"))
         expect(output).to include("Updated config/routes.rb")
       end
@@ -213,7 +213,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
 
     it "allows to specify action HTTP method" do
       within_application_directory do
-        subject.call(name: action_name, http: "put")
+        subject.call(name: action_name, http_verb: "put")
         expect(fs.read("config/routes.rb")).to match(%(put "/users", to: "users.index"))
         expect(output).to include("Updated config/routes.rb")
       end
