@@ -28,11 +28,12 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(url_path, http, skip_view, skip_route, slice, namespace:, key:, base_path:)
-            *controller_names, action_name = key.split(Commands::App::Command::ACTION_SEPARATOR)
+            key_parts = key.split(KEY_SEPARATOR)
+            *controller_names, action_name = key_parts
 
             insert_route(controller_names:, action_name:, url_path:, http:, skip_route:, slice:, base_path:)
             generate_action(namespace:, key:, base_path:, include_placeholder_body: skip_view)
-            generate_view(controller_names, action_name, skip_view, namespace:, key:, base_path:)
+            generate_view(controller_names:, view_name: action_name, skip_view:, namespace:, key:, base_path:)
           end
 
           private
@@ -91,8 +92,8 @@ module Hanami
             ).create
           end
 
-          def generate_view(controller, view_name, skip_view, namespace:, key:, base_path:)
-            view_directory = fs.join(base_path, "views", controller)
+          def generate_view(controller_names:, view_name:, skip_view:, namespace:, key:, base_path:)
+            view_directory = fs.join(base_path, "views", controller_names)
 
             if generate_view?(skip_view, view_name, view_directory)
               view_generator.call(
