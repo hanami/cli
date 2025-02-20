@@ -11,20 +11,20 @@ end
 
 gem "hanami", github: "hanami/hanami", branch: "main"
 gem "hanami-assets", github: "hanami/assets", branch: "main"
-gem "hanami-controller", github: "hanami/controller", branch: "main"
+gem "hanami-controller", github: "kyleplump/controller", branch: "rack3"
 gem "hanami-db", github: "hanami/db", branch: "main"
-gem "hanami-router", github: "hanami/router", branch: "main"
+gem "hanami-router", github: "kyleplump/router", branch: "rack3"
 gem "hanami-utils", github: "hanami/utils", branch: "main"
 
 gem "dry-system", github: "dry-rb/dry-system", branch: "main"
 
-gem "rack"
+gem "rack", "~> 3.1"
 
 gem "mysql2"
 gem "pg"
 gem "sqlite3"
 
-gem "hanami-devtools", github: "hanami/devtools", branch: "main"
+gem "hanami-devtools", github: "kyleplump/devtools", branch: "rack3"
 
 group :test do
   gem "pry"
