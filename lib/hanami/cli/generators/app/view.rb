@@ -11,57 +11,62 @@ module Hanami
         # @since 2.0.0
         # @api private
         class View
+          DEFAULT_FORMAT = "html"
+          private_constant :DEFAULT_FORMAT
+
+          TEMPLATES_FOLDER = "templates"
+          private_constant :TEMPLATES_FOLDER
+
           # @since 2.0.0
           # @api private
-          def initialize(fs:, inflector:)
+          def initialize(fs:, inflector:, out: $stdout)
             @fs = fs
             @inflector = inflector
+            @out = out
           end
 
           # @since 2.0.0
           # @api private
-          def call(app, key, format, slice)
-            context = ViewContext.new(inflector, app, slice, key)
-
-            if slice
-              generate_for_slice(context, format, slice)
-            else
-              generate_for_app(context, format, slice)
+          def call(key:, namespace:, base_path:)
+            view_class_file(key:, namespace:, base_path:).then do |view_class|
+              view_class.create
+              view_class_name = view_class.fully_qualified_name
+              write_template_file(key:, namespace:, base_path:, view_class_name:)
             end
           end
 
           private
 
-          attr_reader :fs
+          attr_reader :fs, :inflector, :out
 
-          attr_reader :inflector
-
-          # rubocop:disable Metrics/AbcSize
-
-          def generate_for_slice(context, format, slice)
-            slice_directory = fs.join("slices", slice)
-            raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
-
-            fs.mkdir(directory = fs.join(slice_directory, "views", context.namespaces))
-            fs.create(fs.join(directory, "#{context.name}.rb"), t("slice_view.erb", context))
-
-            fs.mkdir(directory = fs.join(slice_directory, "templates", context.namespaces))
-            fs.create(fs.join(directory, "#{context.name}.#{format}.erb"),
-                      t(template_with_format_ext("slice_template", format), context))
+          def view_class_file(key:, namespace:, base_path:)
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: namespace,
+              key: inflector.underscore(key),
+              base_path: base_path,
+              relative_parent_class: "View",
+              extra_namespace: "Views",
+            )
           end
 
-          def generate_for_app(context, format, _slice)
-            fs.mkdir(directory = fs.join("app", "views", context.namespaces))
-            fs.create(fs.join(directory, "#{context.name}.rb"), t("app_view.erb", context))
+          def write_template_file(key:, namespace:, base_path:, view_class_name:)
+            key_parts = key.split(KEY_SEPARATOR)
+            class_name_from_key = key_parts.pop # takes last segment as the class name
+            module_names_from_key = key_parts # the rest of the segments are the module names
 
-            fs.mkdir(directory = fs.join("app", "templates", context.namespaces))
-            fs.create(fs.join(directory, "#{context.name}.#{format}.erb"),
-                      t(template_with_format_ext("app_template", format), context))
+            file_path = fs.join(
+              base_path,
+              TEMPLATES_FOLDER,
+              module_names_from_key,
+              template_file_name(class_name_from_key, DEFAULT_FORMAT),
+            )
+            body = "<h1>#{view_class_name}</h1>\n"
+            fs.write(file_path, body)
           end
 
-          # rubocop:enable Metrics/AbcSize
-
-          def template_with_format_ext(name, format)
+          def template_file_name(name, format)
             ext =
               case format.to_sym
               when :html
@@ -72,16 +77,6 @@ module Hanami
 
             "#{name}#{ext}"
           end
-
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/view/#{path}")
-            ).result(context.ctx)
-          end
-
-          alias_method :t, :template
         end
       end
     end

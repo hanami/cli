@@ -13,40 +13,21 @@ module Hanami
         module Generate
           # @since 2.0.0
           # @api private
-          class View < App::Command
-            # TODO: make this configurable
-            DEFAULT_FORMAT = "html"
-            private_constant :DEFAULT_FORMAT
-
+          class View < Command
+            # TODO: make format configurable
             # TODO: make engine configurable
 
             argument :name, required: true, desc: "View name"
-            option :slice, required: false, desc: "Slice name"
 
             example [
               %(books.index               (MyApp::Actions::Books::Index)),
               %(books.index --slice=admin (Admin::Actions::Books::Index)),
             ]
-            attr_reader :generator
-            private :generator
 
-            # @since 2.0.0
+            # @since 2.2.0
             # @api private
-            def initialize(
-              fs:, inflector:,
-              generator: Generators::App::View.new(fs: fs, inflector: inflector),
-              **opts
-            )
-              super(fs: fs, inflector: inflector, **opts)
-              @generator = generator
-            end
-
-            # @since 2.0.0
-            # @api private
-            def call(name:, format: DEFAULT_FORMAT, slice: nil, **)
-              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
-
-              generator.call(app.namespace, name, format, slice)
+            def generator_class
+              Generators::App::View
             end
           end
         end
