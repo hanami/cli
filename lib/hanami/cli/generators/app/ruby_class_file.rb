@@ -43,12 +43,6 @@ module Hanami
 
           # @since 2.2.2
           # @api private
-          def create
-            fs.create(path, file_contents)
-          end
-
-          # @since 2.2.2
-          # @api private
           def fully_qualified_name
             inflector.camelize(
               [namespace, extra_namespace, *key_parts].join("/"),

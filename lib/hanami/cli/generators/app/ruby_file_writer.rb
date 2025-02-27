@@ -2,7 +2,7 @@
 
 require "dry/files"
 require_relative "../constants"
-require_relative "ruby_class_file"
+require_relative "./ruby_class_file"
 require_relative "../../errors"
 
 module Hanami
