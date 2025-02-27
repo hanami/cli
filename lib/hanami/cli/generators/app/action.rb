@@ -75,7 +75,7 @@ module Hanami
           attr_reader :fs, :inflector, :out, :view_generator
 
           # @api private
-          # @since x.x.x
+          # @since 2.2.2
           def insert_route(key:, namespace:, url_path:, http_method:)
             routes_location = fs.join("config", "routes.rb")
             route = route_definition(key:, url_path:, http_method:)
@@ -89,7 +89,7 @@ module Hanami
           end
 
           # @api private
-          # @since x.x.x
+          # @since 2.2.2
           def generate_action(key:, namespace:, base_path:, include_placeholder_body:)
             RubyClassFile.new(
               fs: fs,
@@ -108,7 +108,7 @@ module Hanami
           end
 
           # @api private
-          # @since x.x.x
+          # @since 2.2.2
           def generate_view(key:, namespace:, base_path:)
             *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
 
@@ -124,7 +124,7 @@ module Hanami
           end
 
           # @api private
-          # @since x.x.x
+          # @since 2.2.2
           def route_definition(key:, url_path:, http_method:)
             *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
 
