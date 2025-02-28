@@ -13,87 +13,65 @@ module Hanami
         class Part
           # @since 2.1.0
           # @api private
-          def initialize(fs:, inflector:)
+          def initialize(fs:, inflector:, out: $stdout)
             @fs = fs
             @inflector = inflector
+            @out = out
           end
 
           # @since 2.1.0
           # @api private
-          def call(app, key, slice)
-            context = PartContext.new(inflector, app, slice, key)
-
-            if slice
-              generate_for_slice(context, slice)
-            else
-              generate_for_app(context)
-            end
+          def call(key:, namespace:, base_path:)
+            create_app_base_part_if_missing(key:, namespace:, base_path:)
+            create_slice_part_if_missing(key:, namespace:, base_path:) unless namespace == Hanami.app.namespace
+            create_generated_part(key:, namespace:, base_path:)
           end
 
           private
 
           # @since 2.1.0
           # @api private
-          attr_reader :fs
+          attr_reader :fs, :inflector, :out
 
-          # @since 2.1.0
-          # @api private
-          attr_reader :inflector
+          def create_app_base_part_if_missing(key:, namespace:, base_path:)
+            return if fs.exist?(fs.join(base_path, "views", "part.rb"))
 
-          # @since 2.1.0
-          # @api private
-          def generate_for_slice(context, slice)
-            slice_directory = fs.join("slices", slice)
-            raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
-
-            generate_base_part_for_app(context)
-            generate_base_part_for_slice(context, slice)
-
-            fs.mkdir(directory = fs.join(slice_directory, "views", "parts", *context.underscored_namespace))
-            fs.create(fs.join(directory, "#{context.underscored_name}.rb"), t("slice_part.erb", context))
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: Hanami.app.namespace,
+              key: "views.part",
+              base_path: "app/",
+              absolute_parent_class: "Hanami::View::Part",
+              auto_register: false
+            ).create
           end
 
-          # @since 2.1.0
-          # @api private
-          def generate_for_app(context)
-            generate_base_part_for_app(context)
+          def create_slice_part_if_missing(key:, namespace:, base_path:)
+            return if fs.exist?(fs.join(base_path, "views", "part.rb"))
 
-            fs.mkdir(directory = fs.join("app", "views", "parts", *context.underscored_namespace))
-            fs.create(fs.join(directory, "#{context.underscored_name}.rb"), t("app_part.erb", context))
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: namespace,
+              key: "views.part",
+              base_path: base_path,
+              absolute_parent_class: "#{Hanami.app.namespace}::Views::Part",
+              auto_register: false
+            ).create
           end
 
-          # @since 2.1.0
-          # @api private
-          def generate_base_part_for_app(context)
-            path = fs.join("app", "views", "part.rb")
-            return if fs.exist?(path)
-
-            fs.write(path, t("app_base_part.erb", context))
+          def create_generated_part(key:, namespace:, base_path:)
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: namespace,
+              key: inflector.underscore("views.parts.#{key}"),
+              base_path: base_path,
+              relative_parent_class: "Views::Part",
+              auto_register: false
+            ).create
           end
-
-          # @since 2.1.0
-          # @api private
-          def generate_base_part_for_slice(context, slice)
-            path = fs.join("slices", slice, "views", "part.rb")
-            return if fs.exist?(path)
-
-            fs.write(path, t("slice_base_part.erb", context))
-          end
-
-          # @since 2.1.0
-          # @api private
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/part/#{path}"),
-              trim_mode: "-"
-            ).result(context.ctx)
-          end
-
-          # @since 2.1.0
-          # @api private
-          alias_method :t, :template
         end
       end
     end
