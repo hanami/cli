@@ -41,7 +41,7 @@ module Hanami
               inflector: inflector,
               namespace: Hanami.app.namespace,
               key: "views.part",
-              base_path: "app/",
+              base_path: APP_DIR,
               absolute_parent_class: "Hanami::View::Part",
               auto_register: false
             ).create
