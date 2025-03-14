@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "erb"
 require "dry/files"
 require_relative "../constants"
 require_relative "./ruby_class_file"

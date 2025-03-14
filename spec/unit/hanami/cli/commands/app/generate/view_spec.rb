@@ -91,10 +91,26 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
       end
     end
 
-    context "with existing file" do
+    context "with existing view file" do
       before do
         within_application_directory do
           fs.write("app/views/users/index.rb", "existing content")
+        end
+      end
+
+      it "raises error" do
+        within_application_directory do
+          expect {
+            subject.call(name: "users.index")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
+      end
+    end
+
+    context "with existing template file" do
+      before do
+        within_application_directory do
+          fs.write("app/templates/users/index.html.erb", "existing content")
         end
       end
 
@@ -143,11 +159,28 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::View, :app do
       end
     end
 
-    context "with existing file" do
+    context "with existing view file" do
       before do
         within_application_directory do
           fs.mkdir("slices/main")
           fs.write("slices/main/views/users/index.rb", "existing content")
+        end
+      end
+
+      it "raises error" do
+        within_application_directory do
+          expect {
+            subject.call(name: "users.index", slice: "main")
+          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end
+      end
+    end
+
+    context "with existing template file" do
+      before do
+        within_application_directory do
+          fs.mkdir("slices/main")
+          fs.write("slices/main/templates/users/index.html.erb", "existing content")
         end
       end
 
