@@ -13,7 +13,7 @@ module Hanami
         module Generate
           # @since 2.0.0
           # @api private
-          class Action < App::Command
+          class Action < Command
             # TODO: ideally the default format should lookup
             #       slice configuration (Action's `default_response_format`)
             DEFAULT_FORMAT = "html"
@@ -29,28 +29,36 @@ module Hanami
             private_constant :DEFAULT_SKIP_ROUTE
 
             argument :name, required: true, desc: "Action name"
-            option :url, required: false, type: :string, desc: "Action URL"
-            option :http, required: false, type: :string, desc: "Action HTTP method"
-            # option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
+
+            option :url, as: :url_path, required: false, type: :string, desc: "Action URL path"
+
+            option :http, as: :http_method, required: false, type: :string, desc: "Action HTTP method"
+
             option \
               :skip_view,
               required: false,
               type: :flag,
               default: DEFAULT_SKIP_VIEW,
               desc: "Skip view and template generation"
+
+            # TODO: Implement this
             option \
               :skip_tests,
               required: false,
               type: :flag,
               default: DEFAULT_SKIP_TESTS,
               desc: "Skip test generation"
+
             option \
               :skip_route,
               required: false,
               type: :flag,
               default: DEFAULT_SKIP_ROUTE,
               desc: "Skip route generation"
+
             option :slice, required: false, desc: "Slice name"
+
+            # option :format, required: false, type: :string, default: DEFAULT_FORMAT, desc: "Template format"
 
             # rubocop:disable Layout/LineLength
             example [
@@ -68,52 +76,36 @@ module Hanami
             ]
             # rubocop:enable Layout/LineLength
 
-            # @since 2.0.0
-            # @api private
-            def initialize(
-              fs:, inflector:,
-              naming: Naming.new(inflector: inflector),
-              generator: Generators::App::Action.new(fs: fs, inflector: inflector),
-              **opts
-            )
-              super(fs: fs, inflector: inflector, **opts)
-
-              @naming = naming
-              @generator = generator
+            def generator_class
+              Generators::App::Action
             end
 
-            # rubocop:disable Metrics/ParameterLists
-
             # @since 2.0.0
             # @api private
+            # rubocop:disable Lint/ParameterLists
             def call(
               name:,
-              url: nil,
-              http: nil,
-              format: DEFAULT_FORMAT,
-              skip_view: DEFAULT_SKIP_VIEW,
-              skip_tests: DEFAULT_SKIP_TESTS, # rubocop:disable Lint/UnusedMethodArgument,
-              skip_route: DEFAULT_SKIP_ROUTE,
               slice: nil,
-              context: nil,
-              **
+              url_path: nil,
+              http_method: nil,
+              skip_view: DEFAULT_SKIP_VIEW,
+              skip_route: DEFAULT_SKIP_ROUTE,
+              skip_tests: DEFAULT_SKIP_TESTS # rubocop:disable Lint/UnusedMethodArgument
             )
-              slice = inflector.underscore(Shellwords.shellescape(slice)) if slice
-              name = naming.action_name(name)
-              *controller, action = name.split(ACTION_SEPARATOR)
+              name = Naming.new(inflector:).action_name(name)
 
-              if controller.empty?
-                raise InvalidActionNameError.new(name)
-              end
+              raise InvalidActionNameError.new(name) unless name.include?(ACTION_SEPARATOR)
 
-              generator.call(app.namespace, controller, action, url, http, format, skip_view, skip_route, slice, context: context)
+              super(
+                name:,
+                slice:,
+                url_path:,
+                skip_route:,
+                http_method:,
+                skip_view: skip_view || !Hanami.bundled?("hanami-view"),
+              )
             end
-
-            # rubocop:enable Metrics/ParameterLists
-
-            private
-
-            attr_reader :naming, :generator
+            # rubocop:enable Lint/ParameterLists
           end
         end
       end
