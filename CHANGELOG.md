@@ -2,6 +2,12 @@
 
 Hanami Command Line Interface
 
+## Unreleased
+
+### Changed
+
+- Expand on comments `config/assets.js` and enable customization function by default (@robyurkowski in #293)
+
 ## v2.2.1 - 2024-11-12
 
 ### Changed
