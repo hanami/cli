@@ -262,20 +262,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       assets = <<~EXPECTED
         import * as assets from "hanami-assets";
 
-        await assets.run();
+        // Assets are managed by esbuild (https://esbuild.github.io), and can be
+        // customized below.
+        //
+        // Learn more at https://guides.hanamirb.org/assets/customization/.
 
-        // To provide additional esbuild (https://esbuild.github.io) options, use the following:
-        //
-        // Read more at: https://guides.hanamirb.org/assets/customization/
-        //
-        // await assets.run({
-        //   esbuildOptionsFn: (args, esbuildOptions) => {
-        //     // Add to esbuildOptions here. Use `args.watch` as a condition for different options for
-        //     // compile vs watch.
-        //
-        //     return esbuildOptions;
-        //   }
-        // });
+        await assets.run({
+          esbuildOptionsFn: (args, esbuildOptions) => {
+            // Customize your `esbuildOptions` here.
+            //
+            // Use the `args.watch` boolean as a condition to apply diffierent options
+            // when running `hanami assets watch` vs `hanami assets compile`.
+
+            return esbuildOptions;
+          },
+        });
       EXPECTED
       expect(fs.read("config/assets.js")).to eq(assets)
       expect(output).to include("Created config/assets.js")
@@ -610,15 +611,15 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           # #{inflector.camelize(app)}
 
           Welcome to your Hanami app!
-  
+
           ## Getting Started
-  
+
           - Run the server with `bin/dev`
           - View the app at [http://localhost:2300](http://localhost:2300)
           - Run the tests with `bundle exec rake`
-  
+
           ## Useful Links
-  
+
           - [Hanami Home](http://hanamirb.org)
           - [Hanami Guides](https://guides.hanamirb.org/)
           - [Hanami API Doc](https://gemdocs.org/gems/hanami/latest)
@@ -742,20 +743,21 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         assets = <<~EXPECTED
           import * as assets from "hanami-assets";
 
-          await assets.run();
+          // Assets are managed by esbuild (https://esbuild.github.io), and can be
+          // customized below.
+          //
+          // Learn more at https://guides.hanamirb.org/assets/customization/.
 
-          // To provide additional esbuild (https://esbuild.github.io) options, use the following:
-          //
-          // Read more at: https://guides.hanamirb.org/assets/customization/
-          //
-          // await assets.run({
-          //   esbuildOptionsFn: (args, esbuildOptions) => {
-          //     // Add to esbuildOptions here. Use `args.watch` as a condition for different options for
-          //     // compile vs watch.
-          //
-          //     return esbuildOptions;
-          //   }
-          // });
+          await assets.run({
+            esbuildOptionsFn: (args, esbuildOptions) => {
+              // Customize your `esbuildOptions` here.
+              //
+              // Use the `args.watch` boolean as a condition to apply diffierent options
+              // when running `hanami assets watch` vs `hanami assets compile`.
+
+              return esbuildOptions;
+            },
+          });
         EXPECTED
         expect(fs.read("config/assets.js")).to eq(assets)
         expect(output).to include("Created config/assets.js")
