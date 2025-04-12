@@ -1350,4 +1350,28 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
       )
     end
   end
+
+  it "initializes a git repository" do
+    expect(bundler).to receive(:install!)
+      .and_return(true)
+
+    expect(bundler).to receive(:exec)
+      .with("hanami install")
+      .and_return(successful_system_call_result)
+
+    expect(bundler).to receive(:exec)
+      .with("check")
+      .at_least(1)
+      .and_return(successful_system_call_result)
+
+    expect(system_call).to receive(:call).with("npm", ["install"])
+
+    expect(system_call).to receive(:call).with("git", ["init"])
+      .and_return(successful_system_call_result)
+
+    subject.call(app: app, **kwargs)
+
+    expect(fs.directory?(app)).to be(true)
+    expect(output).to include("Initializing git repository...")
+  end
 end

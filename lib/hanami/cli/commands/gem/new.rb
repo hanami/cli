@@ -162,6 +162,9 @@ module Hanami
 
                   out.puts "Running hanami install..."
                   run_install_command!(head: head)
+
+                  out.puts "Initializing git repository..."
+                  init_git_repository
                 end
               end
             end
@@ -194,6 +197,16 @@ module Hanami
                 bundler.exec("check").successful? || bundler.exec("install")
               else
                 raise HanamiInstallError.new(result.err)
+              end
+            end
+          end
+
+          # @api private
+          def init_git_repository
+            system_call.call("git", ["init"]).tap do |result|
+              unless result.successful?
+                out.puts "WARNING: Failed to initialize git repository"
+                out.puts(result.err.lines.map { |line| line.prepend("    ") })
               end
             end
           end
