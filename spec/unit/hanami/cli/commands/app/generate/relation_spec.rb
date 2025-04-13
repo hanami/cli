@@ -190,6 +190,28 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
       expect(output).to include("Created slices/main/relations/book/drafts.rb")
     end
 
+    it "infers the slice name from input origin" do
+      allow(subject).to receive(:detect_slice_from_current_directory).and_return("stuff")
+
+      subject.call(name: "book.drafts")
+
+      relation_file = <<~RUBY
+        # frozen_string_literal: true
+        
+        module Stuff
+          module Relations
+            module Book
+              class Drafts
+              end
+            end
+          end
+        end
+      RUBY
+
+      expect(Hanami.app.root.join("slices/main/relations/book/drafts.rb").read).to eq(relation_file)
+      expect(output).to include("Created slices/main/relations/book/drafts.rb")
+    end
+
     context "with existing file" do
       before do
         write "slices/main/relations/books.rb", "existing content"

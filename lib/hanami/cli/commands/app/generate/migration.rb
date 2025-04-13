@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../../slice_detection"
+
 module Hanami
   module CLI
     module Commands
@@ -8,6 +10,7 @@ module Hanami
           # @since 2.2.0
           # @api private
           class Migration < Command
+            include SliceDetection
             argument :name, required: true, desc: "Migration name"
             option :gateway, desc: "Generate migration for gateway"
 
@@ -23,6 +26,7 @@ module Hanami
             end
 
             def call(name:, slice: nil, gateway: nil)
+              slice ||= detect_slice_from_current_directory
               if slice
                 generator.call(
                   key: name,

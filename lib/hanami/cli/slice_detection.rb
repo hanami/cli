@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pry'
+
 module Hanami
   module CLI
     # Module that provides functionality to detect the current slice based on the PWD directory
@@ -16,6 +18,7 @@ module Hanami
         app_root = app.root
         return nil if current_dir == app_root.join("app")
 
+        # app.slices? might be a better way to get all of them?
         slices_dir = app_root.join("slices")
         if current_dir.to_s.start_with?(slices_dir.to_s)
           relative_path = current_dir.relative_path_from(slices_dir)

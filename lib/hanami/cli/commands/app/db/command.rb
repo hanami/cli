@@ -56,11 +56,7 @@ module Hanami
             private
 
             def databases(app: false, slice: nil, gateway: nil)
-              # Detect if we're in a slice directory
-              detected_slice = detect_slice_from_current_directory
-              
-              # Use detected slice if no slice was explicitly specified and we're not using app
-              slice ||= detected_slice unless app
+              slice ||= detect_slice_from_current_directory unless app
               if gateway && !app && !slice
                 err.puts "When specifying --gateway, an --app or --slice must also be given"
                 exit 1
