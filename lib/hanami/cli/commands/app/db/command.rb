@@ -2,6 +2,7 @@
 
 require "shellwords"
 require_relative "utils/database"
+require_relative "../../../slice_detection"
 
 module Hanami
   module CLI
@@ -14,6 +15,7 @@ module Hanami
           # @since 2.2.0
           # @api private
           class Command < App::Command
+            include SliceDetection
             option :app, required: false, type: :flag, default: false, desc: "Use app database"
             option :slice, required: false, desc: "Use database for slice"
 
@@ -54,6 +56,11 @@ module Hanami
             private
 
             def databases(app: false, slice: nil, gateway: nil)
+              # Detect if we're in a slice directory
+              detected_slice = detect_slice_from_current_directory
+              
+              # Use detected slice if no slice was explicitly specified and we're not using app
+              slice ||= detected_slice unless app
               if gateway && !app && !slice
                 err.puts "When specifying --gateway, an --app or --slice must also be given"
                 exit 1
