@@ -7,6 +7,7 @@ Hanami Command Line Interface
 ### Changed
 
 - Expand on comments `config/assets.js` and enable customization function by default (@robyurkowski in #293)
+- Run `git init` at the end of `hanami new` (@krzykamil in #295)
 
 ## v2.2.1 - 2024-11-12
 
