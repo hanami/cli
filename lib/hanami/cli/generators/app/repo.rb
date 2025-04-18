@@ -27,7 +27,6 @@ module Hanami
               base_path: base_path,
               extra_namespace: "Repos",
               partially_qualified_parent: "DB::Repo",
-              body: [],
             )
           end
 
