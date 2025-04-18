@@ -26,7 +26,7 @@ module Hanami
 
       # @since 2.0.0
       # @api private
-      def initialize(rack_server: Rack::Server)
+      def initialize(rack_server: Rackup::Server)
         @rack_server = rack_server
       end
 
