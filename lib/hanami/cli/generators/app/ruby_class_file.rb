@@ -15,10 +15,16 @@ module Hanami
             key:,
             namespace:,
             base_path:,
-            relative_parent_class:,
             extra_namespace: nil,
+            relative_parent_class: nil,
+            absolute_parent_class: nil,
+            auto_register: nil,
             body: []
           )
+            if relative_parent_class && absolute_parent_class
+              raise "Must provide only one of relative_parent_class or absolute_parent_class"
+            end
+
             @fs = fs
             @inflector = inflector
             @key = key
@@ -26,6 +32,8 @@ module Hanami
             @base_path = base_path
             @extra_namespace = extra_namespace&.downcase
             @relative_parent_class = relative_parent_class
+            @absolute_parent_class = absolute_parent_class
+            @auto_register = auto_register
             @body = body
           end
 
@@ -61,6 +69,8 @@ module Hanami
             :base_path,
             :extra_namespace,
             :relative_parent_class,
+            :absolute_parent_class,
+            :auto_register,
             :body,
           )
 
@@ -111,15 +121,27 @@ module Hanami
               .compact
               .prepend(container_module)
 
-            parent_class = [container_module, relative_parent_class].join("::") if relative_parent_class
+            parent_class = if relative_parent_class
+              [container_module, relative_parent_class].join("::")
+            else
+              absolute_parent_class
+            end
 
             RubyFileGenerator.class(
               normalize(class_name),
               parent_class: parent_class,
               modules: modules,
-              header: ["# frozen_string_literal: true"],
+              header: headers,
               body: body
             )
+          end
+
+          def headers
+            [
+              # Intentionally ternary logic. Skip if nil, else 'true' or 'false'
+              ("# auto_register: #{auto_register}" unless auto_register.nil?),
+              "# frozen_string_literal: true",
+            ].compact
           end
 
           # @since 2.2.2
