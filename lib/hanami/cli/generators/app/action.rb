@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "erb"
 require "dry/files"
+require_relative "../constants"
 require_relative "../../errors"
 
 # rubocop:disable Metrics/ParameterLists
@@ -14,20 +14,25 @@ module Hanami
         class Action
           # @since 2.0.0
           # @api private
-          def initialize(fs:, inflector:)
+          def initialize(fs:, inflector:, out: $stdout)
             @fs = fs
             @inflector = inflector
+            @out = out
+            @view_generator = Generators::App::View.new(
+              fs: fs,
+              inflector: inflector,
+              out: out
+            )
           end
 
           # @since 2.0.0
           # @api private
-          def call(app, controller, action, url, http, format, skip_view, skip_route, slice, context: nil)
-            context ||= ActionContext.new(inflector, app, slice, controller, action)
-            if slice
-              generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
-            else
-              generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
-            end
+          def call(key:, namespace:, base_path:, url_path:, http_method:, skip_view:, skip_route:)
+            insert_route(key:, namespace:, url_path:, http_method:) unless skip_route
+
+            generate_action(key:, namespace:, base_path:, include_placeholder_body: skip_view)
+
+            generate_view(key:, namespace:, base_path:) unless skip_view
           end
 
           private
@@ -67,86 +72,76 @@ module Hanami
           PATH_SEPARATOR = "/"
           private_constant :PATH_SEPARATOR
 
-          attr_reader :fs
+          attr_reader :fs, :inflector, :out, :view_generator
 
-          attr_reader :inflector
+          # @api private
+          # @since 2.2.2
+          def insert_route(key:, namespace:, url_path:, http_method:)
+            routes_location = fs.join("config", "routes.rb")
+            route = route_definition(key:, url_path:, http_method:)
 
-          # rubocop:disable Metrics/AbcSize
-          def generate_for_slice(controller, action, url, http, format, skip_view, skip_route, slice, context)
-            slice_directory = fs.join("slices", slice)
-            raise MissingSliceError.new(slice) unless fs.directory?(slice_directory)
+            if namespace == Hanami.app.namespace
+              fs.inject_line_at_class_bottom(routes_location, "class Routes", route)
+            else
+              slice_matcher = /slice[[:space:]]*:#{namespace}/
+              fs.inject_line_at_block_bottom(routes_location, slice_matcher, route)
+            end
+          end
 
-            if generate_route?(skip_route)
-              fs.inject_line_at_block_bottom(
-                fs.join("config", "routes.rb"),
-                slice_matcher(slice),
-                route(controller, action, url, http)
+          # @api private
+          # @since 2.2.2
+          def generate_action(key:, namespace:, base_path:, include_placeholder_body:)
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: namespace,
+              key: inflector.underscore(key),
+              base_path: base_path,
+              relative_parent_class: "Action",
+              extra_namespace: "Actions",
+              body: [
+                "def handle(request, response)",
+                ("  response.body = self.class.name" if include_placeholder_body),
+                "end"
+              ].compact
+            ).create
+          end
+
+          # @api private
+          # @since 2.2.2
+          def generate_view(key:, namespace:, base_path:)
+            *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
+
+            view_directory = fs.join(base_path, "views", controller_name_parts)
+
+            if generate_view?(action_name, view_directory)
+              view_generator.call(
+                key: key,
+                namespace: namespace,
+                base_path: base_path,
               )
             end
-
-            fs.mkdir(directory = fs.join(slice_directory, "actions", controller))
-            fs.create(fs.join(directory, "#{action}.rb"), t("slice_action.erb", context))
-
-            if generate_view?(skip_view, action, directory)
-              fs.mkdir(directory = fs.join(slice_directory, "views", controller))
-              fs.create(fs.join(directory, "#{action}.rb"), t("slice_view.erb", context))
-
-              fs.mkdir(directory = fs.join(slice_directory, "templates", controller))
-              fs.create(fs.join(directory, "#{action}.#{format}.erb"),
-                        t(template_with_format_ext("slice_template", format), context))
-            end
           end
 
-          def generate_for_app(controller, action, url, http, format, skip_view, skip_route, context)
-            if generate_route?(skip_route)
-              fs.inject_line_at_class_bottom(
-                fs.join("config", "routes.rb"),
-                "class Routes",
-                route(controller, action, url, http)
-              )
-            end
+          # @api private
+          # @since 2.2.2
+          def route_definition(key:, url_path:, http_method:)
+            *controller_name_parts, action_name = key.split(KEY_SEPARATOR)
 
-            fs.mkdir(directory = fs.join("app", "actions", controller))
-            fs.create(fs.join(directory, "#{action}.rb"), t("action.erb", context))
+            method = route_http(action_name, http_method)
+            path = route_url(controller_name_parts, action_name, url_path)
 
-            view = action
-            view_directory = fs.join("app", "views", controller)
-
-            if generate_view?(skip_view, view, view_directory)
-              fs.mkdir(view_directory)
-              fs.create(fs.join(view_directory, "#{view}.rb"), t("view.erb", context))
-
-              fs.mkdir(template_directory = fs.join("app", "templates", controller))
-              fs.create(fs.join(template_directory, "#{view}.#{format}.erb"),
-                        t(template_with_format_ext("template", format), context))
-            end
-          end
-          # rubocop:enable Metrics/AbcSize
-
-          def slice_matcher(slice)
-            /slice[[:space:]]*:#{slice}/
-          end
-
-          def route(controller, action, url, http)
-            %(#{route_http(action,
-                           http)} "#{route_url(controller, action, url)}", to: "#{controller.join('.')}.#{action}")
+            %(#{method} "#{path}", to: "#{key}")
           end
 
           # @api private
           # @since 2.1.0
-          def generate_view?(skip_view, view, directory)
-            return false if skip_view
-            return generate_restful_view?(view, directory) if rest_view?(view)
-
-            true
-          end
-
-          # @api private
-          # @since 2.2.0
-          def generate_route?(skip_route)
-            return false if skip_route
-
-            true
+          def generate_view?(action_name, directory)
+            if rest_view?(action_name)
+              generate_restful_view?(action_name, directory)
+            else
+              true
+            end
           end
 
           # @api private
@@ -169,40 +164,22 @@ module Hanami
             RESTFUL_COUNTERPART_VIEWS.fetch(view, nil)
           end
 
-          def template_with_format_ext(name, format)
-            ext =
-              case format.to_sym
-              when :html
-                ".html.erb"
-              else
-                ".erb"
-              end
-
-            "#{name}#{ext}"
-          end
-
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/action/#{path}"), trim_mode: "-",
-            ).result(context.ctx)
-          end
-
-          alias_method :t, :template
-
-          def route_url(controller, action, url)
+          # @api private
+          # @since 2.1.0
+          def route_url(controller, action, url_path)
             action = ROUTE_RESTFUL_URL_SUFFIXES.fetch(action) { [action] }
-            url ||= "#{PATH_SEPARATOR}#{(controller + action).join(PATH_SEPARATOR)}"
+            url_path ||= "#{PATH_SEPARATOR}#{(controller + action).join(PATH_SEPARATOR)}"
 
-            CLI::URL.call(url)
+            CLI::URL.call(url_path)
           end
 
-          def route_http(action, http)
-            result = (http ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
+          # @api private
+          # @since 2.1.0
+          def route_http(action, http_method)
+            result = (http_method ||= ROUTE_RESTFUL_HTTP_METHODS.fetch(action, ROUTE_DEFAULT_HTTP_METHOD)).downcase
 
             unless ROUTE_HTTP_METHODS.include?(result)
-              raise UnknownHTTPMethodError.new(http)
+              raise UnknownHTTPMethodError.new(http_method)
             end
 
             result
