@@ -97,7 +97,7 @@ module Hanami
               namespace: namespace,
               key: inflector.underscore(key),
               base_path: base_path,
-              relative_parent_class: "Action",
+              partially_qualified_parent: "Action",
               extra_namespace: "Actions",
               body: [
                 "def handle(request, response)",
