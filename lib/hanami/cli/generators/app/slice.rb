@@ -30,7 +30,16 @@ module Hanami
 
             fs.mkdir(directory = "slices/#{slice}")
 
-            fs.create(fs.join(directory, "action.rb"), t("action.erb", context))
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: slice,
+              key: "action",
+              base_path: directory,
+              fully_qualified_parent: "#{Hanami.app.namespace}::Action",
+              auto_register: false
+            ).create
+
             fs.create(fs.join(directory, "view.rb"), t("view.erb", context))
             fs.create(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
             fs.create(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
