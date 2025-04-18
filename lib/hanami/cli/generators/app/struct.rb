@@ -26,7 +26,7 @@ module Hanami
               namespace: namespace,
               base_path: base_path,
               extra_namespace: "Structs",
-              relative_parent_class: "DB::Struct",
+              partially_qualified_parent: "DB::Struct",
             )
           end
 

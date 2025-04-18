@@ -33,7 +33,7 @@ module Hanami
               key: key,
               base_path: base_path,
               extra_namespace: "Relations",
-              relative_parent_class: "DB::Relation",
+              partially_qualified_parent: "DB::Relation",
               body: body_content,
             )
           end

@@ -27,7 +27,7 @@ module Hanami
               namespace: namespace,
               base_path: base_path,
               key: key,
-              relative_parent_class: "Operation",
+              partially_qualified_parent: "Operation",
               body: ["def call", "end"],
             )
 

@@ -21,14 +21,14 @@ module Hanami
 
           # @since 2.2.0
           # @api private
-          def call(key:, namespace:, base_path:, relative_parent_class:, extra_namespace: nil, body: [])
+          def call(key:, namespace:, base_path:, partially_qualified_parent:, extra_namespace: nil, body: [])
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
               key: key,
               namespace: namespace,
               base_path: base_path,
-              relative_parent_class: relative_parent_class,
+              partially_qualified_parent: partially_qualified_parent,
               extra_namespace: extra_namespace,
               body: body,
             ).create

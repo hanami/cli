@@ -28,7 +28,7 @@ module Hanami
               namespace: namespace,
               key: inflector.underscore(key),
               base_path: base_path,
-              relative_parent_class: nil,
+              partially_qualified_parent: nil,
             )
           end
 
