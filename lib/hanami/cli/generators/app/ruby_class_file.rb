@@ -17,12 +17,12 @@ module Hanami
             base_path:,
             extra_namespace: nil,
             partially_qualified_parent: nil,
-            absolute_parent_class: nil,
+            fully_qualified_parent: nil,
             auto_register: nil,
             body: []
           )
-            if partially_qualified_parent && absolute_parent_class
-              raise "Must provide only one of partially_qualified_parent or absolute_parent_class"
+            if partially_qualified_parent && fully_qualified_parent
+              raise "Must provide only one of partially_qualified_parent or fully_qualified_parent"
             end
 
             @fs = fs
@@ -32,7 +32,7 @@ module Hanami
             @base_path = base_path
             @extra_namespace = extra_namespace&.downcase
             @partially_qualified_parent = partially_qualified_parent
-            @absolute_parent_class = absolute_parent_class
+            @fully_qualified_parent = fully_qualified_parent
             @auto_register = auto_register
             @body = body
           end
@@ -69,7 +69,7 @@ module Hanami
             :base_path,
             :extra_namespace,
             :partially_qualified_parent,
-            :absolute_parent_class,
+            :fully_qualified_parent,
             :auto_register,
             :body,
           )
@@ -124,7 +124,7 @@ module Hanami
             parent_class = if partially_qualified_parent
               [container_module, partially_qualified_parent].join("::")
             else
-              absolute_parent_class
+              fully_qualified_parent
             end
 
             RubyFileGenerator.class(
