@@ -21,15 +21,13 @@ module Hanami
           # @api private
           # @since 2.2.0
           def call(key:, namespace:, base_path:)
-            RubyFileWriter.new(
+            RubyClassFile.new(
               fs: fs,
               inflector: inflector,
-            ).call(
-              namespace: namespace,
               key: inflector.underscore(key),
+              namespace: namespace,
               base_path: base_path,
-              partially_qualified_parent: nil,
-            )
+            ).create
           end
 
           private
