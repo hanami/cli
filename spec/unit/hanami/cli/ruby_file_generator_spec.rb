@@ -5,7 +5,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
     describe "without modules" do
       it "generates class without parent class" do
         expect(
-          described_class.class("Greeter")
+          Hanami::CLI::RubyFileGenerator.class("Greeter")
         ).to(
           eq(
             <<~OUTPUT
@@ -212,7 +212,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
       describe "top-level" do
         it "generates module by itself" do
           expect(
-            described_class.module("Greetable")
+            Hanami::CLI::RubyFileGenerator.module("Greetable")
           ).to(
             eq(
               <<~OUTPUT
@@ -225,7 +225,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
         it "generates modules nested in a module, from array" do
           expect(
-            described_class.module(%w[External Greetable])
+            Hanami::CLI::RubyFileGenerator.module(%w[External Greetable])
           ).to(
             eq(
               <<~OUTPUT
@@ -240,7 +240,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
         it "generates modules nested in a module, from array with header and body" do
           expect(
-            described_class.module(
+            Hanami::CLI::RubyFileGenerator.module(
               %w[External Greetable],
               header: ["# hello world"],
               body: %w[foo bar]
@@ -263,7 +263,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
         it "generates modules nested in a module, from list" do
           expect(
-            described_class.module("Admin", "External", "Greetable")
+            Hanami::CLI::RubyFileGenerator.module("Admin", "External", "Greetable")
           ).to(
             eq(
               <<~OUTPUT
@@ -282,7 +282,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
   end
 
   it "fails to generate unparseable ruby code" do
-    expect { described_class.class("%%Greeter") }.to(
+    expect { Hanami::CLI::RubyFileGenerator.class("%%Greeter") }.to(
+      raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
+    )
+
+    expect { Hanami::CLI::RubyFileGenerator.module("1Greeter") }.to(
       raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
     )
   end
