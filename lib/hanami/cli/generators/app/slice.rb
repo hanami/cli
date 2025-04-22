@@ -68,7 +68,10 @@ module Hanami
               body: ["# Add your view helpers here"]
             ).create
 
-            fs.create(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
+            fs.create(
+              fs.join(directory, "templates", "layouts", "app.html.erb"),
+              t("app_layout.erb", context),
+            )
 
             if Hanami.bundled?("dry-operation")
               RubyClassFile.new(
@@ -83,8 +86,20 @@ module Hanami
             end
 
             if context.bundled_assets?
-              fs.create(fs.join(directory, "assets", "js", "app.js"), t("app_js.erb", context))
-              fs.create(fs.join(directory, "assets", "css", "app.css"), t("app_css.erb", context))
+              fs.create(
+                fs.join(directory, "assets", "js", "app.js"),
+                %(import "../css/app.css";\n)
+              )
+              fs.create(
+                fs.join(directory, "assets", "css", "app.css"),
+                <<~CSS
+                    body {
+                      background-color: #fff;
+                      color: #000;
+                      font-family: sans-serif;
+                    }
+                CSS
+              )
               fs.create(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
             end
 
