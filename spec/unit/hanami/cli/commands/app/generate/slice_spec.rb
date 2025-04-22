@@ -200,19 +200,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
   it "ensures that slice URL prefix is valid" do
     within_application_directory do
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase)
+      subject.call(name: slice_name = generate_random_slice_name)
       expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/")
+      subject.call(name: slice_name = generate_random_slice_name, url: "/")
       expected = %(slice :#{slice_name}, at: "/" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/foo_bar")
+      subject.call(name: slice_name = generate_random_slice_name, url: "/foo_bar")
       expected = %(slice :#{slice_name}, at: "/foo_bar" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/FooBar")
+      subject.call(name: slice_name = generate_random_slice_name, url: "/FooBar")
       expected = %(slice :#{slice_name}, at: "/foo_bar" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
@@ -365,5 +365,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
       yield
     end
+  end
+
+  def generate_random_slice_name
+    "random_slice_#{SecureRandom.alphanumeric(16).downcase}"
   end
 end
