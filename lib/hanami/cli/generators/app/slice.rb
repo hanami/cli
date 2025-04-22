@@ -66,19 +66,11 @@ module Hanami
               body: ["# Add your view helpers here"]
             ).create
 
-            context = Data.define(
-              :humanized_app_name,
-              :humanized_slice_name,
-              :bundled_assets?,
-            ).new(
-              humanized_app_name: inflector.humanize(app),
-              humanized_slice_name: inflector.humanize(slice),
-              bundled_assets?: Hanami.bundled?("hanami-assets"),
-            )
-
             fs.create(
               fs.join(directory, "templates", "layouts", "app.html.erb"),
-              t("app_layout.erb", context),
+              app_layout_template(
+                page_title: "#{inflector.humanize(app)} - #{inflector.humanize(slice)}"
+              )
             )
 
             if Hanami.bundled?("dry-operation")
@@ -156,19 +148,29 @@ module Hanami
 
           attr_reader :inflector
 
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/slice/#{path}"),
-              trim_mode: "-"
-            ).result(context.instance_eval { binding })
-          end
-
-          alias_method :t, :template
-
           def file(path)
             File.read(File.join(__dir__, "slice", path))
+          end
+
+          def app_layout_template(page_title:)
+            bundled_assets = Hanami.bundled?("hanami-assets")
+
+            <<~LAYOUT
+              <!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>#{ page_title }</title>
+                  #{'<%= favicon_tag %>' if bundled_assets }
+                  #{'<%= stylesheet_tag "app" %>' if bundled_assets }
+                </head>
+                <body>
+                  <%= yield %>
+                  #{'<%= javascript_tag "app" %>' if bundled_assets}
+                </body>
+              </html>
+            LAYOUT
           end
         end
       end
