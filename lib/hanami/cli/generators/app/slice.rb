@@ -40,7 +40,16 @@ module Hanami
               auto_register: false
             ).create
 
-            fs.create(fs.join(directory, "view.rb"), t("view.erb", context))
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: slice,
+              key: "view",
+              base_path: directory,
+              fully_qualified_parent: "#{Hanami.app.namespace}::View",
+              auto_register: false
+            ).create
+
             fs.create(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
             fs.create(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
             fs.create(fs.join(directory, "operation.rb"), t("operation.erb", context))
