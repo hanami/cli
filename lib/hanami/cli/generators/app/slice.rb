@@ -90,7 +90,14 @@ module Hanami
                 fully_qualified_parent: "#{Hanami.app.namespace}::DB::Relation",
               ).create
 
-              fs.create(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
+              RubyClassFile.new(
+                fs: fs,
+                inflector: inflector,
+                namespace: slice,
+                key: "db.repo",
+                base_path: directory,
+                fully_qualified_parent: "#{Hanami.app.namespace}::DB::Repo",
+              ).create
               fs.create(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
 
               fs.touch(fs.join(directory, "relations", ".keep"))
