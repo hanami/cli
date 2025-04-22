@@ -19,9 +19,7 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, slice, url, context: nil, **opts)
-            context ||= SliceContext.new(inflector, app, slice, url, **opts)
-
+          def call(app, slice, url, **opts)
             skip_route = opts.fetch(:skip_route, false)
 
             unless skip_route
@@ -67,6 +65,16 @@ module Hanami
               auto_register: false,
               body: ["# Add your view helpers here"]
             ).create
+
+            context = Data.define(
+              :humanized_app_name,
+              :humanized_slice_name,
+              :bundled_assets?,
+            ).new(
+              humanized_app_name: inflector.humanize(app),
+              humanized_slice_name: inflector.humanize(slice),
+              bundled_assets?: Hanami.bundled?("hanami-assets"),
+            )
 
             fs.create(
               fs.join(directory, "templates", "layouts", "app.html.erb"),
@@ -154,7 +162,7 @@ module Hanami
             ERB.new(
               File.read(__dir__ + "/slice/#{path}"),
               trim_mode: "-"
-            ).result(context.ctx)
+            ).result(context.instance_eval { binding })
           end
 
           alias_method :t, :template
