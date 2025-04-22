@@ -50,7 +50,15 @@ module Hanami
               auto_register: false
             ).create
 
-            fs.create(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
+            RubyModuleFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: slice,
+              key: "views.helpers",
+              base_path: directory,
+              auto_register: false,
+              body: ["# Add your view helpers here"]
+            ).create
             fs.create(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
             fs.create(fs.join(directory, "operation.rb"), t("operation.erb", context))
 
