@@ -22,9 +22,17 @@ module Hanami
           def call(app, slice, url, context: nil, **opts)
             context ||= SliceContext.new(inflector, app, slice, url, **opts)
 
-            if context.generate_route?
+            skip_route = opts.fetch(:skip_route, false)
+
+            unless skip_route
               fs.inject_line_at_class_bottom(
-                fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
+                fs.join("config", "routes.rb"),
+                "class Routes",
+                <<~ROUTES.chomp
+
+                  slice :#{inflector.underscore(slice)}, at: "#{url}" do
+                  end
+                ROUTES
               )
             end
 
