@@ -82,19 +82,19 @@ module Hanami
 
             if context.generate_db?
               fs.create(fs.join(directory, "db", "relation.rb"), t("relation.erb", context))
-              fs.create(fs.join(directory, "relations", ".keep"), t("keep.erb", context))
+              fs.touch(fs.join(directory, "relations", ".keep"))
 
               fs.create(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
-              fs.create(fs.join(directory, "repos", ".keep"), t("keep.erb", context))
+              fs.touch(fs.join(directory, "repos", ".keep"))
 
               fs.create(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
-              fs.create(fs.join(directory, "structs", ".keep"), t("keep.erb", context))
+              fs.touch(fs.join(directory, "structs", ".keep"))
             end
 
-            fs.create(fs.join(directory, "actions/.keep"), t("keep.erb", context))
-            fs.create(fs.join(directory, "views/.keep"), t("keep.erb", context))
-            fs.create(fs.join(directory, "templates/.keep"), t("keep.erb", context))
-            fs.create(fs.join(directory, "templates/layouts/.keep"), t("keep.erb", context))
+            fs.touch(fs.join(directory, "actions/.keep"))
+            fs.touch(fs.join(directory, "views/.keep"))
+            fs.touch(fs.join(directory, "templates/.keep"))
+            fs.touch(fs.join(directory, "templates/layouts/.keep"))
           end
 
           private
