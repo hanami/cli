@@ -81,13 +81,20 @@ module Hanami
             end
 
             if context.generate_db?
-              fs.create(fs.join(directory, "db", "relation.rb"), t("relation.erb", context))
-              fs.touch(fs.join(directory, "relations", ".keep"))
+              RubyClassFile.new(
+                fs: fs,
+                inflector: inflector,
+                namespace: slice,
+                key: "db.relation",
+                base_path: directory,
+                fully_qualified_parent: "#{Hanami.app.namespace}::DB::Relation",
+              ).create
 
               fs.create(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
-              fs.touch(fs.join(directory, "repos", ".keep"))
-
               fs.create(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
+
+              fs.touch(fs.join(directory, "relations", ".keep"))
+              fs.touch(fs.join(directory, "repos", ".keep"))
               fs.touch(fs.join(directory, "structs", ".keep"))
             end
 
