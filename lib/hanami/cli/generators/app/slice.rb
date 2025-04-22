@@ -59,8 +59,20 @@ module Hanami
               auto_register: false,
               body: ["# Add your view helpers here"]
             ).create
+
             fs.create(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
-            fs.create(fs.join(directory, "operation.rb"), t("operation.erb", context))
+
+            if Hanami.bundled?("dry-operation")
+              RubyClassFile.new(
+                fs: fs,
+                inflector: inflector,
+                namespace: slice,
+                key: "operation",
+                base_path: directory,
+                fully_qualified_parent: "#{Hanami.app.namespace}::Operation",
+                auto_register: false
+              ).create
+            end
 
             if context.bundled_assets?
               fs.create(fs.join(directory, "assets", "js", "app.js"), t("app_js.erb", context))

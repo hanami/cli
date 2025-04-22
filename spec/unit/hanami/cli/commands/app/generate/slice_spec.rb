@@ -9,6 +9,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   before do
     allow(Hanami).to receive(:bundled?)
     allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(bundled_assets)
+    allow(Hanami).to receive(:bundled?).with("dry-operation").and_return(bundled_operation)
   end
 
   let(:out) { StringIO.new }
@@ -21,6 +22,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   let(:slice) { "admin" }
 
   let(:bundled_assets) { true }
+  let(:bundled_operation) { true }
 
   def output
     out.rewind && out.read.chomp
@@ -299,6 +301,18 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
         expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
         expect(output).to include("Created slices/#{slice}/action.rb")
+      end
+    end
+  end
+
+  context "without dry-operation bundled" do
+    let(:bundled_operation) { false }
+
+    it "generates a slice without base operation" do
+      within_application_directory do
+        subject.call(name: slice)
+
+        expect(fs.exist?("slices/#{slice}/operation.rb")).to be(false)
       end
     end
   end
