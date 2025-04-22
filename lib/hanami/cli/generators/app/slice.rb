@@ -85,7 +85,7 @@ module Hanami
               ).create
             end
 
-            if context.bundled_assets?
+            if Hanami.bundled?("hanami-assets")
               fs.create(
                 fs.join(directory, "assets", "js", "app.js"),
                 %(import "../css/app.css";\n)
@@ -103,7 +103,7 @@ module Hanami
               fs.create(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
             end
 
-            if context.generate_db?
+            unless opts.fetch(:skip_db, false)
               RubyClassFile.new(
                 fs: fs,
                 inflector: inflector,

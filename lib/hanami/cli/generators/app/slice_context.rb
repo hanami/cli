@@ -18,46 +18,10 @@ module Hanami
             super(inflector, app, **options)
           end
 
-          # @since 2.0.0
-          # @api private
-          def camelized_slice_name
-            inflector.camelize(slice)
-          end
-
-          # @since 2.0.0
-          # @api private
-          def underscored_slice_name
-            inflector.underscore(slice)
-          end
-
           # @since 2.1.0
           # @api private
           def humanized_slice_name
             inflector.humanize(slice)
-          end
-
-          # @since 2.1.0
-          # @api private
-          def stylesheet_erb_tag
-            %(<%= stylesheet_tag "app" %>)
-          end
-
-          # @since 2.1.0
-          # @api private
-          def javascript_erb_tag
-            %(<%= javascript_tag "app" %>)
-          end
-
-          # @since 2.2.0
-          # @api private
-          def generate_db?
-            !options.fetch(:skip_db, false)
-          end
-
-          # @since 2.2.0
-          # @api private
-          def generate_route?
-            !options.fetch(:skip_route, false)
           end
 
           private

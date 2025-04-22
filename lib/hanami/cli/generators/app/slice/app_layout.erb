@@ -6,13 +6,13 @@
     <title><%= humanized_app_name %> - <%= humanized_slice_name %></title>
     <%- if bundled_assets? -%>
     <%%= favicon_tag %>
-    <%= stylesheet_erb_tag %>
+    <%%= stylesheet_tag "app" %>
     <%- end -%>
   </head>
   <body>
     <%%= yield %>
     <%- if bundled_assets? -%>
-    <%= javascript_erb_tag %>
+    <%%= javascript_tag "app" %>
     <%- end -%>
   </body>
 </html>
