@@ -68,23 +68,26 @@ module Hanami
           # @since x.x.x
           # @api private
           def file_contents
-            raise "Use RubyClassFile or RubyModuleFile"
-          end
-
-          # @since x.x.x
-          # @api private
-          def constant_name
-            key_parts.last
-          end
-
-          def top_module
-            normalize(namespace)
+            RubyFileGenerator.new(
+              # These first three must be implemented by subclasses
+              class_name: class_name,
+              parent_class: parent_class,
+              modules: modules,
+              header: headers,
+              body: body
+            ).call
           end
 
           # @since x.x.x
           # @api private
           def local_namespaces
             Array(extra_namespace) + key_parts[..-2]
+          end
+
+          def namespace_modules
+            [namespace, *local_namespaces]
+              .map { normalize(_1) }
+              .compact
           end
 
           # @since x.x.x
@@ -100,7 +103,11 @@ module Hanami
           # @since x.x.x
           # @api private
           def path
-            fs.join(directory, "#{constant_name}.rb")
+            fs.join(directory, "#{key_parts.last}.rb")
+          end
+
+          def constant_name
+            normalize(key_parts.last)
           end
 
           def headers

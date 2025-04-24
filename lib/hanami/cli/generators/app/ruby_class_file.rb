@@ -22,35 +22,19 @@ module Hanami
 
           private
 
-          # @since 2.2.2
-          # @api private
-          attr_reader(
-            :partially_qualified_parent,
-            :fully_qualified_parent,
-          )
+          attr_reader :partially_qualified_parent, :fully_qualified_parent
 
-          # @since 2.2.2
-          # @api private
-          def file_contents
-            RubyFileGenerator.new(
-              class_name: normalize(constant_name),
-              parent_class: parent_class,
-              modules: modules,
-              header: headers,
-              body: body
-            ).call
+          def class_name
+            constant_name
           end
 
           def modules
-            local_namespaces
-              .map { normalize(_1) }
-              .compact
-              .prepend(top_module)
+            namespace_modules
           end
 
           def parent_class
             if partially_qualified_parent
-              [top_module, partially_qualified_parent].join("::")
+              [normalize(namespace), partially_qualified_parent].join("::")
             else
               fully_qualified_parent
             end

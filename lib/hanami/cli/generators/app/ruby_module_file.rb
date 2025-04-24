@@ -11,20 +11,16 @@ module Hanami
         class RubyModuleFile < RubyFile
           private
 
-          def file_contents
-            RubyFileGenerator.new(
-              modules: modules,
-              header: headers,
-              body: body
-            ).call
+          def modules
+            (namespace_modules + [normalize(constant_name)])
           end
 
-          def modules
-            local_namespaces
-              .map { normalize(_1) }
-              .compact
-              .prepend(top_module)
-              .append(normalize(constant_name))
+          def class_name
+            nil
+          end
+
+          def parent_class
+            nil
           end
         end
       end
