@@ -26,7 +26,7 @@ module Hanami
       INDENT = "  "
 
       def self.class(class_name, **args)
-        new(class_name: class_name, **args).to_s
+        new(class_name: class_name, **args).call
       end
 
       def self.module(*names, **args)
@@ -41,7 +41,7 @@ module Hanami
           class_name: nil,
           parent_class: nil,
           **args,
-        ).to_s
+        ).call
       end
 
       def initialize(
@@ -58,7 +58,7 @@ module Hanami
         @body = body
       end
 
-      def to_s
+      def call
         definition = lines(modules).map { |line| "#{line}\n" }.join
         source_code = [header, definition].flatten.join("\n")
         ensure_parseable!(source_code)

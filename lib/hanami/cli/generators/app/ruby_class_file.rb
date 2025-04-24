@@ -38,7 +38,7 @@ module Hanami
               modules: modules,
               header: headers,
               body: body
-            ).to_s
+            ).call
           end
 
           def modules
