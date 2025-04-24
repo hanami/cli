@@ -36,7 +36,12 @@ module Hanami
                          names
                        end
 
-        new(modules: module_names, class_name: nil, parent_class: nil, **args).to_s
+        new(
+          modules: module_names,
+          class_name: nil,
+          parent_class: nil,
+          **args,
+        ).to_s
       end
 
       def initialize(
