@@ -84,6 +84,8 @@ module Hanami
             Array(extra_namespace) + key_parts[..-2]
           end
 
+          # @since x.x.x
+          # @api private
           def namespace_modules
             [namespace, *local_namespaces]
               .map { normalize(_1) }
@@ -106,10 +108,14 @@ module Hanami
             fs.join(directory, "#{key_parts.last}.rb")
           end
 
+          # @since x.x.x
+          # @api private
           def constant_name
             normalize(key_parts.last)
           end
 
+          # @since x.x.x
+          # @api private
           def headers
             [
               # Intentional ternary logic. Skip if nil, else 'true' or 'false'
