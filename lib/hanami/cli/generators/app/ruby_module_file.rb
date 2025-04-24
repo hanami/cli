@@ -12,11 +12,11 @@ module Hanami
           private
 
           def file_contents
-            RubyFileGenerator.module(
-              modules,
+            RubyFileGenerator.new(
+              modules: modules,
               header: headers,
               body: body
-            )
+            ).to_s
           end
 
           def modules

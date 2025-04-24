@@ -32,13 +32,13 @@ module Hanami
           # @since 2.2.2
           # @api private
           def file_contents
-            RubyFileGenerator.class(
-              normalize(constant_name),
+            RubyFileGenerator.new(
+              class_name: normalize(constant_name),
               parent_class: parent_class,
               modules: modules,
               header: headers,
               body: body
-            )
+            ).to_s
           end
 
           def modules
