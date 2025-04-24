@@ -16,13 +16,13 @@ module Hanami
             namespace:,
             base_path:,
             extra_namespace: nil,
-            relative_parent_class: nil,
-            absolute_parent_class: nil,
+            partially_qualified_parent: nil,
+            fully_qualified_parent: nil,
             auto_register: nil,
             body: []
           )
-            if relative_parent_class && absolute_parent_class
-              raise "Must provide only one of relative_parent_class or absolute_parent_class"
+            if partially_qualified_parent && fully_qualified_parent
+              raise "Must provide only one of partially_qualified_parent or fully_qualified_parent"
             end
 
             @fs = fs
@@ -31,8 +31,8 @@ module Hanami
             @namespace = namespace
             @base_path = base_path
             @extra_namespace = extra_namespace&.downcase
-            @relative_parent_class = relative_parent_class
-            @absolute_parent_class = absolute_parent_class
+            @partially_qualified_parent = partially_qualified_parent
+            @fully_qualified_parent = fully_qualified_parent
             @auto_register = auto_register
             @body = body
           end
@@ -68,8 +68,8 @@ module Hanami
             :namespace,
             :base_path,
             :extra_namespace,
-            :relative_parent_class,
-            :absolute_parent_class,
+            :partially_qualified_parent,
+            :fully_qualified_parent,
             :auto_register,
             :body,
           )
@@ -121,10 +121,10 @@ module Hanami
               .compact
               .prepend(container_module)
 
-            parent_class = if relative_parent_class
-              [container_module, relative_parent_class].join("::")
+            parent_class = if partially_qualified_parent
+              [container_module, partially_qualified_parent].join("::")
             else
-              absolute_parent_class
+              fully_qualified_parent
             end
 
             RubyFileGenerator.class(

@@ -25,17 +25,16 @@ module Hanami
 
             body_content.prepend("gateway :#{gateway}") if gateway
 
-            RubyFileWriter.new(
+            RubyClassFile.new(
               fs: fs,
               inflector: inflector,
-            ).call(
-              namespace: namespace,
               key: key,
+              namespace: namespace,
               base_path: base_path,
               extra_namespace: "Relations",
-              relative_parent_class: "DB::Relation",
+              partially_qualified_parent: "DB::Relation",
               body: body_content,
-            )
+            ).create
           end
 
           private

@@ -46,7 +46,7 @@ module Hanami
               namespace: namespace,
               key: inflector.underscore(key),
               base_path: base_path,
-              relative_parent_class: "View",
+              partially_qualified_parent: "View",
               extra_namespace: "Views",
             )
           end
