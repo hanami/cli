@@ -12,7 +12,7 @@ module Hanami
           private
 
           def modules
-            (namespace_modules + [normalize(constant_name)])
+            namespace_modules + [constant_name]
           end
 
           def class_name
