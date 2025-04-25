@@ -8,7 +8,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
   before do
     allow(Hanami).to receive(:bundled?)
-    allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(bundled_assets)
+    allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(true)
+    allow(Hanami).to receive(:bundled?).with("dry-operation").and_return(true)
+    allow(Hanami).to receive(:bundled?).with("hanami-db").and_return(true)
   end
 
   let(:out) { StringIO.new }
@@ -19,8 +21,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   let(:underscored_app) { inflector.underscore(app) }
   let(:dir) { underscored_app }
   let(:slice) { "admin" }
-
-  let(:bundled_assets) { true }
 
   def output
     out.rewind && out.read.chomp
@@ -200,19 +200,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
   it "ensures that slice URL prefix is valid" do
     within_application_directory do
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase)
+      subject.call(name: slice_name = generate_random_slice_name)
       expected = %(slice :#{slice_name}, at: "/#{slice_name}" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/")
+      subject.call(name: slice_name = generate_random_slice_name, url: "/")
       expected = %(slice :#{slice_name}, at: "/" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/foo_bar")
+      subject.call(name: slice_name = generate_random_slice_name, url: "/foo_bar")
       expected = %(slice :#{slice_name}, at: "/foo_bar" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
-      subject.call(name: slice_name = SecureRandom.alphanumeric(16).downcase, url: "/FooBar")
+      subject.call(name: slice_name = generate_random_slice_name, url: "/FooBar")
       expected = %(slice :#{slice_name}, at: "/foo_bar" do)
       expect(fs.read("config/routes.rb")).to match(expected)
 
@@ -257,7 +257,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   end
 
   context "without hanami-assets" do
-    let(:bundled_assets) { false }
+    before do
+      allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(false)
+    end
 
     it "generates a slice without hanami-assets" do
       within_application_directory do
@@ -278,27 +280,16 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     end
   end
 
-  context "with dry-monads bundled" do
+  context "without dry-operation bundled" do
     before do
-      allow(Hanami).to receive(:bundled?).with("dry-monads").and_return(bundled_assets)
+      allow(Hanami).to receive(:bundled?).with("dry-operation").and_return(false)
     end
 
-    it "generates a slice with an operation that includes dry-monads result" do
+    it "generates a slice without base operation" do
       within_application_directory do
         subject.call(name: slice)
 
-        action = <<~CODE
-          # auto_register: false
-          # frozen_string_literal: true
-
-          module Admin
-            class Action < #{app}::Action
-            end
-          end
-        CODE
-
-        expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
-        expect(output).to include("Created slices/#{slice}/action.rb")
+        expect(fs.exist?("slices/#{slice}/operation.rb")).to be(false)
       end
     end
   end
@@ -307,6 +298,23 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     it "generates a slice without hanami-db files" do
       within_application_directory do
         subject.call(name: slice, skip_db: true)
+
+        expect(fs.exist?("slices/admin/db")).to be(false)
+        expect(fs.exist?("slices/admin/repos")).to be(false)
+        expect(fs.exist?("slices/admin/relations")).to be(false)
+        expect(fs.exist?("slices/admin/structs")).to be(false)
+      end
+    end
+  end
+
+  context "without hanami-db bundled" do
+    before do
+      allow(Hanami).to receive(:bundled?).with("hanami-db").and_return(false)
+    end
+
+    it "generates a slice without hanami-db files" do
+      within_application_directory do
+        subject.call(name: slice)
 
         expect(fs.exist?("slices/admin/db")).to be(false)
         expect(fs.exist?("slices/admin/repos")).to be(false)
@@ -365,5 +373,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
       yield
     end
+  end
+
+  def generate_random_slice_name
+    "random_slice_#{SecureRandom.alphanumeric(16).downcase}"
   end
 end
