@@ -68,7 +68,7 @@ module Hanami
               namespace: namespace,
               key: inflector.underscore("views.parts.#{key}"),
               base_path: base_path,
-              partially_qualified_parent: "Views::Part",
+              fully_qualified_parent: "#{inflector.camelize(namespace)}::Views::Part",
               auto_register: false
             ).create
           end
