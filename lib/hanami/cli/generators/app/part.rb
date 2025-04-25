@@ -42,7 +42,7 @@ module Hanami
               namespace: Hanami.app.namespace,
               key: "views.part",
               base_path: APP_DIR,
-              fully_qualified_parent: "Hanami::View::Part",
+              parent_class_name: "Hanami::View::Part",
               auto_register: false
             ).create
           end
@@ -56,7 +56,7 @@ module Hanami
               namespace: namespace,
               key: "views.part",
               base_path: base_path,
-              fully_qualified_parent: "#{Hanami.app.namespace}::Views::Part",
+              parent_class_name: "#{Hanami.app.namespace}::Views::Part",
               auto_register: false
             ).create
           end
@@ -68,7 +68,7 @@ module Hanami
               namespace: namespace,
               key: inflector.underscore("views.parts.#{key}"),
               base_path: base_path,
-              fully_qualified_parent: "#{inflector.camelize(namespace)}::Views::Part",
+              parent_class_name: "#{inflector.camelize(namespace)}::Views::Part",
               auto_register: false
             ).create
           end

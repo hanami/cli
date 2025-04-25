@@ -6,23 +6,18 @@ module Hanami
   module CLI
     module Generators
       module App
-        # @since 2.2.2
+        # @since x.x.x
         # @api private
         class RubyClassFile < RubyFile
-          def initialize(partially_qualified_parent: nil, fully_qualified_parent: nil, **args)
+          def initialize(parent_class_name: nil, **args)
             super
 
-            @partially_qualified_parent = partially_qualified_parent
-            @fully_qualified_parent = fully_qualified_parent
-
-            if partially_qualified_parent && fully_qualified_parent
-              raise "Must provide only one of partially_qualified_parent or fully_qualified_parent"
-            end
+            @parent_class_name = parent_class_name
           end
 
           private
 
-          attr_reader :partially_qualified_parent, :fully_qualified_parent
+          attr_reader :parent_class_name
 
           def class_name
             constant_name
@@ -30,14 +25,6 @@ module Hanami
 
           def modules
             namespace_modules
-          end
-
-          def parent_class
-            if partially_qualified_parent
-              [normalize(namespace), partially_qualified_parent].join("::")
-            else
-              fully_qualified_parent
-            end
           end
         end
       end

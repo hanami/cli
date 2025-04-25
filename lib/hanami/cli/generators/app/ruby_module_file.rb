@@ -19,7 +19,7 @@ module Hanami
             nil
           end
 
-          def parent_class
+          def parent_class_name
             nil
           end
         end

@@ -39,23 +39,27 @@ module Hanami
         new(
           modules: module_names,
           class_name: nil,
-          parent_class: nil,
+          parent_class_name: nil,
           **args,
         ).call
       end
 
       def initialize(
         class_name: nil,
-        parent_class: nil,
+        parent_class_name: nil,
         modules: [],
         header: [],
         body: []
       )
         @class_name = class_name
-        @parent_class = parent_class
+        @parent_class_name = parent_class_name
         @modules = modules
         @header = header.any? ? (header + [""]) : []
         @body = body
+
+        if parent_class_name && !class_name
+          raise ArgumentError, "class_name is required when parent_class_name is specified"
+        end
       end
 
       def call
@@ -69,7 +73,7 @@ module Hanami
 
       attr_reader(
         :class_name,
-        :parent_class,
+        :parent_class_name,
         :modules,
         :header,
         :body
@@ -103,8 +107,8 @@ module Hanami
       end
 
       def class_definition
-        if parent_class
-          "class #{class_name} < #{parent_class}"
+        if parent_class_name
+          "class #{class_name} < #{parent_class_name}"
         else
           "class #{class_name}"
         end

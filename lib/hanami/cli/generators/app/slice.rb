@@ -42,7 +42,7 @@ module Hanami
               namespace: slice,
               key: "action",
               base_path: directory,
-              fully_qualified_parent: "#{Hanami.app.namespace}::Action",
+              parent_class_name: "#{Hanami.app.namespace}::Action",
               auto_register: false
             ).create
 
@@ -52,7 +52,7 @@ module Hanami
               namespace: slice,
               key: "view",
               base_path: directory,
-              fully_qualified_parent: "#{Hanami.app.namespace}::View",
+              parent_class_name: "#{Hanami.app.namespace}::View",
               auto_register: false
             ).create
 
@@ -80,7 +80,7 @@ module Hanami
                 namespace: slice,
                 key: "operation",
                 base_path: directory,
-                fully_qualified_parent: "#{Hanami.app.namespace}::Operation",
+                parent_class_name: "#{Hanami.app.namespace}::Operation",
                 auto_register: false
               ).create
             end
@@ -110,7 +110,7 @@ module Hanami
                 namespace: slice,
                 key: "db.relation",
                 base_path: directory,
-                fully_qualified_parent: "#{Hanami.app.namespace}::DB::Relation",
+                parent_class_name: "#{Hanami.app.namespace}::DB::Relation",
               ).create
 
               RubyClassFile.new(
@@ -119,7 +119,7 @@ module Hanami
                 namespace: slice,
                 key: "db.repo",
                 base_path: directory,
-                fully_qualified_parent: "#{Hanami.app.namespace}::DB::Repo",
+                parent_class_name: "#{Hanami.app.namespace}::DB::Repo",
               ).create
 
               RubyClassFile.new(
@@ -128,7 +128,7 @@ module Hanami
                 namespace: slice,
                 key: "db.struct",
                 base_path: directory,
-                fully_qualified_parent: "#{Hanami.app.namespace}::DB::Struct",
+                parent_class_name: "#{Hanami.app.namespace}::DB::Struct",
               ).create
 
               fs.touch(fs.join(directory, "relations", ".keep"))

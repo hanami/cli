@@ -26,7 +26,7 @@ module Hanami
               key: key,
               namespace: namespace,
               base_path: base_path,
-              fully_qualified_parent: "#{inflector.camelize(namespace)}::Operation",
+              parent_class_name: "#{inflector.camelize(namespace)}::Operation",
               body: ["def call", "end"],
             ).create
 

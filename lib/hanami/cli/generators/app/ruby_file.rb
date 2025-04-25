@@ -71,7 +71,7 @@ module Hanami
             RubyFileGenerator.new(
               # These first three must be implemented by subclasses
               class_name: class_name,
-              parent_class: parent_class,
+              parent_class_name: parent_class_name,
               modules: modules,
               header: headers,
               body: body

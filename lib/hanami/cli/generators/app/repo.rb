@@ -25,7 +25,7 @@ module Hanami
               namespace: namespace,
               base_path: base_path,
               extra_namespace: "Repos",
-              fully_qualified_parent: "#{inflector.camelize(namespace)}::DB::Repo",
+              parent_class_name: "#{inflector.camelize(namespace)}::DB::Repo",
             ).create
           end
 
