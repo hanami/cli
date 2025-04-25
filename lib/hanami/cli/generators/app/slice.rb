@@ -103,7 +103,7 @@ module Hanami
               fs.create(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
             end
 
-            unless opts.fetch(:skip_db, false)
+            if Hanami.bundled?("hanami-db") && !opts.fetch(:skip_db, false)
               RubyClassFile.new(
                 fs: fs,
                 inflector: inflector,

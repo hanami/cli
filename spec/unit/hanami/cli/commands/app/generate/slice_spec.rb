@@ -8,8 +8,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
   before do
     allow(Hanami).to receive(:bundled?)
-    allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(bundled_assets)
-    allow(Hanami).to receive(:bundled?).with("dry-operation").and_return(bundled_operation)
+    allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(true)
+    allow(Hanami).to receive(:bundled?).with("dry-operation").and_return(true)
+    allow(Hanami).to receive(:bundled?).with("hanami-db").and_return(true)
   end
 
   let(:out) { StringIO.new }
@@ -20,9 +21,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   let(:underscored_app) { inflector.underscore(app) }
   let(:dir) { underscored_app }
   let(:slice) { "admin" }
-
-  let(:bundled_assets) { true }
-  let(:bundled_operation) { true }
 
   def output
     out.rewind && out.read.chomp
@@ -259,7 +257,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   end
 
   context "without hanami-assets" do
-    let(:bundled_assets) { false }
+    before do
+      allow(Hanami).to receive(:bundled?).with("hanami-assets").and_return(false)
+    end
 
     it "generates a slice without hanami-assets" do
       within_application_directory do
@@ -280,33 +280,10 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     end
   end
 
-  context "with dry-monads bundled" do
-    before do
-      allow(Hanami).to receive(:bundled?).with("dry-monads").and_return(bundled_assets)
-    end
-
-    it "generates a slice with an operation that includes dry-monads result" do
-      within_application_directory do
-        subject.call(name: slice)
-
-        action = <<~CODE
-          # auto_register: false
-          # frozen_string_literal: true
-
-          module Admin
-            class Action < #{app}::Action
-            end
-          end
-        CODE
-
-        expect(fs.read("slices/#{slice}/action.rb")).to eq(action)
-        expect(output).to include("Created slices/#{slice}/action.rb")
-      end
-    end
-  end
-
   context "without dry-operation bundled" do
-    let(:bundled_operation) { false }
+    before do
+      allow(Hanami).to receive(:bundled?).with("dry-operation").and_return(false)
+    end
 
     it "generates a slice without base operation" do
       within_application_directory do
@@ -321,6 +298,23 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
     it "generates a slice without hanami-db files" do
       within_application_directory do
         subject.call(name: slice, skip_db: true)
+
+        expect(fs.exist?("slices/admin/db")).to be(false)
+        expect(fs.exist?("slices/admin/repos")).to be(false)
+        expect(fs.exist?("slices/admin/relations")).to be(false)
+        expect(fs.exist?("slices/admin/structs")).to be(false)
+      end
+    end
+  end
+
+  context "without hanami-db bundled" do
+    before do
+      allow(Hanami).to receive(:bundled?).with("hanami-db").and_return(false)
+    end
+
+    it "generates a slice without hanami-db files" do
+      within_application_directory do
+        subject.call(name: slice)
 
         expect(fs.exist?("slices/admin/db")).to be(false)
         expect(fs.exist?("slices/admin/repos")).to be(false)
