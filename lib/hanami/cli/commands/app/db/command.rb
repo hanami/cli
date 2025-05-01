@@ -2,7 +2,6 @@
 
 require "shellwords"
 require_relative "utils/database"
-require_relative "../../../slice_detection"
 
 module Hanami
   module CLI
@@ -55,7 +54,6 @@ module Hanami
             private
 
             def databases(app: false, slice: nil, gateway: nil)
-              slice ||= detect_slice_from_current_directory unless app
               if gateway && !app && !slice
                 err.puts "When specifying --gateway, an --app or --slice must also be given"
                 exit 1

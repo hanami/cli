@@ -25,7 +25,6 @@ module Hanami
             end
 
             def call(name:, slice: nil, gateway: nil)
-              slice ||= detect_slice_from_current_directory
               if slice
                 generator.call(
                   key: name,

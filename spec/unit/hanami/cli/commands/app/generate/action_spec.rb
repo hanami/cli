@@ -1263,7 +1263,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
                 end
               end
             CODE
-
             fs.write("config/routes.rb", routes)
 
             action_file = <<~EXPECTED
