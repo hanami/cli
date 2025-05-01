@@ -1263,6 +1263,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
                 end
               end
             CODE
+
             fs.write("config/routes.rb", routes)
 
             action_file = <<~EXPECTED
@@ -1346,25 +1347,37 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
       end
     end
 
-    context "when run from within a slice directory without specyfing the slice" do
+    context "when run from within a slice directory" do
       let(:slice) { "books" }
       let(:controller) { "users" }
       let(:action) { "index" }
       let(:action_name) { "#{controller}.#{action}" }
 
-      before do
-        prepare_slice!
-        fs.chdir("slices/#{slice}") do
-          subject.call(name: action_name)
-        end
-      end
+      it "creates the action for the current slice" do
+        within_application_directory do
+          prepare_slice!
 
-      it "generates the action in the current slice" do
-        expect(fs.exist?("slices/#{slice}/actions/#{controller}/#{action}.rb")).to be(true)
+          # That is a lot of mocks, is there a better way for this?
+          mock_app = double("Hanami::App")
+          allow(mock_app).to receive(:root).and_return(Pathname.new(Dir.pwd))
+          allow(mock_app).to receive(:slices).and_return({slice.to_sym => double("Slice")})
+          allow(mock_app).to receive(:namespace).and_return(app)
+          allow(mock_app).to receive(:inflector).and_return(inflector)
+
+          allow(subject).to receive(:app).and_return(mock_app)
+
+          slice_path = File.join(Dir.pwd, "slices", slice)
+          allow(Dir).to receive(:pwd).and_return(slice_path)
+
+          subject.call(name: action_name)
+
+          expect(fs.exist?("slices/#{slice}/actions/#{controller}/#{action}.rb")).to be(true)
+          expect(fs.read("config/routes.rb")).to include("slice :#{slice}")
+          expect(fs.read("slices/#{slice}/actions/#{controller}/#{action}.rb")).to include("module #{inflector.camelize(slice)}")
+        end
       end
     end
   end
-
 
   private
 
