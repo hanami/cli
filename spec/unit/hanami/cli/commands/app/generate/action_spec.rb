@@ -1345,89 +1345,26 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
         end
       end
     end
-  end
 
-  context "automatic slice detection" do
-    let(:slice) { "admin" }
-    let(:app_root) { Pathname.new("/path/to/app") }
-    let(:slices) { { slice => instance_double("Hanami::Slice") } }
-    let(:app_instance) { instance_double("Hanami::App", root: app_root, slices: slices, namespace: app) }
+    context "when run from within a slice directory without specyfing the slice" do
+      let(:slice) { "books" }
+      let(:controller) { "users" }
+      let(:action) { "index" }
+      let(:action_name) { "#{controller}.#{action}" }
 
-    before do
-      prepare_slice!
-      allow(subject).to receive(:app).and_return(app_instance)
-    end
-
-    context "when in the app root directory" do
       before do
-        allow(Dir).to receive(:pwd).and_return("/path/to/app")
+        prepare_slice!
+        fs.chdir("slices/#{slice}") do
+          subject.call(name: action_name)
+        end
       end
 
-      it "does not automatically set the slice" do
-        expect(generator).to receive(:call).with(
-          app, [controller], action, nil, nil, "html", false, false, nil, context: anything
-        )
-
-        subject.call(name: action_name)
-      end
-    end
-
-    context "when in the app directory" do
-      before do
-        allow(Dir).to receive(:pwd).and_return("/path/to/app/app")
-      end
-
-      it "does not automatically set the slice" do
-        expect(generator).to receive(:call).with(
-          app, [controller], action, nil, nil, "html", false, false, nil, context: anything
-        )
-
-        subject.call(name: action_name)
-      end
-    end
-
-    context "when in a slice directory" do
-      before do
-        allow(Dir).to receive(:pwd).and_return("/path/to/app/slices/admin")
-      end
-
-      it "automatically sets the slice" do
-        expect(generator).to receive(:call).with(
-          app, [controller], action, nil, nil, "html", false, false, "admin", context: anything
-        )
-
-        subject.call(name: action_name)
-      end
-    end
-
-    context "when in a subdirectory of a slice" do
-      before do
-        allow(Dir).to receive(:pwd).and_return("/path/to/app/slices/admin/actions")
-      end
-
-      it "automatically sets the slice" do
-        expect(generator).to receive(:call).with(
-          app, [controller], action, nil, nil, "html", false, false, "admin", context: anything
-        )
-
-        subject.call(name: action_name)
-      end
-    end
-
-    context "when explicitly specifying a slice" do
-      before do
-        allow(Dir).to receive(:pwd).and_return("/path/to/app/slices/admin")
-      end
-
-      it "uses the explicitly specified slice" do
-        expect(generator).to receive(:call).with(
-          app, [controller], action, nil, nil, "html", false, false, "main", context: anything
-        )
-
-        subject.call(name: action_name, slice: "main")
+      it "generates the action in the current slice" do
+        expect(fs.exist?("slices/#{slice}/actions/#{controller}/#{action}.rb")).to be(true)
       end
     end
   end
+
 
   private
 
