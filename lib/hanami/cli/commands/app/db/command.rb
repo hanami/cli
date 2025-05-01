@@ -15,7 +15,6 @@ module Hanami
           # @since 2.2.0
           # @api private
           class Command < App::Command
-            include SliceDetection
             option :app, required: false, type: :flag, default: false, desc: "Use app database"
             option :slice, required: false, desc: "Use database for slice"
 

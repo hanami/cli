@@ -10,7 +10,6 @@ module Hanami
           # @since 2.2.0
           # @api private
           class Migration < Command
-            include SliceDetection
             argument :name, required: true, desc: "Migration name"
             option :gateway, desc: "Generate migration for gateway"
 
