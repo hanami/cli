@@ -5,7 +5,6 @@ require "dry/files"
 require "shellwords"
 require_relative "../../../naming"
 require_relative "../../../errors"
-require "pry"
 
 module Hanami
   module CLI

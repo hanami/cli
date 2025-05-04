@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "pry"
-
 RSpec.describe Hanami::CLI::Commands::App::Command, :app do
   context "#call" do
     subject { cmd.new }
