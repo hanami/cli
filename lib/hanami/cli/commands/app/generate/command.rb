@@ -5,6 +5,7 @@ require "dry/files"
 require "shellwords"
 require_relative "../../../naming"
 require_relative "../../../errors"
+require "pry"
 
 module Hanami
   module CLI
@@ -35,16 +36,15 @@ module Hanami
             end
 
             def detect_slice_from_pwd
-              current_dir = Pathname.new(Dir.pwd)
-              app_root = app.root
-              slices_dir = app_root.join("slices")
-              return nil unless current_dir.to_s.start_with?(slices_dir.to_s)
+              current_dir = Pathname.pwd
+              slices_dir = app.root.join("slices")
+              return unless current_dir.to_s.start_with?(slices_dir.to_s)
 
               relative_path = current_dir.relative_path_from(slices_dir)
               slice_name = relative_path.to_s.split("/").first
-              return slice_name if app.slices[slice_name.to_sym]
+              return unless app.slices.keys.include?(slice_name.to_sym)
 
-              nil
+              slice_name if app.slices[slice_name.to_sym]
             end
 
             # @since 2.2.0

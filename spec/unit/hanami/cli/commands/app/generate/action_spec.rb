@@ -9,7 +9,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Action, :app do
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
-  let(:app) { Hanami.app.namespace }
+  `let(:app) { Hanami.app.namespace }`
   let(:dir) { inflector.underscore(app) }
   let(:controller) { "users" }
   let(:action) { "index" }
