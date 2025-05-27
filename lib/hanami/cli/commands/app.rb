@@ -32,6 +32,7 @@ module Hanami
                 db.register "create", DB::Create
                 db.register "drop", DB::Drop
                 db.register "migrate", DB::Migrate
+                db.register "rollback", DB::Rollback
                 db.register "structure dump", DB::Structure::Dump
                 db.register "structure load", DB::Structure::Load
                 db.register "seed", DB::Seed
