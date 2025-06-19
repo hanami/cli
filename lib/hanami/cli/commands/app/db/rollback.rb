@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pry'
+require "pry"
 require_relative "../../app/command"
 require_relative "structure/dump"
 
@@ -19,23 +19,72 @@ module Hanami
             def call(steps: nil, app: false, slice: nil, target: nil, dump: true, **)
               target = steps if steps && !target
 
-              databases(app: app, slice: slice).each do |database|
-                migration_code, migration_name = find_migration(target, database)
+              if !app && slice.nil? && steps&.to_s&.match?(/^\d+$/) && !steps.to_s.match?(/^\d{10,}$/)
+                # When neither app nor slice is specified and steps is provided, we want X (steps or just most recent)
+                # migration(s) to rollback
+                rollback_across_all_databases(steps: Integer(steps), dump: dump)
+              else
+                databases(app: app, slice: slice).each do |database|
+                  migration_code, migration_name = find_migration(target, database)
 
-                if migration_name.nil?
-                  output = if target
-                             "==> migration file for target #{target} was not found"
-                           else
-                             "==> no migrations to rollback"
-                           end
+                  if migration_name.nil?
+                    output = if target
+                               "==> migration file for target #{target} was not found"
+                             else
+                               "==> no migrations to rollback"
+                             end
 
-                  out.puts output
-                  return
+                    out.puts output
+                    return
+                  end
+
+                  measure "database #{database.name} rolled back to #{migration_name}" do
+                    database.run_migrations(target: Integer(migration_code))
+
+                    true
+                  end
+
+                  run_command Structure::Dump if dump
                 end
+              end
+            end
 
-                measure "database #{database.name} rolled back to #{migration_name}" do
-                  database.run_migrations(target: Integer(migration_code))
+            private
 
+            def rollback_across_all_databases(steps:, dump:)
+              all_databases = databases(app: false, slice: nil)
+
+              # Collect all applied migrations across all databases with their source database
+              all_migrations = []
+              all_databases.each do |database|
+                applied_migrations = database.applied_migrations
+                applied_migrations.each do |migration|
+                  timestamp = Integer(migration.split("_").first)
+                  all_migrations << {
+                    timestamp: timestamp,
+                    name: File.basename(migration, ".*"),
+                    database: database,
+                    migration: migration
+                  }
+                end
+              end
+
+              all_migrations.sort_by! { |m| -m[:timestamp] }
+              migrations_to_rollback = all_migrations.take(steps)
+
+              if migrations_to_rollback.empty?
+                out.puts "==> no migrations to rollback"
+                return
+              end
+
+              # Group migrations by database for efficient rollback
+              migrations_by_database = migrations_to_rollback.group_by { |m| m[:database] }
+              migrations_by_database.each do |database, migrations|
+                oldest_migration = migrations.min_by { |m| m[:timestamp] }
+                target_code = oldest_migration[:timestamp] - 1
+
+                measure "database #{database.name} rolled back to before #{oldest_migration[:name]}" do
+                  database.run_migrations(target: target_code)
                   true
                 end
 
@@ -43,10 +92,7 @@ module Hanami
               end
             end
 
-            private
-
             def find_migration(code, database)
-              # TODO: why entered twice in spec
               applied_migrations = database.applied_migrations
 
               return if applied_migrations.empty?
@@ -63,7 +109,6 @@ module Hanami
                 return [migration_code, migration_name]
               end
 
-              binding.pry
               # If code is a number representing steps to rollback
               if code&.to_s&.match?(/^\d+$/) && !code.to_s.match?(/^\d{10,}$/)
                 steps = Integer(code)

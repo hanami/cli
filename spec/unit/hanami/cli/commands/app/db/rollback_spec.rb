@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pry"
+
 RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
   subject(:command) {
     described_class.new(
@@ -12,12 +14,11 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
   let(:out) { StringIO.new }
   def output = out.string
 
-  let(:dump_command) { instance_spy(Hanami::CLI::Commands::App::DB::Structure::Dump) }
-  let(:dump) { false }
-
   before do
     allow(command).to receive(:exit)
-    allow(Hanami::CLI::Commands::App::DB::Structure::Dump).to receive(:new) { dump_command }
+  end
+
+  before do
     @env = ENV.to_h
     allow(Hanami::Env).to receive(:loaded?).and_return(false)
   end
@@ -32,7 +33,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
   end
 
   def db_migrate
-    command.run_command(Hanami::CLI::Commands::App::DB::Migrate, dump: dump)
+    command.run_command(Hanami::CLI::Commands::App::DB::Migrate)
     out.truncate(0)
   end
 
@@ -49,179 +50,168 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       require "hanami/setup"
       before_prepare if respond_to?(:before_prepare)
       require "hanami/prepare"
-
-      write "config/db/migrate/20240602201330_create_posts.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            create_table :posts do
-              primary_key :id
-              column :title, :text, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "config/db/migrate/20240602211330_add_body_to_posts.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            alter_table :posts do
-              add_column :body, :text, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "config/db/migrate/20240602221330_add_published_to_posts.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            alter_table :posts do
-              add_column :published, :boolean, null: false, default: false
-            end
-          end
-        end
-      RUBY
-
-      write "slices/main/config/db/migrate/20240602201330_create_invoices.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            create_table :invoices do
-              primary_key :id
-              column :amount, :decimal, null: false
-            end
-          end
-        end
-      RUBY
-
-      write "slices/main/config/db/migrate/20240602211330_add_status_to_invoices.rb", <<~RUBY
-        ROM::SQL.migration do
-          change do
-            alter_table :invoices do
-              add_column :status, :text, null: false, default: 'pending'
-            end
-          end
-        end
-      RUBY
     end
 
     Dir.chdir(@dir)
   end
 
   def before_prepare
+    write "config/db/migrate/20250602201330_create_posts.rb", <<~RUBY
+      ROM::SQL.migration do
+        change do
+          create_table :posts do
+            primary_key :id
+            column :title, :text, null: false
+          end
+        end
+      end
+    RUBY
+
+    write "config/db/migrate/20250603211330_add_body_to_posts.rb", <<~RUBY
+      ROM::SQL.migration do
+        change do
+          alter_table :posts do
+            add_column :body, :text, null: false
+          end
+        end
+      end
+    RUBY
+
+    write "config/db/migrate/20250604221330_add_published_to_posts.rb", <<~RUBY
+      ROM::SQL.migration do
+        change do
+          alter_table :posts do
+            add_column :published, :boolean, null: false, default: false
+          end
+        end
+      end
+    RUBY
+
+    write "slices/main/config/db/migrate/20250605201330_create_invoices.rb", <<~RUBY
+      ROM::SQL.migration do
+        change do
+          create_table :invoices do
+            primary_key :id
+            column :amount, :decimal, null: false
+          end
+        end
+      end
+    RUBY
+
+    write "slices/main/config/db/migrate/20250606211330_add_status_to_invoices.rb", <<~RUBY
+      ROM::SQL.migration do
+        change do
+          alter_table :invoices do
+            add_column :status, :text, null: false, default: 'pending'
+          end
+        end
+      end
+    RUBY
+
     write "config/db/.keep", ""
     write "app/relations/.keep", ""
     write "slices/main/config/db/.keep", ""
     write "slices/main/relations/.keep", ""
   end
 
-  before do
-    ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
-    ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
+  # TODO: add tests for other databases
+  describe "sqlite" do
+    before :all do
+      ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+      ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
+    end
 
-    db_create
-    db_migrate
-  end
+    before :each do
+      db_create
+      db_migrate
+    end
 
-  context "with general migrations existing" do
-    # TODO: add tests for other databases
-    describe "sqlite" do
-      before do
-        ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
-        ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
-        db_create
-        db_migrate
-      end
+    it "rolls back the most recent migration across all databases with no arguments" do
+      columns = -> { Main::Slice["db.gateway"].connection.schema(:invoices).map(&:first) }
+      expect(columns.()).to eq [:id, :amount, :status]
 
-      it "rolls back all (app and slices) databases with no arguments" do
-        expect(Hanami.app.root.join("db", "app.sqlite3").exist?).to be true
-        columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
-        expect(columns.()).to eq [:id, :title, :body, :published]
+      command.call
 
-        command.call
+      expect(columns.()).to eq [:id, :amount]
+      expect(output).to include "database db/main.sqlite3 rolled back"
+      expect(output).to_not include "database db/app.sqlite3 rolled back"
+    end
 
-        expect(columns.()).to eq [:id, :title, :body]
-        # expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
-        expect(output).to include "database db/app.sqlite3 rolled back"
-      end
+    it "rolls back X most recent migrations across all databases with a specified number of steps" do
+      columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
+      expect(columns.()).to eq [:id, :title, :body, :published]
 
-      it "rolls back app AND slices database with a specified number of steps" do
-        columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
-        expect(columns.()).to eq [:id, :title, :body, :published]
+      command.call(steps: "4")
 
-        command.call(steps: "3")
+      expect(columns.()).to eq [:id, :title]
+      expect(output).to include "database db/app.sqlite3 rolled back"
+      expect(output).to include "database db/main.sqlite3 rolled back"
+    end
 
-        expect(Hanami.app["db.gateway"].connection.tables).not_to include :posts
-        # expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
-        expect(output).to include "database db/app.sqlite3 rolled back"
-        expect(output).to include "database db/main.sqlite3 rolled back"
-      end
+    it "rolls back app database only with --app flag" do
+      columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
+      expect(columns.()).to eq [:id, :title, :body, :published]
 
-      it "rolls back app database only with --app flag" do
-        columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
-        expect(columns.()).to eq [:id, :title, :body, :published]
+      command.call(app: true)
 
-        command.call(app: true)
+      expect(columns.()).to eq [:id, :title, :body]
+      expect(output).to include "database db/app.sqlite3 rolled back"
+      expect(output).to_not include "database db/main.sqlite3 rolled back"
+    end
 
-        expect(columns.()).to eq [:id, :title, :body]
-        # expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
-        expect(output).to include "database db/app.sqlite3 rolled back"
-      end
+    it "rolls back app database only with a specified number of steps and --app flag" do
+      columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
+      expect(columns.()).to eq [:id, :title, :body, :published]
 
-      it "rolls back app database with a specified number of steps and --app flag" do
-        columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
-        expect(columns.()).to eq [:id, :title, :body, :published]
+      command.call(steps: "3", app: true)
 
-        command.call(steps: "3", app: true)
+      expect(Hanami.app["db.gateway"].connection.tables).not_to include :posts
+      expect(output).to include "database db/app.sqlite3 rolled back"
+      expect(output).to_not include "database db/main.sqlite3 rolled back"
+    end
 
-        expect(Hanami.app["db.gateway"].connection.tables).not_to include :posts
-        # expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
-        expect(output).to include "database db/app.sqlite3 rolled back"
-      end
+    it "rolls back slice database only with --slice flag" do
+      columns = -> { Main::Slice["db.gateway"].connection.schema(:invoices).map(&:first) }
+      expect(columns.()).to eq [:id, :amount, :status]
 
-      it "rolls back slice database only with --slice flag" do
-        columns = -> { Main::Slice["db.gateway"].connection.schema(:invoices).map(&:first) }
-        expect(columns.()).to eq [:id, :amount, :status]
+      command.call(slice: "main")
 
-        command.call(slice: "main")
+      expect(columns.()).to eq [:id, :amount]
+      expect(output).to include "database db/main.sqlite3 rolled back"
+    end
 
-        expect(columns.()).to eq [:id, :amount]
-        # expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
-        expect(output).to include "database db/main.sqlite3 rolled back"
-      end
+    it "rolls back slice database with a specified number of steps and --slice flag" do
+      columns = -> { Main::Slice["db.gateway"].connection.schema(:invoices).map(&:first) }
+      expect(columns.()).to eq [:id, :amount, :status]
 
-      it "rolls back slice database with a specified number of steps and --slice flag" do
-        columns = -> { Main::Slice["db.gateway"].connection.schema(:invoices).map(&:first) }
-        expect(columns.()).to eq [:id, :amount, :status]
+      command.call(steps: "2", slice: "main")
 
-        command.call(steps: "2", slice: "main")
+      expect(Main::Slice["db.gateway"].connection.tables).not_to include :invoices
+      expect(output).to include "database db/main.sqlite3 rolled back"
+    end
 
-        expect(Main::Slice["db.gateway"].connection.tables).not_to include :invoices
-        # expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
-        expect(output).to include "database db/main.sqlite3 rolled back"
-      end
+    it "handles case when there are no migrations to roll back" do
+      command.call(steps: "3")
+      out.truncate(0)
 
-      it "handles case when there are no migrations to roll back" do
-        command.call(steps: "3")
-        out.truncate(0)
+      command.call
 
-        command.call
+      expect(output).to include "no migrations to rollback"
+      expect(dump_command).not_to have_received(:call)
+    end
 
-        expect(output).to include "no migrations to rollback"
-        expect(dump_command).not_to have_received(:call)
-      end
+    it "rollback everything when steps flag is bigger than the number of migrations" do
+      command.call(steps: "42")
 
-      it "rollback everything when steps flag is bigger than the number of migrations" do
-        command.call(steps: "42")
+      command.call
 
-        command.call
+      expect(output).to include "database db/main.sqlite3 rolled back"
+    end
 
-        expect(output).to include "database db/main.sqlite3 rolled back"
-      end
+    it "does not dump the database structure when given --dump=false" do
+      command.call(dump: false)
 
-      it "does not dump the database structure when given --dump=false" do
-        command.call(dump: false)
-
-        expect(dump_command).not_to have_received(:call)
-      end
+      expect(dump_command).not_to have_received(:call)
     end
   end
 end
