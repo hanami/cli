@@ -63,6 +63,7 @@ module Hanami
                 return [migration_code, migration_name]
               end
 
+              binding.pry
               # If code is a number representing steps to rollback
               if code&.to_s&.match?(/^\d+$/) && !code.to_s.match?(/^\d{10,}$/)
                 steps = Integer(code)
