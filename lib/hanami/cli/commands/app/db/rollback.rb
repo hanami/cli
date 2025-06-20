@@ -16,12 +16,12 @@ module Hanami
             option :target, desc: "Target migration number", aliases: ["-t"]
             option :dump, desc: "Dump structure after rolling back", default: true
 
-            def call(steps: nil, app: false, slice: nil, target: nil, dump:, **)
+            def call(steps: nil, app: false, slice: nil, target: nil, dump: true, command_exit: method(:exit), **)
               target = steps if steps && !target
 
               if !app && slice.nil? && (steps.nil? || (steps && code_is_number?(steps)))
                 steps_count = steps.nil? ? 1 : Integer(steps)
-                rollback_across_all_databases(steps: steps_count, dump: dump)
+                rollback_across_all_databases(steps: steps_count, dump: dump, command_exit: command_exit)
               else
                 databases(app: app, slice: slice).each do |database|
                   migration_code, migration_name = find_migration(target, database)
@@ -43,14 +43,20 @@ module Hanami
                     true
                   end
 
-                  run_command Structure::Dump if dump
+                  next unless dump && !re_running_in_test?
+
+                  run_command(
+                    Structure::Dump,
+                    app: app, slice: slice,
+                    command_exit: command_exit
+                  )
                 end
               end
             end
 
             private
 
-            def rollback_across_all_databases(steps:, dump:)
+            def rollback_across_all_databases(steps:, dump:, command_exit:)
               all_databases = databases(app: false, slice: nil)
 
               # Collect all applied migrations across all databases with their source database
@@ -99,7 +105,14 @@ module Hanami
                   true
                 end
 
-                run_command Structure::Dump if dump
+                next unless dump && !re_running_in_test?
+
+                # TODO: get slice from database that the migrations were run on, dump on each if dump is true...
+                # run_command(
+                #   Structure::Dump,
+                #   app: app, slice: slice,
+                #   command_exit: command_exit
+                # )
               end
             end
 
