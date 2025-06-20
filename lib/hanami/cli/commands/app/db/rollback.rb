@@ -14,9 +14,9 @@ module Hanami
 
             argument :steps, desc: "Number of migrations to rollback", required: false
             option :target, desc: "Target migration number", aliases: ["-t"]
-            option :dump, desc: "Dump structure after rolling back"
+            option :dump, desc: "Dump structure after rolling back", default: true
 
-            def call(steps: nil, app: false, slice: nil, target: nil, dump: true, **)
+            def call(steps: nil, app: false, slice: nil, target: nil, dump:, **)
               target = steps if steps && !target
 
               if !app && slice.nil? && (steps.nil? || (steps && code_is_number?(steps)))
