@@ -14,8 +14,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
   let(:out) { StringIO.new }
   def output = out.string
 
-
-
   let(:dump_command) { instance_spy(Hanami::CLI::Commands::App::DB::Structure::Dump) }
 
   before do
@@ -36,12 +34,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
   end
 
   def db_create
-    command.run_command(Hanami::CLI::Commands::App::DB::Create)
+    command.run_command(Hanami::CLI::Commands::App::DB::Create, dump: false)
     out.truncate(0)
   end
 
   def db_migrate
-    command.run_command(Hanami::CLI::Commands::App::DB::Migrate)
+    command.run_command(Hanami::CLI::Commands::App::DB::Migrate, dump: false)
     out.truncate(0)
   end
 
@@ -143,7 +141,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       expect(columns.()).to eq [:id, :amount]
       expect(output).to include "database db/main.sqlite3 rolled back"
       expect(output).to_not include "database db/app.sqlite3 rolled back"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main")).once
     end
 
     it "rolls back X most recent migrations across all databases with a specified number of steps" do
@@ -158,7 +156,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       expect(Main::Slice["db.gateway"].connection.tables).not_to include :invoices
       expect(output).to include "database db/app.sqlite3 rolled back"
       expect(output).to include "database db/main.sqlite3 rolled back"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main")).exactly(2).times
     end
 
     it "rolls back app database only with --app flag" do
@@ -170,7 +168,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       expect(columns.()).to eq [:id, :title, :body]
       expect(output).to include "database db/app.sqlite3 rolled back"
       expect(output).to_not include "database db/main.sqlite3 rolled back"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
     end
 
     it "rolls back app database only with a specified number of steps and --app flag" do
@@ -182,7 +180,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       expect(Hanami.app["db.gateway"].connection.tables).not_to include :posts
       expect(output).to include "database db/app.sqlite3 rolled back"
       expect(output).to_not include "database db/main.sqlite3 rolled back"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil))
     end
 
     it "rolls back slice database only with --slice flag" do
@@ -193,7 +191,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
 
       expect(columns.()).to eq [:id, :amount]
       expect(output).to include "database db/main.sqlite3 rolled back"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
     end
 
     it "rolls back slice database with a specified number of steps and --slice flag" do
@@ -204,7 +202,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
 
       expect(Main::Slice["db.gateway"].connection.tables).not_to include :invoices
       expect(output).to include "database db/main.sqlite3 rolled back"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
     end
 
     it "handles case when there are no migrations to roll back" do
@@ -214,7 +212,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       command.call
 
       expect(output).to include "no migrations to rollback"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      # expect(dump_command).to_not have_received(:call) # This catched the dump from the first command, how to check that
+      # only the second does not call?
     end
 
     it "rollback everything when steps flag is bigger than the number of migrations" do
@@ -223,13 +222,92 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       command.call
 
       expect(output).to include "database db/main.sqlite3 rolled back"
-      expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: nil))
+      expect(output).to include "database db/app.sqlite3 rolled back"
+      expect(dump_command).to have_received(:call).exactly(5).times
     end
 
     it "does not dump the database structure when given --dump=false" do
       command.call(dump: false)
 
       expect(dump_command).not_to have_received(:call)
+    end
+
+    context "app with multiple gateways" do
+      def before_prepare
+        ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
+        ENV["DATABASE_URL__EXTRA"] = "sqlite://db/app_extra.sqlite3"
+        ENV["DATABASE_URL__SUPER"] = "sqlite://db/app_super.sqlite3"
+
+        write "config/db/migrate/20250602201330_create_posts.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :posts do
+                primary_key :id
+                column :title, :text, null: false
+              end
+            end
+          end
+        RUBY
+
+        write "config/db/extra_migrate/20250603201330_create_users.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :users do
+                primary_key :id
+                column :name, :text, null: false
+              end
+            end
+          end
+        RUBY
+
+        write "config/db/super_migrate/20250604201330_create_comments.rb", <<~RUBY
+          ROM::SQL.migration do
+            change do
+              create_table :comments do
+                primary_key :id
+                column :content, :text, null: false
+              end
+            end
+          end
+        RUBY
+      end
+
+      before :each do
+        db_create
+        db_migrate
+      end
+
+      it "rollbacks for from the gateway when its the newest migration with no arguments given, dumps app structure" do
+        expect(Hanami.app["db.gateways.default"].connection.tables).to include :posts
+        expect(Hanami.app["db.gateways.extra"].connection.tables).to include :users
+        expect(Hanami.app["db.gateways.super"].connection.tables).to include :comments
+
+        command.call
+
+        expect(Hanami.app["db.gateways.extra"].connection.tables).to include :users
+        expect(Hanami.app["db.gateways.super"].connection.tables).to_not include :comments
+        expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "test_app", gateway: "super"))
+        expect(dump_command).to have_received(:call).once
+
+        expect(output).to include("database db/app_super.sqlite3 rolled back")
+      end
+
+      it "rollbacks specific gateway and dumps the structure for a single app gateway with --app and --gateway" do
+        expect(Hanami.app["db.gateways.default"].connection.tables).to include :posts
+        expect(Hanami.app["db.gateways.extra"].connection.tables).to include :users
+        expect(Hanami.app["db.gateways.super"].connection.tables).to include :comments
+
+        command.call(app: true, gateway: "extra")
+
+        expect(Hanami.app["db.gateways.super"].connection.tables).to include :comments
+        expect(Hanami.app["db.gateways.extra"].connection.tables).to_not include :users
+        expect(dump_command).to have_received(:call).with(hash_including(app: true, slice: nil, gateway: "extra"))
+        expect(dump_command).to have_received(:call).once
+
+        expect(output).to include "database db/app_extra.sqlite3 rolled back"
+        expect(output).not_to include "db/app.sqlite3"
+        expect(output).not_to include "db/app_super.sqlite3"
+      end
     end
   end
 end

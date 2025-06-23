@@ -15,15 +15,16 @@ module Hanami
             argument :steps, desc: "Number of migrations to rollback", required: false
             option :target, desc: "Target migration number", aliases: ["-t"]
             option :dump, desc: "Dump structure after rolling back", default: true
+            option :gateway, required: false, desc: "Use database for gateway"
 
-            def call(steps: nil, app: false, slice: nil, target: nil, dump: true, command_exit: method(:exit), **)
+            def call(steps: nil, app: false, slice: nil, gateway: nil, target: nil, dump: true, command_exit: method(:exit), **)
               target = steps if steps && !target
 
               if !app && slice.nil? && (steps.nil? || (steps && code_is_number?(steps)))
                 steps_count = steps.nil? ? 1 : Integer(steps)
-                rollback_across_all_databases(steps: steps_count, dump: dump, command_exit: command_exit)
+                rollback_across_all_databases(steps: steps_count, dump: dump, gateway: gateway, command_exit: command_exit)
               else
-                databases(app: app, slice: slice).each do |database|
+                databases(app: app, slice: slice, gateway: gateway).each do |database|
                   migration_code, migration_name = find_migration(target, database)
 
                   if migration_name.nil?
@@ -47,7 +48,7 @@ module Hanami
 
                   run_command(
                     Structure::Dump,
-                    app: app, slice: slice,
+                    app: app, slice: slice, gateway: gateway,
                     command_exit: command_exit
                   )
                 end
@@ -56,8 +57,8 @@ module Hanami
 
             private
 
-            def rollback_across_all_databases(steps:, dump:, command_exit:)
-              all_databases = databases(app: false, slice: nil)
+            def rollback_across_all_databases(steps:, dump:, gateway:, command_exit:)
+              all_databases = databases(app: false, slice: nil, gateway: gateway)
 
               # Collect all applied migrations across all databases with their source database
               all_migrations = []
@@ -107,12 +108,13 @@ module Hanami
 
                 next unless dump && !re_running_in_test?
 
-                # TODO: get slice from database that the migrations were run on, dump on each if dump is true...
-                # run_command(
-                #   Structure::Dump,
-                #   app: app, slice: slice,
-                #   command_exit: command_exit
-                # )
+                # We have to dump during the loop not after, because we might need to dump multiple structures
+                # This however leads to also possibly dumping multiple times on the same database
+                run_command(
+                  Structure::Dump,
+                  app: false, slice: database.slice.slice_name.to_s, gateway: database.gateway_name.to_s,
+                  command_exit: command_exit
+                )
               end
             end
 
