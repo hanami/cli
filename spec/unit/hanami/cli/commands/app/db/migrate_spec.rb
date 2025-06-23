@@ -455,7 +455,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Migrate, :app_integration do
 
       expect(output).to include "database db/comments.sqlite3 migrated"
       expect(output).to include "database db/posts.sqlite3 migrated"
-      puts output
       expect(output).not_to include "WARNING"
 
       expect(Admin::Slice["db.gateways.posts"].connection.tables).to include :posts
