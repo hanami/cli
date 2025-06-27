@@ -43,7 +43,7 @@ module Hanami
         return if exist?(path)
 
         super
-        created(_path(path))
+        created(dir_path(path))
       end
 
       # @since 2.0.0
@@ -51,6 +51,13 @@ module Hanami
       def chdir(path, &blk)
         within_folder(path)
         super
+      end
+
+      def touch(path)
+        return if exist?(path)
+
+        super
+        created(path)
       end
 
       private
@@ -84,10 +91,10 @@ module Hanami
       end
 
       def within_folder(path)
-        out.puts "-> Within #{_path(path)}"
+        out.puts "-> Within #{dir_path(path)}"
       end
 
-      def _path(path)
+      def dir_path(path)
         path + ::File::SEPARATOR
       end
     end

@@ -19,44 +19,127 @@ module Hanami
 
           # @since 2.0.0
           # @api private
-          def call(app, slice, url, context: nil, **opts)
-            context ||= SliceContext.new(inflector, app, slice, url, **opts)
+          def call(app, slice, url, **opts)
+            skip_route = opts.fetch(:skip_route, false)
 
-            if context.generate_route?
+            unless skip_route
               fs.inject_line_at_class_bottom(
-                fs.join("config", "routes.rb"), "class Routes", t("routes.erb", context).chomp
+                fs.join("config", "routes.rb"),
+                "class Routes",
+                <<~ROUTES.chomp
+
+                  slice :#{inflector.underscore(slice)}, at: "#{url}" do
+                  end
+                ROUTES
               )
             end
 
             fs.mkdir(directory = "slices/#{slice}")
 
-            fs.create(fs.join(directory, "action.rb"), t("action.erb", context))
-            fs.create(fs.join(directory, "view.rb"), t("view.erb", context))
-            fs.create(fs.join(directory, "views", "helpers.rb"), t("helpers.erb", context))
-            fs.create(fs.join(directory, "templates", "layouts", "app.html.erb"), t("app_layout.erb", context))
-            fs.create(fs.join(directory, "operation.rb"), t("operation.erb", context))
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: slice,
+              key: "action",
+              base_path: directory,
+              parent_class_name: "#{Hanami.app.namespace}::Action",
+              auto_register: false
+            ).create
 
-            if context.bundled_assets?
-              fs.create(fs.join(directory, "assets", "js", "app.js"), t("app_js.erb", context))
-              fs.create(fs.join(directory, "assets", "css", "app.css"), t("app_css.erb", context))
+            RubyClassFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: slice,
+              key: "view",
+              base_path: directory,
+              parent_class_name: "#{Hanami.app.namespace}::View",
+              auto_register: false
+            ).create
+
+            RubyModuleFile.new(
+              fs: fs,
+              inflector: inflector,
+              namespace: slice,
+              key: "views.helpers",
+              base_path: directory,
+              auto_register: false,
+              body: ["# Add your view helpers here"]
+            ).create
+
+            fs.create(
+              fs.join(directory, "templates", "layouts", "app.html.erb"),
+              app_layout_template(
+                page_title: "#{inflector.humanize(app)} - #{inflector.humanize(slice)}"
+              )
+            )
+
+            if Hanami.bundled?("dry-operation")
+              RubyClassFile.new(
+                fs: fs,
+                inflector: inflector,
+                namespace: slice,
+                key: "operation",
+                base_path: directory,
+                parent_class_name: "#{Hanami.app.namespace}::Operation",
+                auto_register: false
+              ).create
+            end
+
+            if Hanami.bundled?("hanami-assets")
+              fs.create(
+                fs.join(directory, "assets", "js", "app.js"),
+                %(import "../css/app.css";\n)
+              )
+              fs.create(
+                fs.join(directory, "assets", "css", "app.css"),
+                <<~CSS
+                    body {
+                      background-color: #fff;
+                      color: #000;
+                      font-family: sans-serif;
+                    }
+                CSS
+              )
               fs.create(fs.join(directory, "assets", "images", "favicon.ico"), file("favicon.ico"))
             end
 
-            if context.generate_db?
-              fs.create(fs.join(directory, "db", "relation.rb"), t("relation.erb", context))
-              fs.create(fs.join(directory, "relations", ".keep"), t("keep.erb", context))
+            if Hanami.bundled?("hanami-db") && !opts.fetch(:skip_db, false)
+              RubyClassFile.new(
+                fs: fs,
+                inflector: inflector,
+                namespace: slice,
+                key: "db.relation",
+                base_path: directory,
+                parent_class_name: "#{Hanami.app.namespace}::DB::Relation",
+              ).create
 
-              fs.create(fs.join(directory, "db", "repo.rb"), t("repo.erb", context))
-              fs.create(fs.join(directory, "repos", ".keep"), t("keep.erb", context))
+              RubyClassFile.new(
+                fs: fs,
+                inflector: inflector,
+                namespace: slice,
+                key: "db.repo",
+                base_path: directory,
+                parent_class_name: "#{Hanami.app.namespace}::DB::Repo",
+              ).create
 
-              fs.create(fs.join(directory, "db", "struct.rb"), t("struct.erb", context))
-              fs.create(fs.join(directory, "structs", ".keep"), t("keep.erb", context))
+              RubyClassFile.new(
+                fs: fs,
+                inflector: inflector,
+                namespace: slice,
+                key: "db.struct",
+                base_path: directory,
+                parent_class_name: "#{Hanami.app.namespace}::DB::Struct",
+              ).create
+
+              fs.touch(fs.join(directory, "relations", ".keep"))
+              fs.touch(fs.join(directory, "repos", ".keep"))
+              fs.touch(fs.join(directory, "structs", ".keep"))
             end
 
-            fs.create(fs.join(directory, "actions/.keep"), t("keep.erb", context))
-            fs.create(fs.join(directory, "views/.keep"), t("keep.erb", context))
-            fs.create(fs.join(directory, "templates/.keep"), t("keep.erb", context))
-            fs.create(fs.join(directory, "templates/layouts/.keep"), t("keep.erb", context))
+            fs.touch(fs.join(directory, "actions/.keep"))
+            fs.touch(fs.join(directory, "views/.keep"))
+            fs.touch(fs.join(directory, "templates/.keep"))
+            fs.touch(fs.join(directory, "templates/layouts/.keep"))
           end
 
           private
@@ -65,19 +148,29 @@ module Hanami
 
           attr_reader :inflector
 
-          def template(path, context)
-            require "erb"
-
-            ERB.new(
-              File.read(__dir__ + "/slice/#{path}"),
-              trim_mode: "-"
-            ).result(context.ctx)
-          end
-
-          alias_method :t, :template
-
           def file(path)
             File.read(File.join(__dir__, "slice", path))
+          end
+
+          def app_layout_template(page_title:)
+            bundled_assets = Hanami.bundled?("hanami-assets")
+
+            <<~LAYOUT
+              <!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>#{ page_title }</title>
+                  #{'<%= favicon_tag %>' if bundled_assets }
+                  #{'<%= stylesheet_tag "app" %>' if bundled_assets }
+                </head>
+                <body>
+                  <%= yield %>
+                  #{'<%= javascript_tag "app" %>' if bundled_assets}
+                </body>
+              </html>
+            LAYOUT
           end
         end
       end
