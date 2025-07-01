@@ -14,14 +14,14 @@ RSpec.describe Hanami::CLI::Generators::App::RubyBlockFile do
 
   let(:args) do
     {
-      fs:,
-      inflector:,
-      key:,
-      namespace:,
-      extra_namespace:,
-      base_path:,
-      signature:,
-      body:,
+      fs: fs,
+      inflector: inflector,
+      key: key,
+      namespace: namespace,
+      extra_namespace: extra_namespace,
+      base_path: base_path,
+      signature: signature,
+      body: body,
     }
   end
 

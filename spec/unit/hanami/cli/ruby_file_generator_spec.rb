@@ -370,7 +370,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
         Hanami::CLI::RubyFileGenerator.new(
           block_signature: "configure",
           body: ["puts 'hello'"],
-          modules: ["App", "Config"]
+          modules: %w[App Config]
         ).call
       ).to(
         eq(
@@ -415,7 +415,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
         Hanami::CLI::RubyFileGenerator.new(
           block_signature: "configure app, env",
           body: ["puts 'configuring'", "app.setup", "", "env.load"],
-          modules: ["MyApp", "Config"],
+          modules: %w[MyApp Config],
           headers: ["# frozen_string_literal: true", "# Configuration block"]
         ).call
       ).to(

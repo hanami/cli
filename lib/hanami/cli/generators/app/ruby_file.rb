@@ -17,8 +17,7 @@ module Hanami
             base_path:,
             extra_namespace: nil,
             auto_register: nil,
-            body: [],
-            **opts
+            body: []
           )
             @fs = fs
             @inflector = inflector
