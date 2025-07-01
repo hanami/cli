@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::RubyFileGenerator do
-  describe ".class" do
+  describe "class generation" do
     describe "without modules" do
       it "generates class without parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class("Greeter")
+          Hanami::CLI::RubyFileGenerator.new(class_name: "Greeter").call
         ).to(
           eq(
             <<~OUTPUT
@@ -18,10 +18,10 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
       it "generates class with parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             parent_class_name: "BaseService",
-          ).to_s
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -34,11 +34,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
       it "generates class with parent class and body" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             parent_class_name: "BaseService",
             body: %w[foo bar]
-          ).to_s
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -55,10 +55,10 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
     describe "with 1 module" do
       it "generates class without parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             modules: %w[Services],
-          )
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -73,11 +73,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
       it "generates class with parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             parent_class_name: "BaseService",
             modules: %w[Services]
-          )
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -92,13 +92,13 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
       it "generates class with parent class, body and headers" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             parent_class_name: "BaseService",
             modules: %w[Services],
             headers: ["# hello world"],
             body: %w[foo bar]
-          )
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -119,10 +119,10 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
     describe "with two modules" do
       it "generates class without parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             modules: %w[Admin Services],
-          )
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -139,11 +139,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
       it "generates class with parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             parent_class_name: "BaseService",
             modules: %w[Admin Services]
-          )
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -162,10 +162,10 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
     describe "with three modules" do
       it "generates class without parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             modules: %w[Internal Admin Services]
-          )
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -184,11 +184,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
       it "generates class with parent class" do
         expect(
-          Hanami::CLI::RubyFileGenerator.class(
-            "Greeter",
+          Hanami::CLI::RubyFileGenerator.new(
+            class_name: "Greeter",
             parent_class_name: "BaseService",
             modules: %w[Internal Admin Services]
-          )
+          ).call
         ).to(
           eq(
             <<~OUTPUT
@@ -207,12 +207,12 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
     end
   end
 
-  describe ".module" do
+  describe "module generation" do
     describe "without frozen_string_literal" do
       describe "top-level" do
         it "generates module by itself" do
           expect(
-            Hanami::CLI::RubyFileGenerator.module("Greetable")
+            Hanami::CLI::RubyFileGenerator.new(modules: ["Greetable"]).call
           ).to(
             eq(
               <<~OUTPUT
@@ -225,7 +225,7 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
         it "generates modules nested in a module, from array" do
           expect(
-            Hanami::CLI::RubyFileGenerator.module(%w[External Greetable])
+            Hanami::CLI::RubyFileGenerator.new(modules: %w[External Greetable]).call
           ).to(
             eq(
               <<~OUTPUT
@@ -240,11 +240,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
 
         it "generates modules nested in a module, from array with headers and body" do
           expect(
-            Hanami::CLI::RubyFileGenerator.module(
-              %w[External Greetable],
+            Hanami::CLI::RubyFileGenerator.new(
+              modules: %w[External Greetable],
               headers: ["# hello world"],
               body: %w[foo bar]
-            )
+            ).call
           ).to(
             eq(
               <<~OUTPUT
@@ -261,9 +261,9 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
           )
         end
 
-        it "generates modules nested in a module, from list" do
+        it "generates modules nested in a module, multiple levels" do
           expect(
-            Hanami::CLI::RubyFileGenerator.module("Admin", "External", "Greetable")
+            Hanami::CLI::RubyFileGenerator.new(modules: %w[Admin External Greetable]).call
           ).to(
             eq(
               <<~OUTPUT
@@ -282,11 +282,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
   end
 
   it "fails to generate unparseable ruby code" do
-    expect { Hanami::CLI::RubyFileGenerator.class("%%Greeter") }.to(
+    expect { Hanami::CLI::RubyFileGenerator.new(class_name: "%%Greeter").call }.to(
       raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
     )
 
-    expect { Hanami::CLI::RubyFileGenerator.module("1Greeter") }.to(
+    expect { Hanami::CLI::RubyFileGenerator.new(modules: ["1Greeter"]).call }.to(
       raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
     )
   end
