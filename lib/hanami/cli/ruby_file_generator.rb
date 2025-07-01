@@ -47,18 +47,24 @@ module Hanami
       def initialize(
         class_name: nil,
         parent_class_name: nil,
+        block_signature: nil,
         modules: [],
         headers: [],
         body: []
       )
         @class_name = class_name
         @parent_class_name = parent_class_name
+        @block_signature = block_signature
         @modules = modules
         @headers = headers.any? ? (headers + [""]) : []
         @body = body
 
         if parent_class_name && !class_name
           raise ArgumentError, "class_name is required when parent_class_name is specified"
+        end
+
+        if class_name && block_signature
+          raise ArgumentError, "cannot specify both class_name and block_signature"
         end
       end
 
@@ -74,6 +80,7 @@ module Hanami
       attr_reader(
         :class_name,
         :parent_class_name,
+        :block_signature,
         :modules,
         :headers,
         :body
@@ -83,6 +90,8 @@ module Hanami
         this_module, *rest_modules = remaining_modules
         if this_module
           with_module_lines(this_module, lines(rest_modules))
+        elsif block_signature
+          block_lines
         elsif class_name
           class_lines
         else
@@ -94,6 +103,14 @@ module Hanami
         [
           "module #{module_name}",
           *indent_lines(contents_lines),
+          "end"
+        ]
+      end
+
+      def block_lines
+        [
+          "#{block_signature} do",
+          *indent_lines(body),
           "end"
         ]
       end

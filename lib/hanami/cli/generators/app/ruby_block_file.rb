@@ -21,8 +21,9 @@ module Hanami
           def contents
             RubyFileGenerator.new(
               headers: headers,
-              body: block_definition,
-              modules: modules
+              body: body,
+              modules: modules,
+              block_signature: signature
             ).call
           end
 
@@ -32,14 +33,6 @@ module Hanami
 
           def modules
             namespace_modules
-          end
-
-          def block_definition
-            [
-              "#{signature} do",
-              *body.map { |line| RubyFileGenerator::INDENT + line.strip },
-              "end"
-            ]
           end
         end
       end

@@ -281,13 +281,188 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
     end
   end
 
-  it "fails to generate unparseable ruby code" do
-    expect { Hanami::CLI::RubyFileGenerator.new(class_name: "%%Greeter").call }.to(
-      raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
-    )
+  describe "block generation" do
+    it "generates a simple block" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(block_signature: "configure").call
+      ).to(
+        eq(
+          <<~OUTPUT
+            configure do
+            end
+          OUTPUT
+        )
+      )
+    end
 
-    expect { Hanami::CLI::RubyFileGenerator.new(modules: ["1Greeter"]).call }.to(
-      raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
-    )
+    it "generates a block with signature arguments" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(block_signature: "configure env, settings").call
+      ).to(
+        eq(
+          <<~OUTPUT
+            configure env, settings do
+            end
+          OUTPUT
+        )
+      )
+    end
+
+    it "generates a block with body" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(
+          block_signature: "configure",
+          body: ["puts 'hello'", "puts 'world'"]
+        ).call
+      ).to(
+        eq(
+          <<~OUTPUT
+            configure do
+              puts 'hello'
+              puts 'world'
+            end
+          OUTPUT
+        )
+      )
+    end
+
+    it "generates a block with empty lines in body" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(
+          block_signature: "configure",
+          body: ["puts 'start'", "", "puts 'end'"]
+        ).call
+      ).to(
+        eq(
+          <<~OUTPUT
+            configure do
+              puts 'start'
+
+              puts 'end'
+            end
+          OUTPUT
+        )
+      )
+    end
+
+    it "generates a block with headers" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(
+          block_signature: "configure",
+          body: ["puts 'hello'"],
+          headers: ["# frozen_string_literal: true"]
+        ).call
+      ).to(
+        eq(
+          <<~OUTPUT
+            # frozen_string_literal: true
+
+            configure do
+              puts 'hello'
+            end
+          OUTPUT
+        )
+      )
+    end
+
+    it "generates a block inside modules" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(
+          block_signature: "configure",
+          body: ["puts 'hello'"],
+          modules: ["App", "Config"]
+        ).call
+      ).to(
+        eq(
+          <<~OUTPUT
+            module App
+              module Config
+                configure do
+                  puts 'hello'
+                end
+              end
+            end
+          OUTPUT
+        )
+      )
+    end
+
+    it "generates a block inside modules with headers" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(
+          block_signature: "configure",
+          body: ["puts 'hello'"],
+          modules: ["App"],
+          headers: ["# frozen_string_literal: true"]
+        ).call
+      ).to(
+        eq(
+          <<~OUTPUT
+            # frozen_string_literal: true
+
+            module App
+              configure do
+                puts 'hello'
+              end
+            end
+          OUTPUT
+        )
+      )
+    end
+
+    it "generates complex block with signature args, modules, headers and body" do
+      expect(
+        Hanami::CLI::RubyFileGenerator.new(
+          block_signature: "configure app, env",
+          body: ["puts 'configuring'", "app.setup", "", "env.load"],
+          modules: ["MyApp", "Config"],
+          headers: ["# frozen_string_literal: true", "# Configuration block"]
+        ).call
+      ).to(
+        eq(
+          <<~OUTPUT
+            # frozen_string_literal: true
+            # Configuration block
+
+            module MyApp
+              module Config
+                configure app, env do
+                  puts 'configuring'
+                  app.setup
+
+                  env.load
+                end
+              end
+            end
+          OUTPUT
+        )
+      )
+    end
+  end
+
+  it "fails when both class_name and block_signature are specified" do
+    expect {
+      Hanami::CLI::RubyFileGenerator.new(class_name: "MyClass", block_signature: "configure")
+    }.to raise_error(ArgumentError, "cannot specify both class_name and block_signature")
+  end
+
+  it "fails when parent_class_name is specified without class_name" do
+    expect {
+      Hanami::CLI::RubyFileGenerator.new(parent_class_name: "BaseService")
+    }.to raise_error(ArgumentError, "class_name is required when parent_class_name is specified")
+  end
+
+  it "fails to generate unparseable ruby code" do
+    expect {
+      Hanami::CLI::RubyFileGenerator.new(class_name: "%%Greeter").call
+    }.to raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
+
+    expect {
+      Hanami::CLI::RubyFileGenerator.new(modules: ["1Greeter"]).call
+    }.to raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
+
+    expect {
+      Hanami::CLI::RubyFileGenerator.new(block_signature: "%%invalid").call
+    }.to raise_error(Hanami::CLI::RubyFileGenerator::GeneratedUnparseableCodeError)
   end
 end
