@@ -90,13 +90,13 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
         )
       end
 
-      it "generates class with parent class, body and header" do
+      it "generates class with parent class, body and headers" do
         expect(
           Hanami::CLI::RubyFileGenerator.class(
             "Greeter",
             parent_class_name: "BaseService",
             modules: %w[Services],
-            header: ["# hello world"],
+            headers: ["# hello world"],
             body: %w[foo bar]
           )
         ).to(
@@ -238,11 +238,11 @@ RSpec.describe Hanami::CLI::RubyFileGenerator do
           )
         end
 
-        it "generates modules nested in a module, from array with header and body" do
+        it "generates modules nested in a module, from array with headers and body" do
           expect(
             Hanami::CLI::RubyFileGenerator.module(
               %w[External Greetable],
-              header: ["# hello world"],
+              headers: ["# hello world"],
               body: %w[foo bar]
             )
           ).to(

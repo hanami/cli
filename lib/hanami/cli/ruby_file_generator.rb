@@ -48,13 +48,13 @@ module Hanami
         class_name: nil,
         parent_class_name: nil,
         modules: [],
-        header: [],
+        headers: [],
         body: []
       )
         @class_name = class_name
         @parent_class_name = parent_class_name
         @modules = modules
-        @header = header.any? ? (header + [""]) : []
+        @headers = headers.any? ? (headers + [""]) : []
         @body = body
 
         if parent_class_name && !class_name
@@ -64,7 +64,7 @@ module Hanami
 
       def call
         definition = lines(modules).map { |line| "#{line}\n" }.join
-        source_code = [header, definition].flatten.join("\n")
+        source_code = [headers, definition].flatten.join("\n")
         ensure_parseable!(source_code)
         source_code
       end
@@ -75,7 +75,7 @@ module Hanami
         :class_name,
         :parent_class_name,
         :modules,
-        :header,
+        :headers,
         :body
       )
 
