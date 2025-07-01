@@ -126,7 +126,7 @@ module Hanami
           # @since x.x.x
           # @api private
           def normalize(name)
-            inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
+            inflector.camelize(name).gsub(/[^\p{Alnum}]/, "") if name
           end
 
           # @since x.x.x
