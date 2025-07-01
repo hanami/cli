@@ -93,7 +93,7 @@ module Hanami
       def with_module_lines(module_name, contents_lines)
         [
           "module #{module_name}",
-          *contents_lines.map { |line| indent(line) },
+          *indent_lines(contents_lines),
           "end"
         ]
       end
@@ -101,7 +101,7 @@ module Hanami
       def class_lines
         [
           class_definition,
-          *body.map { |line| indent(line) },
+          *indent_lines(body),
           "end"
         ].compact
       end
@@ -120,6 +120,10 @@ module Hanami
         else
           INDENT + line
         end
+      end
+
+      def indent_lines(lines)
+        lines.map { |line| indent(line) }
       end
 
       def ensure_parseable!(source_code)
