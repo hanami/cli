@@ -47,24 +47,30 @@ module Hanami
       def initialize(
         class_name: nil,
         parent_class_name: nil,
+        block_signature: nil,
         modules: [],
-        header: [],
+        headers: [],
         body: []
       )
         @class_name = class_name
         @parent_class_name = parent_class_name
+        @block_signature = block_signature
         @modules = modules
-        @header = header.any? ? (header + [""]) : []
+        @headers = headers.any? ? (headers + [""]) : []
         @body = body
 
         if parent_class_name && !class_name
           raise ArgumentError, "class_name is required when parent_class_name is specified"
         end
+
+        if class_name && block_signature
+          raise ArgumentError, "cannot specify both class_name and block_signature"
+        end
       end
 
       def call
         definition = lines(modules).map { |line| "#{line}\n" }.join
-        source_code = [header, definition].flatten.join("\n")
+        source_code = [headers, definition].flatten.join("\n")
         ensure_parseable!(source_code)
         source_code
       end
@@ -74,8 +80,9 @@ module Hanami
       attr_reader(
         :class_name,
         :parent_class_name,
+        :block_signature,
         :modules,
-        :header,
+        :headers,
         :body
       )
 
@@ -83,6 +90,8 @@ module Hanami
         this_module, *rest_modules = remaining_modules
         if this_module
           with_module_lines(this_module, lines(rest_modules))
+        elsif block_signature
+          block_lines
         elsif class_name
           class_lines
         else
@@ -93,7 +102,15 @@ module Hanami
       def with_module_lines(module_name, contents_lines)
         [
           "module #{module_name}",
-          *contents_lines.map { |line| indent(line) },
+          *indent_lines(contents_lines),
+          "end"
+        ]
+      end
+
+      def block_lines
+        [
+          "#{block_signature} do",
+          *indent_lines(body),
           "end"
         ]
       end
@@ -101,7 +118,7 @@ module Hanami
       def class_lines
         [
           class_definition,
-          *body.map { |line| indent(line) },
+          *indent_lines(body),
           "end"
         ].compact
       end
@@ -120,6 +137,10 @@ module Hanami
         else
           INDENT + line
         end
+      end
+
+      def indent_lines(lines)
+        lines.map { |line| indent(line) }
       end
 
       def ensure_parseable!(source_code)
