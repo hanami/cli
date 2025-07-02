@@ -10,7 +10,7 @@ module Hanami
         # @api private
         class RubyClassFile < RubyFile
           def initialize(parent_class_name: nil, **args)
-            super
+            super(**args)
 
             @parent_class_name = parent_class_name
           end

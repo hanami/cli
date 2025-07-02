@@ -13,7 +13,7 @@ module Hanami
           def initialize(signature:, **args)
             raise ArgumentError, "`signature` is required" unless signature
 
-            super
+            super(**args)
 
             @signature = signature
           end
