@@ -360,6 +360,16 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
 
       expect(command).to have_received(:exit).with(2).once
     end
+
+    it "raises exception when DB existence check fails" do
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_matching(/\\list.+_app/), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-db-err")
+
+      expect { command.call }.to raise_error(Hanami::CLI::Error)
+    end
   end
 
   describe "mysql", :mysql do
@@ -415,6 +425,21 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Drop, :app_integration do
       expect(output).to include "app-db-err"
 
       expect(command).to have_received(:exit).with(2).once
+    end
+
+    it "prints errors when check for DB existence fails" do
+      command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      out.truncate(0)
+
+      allow(system_call).to receive(:call).and_call_original
+      allow(system_call)
+        .to receive(:call)
+        .with(a_string_matching(/-e "SHOW DATABASES/), anything)
+        .and_return Hanami::CLI::SystemCall::Result.new(exit_code: 2, out: "", err: "app-db-err")
+
+      expect {
+        command.call
+      }.to raise_error(Hanami::CLI::DatabaseExistenceCheckError)
     end
   end
 
