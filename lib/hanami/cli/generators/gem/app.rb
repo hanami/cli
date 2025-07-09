@@ -56,9 +56,12 @@ module Hanami
 
             fs.create("app/actions/.keep", t("keep.erb", context))
             fs.create("app/action.rb", t("action.erb", context))
-            fs.create("app/view.rb", t("view.erb", context))
-            fs.create("app/views/helpers.rb", t("helpers.erb", context))
-            fs.create("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
+
+            if context.generate_view?
+              fs.create("app/view.rb", t("view.erb", context))
+              fs.create("app/views/helpers.rb", t("helpers.erb", context))
+              fs.create("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
+            end
 
             if context.generate_assets?
               fs.create("package.json", t("package.json.erb", context))

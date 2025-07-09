@@ -88,6 +88,12 @@ module Hanami
 
         # @since 2.2.0
         # @api private
+        def generate_view?
+          !options.fetch(:skip_view, false)
+        end
+
+        # @since 2.2.0
+        # @api private
         def generate_sqlite?
           generate_db? && database_option == Commands::Gem::New::DATABASE_SQLITE
         end
