@@ -238,7 +238,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           gem install foreman
         fi
 
-        exec foreman start -f Procfile.dev "$@"
+        exec foreman start -f Procfile.dev --env=/dev/null "$@"
       EXPECTED
       expect(fs.read("bin/dev")).to eq(bin_dev)
       expect(fs.executable?("bin/dev")).to be(true)
@@ -719,7 +719,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
             gem install foreman
           fi
 
-          exec foreman start -f Procfile.dev "$@"
+          exec foreman start -f Procfile.dev --env=/dev/null "$@"
         EXPECTED
         expect(fs.read("bin/dev")).to eq(bin_dev)
         expect(fs.executable?("bin/dev")).to be(true)
