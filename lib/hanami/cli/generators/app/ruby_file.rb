@@ -17,8 +17,7 @@ module Hanami
             base_path:,
             extra_namespace: nil,
             auto_register: nil,
-            body: [],
-            **opts
+            body: []
           )
             @fs = fs
             @inflector = inflector
@@ -32,14 +31,26 @@ module Hanami
 
           # @since x.x.x
           # @api private
+          def contents
+            RubyFileGenerator.new(
+              class_name: class_name,
+              parent_class_name: parent_class_name,
+              modules: modules,
+              headers: headers,
+              body: body
+            ).call
+          end
+
+          # @since x.x.x
+          # @api private
           def create
-            fs.create(path, file_contents)
+            fs.create(path, contents)
           end
 
           # @since x.x.x
           # @api private
           def write
-            fs.write(path, file_contents)
+            fs.write(path, contents)
           end
 
           # @since x.x.x
@@ -64,19 +75,6 @@ module Hanami
             :auto_register,
             :body,
           )
-
-          # @since x.x.x
-          # @api private
-          def file_contents
-            RubyFileGenerator.new(
-              # These first three must be implemented by subclasses
-              class_name: class_name,
-              parent_class_name: parent_class_name,
-              modules: modules,
-              header: headers,
-              body: body
-            ).call
-          end
 
           # @since x.x.x
           # @api private
@@ -127,7 +125,7 @@ module Hanami
           # @since x.x.x
           # @api private
           def normalize(name)
-            inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
+            inflector.camelize(name).gsub(/[^\p{Alnum}]/, "") if name
           end
 
           # @since x.x.x
