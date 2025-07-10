@@ -12,7 +12,9 @@ source "https://rubygems.org"
 <%- end -%>
 <%= hanami_gem("router") %>
 <%= hanami_gem("validations") %>
+<%- if generate_view? -%>
 <%= hanami_gem("view") %>
+<%- end -%>
 
 gem "dry-types", "~> 1.7"
 gem "dry-operation"

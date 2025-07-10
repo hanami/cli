@@ -32,6 +32,11 @@ module Hanami
 
           # @since 2.2.0
           # @api private
+          SKIP_VIEW_DEFAULT = false
+          private_constant :SKIP_VIEW_DEFAULT
+
+          # @since 2.2.0
+          # @api private
           DATABASE_SQLITE = "sqlite"
 
           # @since 2.2.0
@@ -81,6 +86,12 @@ module Hanami
 
           # @since 2.2.0
           # @api private
+          option :skip_view, type: :flag, required: false,
+                             default: SKIP_VIEW_DEFAULT,
+                             desc: "Skip including hanami-view"
+
+          # @since 2.2.0
+          # @api private
           option :database, type: :string, required: false,
                             default: DATABASE_SQLITE,
                             desc: "Database adapter (supported: sqlite, mysql, postgres)"
@@ -92,6 +103,7 @@ module Hanami
             "bookshelf --skip-install                     # Generate a new Hanami app, but it skips Hanami installation",
             "bookshelf --skip-assets                      # Generate a new Hanami app without hanmai-assets",
             "bookshelf --skip-db                          # Generate a new Hanami app without hanami-db",
+            "bookshelf --skip-view                        # Generate a new Hanami app without hanami-view",
             "bookshelf --database={sqlite|postgres|mysql} # Generate a new Hanami app with a specified database (default: sqlite)",
           ]
           # rubocop:enable Layout/LineLength
@@ -123,6 +135,7 @@ module Hanami
             skip_install: SKIP_INSTALL_DEFAULT,
             skip_assets: SKIP_ASSETS_DEFAULT,
             skip_db: SKIP_DB_DEFAULT,
+            skip_view: SKIP_VIEW_DEFAULT,
             database: nil
           )
             # rubocop:enable Metrics/ParameterLists
@@ -141,6 +154,7 @@ module Hanami
                 head: head,
                 skip_assets: skip_assets,
                 skip_db: skip_db,
+                skip_view: skip_view,
                 database: normalized_database
               )
               generator.call(app, context: context) do
