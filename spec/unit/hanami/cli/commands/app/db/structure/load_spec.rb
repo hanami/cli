@@ -11,6 +11,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
 
   let(:system_call) { Hanami::CLI::SystemCall.new }
   let(:test_env_executor) { instance_spy(Hanami::CLI::InteractiveSystemCall) }
+  let(:exit_double) { double(:exit_method) }
 
   let(:out) { StringIO.new }
   def output = out.string
@@ -18,6 +19,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
   before do
     # Prevent the command from exiting the spec run in the case of unexpected system call failures
     allow(command).to receive(:exit)
+    allow(exit_double).to receive(:call)
   end
 
   before do
@@ -71,7 +73,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
   end
 
   def db_structure_dump
-    command.run_command(Hanami::CLI::Commands::App::DB::Create)
+    command.run_command(Hanami::CLI::Commands::App::DB::Create, command_exit: exit_double)
     command.run_command(Hanami::CLI::Commands::App::DB::Migrate)
 
     # `db migrate` establishes a connection to the database, which will prevent it from being
@@ -81,7 +83,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Structure::Load, :app_integration
     Main::Slice.start :db and Main::Slice.stop :db
 
     command.run_command(Hanami::CLI::Commands::App::DB::Drop)
-    command.run_command(Hanami::CLI::Commands::App::DB::Create)
+    command.run_command(Hanami::CLI::Commands::App::DB::Create, command_exit: exit_double)
 
     out.truncate(0)
   end

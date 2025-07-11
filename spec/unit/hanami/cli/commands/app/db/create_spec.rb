@@ -11,6 +11,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
 
   let(:system_call) { Hanami::CLI::SystemCall.new }
   let(:test_env_executor) { instance_spy(Hanami::CLI::InteractiveSystemCall) }
+  let(:exit_double) { double(:exit_method) }
 
   let(:out) { StringIO.new }
   def output = out.string
@@ -18,6 +19,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
   before do
     # Prevent the command from exiting the spec run in the case of unexpected system call failures
     allow(command).to receive(:exit)
+    allow(exit_double).to receive(:call)
   end
 
   before do
@@ -92,8 +94,8 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
         expect(output).to include "database #{POSTGRES_BASE_DB_NAME}_app created"
       end
 
-      it "does not create the database if it alredy exists" do
-        command.run_command(Hanami::CLI::Commands::App::DB::Create)
+      it "does not create the database if it already exists" do
+        command.run_command(Hanami::CLI::Commands::App::DB::Create, command_exit: exit_double)
         out.truncate(0)
 
         command.call
@@ -118,7 +120,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Create, :app_integration do
       end
 
       it "does not create the database if it already exists" do
-        command.run_command(Hanami::CLI::Commands::App::DB::Create)
+        command.run_command(Hanami::CLI::Commands::App::DB::Create, command_exit: exit_double)
         out.truncate(0)
 
         command.call
