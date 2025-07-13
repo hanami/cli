@@ -18,17 +18,18 @@ module Hanami
             option :gateway, required: false, desc: "Use database for gateway"
 
             def call(steps: nil, app: false, slice: nil, gateway: nil, target: nil, dump: true, command_exit: method(:exit), **)
-              target = steps if steps && !target
-
-              if !app && slice.nil? && (steps.nil? || (steps && code_is_number?(steps)))
+              if !app && slice.nil? && (steps.nil? || (steps && code_is_number?(steps))) && target.nil?
                 steps_count = steps.nil? ? 1 : Integer(steps)
                 rollback_across_all_databases(steps: steps_count, dump: dump, gateway: gateway, command_exit: command_exit)
               else
+                target = steps if steps && !target
                 databases(app: app, slice: slice, gateway: gateway).each do |database|
                   migration_code, migration_name = find_migration(target, database)
 
                   if migration_name.nil?
-                    output = if target
+                    output = if steps
+                               "==> migration file for #{steps} migrations back was not found"
+                             elsif target
                                "==> migration file for target #{target} was not found"
                              else
                                "==> no migrations to rollback"
@@ -62,9 +63,10 @@ module Hanami
 
               # Collect all applied migrations across all databases with their source database
               all_migrations = []
+              applied_migrations = {}
               all_databases.each do |database|
-                applied_migrations = database.applied_migrations
-                applied_migrations.each do |migration|
+                applied_migrations[database] = database.applied_migrations
+                applied_migrations[database].each do |migration|
                   timestamp = Integer(migration.split("_").first)
                   all_migrations << {
                     timestamp: timestamp,
@@ -75,26 +77,25 @@ module Hanami
                 end
               end
 
-              all_migrations.sort_by! { |m| -m[:timestamp] }
-              migrations_to_rollback = all_migrations.take(steps)
-
-              if migrations_to_rollback.empty?
+              if all_migrations.empty?
                 out.puts "==> no migrations to rollback"
                 return
               end
+
+              all_migrations.sort_by! { |m| -m[:timestamp] }
+              migrations_to_rollback = all_migrations.take(steps)
 
               migrations_to_rollback.each do |migration_info|
                 database = migration_info[:database]
                 migration_name = migration_info[:name]
 
                 # Find the previous migration in this database
-                all_db_migrations = database.applied_migrations
-                current_index = all_db_migrations.index { |m| m.include?(migration_info[:migration]) }
+                current_index = applied_migrations[database].index { |m| m.include?(migration_info[:migration]) }
 
                 next if current_index.nil? # This shouldn't happen, but I am not like 100% sure?
 
                 target_code = if current_index.positive?
-                                prev_migration = all_db_migrations[current_index - 1]
+                                prev_migration = applied_migrations[database][current_index - 1]
                                 prev_migration.split("_").first
                               else
                                 # Roll back to before the first migration
@@ -149,8 +150,8 @@ module Hanami
                     applied_migrations[-2]
                   end
               end
-              migration_code = migration.split("_").first
-              migration_name = File.basename(migration, ".*")
+              migration_code = migration&.split("_")&.first
+              migration_name = migration ? File.basename(migration, ".*") : nil
 
               [migration_code, migration_name]
             end

@@ -216,6 +216,22 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       # only the second does not call?
     end
 
+    it "handles case when input timestamp target is invalid" do
+      out.truncate(0)
+
+      command.call(target: "20250101101110")
+
+      expect(output).to include "==> migration file for target 20250101101110 was not found"
+    end
+
+    it "handles case when input timestamp target is valid" do
+      out.truncate(0)
+
+      command.call(target: "20250602201330")
+
+      expect(output).to include "database db/app.sqlite3 rolled back to 20250602201330_create_posts"
+    end
+
     it "rollback everything when steps flag is bigger than the number of migrations" do
       command.call(steps: "42")
 
