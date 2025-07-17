@@ -50,6 +50,12 @@ module Hanami
             )
           end
 
+          # @since x.x.x
+          # @api private
+          def path
+            fs.join(directory, "#{key_parts.last}.rb")
+          end
+
           private
 
           # @since x.x.x
@@ -100,12 +106,6 @@ module Hanami
                            else
                              base_path
                            end
-          end
-
-          # @since x.x.x
-          # @api private
-          def path
-            fs.join(directory, "#{key_parts.last}.rb")
           end
 
           # @since x.x.x
