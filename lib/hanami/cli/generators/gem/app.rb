@@ -61,6 +61,9 @@ module Hanami
               fs.create("app/view.rb", t("view.erb", context))
               fs.create("app/views/helpers.rb", t("helpers.erb", context))
               fs.create("app/templates/layouts/app.html.erb", t("app_layout.erb", context))
+
+              fs.create("public/404.html", file("404.html"))
+              fs.create("public/500.html", file("500.html"))
             end
 
             if context.generate_assets?
@@ -90,9 +93,6 @@ module Hanami
             end
 
             fs.create("app/operation.rb", t("operation.erb", context))
-
-            fs.create("public/404.html", file("404.html"))
-            fs.create("public/500.html", file("500.html"))
           end
 
           def template(path, context)
