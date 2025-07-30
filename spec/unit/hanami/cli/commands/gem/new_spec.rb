@@ -11,11 +11,12 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
   let(:inflector) { Dry::Inflector.new }
   let(:system_call) { instance_double(Hanami::CLI::SystemCall, call: successful_system_call_result) }
   let(:app) { "bookshelf" }
-  let(:kwargs) { {head: hanami_head, skip_assets: skip_assets, skip_db: skip_db, database: database} }
+  let(:kwargs) { {head: hanami_head, skip_assets: skip_assets, skip_db: skip_db, skip_view: skip_view, database: database} }
 
   let(:hanami_head) { false }
   let(:skip_assets) { false }
   let(:skip_db) { false }
+  let(:skip_view) { false }
   let(:database) { nil }
 
   let(:output) { out.rewind && out.read.chomp }
@@ -1132,6 +1133,35 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
 
         # app/assets/images/favicon.ico
         expect(fs.exist?("app/assets/images/favicon.ico")).to be(false)
+      end
+    end
+  end
+
+  context "without hanami-view" do
+    let(:skip_view) { true }
+
+    it "generates a new app without hanami-view" do
+      expect(bundler).to receive(:install!)
+        .and_return(true)
+
+      expect(bundler).to receive(:exec)
+        .with("hanami install")
+        .and_return(successful_system_call_result)
+
+      expect(bundler).to receive(:exec)
+        .with("check")
+        .at_least(1)
+        .and_return(successful_system_call_result)
+
+      expect(system_call).to receive(:call).with("npm", ["install"])
+
+      subject.call(app: app, **kwargs)
+
+      fs.chdir(app) do
+        expect(fs.read("Gemfile")).to_not match(/hanami-view/)
+        expect(fs.exist?("app/view.rb")).to be(false)
+        expect(fs.exist?("app/views")).to be(false)
+        expect(fs.exist?("app/templates")).to be(false)
       end
     end
   end
