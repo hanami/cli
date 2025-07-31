@@ -4,7 +4,7 @@ require "hanami"
 require "securerandom"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, generator: generator) }
+  subject { described_class.new(fs: fs, generator: generator) }
 
   before do
     allow(Hanami).to receive(:bundled?)
@@ -17,7 +17,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:generator) { Hanami::CLI::Generators::App::Slice.new(fs: fs, inflector: inflector) }
-  let(:app) { "Bookshelf" }
+  let(:app) { "Test" }
   let(:underscored_app) { inflector.underscore(app) }
   let(:dir) { underscored_app }
   let(:slice) { "admin" }
@@ -75,7 +75,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
         module Admin
           module DB
-            class Relation < Bookshelf::DB::Relation
+            class Relation < Test::DB::Relation
             end
           end
         end
@@ -91,7 +91,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
         module Admin
           module DB
-            class Repo < Bookshelf::DB::Repo
+            class Repo < Test::DB::Repo
             end
           end
         end
@@ -107,7 +107,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
 
         module Admin
           module DB
-            class Struct < Bookshelf::DB::Struct
+            class Struct < Test::DB::Struct
             end
           end
         end
@@ -122,7 +122,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
         # frozen_string_literal: true
 
         module Admin
-          class View < Bookshelf::View
+          class View < Test::View
           end
         end
       RUBY
@@ -149,7 +149,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
         # frozen_string_literal: true
 
         module Admin
-          class Operation < Bookshelf::Operation
+          class Operation < Test::Operation
           end
         end
       RUBY
@@ -350,14 +350,9 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
   private
 
   def within_application_directory
-    application = Struct.new(:namespace).new(app)
-
-    allow(Hanami).to receive(:app).and_return(application)
-    allow(Hanami).to receive(:app?).and_return(true)
-
     fs.mkdir(dir)
     fs.chdir(dir) do
-      routes = <<~CODE
+      routes = <<~RUBY
         # frozen_string_literal: true
 
         require "hanami/routes"
@@ -367,7 +362,7 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Slice, :app do
             root { "Hello from Hanami" }
           end
         end
-      CODE
+      RUBY
 
       fs.write("config/routes.rb", routes)
 

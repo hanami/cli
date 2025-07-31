@@ -113,13 +113,13 @@ module Hanami
           # @since 2.0.0
           # @api private
           def initialize(
-            fs:, inflector:,
+            fs:,
             bundler: CLI::Bundler.new(fs: fs),
             generator: Generators::Gem::App.new(fs: fs, inflector: inflector),
             system_call: SystemCall.new,
             **opts
           )
-            super(fs: fs, inflector: inflector, **opts)
+            super(fs: fs, **opts)
             @bundler = bundler
             @generator = generator
             @system_call = system_call
