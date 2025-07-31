@@ -94,7 +94,7 @@ module Hanami
             )
               name = Naming.new(inflector:).action_name(name)
 
-              raise InvalidActionNameError.new(name) unless name.include?(ACTION_SEPARATOR)
+              raise InvalidActionNameError.new(name) unless name.include?(".")
 
               super(
                 name:,
