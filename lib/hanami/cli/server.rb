@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "rackup"
+
 module Hanami
   module CLI
     # @since 2.0.0
