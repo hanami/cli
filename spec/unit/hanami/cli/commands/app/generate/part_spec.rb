@@ -4,7 +4,7 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
+  subject { described_class.new(fs: fs, out: out) }
 
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }

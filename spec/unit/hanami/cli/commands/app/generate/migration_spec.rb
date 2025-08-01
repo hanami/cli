@@ -3,11 +3,9 @@
 require "hanami"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Migration, :app do
-  subject { described_class.new(fs: fs, inflector: inflector) }
+  subject { described_class.new(fs: fs) }
 
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
-  let(:inflector) { Dry::Inflector.new }
-
   let(:out) { StringIO.new }
 
   def output

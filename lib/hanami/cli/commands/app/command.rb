@@ -66,6 +66,8 @@ module Hanami
               end
           end
 
+          def inflector = app.inflector
+
           # Runs another CLI command via its command class.
           #
           # @param klass [Hanami::CLI::Command]
@@ -76,7 +78,6 @@ module Hanami
           def run_command(klass, ...)
             klass.new(
               out: out,
-              inflector: app.inflector,
               fs: Hanami::CLI::Files,
             ).call(...)
           end

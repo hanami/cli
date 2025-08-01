@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_integration do
-  subject { described_class.new(inflector: inflector, out: out) }
-
-  let(:inflector) { Dry::Inflector.new }
+  subject { described_class.new(out: out) }
 
   let(:out) { StringIO.new }
   def output = out.string

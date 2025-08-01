@@ -19,23 +19,16 @@ module Hanami
             attr_reader :generator
             private :generator
 
-            attr_reader :inflector
-            private :inflector
-
             # @since 2.2.0
             # @api private
-            def initialize(
-              fs:,
-              inflector:,
-              **
-            )
+            def initialize(fs:, **)
               super
               @generator = generator_class.new(fs: fs, inflector: inflector, out: out)
             end
 
             def generator_class
               # Must be implemented by subclasses, with class that takes:
-              # fs:, inflector:, out:
+              # fs:, out:
             end
 
             # @since 2.2.0

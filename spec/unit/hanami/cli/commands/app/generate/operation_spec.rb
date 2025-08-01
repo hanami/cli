@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Operation, :app do
-  subject { described_class.new(fs: fs, inflector: inflector, out: out) }
+  subject { described_class.new(fs: fs, out: out) }
 
   let(:out) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
-  let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
 
   def output

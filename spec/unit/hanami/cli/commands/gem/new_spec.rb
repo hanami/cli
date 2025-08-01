@@ -2,7 +2,7 @@
 
 RSpec.describe Hanami::CLI::Commands::Gem::New do
   subject do
-    described_class.new(bundler: bundler, out: out, fs: fs, inflector: inflector, system_call: system_call)
+    described_class.new(bundler: bundler, out: out, fs: fs, system_call: system_call)
   end
 
   let(:bundler) { Hanami::CLI::Bundler.new(fs: fs) }

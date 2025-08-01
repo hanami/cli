@@ -24,7 +24,6 @@ module Hanami
         out: $stdout,
         err: $stderr,
         fs: Hanami::CLI::Files.new(out: out),
-        inflector: Dry::Inflector.new,
         **opts
       )
         super
@@ -46,12 +45,15 @@ module Hanami
       #
       # @since 2.0.0
       # @api public
-      def initialize(out:, err:, fs:, inflector:)
+      def initialize(out:, err:, fs:)
         super()
         @out = out
         @err = err
         @fs = fs
-        @inflector = inflector
+      end
+
+      def inflector
+        @inflector ||= Dry::Inflector.new
       end
 
       private
@@ -79,14 +81,6 @@ module Hanami
       # @since 2.0.0
       # @api public
       attr_reader :fs
-
-      # Returns the inflector.
-      #
-      # @return [Dry::Inflector]
-      #
-      # @since 2.0.0
-      # @api public
-      attr_reader :inflector
     end
   end
 end
