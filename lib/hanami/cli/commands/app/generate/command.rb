@@ -5,6 +5,7 @@ require "dry/files"
 require "shellwords"
 require_relative "../../../naming"
 require_relative "../../../errors"
+require 'byebug'
 
 module Hanami
   module CLI
@@ -35,12 +36,27 @@ module Hanami
             end
 
             def detect_slice_from_pwd
-              current_dir = Pathname.pwd
-              slices_dir = app.root.join("slices")
-              return unless current_dir.to_s.start_with?(slices_dir.to_s)
+              # This has to be Pathname.pwd I think, otherwise we don't know how deeply we are nested
+              # https://github.com/search?q=repo%3Adry-rb%2Fdry-files%20path%3A%2F%5Espec%5C%2Funit%5C%2Fdry%5C%2Ffiles%5C%2F%2F%20pwd&type=code
+              # unless this links shows me I am wrong
+              current_dir = Dir.pwd
+              slices_dir = fs.join(app.root.to_s, "slices")
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "current_dir: #{current_dir}"
+              puts "slices_dir: #{slices_dir}"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              return unless current_dir.start_with?(slices_dir)
 
-              relative_path = current_dir.relative_path_from(slices_dir)
-              slice_name = relative_path.to_s.split("/").first
+              relative_path = current_dir.delete_prefix("#{slices_dir}/")
+              slice_name = relative_path.split("/").first
               return unless app.slices.keys.include?(slice_name.to_sym)
 
               slice_name if app.slices[slice_name.to_sym]
@@ -52,7 +68,7 @@ module Hanami
               slice ||= detect_slice_from_pwd
               if slice
                 base_path = fs.join("slices", inflector.underscore(slice))
-                raise MissingSliceError.new(slice) unless fs.exist?(base_path)
+                raise MissingSliceError.new(slice) unless fs.exist?(base_path) || slice == fs.pwd
 
                 generator.call(
                   key: name,
