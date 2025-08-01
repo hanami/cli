@@ -2,7 +2,6 @@
 
 require "erb"
 require "dry/files"
-require_relative "../../errors"
 
 module Hanami
   module CLI
@@ -21,7 +20,7 @@ module Hanami
 
           # @since 2.1.0
           # @api private
-          def call(key:, namespace:, base_path:)
+          def call(key:, namespace:, base_path:, **)
             create_app_base_part_if_missing(key:, namespace:, base_path:)
             create_slice_part_if_missing(key:, namespace:, base_path:) unless namespace == Hanami.app.namespace
             create_generated_part(key:, namespace:, base_path:)
