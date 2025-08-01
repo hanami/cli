@@ -5,6 +5,7 @@ require "dry/files"
 require "shellwords"
 require_relative "../../../naming"
 require_relative "../../../errors"
+require 'byebug'
 
 module Hanami
   module CLI
@@ -38,9 +39,37 @@ module Hanami
               # fs:, inflector:, out:
             end
 
+            def detect_slice_from_pwd
+              # This has to be Pathname.pwd I think, otherwise we don't know how deeply we are nested
+              # https://github.com/search?q=repo%3Adry-rb%2Fdry-files%20path%3A%2F%5Espec%5C%2Funit%5C%2Fdry%5C%2Ffiles%5C%2F%2F%20pwd&type=code
+              # unless this links shows me I am wrong
+              current_dir = Dir.pwd
+              slices_dir = fs.join(app.root.to_s, "slices")
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "current_dir: #{current_dir}"
+              puts "slices_dir: #{slices_dir}"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              puts "!!!!!"
+              return unless current_dir.start_with?(slices_dir)
+
+              relative_path = current_dir.delete_prefix("#{slices_dir}/")
+              slice_name = relative_path.split("/").first
+              return unless app.slices.keys.include?(slice_name.to_sym)
+
+              slice_name if app.slices[slice_name.to_sym]
+            end
+
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **opts)
+              slice ||= detect_slice_from_pwd
               if slice
                 base_path = fs.join("slices", inflector.underscore(slice))
                 raise MissingSliceError.new(slice) unless fs.exist?(base_path)
