@@ -33,7 +33,7 @@ RSpec.describe Hanami::CLI::Commands::App::Command, :app do
           allow(app).to receive(:slices).and_return(slice_registrar)
           allow(Pathname).to receive(:pwd).and_return(Pathname.new("some_folder/my_app/lib"))
 
-          command = Object.const_get("Hanami::CLI::Commands::App::Generate::#{cmd}").new(fs: fs, inflector: inflector)
+          command = Object.const_get("Hanami::CLI::Commands::App::Generate::Hanami::CLI::Commands::App::Generate::#{cmd}").new(fs: fs, inflector: inflector)
 
           expect(command.detect_slice_from_pwd).to eq(nil)
         end
