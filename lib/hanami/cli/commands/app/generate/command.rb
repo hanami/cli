@@ -41,14 +41,16 @@ module Hanami
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **opts)
+              slice ||= detect_slice_from_cwd
+
               if slice
-                base_path = fs.join("slices", inflector.underscore(slice))
-                raise MissingSliceError.new(slice) unless fs.exist?(base_path)
+                slice_root = slice.root
+                raise MissingSliceError.new(slice) unless fs.exist?(slice_root)
 
                 generator.call(
                   key: name,
                   namespace: slice,
-                  base_path: base_path,
+                  base_path: slice_root,
                   **opts,
                 )
               else
@@ -59,6 +61,13 @@ module Hanami
                   **opts,
                 )
               end
+            end
+
+            private
+
+            def detect_slice_from_cwd
+              slices_by_root = app.slices.with_nested.each.to_h { |slice| [slice.root.to_s, slice] }
+              slices_by_root[fs.pwd]
             end
           end
         end
