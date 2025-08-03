@@ -62,6 +62,8 @@ module Hanami
     # @api public
     class MissingSliceError < Error
       def initialize(slice)
+        # FIXME: if `slice` here is an actual Hanami::Slice subclass, this error should be about its
+        # _root_ being nonexistent, rather than the whole slice itself.
         super("slice `#{slice}' is missing, please generate with `hanami generate slice #{slice}'")
       end
     end
