@@ -44,7 +44,17 @@ module Hanami
               slice ||= detect_slice_from_cwd
 
               if slice
-                slice_root = slice.root
+                slice_root =
+                  if slice.respond_to?(:root)
+                    slice.root
+                  else
+                    # TODO: later on we could handle nested slices by expecting command arguments
+                    # like `--slice foo/bar/baz`. This would require us to take a different approach
+                    # to determining their root. For the sake of this new feature, though, we can
+                    # just stick with simplistic top-level-only slice support when passing strings.
+                    fs.join("slices", inflector.underscore(slice))
+                  end
+
                 raise MissingSliceError.new(slice) unless fs.exist?(slice_root)
 
                 generator.call(
