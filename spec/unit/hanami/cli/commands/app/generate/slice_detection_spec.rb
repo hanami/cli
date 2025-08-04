@@ -1,99 +1,125 @@
 # frozen_string_literal: true
 
 require "hanami"
-require "byebug"
 
-RSpec.describe "slice detection", :app do
+RSpec.describe "slice detection", :app_integration do
+  subject(:cmd) { Hanami::CLI::Commands::App::Generate::View.new(inflector: inflector, out: out) }
 
-  subject { generator_class.new(fs: fs, inflector: inflector, out: out) }
-
-  let(:generator_class) { Hanami::CLI::Commands::App::Generate::View }
-  let(:out) { StringIO.new }
-  let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
-  let(:app) { Hanami.app }
-  let(:dir) { 'test' }
-  let(:slice) { "main" }
-  let(:slice_registrar) { instance_double(Hanami::SliceRegistrar) }
-  let(:generator) { instance_double("Generator") }
-
+  let(:out) { StringIO.new }
   def output
     out.rewind && out.read.chomp
   end
 
   describe "slice detection from current working directory" do
-
-    # Need to stub current working directory. fs.pwd returns only the name of the current directory, not the full path
-    # Also the reason why Dir.pwd is used instead of fs.pwd, cause Dir.pwd returns the full path
-    # Also need to stub app.root to return the path to the test app, otherwise it returns the location of the test app
-    # Then we also have to stub slice_registrar because it is the best way to detect slices but also one that would be very hard to properly setup with test app
-    before do
-      allow(Dir).to receive(:pwd).and_return("#{dir}/slices/#{slice}")
-      allow(app).to receive(:root).and_return(Pathname.new(dir))
-      allow(slice_registrar).to receive(:load_slices).and_return([])
-      allow(slice_registrar).to receive(:keys).and_return([slice.to_sym])
-      allow(slice_registrar).to receive(:[]).with(slice.to_sym).and_return(:mocked_value)
-      allow(app).to receive(:slices).and_return(slice_registrar)
-
-      allow(subject).to receive(:generator).and_return(generator)
-      allow(generator).to receive(:call)
+    it "detects the slice based on the current working directory" do
+      in_main_app_directory do
+        in_slice_directory do
+          subject.call(name: "showcase")
+        end
+        expect(File.exist?("slices/main/views/showcase.rb")).to be true
+      end
     end
 
-    it "detects the slice based on the current working directory" do
-      within_application_directory do
-        expect(fs.pwd).to eq("test")
-        prepare_slice!
-        expect(fs.directory?("slices/#{slice}")).to be true
-        fs.chdir("slices/#{slice}") do
-          expect(fs.pwd).to eq("main")
-          subject.call(name: "users.index")
+    context "with deeply nested slices existing" do
+      let(:nested_slice) { "superadmin" }
+
+      it "determines the nested slice when inside of it" do
+        in_main_app_directory do
+          in_slice_directory do
+            Dir.chdir("slices/admin") do
+              subject.call(name: "panel")
+            end
+          end
+
+          expect(File.exist?("slices/main/slices/admin/views/panel.rb")).to be true
+        end
+      end
+
+      it "still determines the parent slice when inside of it" do
+        in_main_app_directory do
+          in_slice_directory do
+            subject.call(name: "bookcase")
+          end
+
+          expect(File.exist?("slices/main/views/bookcase.rb")).to be true
+        end
+      end
+    end
+
+    context "when --slice option is provided" do
+      it "in child slice - respects the --slice option - overwrites slice detection" do
+        in_main_app_directory do
+          in_slice_directory do
+            Dir.chdir("slices/admin") do
+              subject.call(name: "bookcase", slice: "main")
+            end
+          end
+
+          expect(File.exist?("slices/main/views/bookcase.rb")).to be true
+        end
+      end
+
+      it "in sibling slice - respects the --slice option - overwrites slice detection" do
+        with_directory(@dir = make_tmp_directory) do
+          write "config/app.rb", <<~RUBY
+            module TestApp
+              class App < Hanami::App
+              end
+            end
+          RUBY
+
+          write "slices/main/.keep", ""
+          write "slices/client/.keep", ""
+
+          require "hanami/setup"
+          before_prepare if respond_to?(:before_prepare)
+          require "hanami/prepare"
         end
 
-        expect(generator).to have_received(:call).with(key: "users.index", namespace: slice, base_path: "slices/#{slice}")
+        Dir.chdir("#{@dir}/slices/main") do
+          subject.call(name: "shop", slice: "client")
+        end
+        expect(File.exist?("#{@dir}/slices/client/views/shop.rb")).to be true
+      end
+    end
+
+    context "when working outside slice directory" do
+      it "uses app namespace when not in a slice directory" do
+        in_main_app_directory do
+          subject.call(name: "important_view")
+          expect(File.exist?("app/views/important_view.rb")).to be true
+        end
       end
     end
   end
 
   private
 
-  def within_application_directory
-    fs.mkdir(dir)
-    fs.chdir(dir) do
-      routes = <<~CODE
-        # frozen_string_literal: true
-
-        require "hanami/routes"
-
-        module #{app}
-          class Routes < Hanami::Routes
-            root { "Hello from Hanami" }
-          end
-        end
-      CODE
-
-      fs.write("config/routes.rb", routes)
-
-      yield
+  def in_slice_directory(&)
+    Dir.chdir("slices/main") do
+      yield if block_given?
     end
   end
 
-  def prepare_slice!
-    fs.mkdir("slices/#{slice}")
-    routes = <<~CODE
-      # frozen_string_literal: true
-
-      require "hanami/routes"
-
-      module #{app}
-        class Routes < Hanami::Routes
-          root { "Hello from Hanami" }
-
-          slice :#{slice}, at: "/#{slice}" do
+  def in_main_app_directory(&)
+    with_directory(@dir = make_tmp_directory) do
+      write "config/app.rb", <<~RUBY
+        module TestApp
+          class App < Hanami::App
           end
         end
-      end
-    CODE
+      RUBY
 
-    fs.write("config/routes.rb", routes)
+      write "slices/main/.keep", ""
+      write "slices/main/slices/admin/.keep", ""
+
+      require "hanami/setup"
+      before_prepare if respond_to?(:before_prepare)
+      require "hanami/prepare"
+    end
+
+    Dir.chdir(@dir)
+    yield if block_given?
   end
 end
