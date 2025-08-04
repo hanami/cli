@@ -52,8 +52,13 @@ module Hanami
                     # like `--slice foo/bar/baz`. This would require us to take a different approach
                     # to determining their root. For the sake of this feature first version, we
                     # implement more simplistic top-level-only slice support when passing strings.
-                    slices_dir = fs.join(app.root.to_s, "slices")
-                    fs.join(slices_dir, inflector.underscore(slice))
+                    path_from_fs = fs.join("slices", inflector.underscore(slice))
+                    if fs.exist?(path_from_fs)
+                      path_from_fs
+                    else
+                      slices_dir = fs.join(app.root.to_s, "slices")
+                      fs.join(slices_dir, inflector.underscore(slice))
+                    end
                   end
                 raise MissingSliceError.new(slice) unless fs.exist?(slice_root)
 
