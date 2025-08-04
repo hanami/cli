@@ -7,7 +7,6 @@ module Hanami
     # @since 2.0.0
     # @api private
     class Files < Dry::Files
-
       # @since 2.0.0
       # @api private
       def initialize(out: $stdout, **args)
