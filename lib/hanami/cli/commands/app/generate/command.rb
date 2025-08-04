@@ -5,7 +5,6 @@ require "dry/files"
 require "shellwords"
 require_relative "../../../naming"
 require_relative "../../../errors"
-require 'byebug'
 
 module Hanami
   module CLI
@@ -35,45 +34,48 @@ module Hanami
               # fs:, inflector:, out:
             end
 
-            def detect_slice_from_pwd
-              # This has to be Pathname.pwd I think, otherwise we don't know how deeply we are nested
-              # https://github.com/search?q=repo%3Adry-rb%2Fdry-files%20path%3A%2F%5Espec%5C%2Funit%5C%2Fdry%5C%2Ffiles%5C%2F%2F%20pwd&type=code
-              # unless this links shows me I am wrong
-              current_dir = Dir.pwd
-              slices_dir = fs.join(app.root.to_s, "slices")
-              puts "!!!!!"
-              puts "!!!!!"
-              puts "!!!!!"
-              puts "!!!!!"
-              puts "!!!!!"
-              puts "current_dir: #{current_dir}"
-              puts "slices_dir: #{slices_dir}"
-              puts "!!!!!"
-              puts "!!!!!"
-              puts "!!!!!"
-              puts "!!!!!"
-              puts "!!!!!"
-              return unless current_dir.start_with?(slices_dir)
-
-              relative_path = current_dir.delete_prefix("#{slices_dir}/")
-              slice_name = relative_path.split("/").first
-              return unless app.slices.keys.include?(slice_name.to_sym)
-
-              slice_name if app.slices[slice_name.to_sym]
+            def detect_slice_from_cwd
+              slices_by_root = app.slices.with_nested.each.to_h { |slice| [slice.root.to_s, slice] }
+              slices_by_root[fs.pwd]
+              # # This has to be Pathname.pwd I think, otherwise we don't know how deeply we are nested
+              # # https://github.com/search?q=repo%3Adry-rb%2Fdry-files%20path%3A%2F%5Espec%5C%2Funit%5C%2Fdry%5C%2Ffiles%5C%2F%2F%20pwd&type=code
+              # # unless this links shows me I am wrong
+              # current_dir = Dir.pwd
+              # slices_dir = fs.join(app.root.to_s, "slices")
+              # return unless current_dir.start_with?(slices_dir)
+              #
+              # relative_path = current_dir.delete_prefix("#{slices_dir}/")
+              # slice_name = relative_path.split("/").first
+              # return unless app.slices.keys.include?(slice_name.to_sym)
+              #
+              # slices_by_root = app.slices.with_nested.each.to_h { |slice| [slice.root, slice] }
+              # slices_by_root[current_dir]
+              # # slice_name if slices_by_root[current_dir.to_sym]
+              # slice_name if slices_by_root[current_dir.to_sym]
             end
 
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **opts)
-              slice ||= detect_slice_from_pwd
+              slice ||= detect_slice_from_cwd
               if slice
-                base_path = fs.join("slices", inflector.underscore(slice))
-                raise MissingSliceError.new(slice) unless fs.exist?(base_path) || slice == fs.pwd
+                slice_root =
+                  if slice.respond_to?(:root)
+                    slice.root
+                  else
+                    # TODO: Could be expanded to expect nested slices in command args
+                    # like `--slice foo/bar/baz`. This would require us to take a different approach
+                    # to determining their root. For the sake of this feature first version, we
+                    # implement more simplistic top-level-only slice support when passing strings.
+                    slices_dir = fs.join(app.root.to_s, "slices")
+                    fs.join(slices_dir, inflector.underscore(slice))
+                  end
+                raise MissingSliceError.new(slice) unless fs.exist?(slice_root)
 
                 generator.call(
                   key: name,
                   namespace: slice,
-                  base_path: base_path,
+                  base_path: slice_root,
                   **opts,
                 )
               else
