@@ -34,17 +34,38 @@ module Hanami
               # fs:, inflector:, out:
             end
 
+            def detect_slice_from_cwd
+              slices_by_root = app.slices.with_nested.each.to_h { |slice| [slice.root.to_s, slice] }
+              slices_by_root[fs.pwd]
+            end
+
             # @since 2.2.0
             # @api private
             def call(name:, slice: nil, **opts)
+              slice ||= detect_slice_from_cwd
               if slice
-                base_path = fs.join("slices", inflector.underscore(slice))
-                raise MissingSliceError.new(slice) unless fs.exist?(base_path)
+                slice_root =
+                  if slice.respond_to?(:root)
+                    slice.root
+                  else
+                    # TODO: Could be expanded to expect nested slices in command args
+                    # like `--slice foo/bar/baz`. This would require us to take a different approach
+                    # to determining their root. For the sake of this feature first version, we
+                    # implement more simplistic top-level-only slice support when passing strings.
+                    path_from_fs = fs.join("slices", inflector.underscore(slice))
+                    if fs.exist?(path_from_fs)
+                      path_from_fs
+                    else
+                      slices_dir = fs.join(app.root.to_s, "slices")
+                      fs.join(slices_dir, inflector.underscore(slice))
+                    end
+                  end
+                raise MissingSliceError.new(slice) unless fs.exist?(slice_root)
 
                 generator.call(
                   key: name,
                   namespace: slice,
-                  base_path: base_path,
+                  base_path: slice_root,
                   **opts,
                 )
               else
