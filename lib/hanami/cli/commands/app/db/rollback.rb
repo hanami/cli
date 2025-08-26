@@ -18,41 +18,36 @@ module Hanami
             option :gateway, required: false, desc: "Use database for gateway"
 
             def call(steps: nil, app: false, slice: nil, gateway: nil, target: nil, dump: true, command_exit: method(:exit), **)
-              if !app && slice.nil? && (steps.nil? || (steps && code_is_number?(steps))) && target.nil?
-                steps_count = steps.nil? ? 1 : Integer(steps)
-                rollback_across_all_databases(steps: steps_count, dump: dump, gateway: gateway, command_exit: command_exit)
-              else
-                target = steps if steps && !target
-                databases(app: app, slice: slice, gateway: gateway).each do |database|
-                  migration_code, migration_name = find_migration(target, database)
+              target = steps if steps && !target
+              databases(app: app, slice: slice, gateway: gateway).each do |database|
+                migration_code, migration_name = find_migration(target, database)
 
-                  if migration_name.nil?
-                    output = if steps
-                               "==> migration file for #{steps} migrations back was not found"
-                             elsif target
-                               "==> migration file for target #{target} was not found"
-                             else
-                               "==> no migrations to rollback"
-                             end
+                if migration_name.nil?
+                  output = if steps
+                             "==> migration file for #{steps} migrations back was not found"
+                           elsif target
+                             "==> migration file for target #{target} was not found"
+                           else
+                             "==> no migrations to rollback"
+                           end
 
-                    out.puts output
-                    return
-                  end
-
-                  measure "database #{database.name} rolled back to #{migration_name}" do
-                    database.run_migrations(target: Integer(migration_code))
-
-                    true
-                  end
-
-                  next unless dump && !re_running_in_test?
-
-                  run_command(
-                    Structure::Dump,
-                    app: app, slice: slice, gateway: gateway,
-                    command_exit: command_exit
-                  )
+                  out.puts output
+                  return
                 end
+
+                measure "database #{database.name} rolled back to #{migration_name}" do
+                  database.run_migrations(target: Integer(migration_code))
+
+                  true
+                end
+
+                next unless dump && !re_running_in_test?
+
+                run_command(
+                  Structure::Dump,
+                  app: app, slice: slice, gateway: gateway,
+                  command_exit: command_exit
+                )
               end
             end
 
