@@ -6,13 +6,15 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
   subject(:command) {
     described_class.new(
       system_call: system_call,
-      out: out
+      out: out,
+      err: err
     )
   }
 
   let(:system_call) { Hanami::CLI::SystemCall.new }
   let(:out) { StringIO.new }
-  def output = out.string
+  let(:err) { StringIO.new }
+  def output = out.string + err.string
 
   let(:dump_command) { instance_spy(Hanami::CLI::Commands::App::DB::Structure::Dump) }
 
@@ -78,7 +80,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
 
         expect(columns.()).to eq [:id, :title, :body]
         expect(output).to include "database db/app.sqlite3 rolled back to 20250603211330_add_body_to_posts in"
-        expect(dump_command).to have_received(:call).with(hash_including(app: false)).once
+        expect(dump_command).to have_received(:call).with(hash_including(app: true)).once
       end
     end
 
@@ -105,27 +107,37 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       end
 
       context "with invalid args combinations" do
-        context "when app and slice are specified" do
+        context "when gateway is specified without app or slice" do
           it "does not allow ambiguity, asks for details" do
-            pending "not implemented"
+            exit_mock = instance_double("Method", call: nil)
+            allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
+            
+            expect { command.call(gateway: "default", command_exit: exit_mock) }.to raise_error(SystemExit)
+            expect(output).to include "When specifying --gateway, an --app or --slice must also be given"
           end
         end
 
         context "when gateway that does not exist in the context is specified" do
           it "informs about invalid gateway" do
-            pending "not implemented"
+            exit_mock = instance_double("Method", call: nil)
+            allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
+            
+            expect { command.call(app: true, gateway: "nonexistent", command_exit: exit_mock) }.to raise_error(SystemExit)
+            expect(output).to include %(No gateway "nonexistent" found in app)
           end
         end
       end
 
       context "with no args" do
-        it "does not allow ambiguity, asks for details" do
-          pending "not implemented"
+        it "defaults to app database when only one database context exists" do
+          command.call
+          
+          expect(output).to include("database db/app.sqlite3 rolled back")
         end
       end
 
       context "with correct arguments" do
-        it "rolls back X most recent migrations across the chosen database" do
+        it "rolls back X most recent migrations across the chosen database - slice" do
           columns_slice = -> { Main::Slice["db.gateway"].connection.schema(:invoices).map(&:first) }
           expect(columns_slice.()).to eq [:id, :amount, :status]
 
@@ -167,18 +179,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
           command.call(slice: "main")
 
           expect(columns.()).to eq [:id, :amount]
-          expect(output).to include "database db/main.sqlite3 rolled back"
-          expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
-        end
-
-        # duplicated now
-        xit "rolls back slice database with a specified number of steps and --slice flag" do
-          columns = -> { Main::Slice["db.gateway"].connection.schema(:invoices).map(&:first) }
-          expect(columns.()).to eq [:id, :amount, :status]
-
-          command.call(steps: "2", slice: "main")
-
-          expect(Main::Slice["db.gateway"].connection.tables).not_to include :invoices
           expect(output).to include "database db/main.sqlite3 rolled back"
           expect(dump_command).to have_received(:call).with(hash_including(app: false, slice: "main"))
         end
@@ -253,9 +253,11 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
 
       context "with no arguments" do
         it "asks for more detailed prompt" do
-          command.call
-
-          expect(output).to include "Please specify the gateway to rollback"
+          exit_mock = instance_double("Method", call: nil)
+          allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
+          
+          expect { command.call(command_exit: exit_mock) }.to raise_error(SystemExit)
+          expect(output).to include "Multiple gateways found in app. Please specify --gateway option."
         end
       end
 

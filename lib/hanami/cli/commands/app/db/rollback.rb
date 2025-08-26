@@ -18,135 +18,167 @@ module Hanami
             option :gateway, required: false, desc: "Use database for gateway"
 
             def call(steps: nil, app: false, slice: nil, gateway: nil, target: nil, dump: true, command_exit: method(:exit), **)
-              target = steps if steps && !target
-              databases(app: app, slice: slice, gateway: gateway).each do |database|
-                migration_code, migration_name = find_migration(target, database)
+              target = steps if steps && !target && !code_is_number?(steps)
+              steps_count = steps && code_is_number?(steps) ? Integer(steps) : 1
 
-                if migration_name.nil?
-                  output = if steps
-                             "==> migration file for #{steps} migrations back was not found"
-                           elsif target
-                             "==> migration file for target #{target} was not found"
-                           else
-                             "==> no migrations to rollback"
-                           end
+              database = resolve_target_database(app: app, slice: slice, gateway: gateway, command_exit: command_exit)
+              return unless database
 
-                  out.puts output
-                  return
-                end
+              migration_code, migration_name = find_migration_target(target, steps_count, database)
 
-                measure "database #{database.name} rolled back to #{migration_name}" do
-                  database.run_migrations(target: Integer(migration_code))
+              if migration_name.nil?
+                output = if steps && code_is_number?(steps)
+                           "==> migration file for #{steps} steps back was not found"
+                         elsif target
+                           "==> migration file for target #{target} was not found"
+                         else
+                           "==> no migrations to rollback"
+                         end
 
-                  true
-                end
-
-                next unless dump && !re_running_in_test?
-
-                run_command(
-                  Structure::Dump,
-                  app: app, slice: slice, gateway: gateway,
-                  command_exit: command_exit
-                )
+                out.puts output
+                return
               end
+
+              measure "database #{database.name} rolled back to #{migration_name}" do
+                database.run_migrations(target: Integer(migration_code))
+                true
+              end
+
+              return unless dump && !re_running_in_test?
+
+              run_command(
+                Structure::Dump,
+                app: database.slice == self.app,
+                slice: database.slice == self.app ? nil : database.slice.slice_name.to_s,
+                gateway: database.gateway_name == :default ? nil : database.gateway_name.to_s,
+                command_exit: command_exit
+              )
             end
 
             private
 
-            def rollback_across_all_databases(steps:, dump:, gateway:, command_exit:)
-              all_databases = databases(app: false, slice: nil, gateway: gateway)
-
-              # Collect all applied migrations across all databases with their source database
-              all_migrations = []
-              applied_migrations = {}
-              all_databases.each do |database|
-                applied_migrations[database] = database.applied_migrations
-                applied_migrations[database].each do |migration|
-                  timestamp = Integer(migration.split("_").first)
-                  all_migrations << {
-                    timestamp: timestamp,
-                    name: File.basename(migration, ".*"),
-                    database: database,
-                    migration: migration
-                  }
-                end
-              end
-
-              if all_migrations.empty?
-                out.puts "==> no migrations to rollback"
+            def resolve_target_database(app:, slice:, gateway:, command_exit:)
+              if gateway && !app && !slice
+                err.puts "When specifying --gateway, an --app or --slice must also be given"
+                command_exit.(1)
                 return
               end
 
-              all_migrations.sort_by! { |m| -m[:timestamp] }
-              migrations_to_rollback = all_migrations.take(steps)
-
-              migrations_to_rollback.each do |migration_info|
-                database = migration_info[:database]
-                migration_name = migration_info[:name]
-
-                # Find the previous migration in this database
-                current_index = applied_migrations[database].index { |m| m.include?(migration_info[:migration]) }
-
-                next if current_index.nil? # This shouldn't happen, but I am not like 100% sure?
-
-                target_code = if current_index.positive?
-                                prev_migration = applied_migrations[database][current_index - 1]
-                                prev_migration.split("_").first
-                              else
-                                # Roll back to before the first migration
-                                (migration_info[:timestamp] - 1).to_s
-                              end
-
-                measure "database #{database.name} rolled back to before #{migration_name}" do
-                  database.run_migrations(target: Integer(target_code))
-                  true
-                end
-
-                next unless dump && !re_running_in_test?
-
-                # We have to dump during the loop not after, because we might need to dump multiple structures
-                # This however leads to also possibly dumping multiple times on the same database
-                run_command(
-                  Structure::Dump,
-                  app: false, slice: database.slice.slice_name.to_s, gateway: database.gateway_name.to_s,
-                  command_exit: command_exit
-                )
+              if slice
+                resolve_slice_database(slice, gateway, command_exit)
+              elsif app
+                resolve_app_database(gateway, command_exit)
+              else
+                resolve_default_database(command_exit)
               end
             end
 
-            def find_migration(code, database)
+            def resolve_slice_database(slice_name, gateway, command_exit)
+              slice = resolve_slice(slice_name, command_exit)
+              return unless slice
+
+              databases = build_databases(slice)
+              
+              if gateway
+                database = databases[gateway.to_sym]
+                unless database
+                  err.puts %(No gateway "#{gateway}" found in slice "#{slice_name}")
+                  command_exit.(1)
+                  return
+                end
+                database
+              elsif databases.size == 1
+                databases.values.first
+              else
+                err.puts "Multiple gateways found in slice #{slice_name}. Please specify --gateway option."
+                command_exit.(1)
+              end
+            end
+
+            def resolve_app_database(gateway, command_exit)
+              databases = build_databases(app)
+              
+              if gateway
+                database = databases[gateway.to_sym]
+                unless database
+                  err.puts %(No gateway "#{gateway}" found in app)
+                  command_exit.(1)
+                  return
+                end
+                database
+              elsif databases.size == 1
+                databases.values.first
+              else
+                err.puts "Multiple gateways found in app. Please specify --gateway option."
+                command_exit.(1)
+              end
+            end
+
+            def resolve_default_database(command_exit)
+              all_dbs = all_databases
+              
+              if all_dbs.empty?
+                err.puts "No databases found"
+                command_exit.(1)
+              elsif all_dbs.size == 1
+                all_dbs.first
+              else
+                app_databases = build_databases(app)
+                if app_databases.size == 1
+                  app_databases.values.first
+                elsif app_databases.size > 1
+                  err.puts "Multiple gateways found in app. Please specify --gateway option."
+                  command_exit.(1)
+                  return
+                else
+                  err.puts "Multiple database contexts found. Please specify --app or --slice option."
+                  command_exit.(1)
+                  return
+                end
+              end
+            end
+
+            def resolve_slice(slice_name, command_exit)
+              slice_name_sym = inflector.underscore(Shellwords.shellescape(slice_name)).to_sym
+              slice = app.slices[slice_name_sym]
+              
+              unless slice
+                err.puts %(Slice "#{slice_name}" not found)
+                command_exit.(1)
+                return
+              end
+              
+              ensure_database_slice(slice)
+              slice
+            end
+
+            def find_migration_target(target, steps_count, database)
               applied_migrations = database.applied_migrations
 
               return if applied_migrations.empty?
 
-              # Rollback to initial state if we have only one migration and
-              # no target is specified. In this case the rollback target
-              # will be the current migration timestamp minus 1
-              return initial_state(applied_migrations) if applied_migrations.one? && code.nil?
-
-              # If code is a number representing steps to rollback
-              if code_is_number?(code)
-                steps = Integer(code)
-                index = -1 - steps
-
-                # If steps exceed available migrations, rollback all migrations
-                # by using the first (oldest) migration
-                migration =
-                  if index < -applied_migrations.size
-                    return initial_state(applied_migrations)
-                  else
-                    applied_migrations[index]
-                  end
-              else
-                migration =
-                  if code
-                    applied_migrations.detect { |m| m.split("_").first == code }
-                  else
-                    applied_migrations[-2]
-                  end
+              if applied_migrations.one? && target.nil?
+                return initial_state(applied_migrations)
               end
-              migration_code = migration&.split("_")&.first
-              migration_name = migration ? File.basename(migration, ".*") : nil
+
+              if target
+                migration = applied_migrations.detect { |m| m.split("_").first == target }
+                migration_code = migration&.split("_")&.first
+                migration_name = migration ? File.basename(migration, ".*") : nil
+              else
+                # When rolling back N steps, we want to target the migration that is N steps back
+                # If we have migrations [A, B, C, D] and want to rollback 2 steps from D,
+                # we want to target B (index -3, since we go back 2 steps + 1 for the target)
+                target_index = -(steps_count + 1)
+                
+                if target_index.abs > applied_migrations.size
+                  return initial_state(applied_migrations)
+                else
+                  migration = applied_migrations[target_index]
+                  migration_code = migration&.split("_")&.first
+                  migration_name = migration ? File.basename(migration, ".*") : nil
+                end
+              end
 
               [migration_code, migration_name]
             end
