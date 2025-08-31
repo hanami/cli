@@ -48,7 +48,7 @@ module Hanami
               def exec_load_command
                 exec_cli(
                   "mysql",
-                  %(--execute "SET FOREIGN_KEY_CHECKS = 0; SOURCE #{structure_file}; SET FOREIGN_KEY_CHECKS = 1" --database #{escaped_name})
+                  %(--commands --execute "SET FOREIGN_KEY_CHECKS = 0; SOURCE #{structure_file}; SET FOREIGN_KEY_CHECKS = 1" --database #{escaped_name})
                 )
               end
 
