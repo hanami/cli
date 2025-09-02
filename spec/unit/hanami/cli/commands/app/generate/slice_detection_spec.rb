@@ -3,9 +3,8 @@
 require "hanami"
 
 RSpec.describe "slice detection", :app_integration do
-  subject(:cmd) { Hanami::CLI::Commands::App::Generate::View.new(inflector: inflector, out: out) }
+  subject(:cmd) { Hanami::CLI::Commands::App::Generate::View.new(out: out) }
 
-  let(:inflector) { Dry::Inflector.new }
   let(:out) { StringIO.new }
   def output
     out.rewind && out.read.chomp

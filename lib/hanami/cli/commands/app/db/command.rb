@@ -39,7 +39,6 @@ module Hanami
             def run_command(klass, ...)
               klass.new(
                 out: out,
-                inflector: inflector,
                 fs: fs,
                 system_call: system_call,
                 test_env_executor: test_env_executor,

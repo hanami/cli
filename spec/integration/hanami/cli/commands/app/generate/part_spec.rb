@@ -4,16 +4,11 @@ require "hanami"
 require "tempfile"
 
 RSpec.describe "Hanami generate part integration", :app do
-  let(:fs) { Hanami::CLI::Files.new(memory: false) }
-  let(:inflector) { Dry::Inflector.new }
+  let(:fs) { Hanami::CLI::Files.new(memory: false, out: out) }
   let(:out) { StringIO.new }
 
   subject(:command) do
-    Hanami::CLI::Commands::App::Generate::Part.new(
-      fs: fs,
-      inflector: inflector,
-      out: out
-    )
+    Hanami::CLI::Commands::App::Generate::Part.new(fs: fs, out: out)
   end
 
   around do |example|

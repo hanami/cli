@@ -49,11 +49,11 @@ module Hanami
             # @since 2.0.0
             # @api private
             def initialize(
-              fs:, inflector:,
+              fs:,
               generator: Generators::App::Slice.new(fs: fs, inflector: inflector),
               **opts
             )
-              super(fs: fs, inflector: inflector, **opts)
+              super(fs: fs, **opts)
               @generator = generator
             end
 
