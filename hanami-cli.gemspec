@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "irb"
   spec.add_dependency "rake", "~> 13.0"
   spec.add_dependency "zeitwerk", "~> 2.6"
+  spec.add_dependency "rackup"
 
   spec.add_development_dependency "rspec", "~> 3.9"
   spec.add_development_dependency "rubocop", "~> 1.0"

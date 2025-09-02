@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "rackup"
+
 module Hanami
   module CLI
     # @since 2.0.0
@@ -26,7 +28,7 @@ module Hanami
 
       # @since 2.0.0
       # @api private
-      def initialize(rack_server: Rack::Server)
+      def initialize(rack_server: Rackup::Server)
         @rack_server = rack_server
       end
 
