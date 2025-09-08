@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-require "rackup"
+begin
+  require "rackup"
+rescue LoadError
+  # Rack 2 doesn't have rackup gem, use Rack::Server instead
+end
 
 module Hanami
   module CLI
@@ -26,9 +30,17 @@ module Hanami
         warn: :warn
       }.freeze
 
+      def self.rack_server_class
+        if defined?(Rackup::Server)
+          Rackup::Server
+        else
+          Rack::Server
+        end
+      end
+
       # @since 2.0.0
       # @api private
-      def initialize(rack_server: Rackup::Server)
+      def initialize(rack_server: self.class.rack_server_class)
         @rack_server = rack_server
       end
 

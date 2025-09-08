@@ -18,7 +18,9 @@ gem "hanami-utils", github: "hanami/utils", branch: "main"
 
 gem "dry-system", github: "dry-rb/dry-system", branch: "main"
 
-gem "rack", "~> 3.1"
+if ENV["RACK_VERSION_CONSTRAINT"]
+  gem "rack", ENV["RACK_VERSION_CONSTRAINT"]
+end
 
 gem "mysql2"
 gem "pg"
