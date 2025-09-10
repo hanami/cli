@@ -1,8 +1,47 @@
 # frozen_string_literal: true
 
-require "pry"
-
 RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
+  shared_examples "single database rollback" do |db_type|
+    it "rolls back the most recent migration" do
+      columns = -> { Hanami.app["db.gateway"].connection.schema(:posts).map(&:first) }
+      expect(columns.()).to eq [:id, :title, :body, :published]
+
+      command.call(app: true, gateway: "default")
+
+      expect(columns.()).to eq [:id, :title, :body]
+      expect(output).to include "rolled back"
+      expect(dump_command).to have_received(:call).with(hash_including(app: true)).once
+    end
+  end
+
+  shared_examples "multiple gateways error handling" do |db_type|
+    it "fails with clear error message when multiple gateways exist without specification" do
+      exit_mock = instance_double("Method", call: nil)
+      allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
+      
+      expect { command.call(command_exit: exit_mock) }.to raise_error(SystemExit)
+      expect(output).to include "Multiple gateways found in app. Please specify --gateway option."
+    end
+  end
+
+  shared_examples "invalid argument handling" do
+    it "fails when gateway is specified without app or slice" do
+      exit_mock = instance_double("Method", call: nil)
+      allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
+      
+      expect { command.call(gateway: "default", command_exit: exit_mock) }.to raise_error(SystemExit)
+      expect(output).to include "When specifying --gateway, an --app or --slice must also be given"
+    end
+
+    it "fails when gateway does not exist" do
+      exit_mock = instance_double("Method", call: nil)
+      allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
+      
+      expect { command.call(app: true, gateway: "nonexistent", command_exit: exit_mock) }.to raise_error(SystemExit)
+      expect(output).to include %(No gateway "nonexistent" found in app)
+    end
+  end
+
   subject(:command) {
     described_class.new(
       system_call: system_call,
@@ -45,9 +84,12 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
     out.truncate(0)
   end
 
-  # TODO: add tests for other databases
+  # Primary tests group happen on sqlite for no particular reason. The most basics specs are shared (above), but there was no
+  # particular reason to repeat all edge cases across all databases thus we use sqlite for primary tests group and the rest
+  # just uses the shared examples. Otherwise, this spec would have become very hard to maintain and understand due to size,
+  # with little benefit to it.
   describe "sqlite" do
-    before :all do
+    before do
       ENV["DATABASE_URL"] = "sqlite://db/app.sqlite3"
       ENV["MAIN__DATABASE_URL"] = "sqlite://db/main.sqlite3"
     end
@@ -277,6 +319,153 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
         expect(output).not_to include "db/app.sqlite3"
         expect(output).not_to include "db/app_super.sqlite3"
       end
+    end
+  end
+
+  describe "postgres", :postgres do
+    before do
+      ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+      ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
+    end
+
+
+    context "single database" do
+      def before_prepare
+        prepare_posts
+        write "config/db/.keep", ""
+        write "app/relations/.keep", ""
+      end
+
+      before do
+        with_directory(@dir = make_tmp_directory) do
+          write "config/app.rb", <<~RUBY
+            module TestApp
+              class App < Hanami::App
+                config.logger.stream = File::NULL
+              end
+            end
+          RUBY
+
+          require "hanami/setup"
+          before_prepare if respond_to?(:before_prepare)
+          require "hanami/prepare"
+        end
+
+        Dir.chdir(@dir)
+        db_create
+        db_migrate
+      end
+
+      include_examples "single database rollback", "postgres"
+      include_examples "invalid argument handling"
+    end
+
+    context "multiple gateways in app" do
+      def before_prepare_gateways
+        prepare_posts
+        write "config/db/.keep", ""
+        write "app/relations/.keep", ""
+      end
+
+      before do
+        ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
+        ENV["DATABASE_URL__EXTRA"] = "#{POSTGRES_BASE_URL}_extra"
+        ENV["DATABASE_URL__SUPER"] = "#{POSTGRES_BASE_URL}_super"
+
+        with_directory(@dir = make_tmp_directory) do
+          write "config/app.rb", <<~RUBY
+            module TestApp
+              class App < Hanami::App
+                config.logger.stream = File::NULL
+              end
+            end
+          RUBY
+
+          require "hanami/setup"
+          before_prepare_gateways if respond_to?(:before_prepare_gateways)
+          require "hanami/prepare"
+        end
+
+        Dir.chdir(@dir)
+        db_create
+        db_migrate
+      end
+
+      include_examples "single database rollback", "postgres"
+      include_examples "multiple gateways error handling", "postgres"
+    end
+  end
+
+  describe "mysql", :mysql do
+    before do
+      ENV["DATABASE_URL"] = "#{MYSQL_BASE_URL}_app"
+      ENV["MAIN__DATABASE_URL"] = "#{MYSQL_BASE_URL}_main"
+    end
+
+    context "single database" do
+      def before_prepare
+        prepare_posts
+        write "config/db/.keep", ""
+        write "app/relations/.keep", ""
+      end
+
+      before do
+        with_directory(@dir = make_tmp_directory) do
+          write "config/app.rb", <<~RUBY
+            module TestApp
+              class App < Hanami::App
+                config.logger.stream = File::NULL
+              end
+            end
+          RUBY
+
+          require "hanami/setup"
+          before_prepare if respond_to?(:before_prepare)
+          require "hanami/prepare"
+        end
+
+        Dir.chdir(@dir)
+        db_create
+        db_migrate
+      end
+
+      include_examples "single database rollback", "mysql"
+      include_examples "invalid argument handling"
+    end
+
+    context "multiple gateways in app" do
+      def before_prepare_gateways
+        prepare_posts
+        write "config/db/.keep", ""
+        write "app/relations/.keep", ""
+      end
+
+      before do
+        ENV["DATABASE_URL"] = "#{MYSQL_BASE_URL}_app"
+        ENV["DATABASE_URL__EXTRA"] = "#{MYSQL_BASE_URL}_extra"
+        ENV["DATABASE_URL__SUPER"] = "#{MYSQL_BASE_URL}_super"
+
+        with_directory(@dir = make_tmp_directory) do
+          write "config/app.rb", <<~RUBY
+            module TestApp
+              class App < Hanami::App
+                config.logger.stream = File::NULL
+              end
+            end
+          RUBY
+
+          require "hanami/setup"
+          before_prepare_gateways if respond_to?(:before_prepare_gateways)
+          require "hanami/prepare"
+        end
+
+        Dir.chdir(@dir)
+        db_create
+        db_migrate
+      end
+
+      include_examples "single database rollback", "mysql"
+      include_examples "multiple gateways error handling", "mysql"
     end
   end
 

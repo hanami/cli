@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-
-require "pry"
 require_relative "../../app/command"
 require_relative "structure/dump"
 
@@ -18,6 +16,9 @@ module Hanami
             option :gateway, required: false, desc: "Use database for gateway"
 
             def call(steps: nil, app: false, slice: nil, gateway: nil, target: nil, dump: true, command_exit: method(:exit), **)
+              # We allow either a number of steps or a target migration number to be provided
+              # If steps is provided and target is not, we use steps as the target migration number, but we also have to
+              # make sure steps is a number, hence some additional logic around checking and converting to number
               target = steps if steps && !target && !code_is_number?(steps)
               steps_count = steps && code_is_number?(steps) ? Integer(steps) : 1
 
@@ -78,7 +79,7 @@ module Hanami
               return unless slice
 
               databases = build_databases(slice)
-              
+
               if gateway
                 database = databases[gateway.to_sym]
                 unless database
