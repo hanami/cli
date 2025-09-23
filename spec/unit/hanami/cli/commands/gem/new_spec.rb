@@ -215,6 +215,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
         # frozen_string_literal: true
 
         require "hanami/rake_tasks"
+
+        # Add your custom rake tasks to the lib/tasks directory
+        Rake.add_rakelib "lib/tasks"
       EXPECTED
       expect(fs.read("Rakefile")).to eq(rakefile)
       expect(output).to include("Created Rakefile")
@@ -696,6 +699,9 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           # frozen_string_literal: true
 
           require "hanami/rake_tasks"
+
+          # Add your custom rake tasks to the lib/tasks directory
+          Rake.add_rakelib "lib/tasks"
         EXPECTED
         expect(fs.read("Rakefile")).to eq(rakefile)
         expect(output).to include("Created Rakefile")
