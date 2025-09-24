@@ -18,7 +18,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
     it "fails with clear error message when multiple gateways exist without specification" do
       exit_mock = instance_double("Method", call: nil)
       allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
-      
+
       expect { command.call(command_exit: exit_mock) }.to raise_error(SystemExit)
       expect(output).to include "Multiple gateways found in app. Please specify --gateway option."
     end
@@ -28,7 +28,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
     it "fails when gateway is specified without app or slice" do
       exit_mock = instance_double("Method", call: nil)
       allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
-      
+
       expect { command.call(gateway: "default", command_exit: exit_mock) }.to raise_error(SystemExit)
       expect(output).to include "When specifying --gateway, an --app or --slice must also be given"
     end
@@ -36,7 +36,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
     it "fails when gateway does not exist" do
       exit_mock = instance_double("Method", call: nil)
       allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
-      
+
       expect { command.call(app: true, gateway: "nonexistent", command_exit: exit_mock) }.to raise_error(SystemExit)
       expect(output).to include %(No gateway "nonexistent" found in app)
     end
@@ -153,7 +153,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
           it "does not allow ambiguity, asks for details" do
             exit_mock = instance_double("Method", call: nil)
             allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
-            
+
             expect { command.call(gateway: "default", command_exit: exit_mock) }.to raise_error(SystemExit)
             expect(output).to include "When specifying --gateway, an --app or --slice must also be given"
           end
@@ -163,7 +163,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
           it "informs about invalid gateway" do
             exit_mock = instance_double("Method", call: nil)
             allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
-            
+
             expect { command.call(app: true, gateway: "nonexistent", command_exit: exit_mock) }.to raise_error(SystemExit)
             expect(output).to include %(No gateway "nonexistent" found in app)
           end
@@ -173,7 +173,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       context "with no args" do
         it "defaults to app database when only one database context exists" do
           command.call
-          
+
           expect(output).to include("database db/app.sqlite3 rolled back")
         end
       end
@@ -297,7 +297,7 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
         it "asks for more detailed prompt" do
           exit_mock = instance_double("Method", call: nil)
           allow(exit_mock).to receive(:call).with(1).and_raise(SystemExit)
-          
+
           expect { command.call(command_exit: exit_mock) }.to raise_error(SystemExit)
           expect(output).to include "Multiple gateways found in app. Please specify --gateway option."
         end
@@ -327,7 +327,6 @@ RSpec.describe Hanami::CLI::Commands::App::DB::Rollback, :app_integration do
       ENV["DATABASE_URL"] = "#{POSTGRES_BASE_URL}_app"
       ENV["MAIN__DATABASE_URL"] = "#{POSTGRES_BASE_URL}_main"
     end
-
 
     context "single database" do
       def before_prepare
