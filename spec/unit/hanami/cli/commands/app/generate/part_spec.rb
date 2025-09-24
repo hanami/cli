@@ -4,9 +4,10 @@ require "hanami"
 require "ostruct"
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
-  subject { described_class.new(fs: fs, out: out) }
+  subject { described_class.new(fs: fs, out: out, err: err) }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:inflector) { Dry::Inflector.new }
   let(:app) { Hanami.app.namespace }
@@ -15,6 +16,8 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
   def output
     out.rewind && out.read.chomp
   end
+
+  def error_output = err.string.chomp
 
   context "generating for app" do
     context "without base part" do
@@ -59,17 +62,20 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
       end
 
       context "with existing file" do
+        let(:file_path) { "app/views/parts/user.rb" }
+
         before do
           within_application_directory do
-            fs.write("app/views/parts/user.rb", "existing content")
+            fs.write(file_path, "existing content")
           end
         end
 
-        it "raises error" do
-          within_application_directory do
-            expect {
-              subject.call(name: "user")
-            }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        it "exits with error message" do
+          expect do
+            within_application_directory { subject.call(name: "user") }
+          end.to raise_error SystemExit do |exception|
+            expect(exception.status).to eq 1
+            expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
           end
         end
       end
@@ -225,18 +231,21 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Part, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/views/parts/user.rb" }
+
       before do
         within_application_directory do
           fs.mkdir("slices/main")
-          fs.write("slices/main/views/parts/user.rb", "existing content")
+          fs.write(file_path, "existing content")
         end
       end
 
-      it "raises error" do
-        within_application_directory do
-          expect {
-            subject.call(name: "user", slice: "main")
-          }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+      it "exits with error message" do
+        expect do
+          within_application_directory { subject.call(name: "user", slice: "main") }
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
         end
       end
     end

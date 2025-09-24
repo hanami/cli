@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
-  subject { described_class.new(fs: fs, out: out) }
+  subject { described_class.new(fs: fs, out: out, err: err) }
 
   let(:out) { StringIO.new }
+  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:app) { Hanami.app.namespace }
 
   def output
     out.string
   end
+
+  def error_output = err.string.chomp
 
   context "generating for app" do
     describe "without namespace" do
@@ -93,14 +96,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "app/repos/book_repo.rb" }
+
       before do
-        fs.write("app/repos/book_repo.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
-      it "raises error" do
-        expect {
+      it "exits with error message" do
+        expect do
           subject.call(name: "books")
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
   end
@@ -147,14 +155,19 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Repo, :app do
     end
 
     context "with existing file" do
+      let(:file_path) { "slices/main/repos/book_repo.rb" }
+
       before do
-        fs.write("slices/main/repos/book_repo.rb", "existing content")
+        fs.write(file_path, "existing content")
       end
 
-      it "raises error" do
-        expect {
+      it "exits with error message" do
+        expect do
           subject.call(name: "books", slice: "main")
-        }.to raise_error(Hanami::CLI::FileAlreadyExistsError)
+        end.to raise_error SystemExit do |exception|
+          expect(exception.status).to eq 1
+          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
+        end
       end
     end
   end
