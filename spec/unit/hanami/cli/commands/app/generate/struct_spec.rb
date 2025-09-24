@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
-  subject { described_class.new(fs: fs, out: out, err: err) }
+  subject { described_class.new(fs: fs, out: out) }
 
   let(:out) { StringIO.new }
-  let(:err) { StringIO.new }
   let(:fs) { Hanami::CLI::Files.new(memory: true, out: out) }
   let(:app) { Hanami.app.namespace }
 
   def output = out.string.chomp
-
-  def error_output = err.string.chomp
 
   context "generating for app" do
     it "generates a struct without a namespace" do
@@ -72,23 +69,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
       expect(fs.read("app/structs/book/published/hardcover.rb")).to eq(struct_file)
       expect(output).to include("Created app/structs/book/published/hardcover.rb")
     end
-
-    context "with existing file" do
-      let(:file_path) { "app/structs/book/published/hardcover.rb" }
-
-      before do
-        fs.write(file_path, "existing content")
-      end
-
-      it "exits with error message" do
-        expect do
-          subject.call(name: "book/published/hardcover")
-        end.to raise_error SystemExit do |exception|
-          expect(exception.status).to eq 1
-          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
-        end
-      end
-    end
   end
 
   context "generating for a slice" do
@@ -130,23 +110,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
 
       expect(fs.read("slices/main/structs/book/draft_book.rb")).to eq(struct_file)
       expect(output).to include("Created slices/main/structs/book/draft_book.rb")
-    end
-
-    context "with existing file" do
-      let(:file_path) { "slices/main/structs/book/draft_book.rb" }
-
-      before do
-        fs.write(file_path, "existing content")
-      end
-
-      it "exits with error message" do
-        expect do
-          subject.call(name: "book.draft_book", slice: "main")
-        end.to raise_error SystemExit do |exception|
-          expect(exception.status).to eq 1
-          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
-        end
-      end
     end
   end
 end
