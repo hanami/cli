@@ -101,7 +101,7 @@ module Hanami
             "bookshelf                                    # Generate a new Hanami app in `bookshelf/' directory, using `Bookshelf' namespace",
             "bookshelf --head                             # Generate a new Hanami app, using Hanami HEAD version from GitHub `main' branches",
             "bookshelf --skip-install                     # Generate a new Hanami app, but it skips Hanami installation",
-            "bookshelf --skip-assets                      # Generate a new Hanami app without hanmai-assets",
+            "bookshelf --skip-assets                      # Generate a new Hanami app without hanami-assets",
             "bookshelf --skip-db                          # Generate a new Hanami app without hanami-db",
             "bookshelf --skip-view                        # Generate a new Hanami app without hanami-view",
             "bookshelf --database={sqlite|postgres|mysql} # Generate a new Hanami app with a specified database (default: sqlite)",
