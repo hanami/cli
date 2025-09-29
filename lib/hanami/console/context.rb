@@ -50,6 +50,11 @@ module Hanami
         define_method(:respond_to_missing?) do |name, include_private|
           super(name, include_private) || hanami_app.respond_to?(name, include_private)
         end
+
+        # User-provided extension modules
+        app.config.console.extensions.each do |mod|
+          include mod
+        end
       end
     end
   end
