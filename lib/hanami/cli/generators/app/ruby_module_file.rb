@@ -6,7 +6,6 @@ module Hanami
   module CLI
     module Generators
       module App
-        # @since x.x.x
         # @api private
         class RubyModuleFile < RubyFile
           private
