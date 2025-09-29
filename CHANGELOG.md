@@ -4,10 +4,33 @@ Hanami Command Line Interface
 
 ## Unreleased
 
+## v2.3.0.beta1 - Unreleased
+
+### Added
+
+- Running `hanami generate` commands within a slice directory will generate the file in that slice (@krzykamil in #298)
+- Add `db rollback` command, supporting rolling back a single database at a time. (@krzykamil in #300)
+
+### Fixed
+
+- Allow generated `public/400.html` and `public/500.html` to go into source control (@kyleplump in #290)
+- Properly show database errors from failed `db drop` commands (@katafrakt in #281)
+- Ensure consistent env var loading by disallowing Foreman's own env processing in generated `bin/dev` script (@cflipse in #305)
+- Use the configured app inflector (and any custom inflections) for all commands (@timriley in #312)
+
 ### Changed
 
+- Prevent `hanami new` from creating apps with confusing names (currently: "app" or "slice") (@seven1m in #272)
+- Provide more helpful instructions in generated app README (@hanarimawi in #273)
+- Prevent generators from overwriting files (@maxemitchell in #274, @stephannv in #319)
+- Add irb as a gem dependency to avoid default gem warnings (@y-yagi in #294)
 - Expand on comments `config/assets.js` and enable customization function by default (@robyurkowski in #293)
 - Run `git init` at the end of `hanami new` (@krzykamil in #295)
+- Prevent blank lines from showing when generating classes without deep module nesting (@cllns)
+- Add `--skip-view` flag to `hanami new` (@kyleplump in #308)
+- Support Rack 3 in addition to Rack 2 (for `hanami server` command) (@kyleplump in #289)
+- Ensure compatibility with MySQL 9.4's CLI tools in `db structure load` command (@timriley in #315)
+- Generated `Rakefile` will load tasks defined in `lib/tasks/` (@AlexanderZagaynov in #318)
 
 ## v2.2.1 - 2024-11-12
 
