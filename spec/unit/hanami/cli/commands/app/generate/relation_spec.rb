@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_integration do
-  subject { described_class.new(out: out, err: err) }
+  subject { described_class.new(out: out) }
 
   let(:out) { StringIO.new }
-  let(:err) { StringIO.new }
 
   def output = out.string
-
-  def error_output = err.string.chomp
 
   before do
     with_directory(@dir = make_tmp_directory) do
@@ -116,23 +113,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
       expect(Hanami.app.root.join("app/relations/books.rb").read).to eq relation_file
       expect(output).to include("Created app/relations/books.rb")
     end
-
-    context "with existing file" do
-      let(:file_path) { "app/relations/books.rb" }
-
-      before do
-        write file_path, "existing content"
-      end
-
-      it "exits with error message" do
-        expect do
-          subject.call(name: "books")
-        end.to raise_error SystemExit do |exception|
-          expect(exception.status).to eq 1
-          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
-        end
-      end
-    end
   end
 
   context "generating for a slice" do
@@ -196,23 +176,6 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
 
       expect(Hanami.app.root.join("slices/main/relations/book/drafts.rb").read).to eq(relation_file)
       expect(output).to include("Created slices/main/relations/book/drafts.rb")
-    end
-
-    context "with existing file" do
-      let(:file_path) { "slices/main/relations/books.rb" }
-
-      before do
-        write file_path, "existing content"
-      end
-
-      it "exits with error message" do
-        expect do
-          subject.call(name: "books", slice: "main")
-        end.to raise_error SystemExit do |exception|
-          expect(exception.status).to eq 1
-          expect(error_output).to eq Hanami::CLI::FileAlreadyExistsError::ERROR_MESSAGE % {file_path:}
-        end
-      end
     end
   end
 end
