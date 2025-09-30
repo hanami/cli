@@ -26,7 +26,11 @@ module Hanami
             # @since 2.2.0
             # @api private
             def self.prepended(klass)
-              klass.option :env, desc: "App environment (development, test, production)", aliases: ["e"]
+              # This module is included each time the class is inherited from
+              # Without this check, the --env option is duplicated each time
+              unless klass.options.map(&:name).include?(:env)
+                klass.option :env, desc: "App environment (development, test, production)", aliases: ["e"]
+              end
             end
 
             # @since 2.0.0
