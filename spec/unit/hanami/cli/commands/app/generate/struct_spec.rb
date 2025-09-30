@@ -149,4 +149,68 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Struct, :app do
       end
     end
   end
+
+  context "with capitalized struct name" do
+    it "generates the struct with downcased filename" do
+      subject.call(name: "Entry")
+
+      struct_file = <<~EXPECTED
+        # frozen_string_literal: true
+
+        module Test
+          module Structs
+            class Entry < Test::DB::Struct
+            end
+          end
+        end
+      EXPECTED
+
+      expect(fs.read("app/structs/entry.rb")).to eq(struct_file)
+      expect(output).to include("Created app/structs/entry.rb")
+    end
+
+    context "when nested with dot syntax" do
+      it "generates the struct with downcased filename" do
+        subject.call(name: "book.Entry")
+
+        struct_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module Test
+            module Structs
+              module Book
+                class Entry < Test::DB::Struct
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/structs/book/entry.rb")).to eq(struct_file)
+        expect(output).to include("Created app/structs/book/entry.rb")
+      end
+    end
+
+    context "when nested with slash syntax" do
+      it "generates the struct with downcased filename" do
+        subject.call(name: "book/Entry")
+
+        struct_file = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module Test
+            module Structs
+              module Book
+                class Entry < Test::DB::Struct
+                end
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/structs/book/entry.rb")).to eq(struct_file)
+        expect(output).to include("Created app/structs/book/entry.rb")
+      end
+    end
+  end
 end

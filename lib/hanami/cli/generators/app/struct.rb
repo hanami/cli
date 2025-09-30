@@ -21,7 +21,7 @@ module Hanami
             RubyClassFile.new(
               fs: fs,
               inflector: inflector,
-              key: key,
+              key: inflector.underscore(key),
               namespace: namespace,
               base_path: base_path,
               extra_namespace: "Structs",
