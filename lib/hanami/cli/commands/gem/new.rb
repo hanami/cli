@@ -2,6 +2,7 @@
 
 require "dry/inflector"
 require_relative "../../errors"
+require_relative "../../formatter"
 
 module Hanami
   module CLI
@@ -157,28 +158,40 @@ module Hanami
                 skip_view: skip_view,
                 database: normalized_database
               )
+              out.puts Formatter.header("Setting up #{app}...")
+
               generator.call(app, context: context) do
                 if skip_install
-                  out.puts "Skipping installation, please enter `#{app}' directory and run `bundle exec hanami install'"
+                  out.puts ""
+                  out.puts Formatter.info("Skipping installation")
+                  out.puts Formatter.dim("  To complete setup, run: cd #{app} && bundle exec hanami install")
                 else
-                  out.puts "Running bundle install..."
+                  out.puts ""
+                  out.puts Formatter.info("Installing dependencies...")
                   bundler.install!
 
                   unless skip_assets
-                    out.puts "Running npm install..."
+                    out.puts Formatter.info("Installing npm packages...")
                     system_call.call("npm", ["install"]).tap do |result|
                       unless result.successful?
-                        puts "NPM ERROR:"
-                        puts(result.err.lines.map { |line| line.prepend("    ") })
+                        out.puts Formatter.error("NPM installation failed:")
+                        out.puts(result.err.lines.map { |line| Formatter.dim("    #{line}") })
                       end
                     end
                   end
 
-                  out.puts "Running hanami install..."
+                  out.puts Formatter.info("Running hanami install...")
                   run_install_command!(head: head)
 
-                  out.puts "Initializing git repository..."
+                  out.puts Formatter.info("Initializing git repository...")
                   init_git_repository
+
+                  out.puts ""
+                  out.puts Formatter.success("Successfully created #{app}!")
+                  out.puts ""
+                  out.puts Formatter.dim("Next steps:")
+                  out.puts Formatter.dim("  cd #{app}")
+                  out.puts Formatter.dim("  bundle exec hanami server")
                 end
               end
             end
@@ -219,8 +232,8 @@ module Hanami
           def init_git_repository
             system_call.call("git", ["init"]).tap do |result|
               unless result.successful?
-                out.puts "WARNING: Failed to initialize git repository"
-                out.puts(result.err.lines.map { |line| line.prepend("    ") })
+                out.puts Formatter.warning("Failed to initialize git repository")
+                out.puts(result.err.lines.map { |line| Formatter.dim("    #{line}") })
               end
             end
           end

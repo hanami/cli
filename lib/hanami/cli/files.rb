@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dry/files"
+require_relative "formatter"
 
 module Hanami
   module CLI
@@ -43,7 +44,7 @@ module Hanami
         return if exist?(path)
 
         super
-        created(dir_path(path))
+        created_directory(dir_path(path))
       end
 
       # @since 2.0.0
@@ -83,15 +84,19 @@ module Hanami
       end
 
       def updated(path)
-        out.puts "Updated #{path}"
+        out.puts Formatter.updated(path)
       end
 
       def created(path)
-        out.puts "Created #{path}"
+        out.puts Formatter.created(path)
+      end
+
+      def created_directory(path)
+        out.puts Formatter.created_directory(path)
       end
 
       def within_folder(path)
-        out.puts "-> Within #{dir_path(path)}"
+        out.puts Formatter.dim("-> Entering `#{path}/` directory...")
       end
 
       def dir_path(path)
