@@ -11,7 +11,7 @@ module Hanami
         class Dev < App::Command
           # @since 2.1.0
           # @api private
-          desc "Start the application in development mode"
+          desc "Start all servers in Procfile.dev, for development"
 
           # @since 2.1.0
           # @api private
