@@ -191,7 +191,7 @@ module Hanami
                   out.puts ""
                   out.puts Formatter.dim("Next steps:")
                   out.puts Formatter.dim("  cd #{app}")
-                  out.puts Formatter.dim("  bundle exec hanami server")
+                  out.puts Formatter.dim("  bundle exec hanami dev")
                 end
               end
             end
