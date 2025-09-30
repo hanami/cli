@@ -208,4 +208,62 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
       expect(output).to include("Created app/operations/send_welcome_email.rb")
     end
   end
+
+  context "with capitalized component name" do
+    it "generates the component with downcased filename" do
+      subject.call(name: "Entry")
+
+      component = <<~EXPECTED
+        # frozen_string_literal: true
+
+        module Test
+          class Entry
+          end
+        end
+      EXPECTED
+
+      expect(fs.read("app/entry.rb")).to eq(component)
+      expect(output).to include("Created app/entry.rb")
+    end
+
+    context "when nested" do
+      it "generates the component with downcased filename" do
+        subject.call(name: "operations.Entry")
+
+        component = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module Test
+            module Operations
+              class Entry
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/operations/entry.rb")).to eq(component)
+        expect(output).to include("Created app/operations/entry.rb")
+      end
+    end
+
+    context "when using constant syntax" do
+      it "generates the component with downcased filename" do
+        subject.call(name: "Operations::Entry")
+
+        component = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module Test
+            module Operations
+              class Entry
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/operations/entry.rb")).to eq(component)
+        expect(output).to include("Created app/operations/entry.rb")
+      end
+    end
+  end
 end
