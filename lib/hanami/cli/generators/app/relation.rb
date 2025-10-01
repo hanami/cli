@@ -20,8 +20,7 @@ module Hanami
           # @since 2.2.0
           # @api private
           def call(key:, namespace:, base_path:, gateway:)
-            underscored_key = inflector.underscore(key)
-            schema_name = underscored_key.split(KEY_SEPARATOR).last
+            schema_name = inflector.underscore(key.split(KEY_SEPARATOR).last)
             body_content = ["schema :#{schema_name}, infer: true"]
 
             body_content.prepend("gateway :#{gateway}") if gateway

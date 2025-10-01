@@ -21,7 +21,7 @@ module Hanami
           )
             @fs = fs
             @inflector = inflector
-            @key = inflector.underscore(key)
+            @key_parts = key.split(KEY_SEPARATOR).map { |part| inflector.underscore(part) }
             @namespace = namespace
             @base_path = base_path
             @extra_namespace = extra_namespace&.downcase
@@ -57,7 +57,7 @@ module Hanami
           attr_reader(
             :fs,
             :inflector,
-            :key,
+            :key_parts,
             :base_path,
             :namespace,
             :extra_namespace,
@@ -115,11 +115,6 @@ module Hanami
           # @api private
           def normalize(name)
             inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
-          end
-
-          # @api private
-          def key_parts
-            key.split(KEY_SEPARATOR)
           end
         end
       end

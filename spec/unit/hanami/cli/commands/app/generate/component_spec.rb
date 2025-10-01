@@ -211,58 +211,78 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Component, :app do
 
   context "with capitalized component name" do
     it "generates the component with downcased filename" do
-      subject.call(name: "Entry")
+      subject.call(name: "CreateEntry")
 
       component = <<~EXPECTED
         # frozen_string_literal: true
 
         module Test
-          class Entry
+          class CreateEntry
           end
         end
       EXPECTED
 
-      expect(fs.read("app/entry.rb")).to eq(component)
-      expect(output).to include("Created app/entry.rb")
+      expect(fs.read("app/create_entry.rb")).to eq(component)
+      expect(output).to include("Created app/create_entry.rb")
     end
 
     context "when nested" do
       it "generates the component with downcased filename" do
-        subject.call(name: "operations.Entry")
+        subject.call(name: "Operations.CreateEntry")
 
         component = <<~EXPECTED
           # frozen_string_literal: true
 
           module Test
             module Operations
-              class Entry
+              class CreateEntry
               end
             end
           end
         EXPECTED
 
-        expect(fs.read("app/operations/entry.rb")).to eq(component)
-        expect(output).to include("Created app/operations/entry.rb")
+        expect(fs.read("app/operations/create_entry.rb")).to eq(component)
+        expect(output).to include("Created app/operations/create_entry.rb")
+      end
+    end
+
+    context "when nested with slash separator" do
+      it "generates the component with downcased filename" do
+        subject.call(name: "Operations/CreateEntry")
+
+        component = <<~EXPECTED
+          # frozen_string_literal: true
+
+          module Test
+            module Operations
+              class CreateEntry
+              end
+            end
+          end
+        EXPECTED
+
+        expect(fs.read("app/operations/create_entry.rb")).to eq(component)
+        expect(output).to include("Created app/operations/create_entry.rb")
       end
     end
 
     context "when using constant syntax" do
       it "generates the component with downcased filename" do
-        subject.call(name: "Operations::Entry")
+        subject.call(name: "Operations::CreateEntry")
 
         component = <<~EXPECTED
           # frozen_string_literal: true
 
           module Test
             module Operations
-              class Entry
+              class CreateEntry
               end
             end
           end
         EXPECTED
 
-        expect(fs.read("app/operations/entry.rb")).to eq(component)
-        expect(output).to include("Created app/operations/entry.rb")
+        expect(fs.read("app/operations/create_entry.rb")).to eq(component)
+        expect(output).to include("Created app/operations/create_entry.rb")
       end
     end
   end
