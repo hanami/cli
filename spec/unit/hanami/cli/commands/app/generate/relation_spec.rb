@@ -215,4 +215,25 @@ RSpec.describe Hanami::CLI::Commands::App::Generate::Relation, "#call", :app_int
       end
     end
   end
+
+  context "with capitalized relation name" do
+    it "generates the relation with downcased schema name" do
+      subject.call(name: "Entries")
+
+      relation_file = <<~RUBY
+        # frozen_string_literal: true
+
+        module TestApp
+          module Relations
+            class Entries < TestApp::DB::Relation
+              schema :entries, infer: true
+            end
+          end
+        end
+      RUBY
+
+      expect(Hanami.app.root.join("app/relations/entries.rb").read).to eq(relation_file)
+      expect(output).to include("Created app/relations/entries.rb")
+    end
+  end
 end
