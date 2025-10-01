@@ -44,7 +44,7 @@ module Hanami
               fs: fs,
               inflector: inflector,
               namespace: namespace,
-              key: inflector.underscore(key),
+              key: key,
               base_path: base_path,
               parent_class_name: "#{inflector.camelize(namespace)}::View",
               extra_namespace: "Views",

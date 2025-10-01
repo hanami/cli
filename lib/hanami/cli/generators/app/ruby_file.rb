@@ -21,7 +21,7 @@ module Hanami
           )
             @fs = fs
             @inflector = inflector
-            @key = key
+            @key = inflector.underscore(key)
             @namespace = namespace
             @base_path = base_path
             @extra_namespace = extra_namespace&.downcase
