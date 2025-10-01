@@ -10,6 +10,8 @@ Hanami Command Line Interface
 
 - Running `hanami generate` commands within a slice directory will generate the file in that slice (@krzykamil in #298)
 - Add `db rollback` command, supporting rolling back a single database at a time. (@krzykamil in #300)
+- `console` command loads configured extensions from app config. Add these using e.g. `config.console.include MyModule, AnotherModule` (@alassek in #324)
+- `console` command uses REPL engine configured in app config. Set this using e.g. `config.console.engine = :pry`; valid options are `:irb` (default) and `:pry` (@alassek in #324)
 
 ### Fixed
 
