@@ -15,6 +15,9 @@ source "https://rubygems.org"
 <%- if generate_view? -%>
 <%= hanami_gem("view") %>
 <%- end -%>
+<%- if hanami_head? -%>
+<%= hanami_gem("cli") %>
+<%- end -%>
 
 gem "dry-types", "~> 1.7"
 gem "dry-operation"
