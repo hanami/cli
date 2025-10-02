@@ -3,6 +3,9 @@
 source "https://rubygems.org"
 
 <%= hanami_gem("hanami") %>
+<%- if hanami_head? -%>
+<%= hanami_gem("cli") %>
+<%- end -%>
 <%- if generate_assets? -%>
 <%= hanami_gem("assets") %>
 <%- end -%>

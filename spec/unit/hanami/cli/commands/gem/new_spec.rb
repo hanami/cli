@@ -528,6 +528,7 @@ RSpec.describe Hanami::CLI::Commands::Gem::New do
           source "https://rubygems.org"
 
           gem "hanami", github: "hanami/hanami", branch: "main"
+          gem "hanami-cli", github: "hanami/cli", branch: "main"
           gem "hanami-assets", github: "hanami/assets", branch: "main"
           gem "hanami-controller", github: "hanami/controller", branch: "main"
           gem "hanami-db", github: "hanami/db", branch: "main"
