@@ -3,6 +3,9 @@
 source "https://rubygems.org"
 
 <%= hanami_gem("hanami") %>
+<%- if hanami_head? -%>
+<%= hanami_gem("cli") %>
+<%- end -%>
 <%- if generate_assets? -%>
 <%= hanami_gem("assets") %>
 <%- end -%>
@@ -14,9 +17,6 @@ source "https://rubygems.org"
 <%= hanami_gem("validations") %>
 <%- if generate_view? -%>
 <%= hanami_gem("view") %>
-<%- end -%>
-<%- if hanami_head? -%>
-<%= hanami_gem("cli") %>
 <%- end -%>
 
 gem "dry-types", "~> 1.7"
