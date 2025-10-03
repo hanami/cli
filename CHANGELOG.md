@@ -4,7 +4,7 @@ Hanami Command Line Interface
 
 ## Unreleased
 
-## v2.3.0.beta1 - Unreleased
+## v2.3.0.beta1 - 2025-10-03
 
 ### Added
 
@@ -19,6 +19,7 @@ Hanami Command Line Interface
 - Properly show database errors from failed `db drop` commands (@katafrakt in #281)
 - Ensure consistent env var loading by disallowing Foreman's own env processing in generated `bin/dev` script (@cflipse in #305)
 - Use the configured app inflector (and any custom inflections) for all commands (@timriley in #312)
+- For app generated with `hanami new` with `--head`, include `hanami-cli` in the `Gemfile` (@afomera in #328)
 
 ### Changed
 
