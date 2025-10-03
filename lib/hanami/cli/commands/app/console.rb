@@ -31,15 +31,22 @@ module Hanami
           DEFAULT_ENGINE = "irb"
           private_constant :DEFAULT_ENGINE
 
+          # @since 2.2.0
+          # @api private
+          DEFAULT_BOOT = false
+          private_constant :DEFAULT_BOOT
+
           desc "Start app console (REPL)"
 
           option :engine, required: false, desc: "Console engine", values: ENGINES.keys
 
+          option :boot, required: false, desc: "Auto-boot containers", type: :flag, default: DEFAULT_BOOT
+
           # @since 2.0.0
           # @api private
-          def call(engine: nil, **opts)
+          def call(engine: nil, boot: DEFAULT_BOOT, **opts)
             engine ||= app.config.console.engine.to_s
-            console_engine = resolve_engine(engine, opts)
+            console_engine = resolve_engine(engine, opts.merge(boot:))
 
             if console_engine.nil?
               err.puts "`#{engine}' is not bundled. Please run `bundle add #{engine}' and retry."
