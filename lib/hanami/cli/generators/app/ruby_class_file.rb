@@ -6,7 +6,6 @@ module Hanami
   module CLI
     module Generators
       module App
-        # @since x.x.x
         # @api private
         class RubyClassFile < RubyFile
           def initialize(parent_class_name: nil, **args)

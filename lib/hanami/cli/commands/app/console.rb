@@ -38,6 +38,7 @@ module Hanami
           # @since 2.0.0
           # @api private
           def call(engine: nil, **opts)
+            engine ||= app.config.console.engine.to_s
             console_engine = resolve_engine(engine, opts)
 
             if console_engine.nil?

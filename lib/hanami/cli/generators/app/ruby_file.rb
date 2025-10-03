@@ -6,7 +6,6 @@ module Hanami
   module CLI
     module Generators
       module App
-        # @since x.x.x
         # @api private
         class RubyFile
           def initialize(
@@ -30,19 +29,16 @@ module Hanami
             @body = body
           end
 
-          # @since x.x.x
           # @api private
           def create
             fs.create(path, file_contents)
           end
 
-          # @since x.x.x
           # @api private
           def write
             fs.write(path, file_contents)
           end
 
-          # @since x.x.x
           # @api private
           def fully_qualified_name
             inflector.camelize(
@@ -50,7 +46,6 @@ module Hanami
             )
           end
 
-          # @since x.x.x
           # @api private
           def path
             fs.join(directory, "#{key_parts.last}.rb")
@@ -58,7 +53,6 @@ module Hanami
 
           private
 
-          # @since x.x.x
           # @api private
           attr_reader(
             :fs,
@@ -71,7 +65,6 @@ module Hanami
             :body,
           )
 
-          # @since x.x.x
           # @api private
           def file_contents
             RubyFileGenerator.new(
@@ -84,13 +77,11 @@ module Hanami
             ).call
           end
 
-          # @since x.x.x
           # @api private
           def local_namespaces
             Array(extra_namespace) + key_parts[..-2]
           end
 
-          # @since x.x.x
           # @api private
           def namespace_modules
             [namespace, *local_namespaces]
@@ -98,7 +89,6 @@ module Hanami
               .compact
           end
 
-          # @since x.x.x
           # @api private
           def directory
             @directory ||= if local_namespaces.any?
@@ -108,13 +98,11 @@ module Hanami
                            end
           end
 
-          # @since x.x.x
           # @api private
           def constant_name
             normalize(key_parts.last)
           end
 
-          # @since x.x.x
           # @api private
           def headers
             [
@@ -124,13 +112,11 @@ module Hanami
             ].compact
           end
 
-          # @since x.x.x
           # @api private
           def normalize(name)
             inflector.camelize(name).gsub(/[^\p{Alnum}]/, "")
           end
 
-          # @since x.x.x
           # @api private
           def key_parts
             key.split(KEY_SEPARATOR)
