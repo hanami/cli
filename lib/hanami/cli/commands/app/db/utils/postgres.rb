@@ -32,7 +32,7 @@ module Hanami
               # @api private
               # @since 2.2.0
               def exists?
-                result = system_call.call("psql -t -A -c '\\list #{escaped_name}'", env: cli_env_vars)
+                result = system_call.call("psql -t -A -c '\\list #{escaped_name}' template1", env: cli_env_vars)
                 raise Hanami::CLI::DatabaseExistenceCheckError.new(result.err) unless result.successful?
 
                 result.out.include?("#{name}|") # start_with?
