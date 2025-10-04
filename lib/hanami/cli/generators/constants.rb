@@ -22,7 +22,7 @@ module Hanami
 
       # @since 2.2.0
       # @api private
-      KEY_SEPARATOR = %r{[.\/]}
+      KEY_SEPARATOR = %r{::|[.\/]}
       private_constant :KEY_SEPARATOR
 
       # @since 2.2.0
